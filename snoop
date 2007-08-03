@@ -1,0 +1,7 @@
+#!/usr/bin/python
+
+import sys
+from instinctual.informer.subject import DiscreetLogSubject
+
+logfile = DiscreetLogSubject(sys.argv[1])
+logfile.operate()

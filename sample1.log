@@ -1,0 +1,187 @@
+# Discreet flint2007SP4_discreet_app log file - 1.0
+# Started - (PST) Wed Aug  1 21:06:15 2007
+# Hostname - discreet
+[notice] 3086871040 CoMsgLogger.cpp:105 08/01/07:21:06:15.102 Command line: 'flint2007SP4_discreet_app'
+[notice] 127216560 CoThreadPthread.C:189 08/01/07:21:06:15.103 Registered thread 'logger' [ 127216560 ]
+[notice] 3086871040 log.C:242 08/01/07:21:06:15.109 Autodesk(r) Flint(r)
+[notice] 3086871040 log.C:243 08/01/07:21:06:15.109 Version 2007.SP4
+[notice] 3086871040 log.C:244 08/01/07:21:06:15.110 (c) Autodesk Canada Co./Autodesk Inc. 
+in the USA and other countries, 1992-2007. 
+All rights reserved.
+[notice] 3010444208 CoThreadPthread.C:189 08/01/07:21:06:15.110 Registered thread 'RT Event Manager' [ -1284523088 ]
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:06:15.121 VOLUMEMGT : Initialising stonefs.
+[notice] 3086871040 swClient.C:204 08/01/07:21:06:15.123 Using Stone+Wire API 2007.0.1 [ProductSW30_1054] (32 bits).
+[notice] 3086871040 swxStoneAdapter.C:848 08/01/07:21:06:15.123 Compatible S+W filesystem driver (1054) and S+W API (1054) versions detected.
+[notice] 3086871040 swxStoneAdapter.C:905 08/01/07:21:06:16.001 Compatible SWR driver (1054) and S+W API (1054) versions detected.
+[notice] 3086871040 swxStandardFSAdapter.C:412 08/01/07:21:06:16.001 Using StandardFS base path /usr/discreet/clip.
+[notice] 3086871040 swInterfaceTCP.C:116 08/01/07:21:06:16.003 Stone+Wire TCP port set to 7000.
+[notice] 2976222128 CoThreadPthread.C:189 08/01/07:21:06:16.003 Registered thread 'S+W Async Disk I/O' [ -1318745168 ]
+[notice] 2942663600 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Disk I/O' [ -1352303696 ]
+[notice] 2909105072 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Disk I/O' [ -1385862224 ]
+[notice] 2875546544 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Disk I/O' [ -1419420752 ]
+[notice] 2841988016 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Disk I/O' [ -1452979280 ]
+[notice] 2808429488 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Net Input' [ -1486537808 ]
+[notice] 2674195376 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Audio Processor' [ -1620771920 ]
+[notice] 2640636848 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Image Converter' [ -1654330448 ]
+[notice] 2707753904 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Audio Processor' [ -1587213392 ]
+[notice] 2607078320 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Background I/O' [ -1687888976 ]
+[notice] 2741312432 CoThreadPthread.C:189 08/01/07:21:06:16.005 Registered thread 'S+W Net Watchdog' [ -1553654864 ]
+[notice] 2506402736 CoThreadPthread.C:189 08/01/07:21:06:16.005 Registered thread 'S+W Background I/O' [ -1788564560 ]
+[notice] 2405727152 CoThreadPthread.C:189 08/01/07:21:06:16.005 Registered thread 'S+W Pipeline' [ -1889240144 ]
+[notice] 2439285680 CoThreadPthread.C:189 08/01/07:21:06:16.006 Registered thread 'S+W Pipeline' [ -1855681616 ]
+[notice] 2774870960 CoThreadPthread.C:189 08/01/07:21:06:16.006 Registered thread 'S+W Net Output' [ -1520096336 ]
+[notice] 2573519792 CoThreadPthread.C:189 08/01/07:21:06:16.004 Registered thread 'S+W Background I/O' [ -1721447504 ]
+[notice] 2472844208 CoThreadPthread.C:189 08/01/07:21:06:16.006 Registered thread 'S+W Pipeline' [ -1822123088 ]
+[notice] 2539961264 CoThreadPthread.C:189 08/01/07:21:06:16.006 Registered thread 'S+W Background I/O' [ -1755006032 ]
+[notice] 2372168624 CoThreadPthread.C:189 08/01/07:21:06:16.006 Registered thread 'S+W Pipeline' [ -1922798672 ]
+[warn] 3086871040 volumeMgr.C:457 08/01/07:21:06:16.014 Requested 95 mbps of bandwidth, but got 90.
+[user] 3086871040 FuFileLock.C:167 08/01/07:21:06:16.097 Removing lock "/usr/discreet/clip/stonefs/.partitionList-lock" held by dead process (192.168.1.55:3053)
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:06:16.480 AUDIO : Initialising device.
+[notice] 2338593712 CoThreadPthread.C:189 08/01/07:21:06:16.610 Registered thread 'Audio Meter' [ -1956373584 ]
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:06:16.622 AUDIO : Initialising complete.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:06:16.624 HOTKEYS : Initialising.
+[notice] 3086871040 hotkeyControl.C:588 08/01/07:21:06:16.685 HOTKEY : PUSH Local
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:06:16.686 PROJECT : Initialising.
+[notice] 3086871040 projectUtils.C:5352 08/01/07:21:06:16.721 PRJMGT : Project list build completed ( took 0.01 sec )
+[notice] 3086871040 projectUtils.C:5922 08/01/07:21:06:16.853 PRJMGT : User list build completed ( took 0.00 sec )
+[notice] 3086871040 menu.C:4943 08/01/07:21:06:17.021 PUSH MENU : Main to MainProjectUser
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:06:17.045 PROJMGT    : Project "default" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:06:17.046 PROJMGT    : Project "Tether" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:06:17.047 PROJMGT    : Project "Informer" is compatible.
+[notice] 3086871040 projectUtils.C:3113 08/01/07:21:06:17.369 PROJMGT    : User "Alan" is compatible.
+[notice] 3086871040 menu.C:2893 08/01/07:21:07:02.912 BUTTON : [Start] PrjLoadFirstSelection
+[notice] 3086871040 project.C:3674 08/01/07:21:07:02.988 PRJMGT : Project (Informer)
+[notice] 3086871040 project.C:3675 08/01/07:21:07:02.988 PRJMGT : Volume (stonefs)
+[notice] 3086871040 project.C:3676 08/01/07:21:07:02.988 PRJMGT : User (Alan)
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:03.031 PROJMGT    : Project "default" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:03.032 PROJMGT    : Project "Tether" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:03.032 PROJMGT    : Project "Informer" is compatible.
+[notice] 3086871040 menu.C:4898 08/01/07:21:07:03.268 POP MENU : MainProjectUser to Main
+[notice] 3086871040 projectUtils.C:4821 08/01/07:21:07:03.281 PRJMGT : Writing database: /usr/discreet/project/project.rdb
+[notice] 3086871040 projectUtils.C:5469 08/01/07:21:07:03.446 PRJMGT : Writing database: /usr/discreet/user/effects/user.rdb
+[user] 3086871040 config.C:227 08/01/07:21:07:03.609 CONFIG     : /usr/discreet/project/Informer/cfg/Informer.cfg
+[user] 3086871040 video.C:948 08/01/07:21:07:03.622 HIRES RATE : 30HZF
+[user] 3086871040 video.C:1335 08/01/07:21:07:03.622 PROJECT VIDEO PREVIEW: Using the following parameters for the preview device:
+[user] 3086871040 video.C:292 08/01/07:21:07:03.622 VIDEO PREVIEW : readback, channel 1, 720x486, +0, +0, 30, 601sync (NTSC)
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:03.658 VOLUMEMGT : Initialising stonefs.
+[notice] 3086871040 log.C:370 08/01/07:21:07:03.661 VOLUMEMGT  : Mapping project "Informer":
+[notice] 3086871040 log.C:370 08/01/07:21:07:03.671            : 	mapping library "Default" ...
+[notice] 3086871040 log.C:370 08/01/07:21:07:03.692            : 	mapping desktop "effects" ...
+[notice] 3086871040 log.C:370 08/01/07:21:07:03.697 VOLUMEMGT  : Mapping done.
+[notice] 3086871040 volumeMgt.C:2255 08/01/07:21:07:03.698 VOLUME : [flint] [720 x 486]
+[user] 3086871040 mp.C:2447 08/01/07:21:07:03.698 PROCESSORS : 2 available
+[notice] 2305031088 CoThreadPthread.C:189 08/01/07:21:07:03.699 Registered thread 'MFork task 1' [ -1989936208 ]
+[notice] 2271472560 CoThreadPthread.C:189 08/01/07:21:07:03.699 Registered thread 'MFork task 2' [ -2023494736 ]
+[warn] 3086871040 log.C:369 08/01/07:21:07:03.836 
+VOLUMEMGT  : Framestore integrity check not needed...skipped.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:03.868 GRIDS-GUIDES : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:03.885 VIDEO : Initialising ....
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:04.888 VIDEO : hdio license not detected.
+[notice] 127216560 CoMsgLogger.cpp:185 08/01/07:21:07:04.888 Last entry repeated 1 more times.
+[user] 3086871040 video.C:3557 08/01/07:21:07:04.888 VIDEO      : Using No i/o features
+[user] 3086871040 video.C:2015 08/01/07:21:07:04.888 Video: width: 720, height: 486, depth = 24, timing: NTSC
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:04.890 MEMORY : Initialising frame buffers.
+[user] 3086871040 membufmgt.C:730 08/01/07:21:07:04.892 MEMORY     : SmartHeap version 7.1.0
+[user] 3086871040 membufmgt.C:738 08/01/07:21:07:04.892 MEMORY     : Bytes available: 906 MB
+[user] 3086871040 membufmgt.C:843 08/01/07:21:07:04.892 MEMORY     : Using 700 MB (or 523 buffers of size 720x486 @ 8-bit).
+[user] 3086871040 membufmgt.C:357 08/01/07:21:07:04.892 MEMORY     : Allocated 700 MB at address 0xd9f1000 using memalign()
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:06.298 MONITOR : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:06.329 ACTION : Initialising.
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:06.329 Executing command: /bin/sh rm -f /tmp/dl_tmp*
+[notice] 3086871040 PPLogger.C:91 08/01/07:21:07:07.915 Batch pipeline logger initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:08.000 TEXT : Initialising.
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:08.001 Executing command: /bin/sh /usr/bin/iconv -l | /usr/bin/tail +6 | /usr/bin/tail -c +3 | /bin/cut -d / -f1 | /bin/sort -r > /tmp/DLIconvOut
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:09.610 Executing command: /bin/sh env LANG=en_US.UTF-8 /usr/bin/locale charmap > /tmp/DLLocaleOut
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:10.092 Executing command: /bin/sh /usr/bin/aspell -v | cut -d ' ' -f9 |cut -d ')' -f1 > /tmp/DLSpellOutput.txt
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.619 VTR : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.671 VIDEO PREVIEW : Initialising readback.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.681 PLAY : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.822 CLIP MGT : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.865 NETWORK : Getting the framestore list.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.869 DESKTOP : Initialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.870 HOTKEYS : Initialising.
+[notice] 3086871040 hotkeyControl.C:588 08/01/07:21:07:10.957 HOTKEY : PUSH Local
+[notice] 3086871040 hotkeyControl.C:588 08/01/07:21:07:10.957 HOTKEY : PUSH Desktop
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:10.960 CLIP MGT : Loading desktop.
+[notice] 3086871040 log.C:370 08/01/07:21:07:10.963 MaxLibrarySize: 1 MB ==> 5 MB.
+[notice] 3086871040 desktop.C:4090 08/01/07:21:07:10.995 Load Clip
+[notice] 127216560 CoMsgLogger.cpp:185 08/01/07:21:07:11.015 Last entry repeated 6 more times.
+[notice] 3086871040 desktop.C:4090 08/01/07:21:07:11.014 Name Desktop
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:11.020 VOLUMEMGT : Backing up clip library files.
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:11.030 Executing command: /bin/sh cd /usr/discreet/clip/stonefs/Informer; /bin/tar --ignore-failed-read -cf /usr/discreet/clip/stonefs/Informer.bak1.tar *.library* *.[0-9][0-9][0-9].clib 2> /dev/null
+[notice] 3086871040 shellCmd.C:268 08/01/07:21:07:11.479 Executing command: /bin/sh cd /usr/discreet/clip/stonefs/Informer; /bin/tar --ignore-failed-read -cf /usr/discreet/clip/stonefs/Informer.desk.bak1.tar *.desktop* *.[0-9][0-9][0-9].desk 2> /dev/null
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:11.986 Startup complete. To open the Help, press Ctrl =.
+[notice] 3086871040 menu.C:2893 08/01/07:21:07:21.955 BUTTON : [PROCESSING] ChangeMenuProcessing
+[notice] 3086871040 menu.C:2893 08/01/07:21:07:28.392 BUTTON : [Batch] Batch
+[notice] 3086871040 menu.C:2888 08/01/07:21:07:30.728 BUTTON : [] Reel(1)
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:30.809 BATCH : Initialising.
+[notice] 2237914032 CoThreadPthread.C:189 08/01/07:21:07:30.924 Registered thread 'PaintStarter' [ -2057053264 ]
+[notice] 3086871040 menu.C:4943 08/01/07:21:07:31.011 PUSH MENU : Processing to Batch
+[notice] 3086871040 hotkeyControl.C:588 08/01/07:21:07:31.033 HOTKEY : PUSH Timeline
+[notice] 3086871040 hotkeyControl.C:598 08/01/07:21:07:31.050 HOTKEY : POP
+[notice] 3086871040 menu.C:2929 08/01/07:21:07:41.713 BUTTON : [Setup] BatchUISetupMenu(ON)
+[notice] 3086871040 menu.C:2904 08/01/07:21:07:43.410 BUTTON : [
+[notice] 3086871040 menu.C:2905 08/01/07:21:07:43.410 Load
+[notice] 3086871040 menu.C:2907 08/01/07:21:07:43.410 ]
+[notice] 3086871040 menu.C:2913 08/01/07:21:07:43.410 BatchLoad
+[notice] 3086871040 menu.C:4943 08/01/07:21:07:43.617 PUSH MENU : Batch to BatchLoad
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:43.625 PROJMGT    : Project "default" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:43.626 PROJMGT    : Project "Tether" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:07:43.627 PROJMGT    : Project "Informer" is compatible.
+[notice] 3086871040 menu.C:2888 08/01/07:21:07:44.992 BUTTON : [] FileEntry(1)
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:45.077 BATCH : Loading setup /usr/discreet/project/Informer/batch/jfr.batch.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:45.127 BATCH : Loading setup /usr/discreet/project/Informer/batch/jfr.output4.lut.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:45.128 BATCH : Loading setup /usr/discreet/project/Informer/batch/jfr.sparksh4.SparkSh.
+[notice] 3086871040 library.C:1544 08/01/07:21:07:45.136 FILE ACCESS : [/usr/discreet/project/Informer/batch/jfr.batch]
+[notice] 3086871040 menu.C:4898 08/01/07:21:07:45.136 POP MENU : BatchLoad to Batch
+[notice] 3086871040 menu.C:2893 08/01/07:21:07:50.196 BUTTON : [Process] BatchProcess
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:07:50.345 BATCH : Processing output4. 100 frames. 1 processed. 00:00:02.
+[notice] 3086871040 menu.C:2929 08/01/07:21:07:59.871 BUTTON : [Setup] BatchUISetupMenu(ON)
+[notice] 3086871040 menu.C:2904 08/01/07:21:08:02.059 BUTTON : [
+[notice] 3086871040 menu.C:2905 08/01/07:21:08:02.059 Save Batch
+[notice] 3086871040 menu.C:2907 08/01/07:21:08:02.059 ]
+[notice] 3086871040 menu.C:2913 08/01/07:21:08:02.059 BatchSave
+[notice] 3086871040 menu.C:4943 08/01/07:21:08:02.265 PUSH MENU : Batch to BatchSave
+[notice] 3086871040 menu.C:2893 08/01/07:21:08:03.818 BUTTON : [Save] LibrarySave
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:03.820 LIBRARY : File jfr exists. Overwrite?
+[notice] 3086871040 menu.C:2929 08/01/07:21:08:05.252 BUTTON : [Confirm] Confirm(ON)
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:05.361 BATCH : Saving setup /usr/discreet/project/Informer/batch/jfr.batch.
+[notice] 3086871040 library.C:1373 08/01/07:21:08:05.391 FILE ACCESS : [/usr/discreet/project/Informer/batch/jfr.batch]
+[notice] 3086871040 menu.C:4898 08/01/07:21:08:05.396 POP MENU : BatchSave to Batch
+[notice] 3086871040 menu.C:2893 08/01/07:21:08:07.224 BUTTON : [EXIT Batch] BatchEnd
+[notice] 3086871040 hotkeyControl.C:588 08/01/07:21:08:07.372 HOTKEY : PUSH PaintNode
+[notice] 3086871040 hotkeyControl.C:598 08/01/07:21:08:07.386 HOTKEY : POP
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:07.389 BATCH : Saving Batch session...
+[notice] 3086871040 batch.C:1864 08/01/07:21:08:07.389 BATCH  : SAVING SESSION ( begin )
+[notice] 3086871040 batch.C:1964 08/01/07:21:08:07.396 BATCH  : SAVING SESSION ( completed in 0.0 sec )
+[notice] 3086871040 menu.C:4898 08/01/07:21:08:07.397 POP MENU : Batch to Processing
+[notice] 3086871040 desktop.C:4090 08/01/07:21:08:07.397 Batch
+[notice] 3086871040 desktop.C:4095 08/01/07:21:08:07.397 Saving desktop after Batch
+[notice] 3086871040 menu.C:2893 08/01/07:21:08:11.100 BUTTON : [SYSTEM] ChangeMenuSystem
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:08:11.107 PROJMGT    : Project "default" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:08:11.108 PROJMGT    : Project "Tether" is compatible.
+[notice] 3086871040 projectUtils.C:2944 08/01/07:21:08:11.108 PROJMGT    : Project "Informer" is compatible.
+[notice] 3086871040 projectUtils.C:3113 08/01/07:21:08:11.388 PROJMGT    : User "Alan" is compatible.
+[notice] 3086871040 menu.C:2893 08/01/07:21:08:13.412 BUTTON : [EXIT] Exit
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:13.413 Exit. Confirm?
+[notice] 3086871040 menu.C:2929 08/01/07:21:08:14.399 BUTTON : [Confirm] Confirm(ON)
+[notice] 3086871040 menu.C:4943 08/01/07:21:08:14.495 PUSH MENU : System to TitleScreen
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.550 CLIP MGT : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.574 MONITOR : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.575 ACTION : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.595 BATCH : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.641 SPARK : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.646 DESKTOP : Uninitialising.
+[notice] 3086871040 hotkeyControl.C:598 08/01/07:21:08:14.648 HOTKEY : POP
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.648 PLAY : Uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.649 AUDIO : Uninitialising.
+[warn] 3086871040 mp.C:2343 08/01/07:21:08:14.649 LIBMP: MpWaitTask called with a handle containing an unused id.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.667 AUDIO : Uninitialising complete.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.669 LIBRARY : Uninitialising browser.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.670 POINTER : Uninitialising Mouse.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.671 GRIDS-GUIDES : Uninitialising.
+[notice] 3086871040 PPLogger.C:105 08/01/07:21:08:14.672 Batch pipeline logger uninitialising.
+[notice] 3086871040 messageAccumulator.C:268 08/01/07:21:08:14.672 VOLUMEMGT : Uninitialising.
+[warn] 3086871040 mp.C:2347 08/01/07:21:08:16.116 LIBMP: MpWaitTask called with an invalid handle.
+[user] 3086871040 log.C:327 08/01/07:21:08:16.116 LOG : Uninitialising.
+[user] 3086871040 CoAsyncLogger.cpp:165 08/01/07:21:08:16.116 Closing and flushing logs.
