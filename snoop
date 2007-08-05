@@ -1,7 +1,42 @@
 #!/usr/bin/python
 
 import sys
-from instinctual.informer.subject import DiscreetLogSubject
 
-logfile = DiscreetLogSubject(sys.argv[1])
-logfile.operate()
+import instinctual.informer
+from instinctual.informer.subject import DiscreetLogSubject
+from instinctual.informer.observer import *
+
+LOG = instinctual.informer.getLogger(sys.argv[0])
+
+def main():
+    subject = DiscreetLogSubject(sys.argv[1])
+
+    subject.registerObserver(DiscreetLoadProject(_loadProject))
+    subject.registerObserver(DiscreetSpecifyProject(_specifyProject))
+    subject.registerObserver(DiscreetSpecifyVolume(_specifyVolume))
+    subject.registerObserver(DiscreetSpecifyUser(_specifyUser))
+    subject.registerObserver(DiscreetLoadSetup(_loadSetup))
+    subject.registerObserver(DiscreetSaveSetup(_saveSetup))
+
+    subject.operate()
+
+def _loadProject(event, *args, **kwargs):
+    LOG.info("NEW PROJECT LOADED")
+
+def _specifyProject(event, project, **kwargs):
+    LOG.info("--- PROJECT: %s" % (project))
+
+def _specifyVolume(event, volume, **kwargs):
+    LOG.info("--- VOLUME: %s" % (volume))
+
+def _specifyUser(event, user, **kwargs):
+    LOG.info("--- USER: %s" % (user))
+
+def _loadSetup(event, setup, **kwargs):
+    LOG.info("--- LOAD SETUP %s", (setup))
+
+def _saveSetup(event, setup, **kwargs):
+    LOG.info("--- SAVE SETUP %s", (setup))
+
+if __name__ == '__main__':
+    main()

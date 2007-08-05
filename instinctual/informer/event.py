@@ -1,4 +1,7 @@
 import re
+import instinctual.informer
+
+LOG = instinctual.informer.getLogger(__name__)
 
 class Event(object):
     def __init__(self, event):
@@ -21,6 +24,7 @@ class DiscreetEvent(Event):
         self.message = ''
 
         self._parse()
+        LOG.debug(self)
 
     def _parse(self):
         match = self._reLog.search(self.event)
@@ -41,9 +45,9 @@ class DiscreetEvent(Event):
             else:
                 self.message = extra
 
-            print self
         else:
-            print "Could not parse[%s]" % (self.event)
+            LOG.debug("Could not parse[%s]" % (self.event))
+            self.message = self.event
 
     def __repr__(self):
         return " ".join(("LEVEL:", self.level,
@@ -53,3 +57,4 @@ class DiscreetEvent(Event):
                          "DATE:", self.date,
                          "CATEGORY:", self.category,
                          "MESSAGE:", self.message))
+
