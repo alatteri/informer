@@ -9,40 +9,67 @@ from instinctual.informer.observer import *
 LOG = instinctual.informer.getLogger(sys.argv[0])
 
 class DiscreetLogWatcher(object):
-    def __init__(self, path):
-        self._path = path
-        self.foo = 'wordup'
+    def __init__(self, logpath):
+        self._logpath = logpath
+
+        self.hostname = None
+        self.reset()
+
+    def reset(self):
+        self.user = None
+        self.project = None
+        self.setup = None
+        self.volume = None
 
     def run(self):
-        subject = DiscreetLogSubject(self._path)
+        subject = DiscreetLogSubject(self._logpath)
 
         subject.registerObserver(DiscreetLoadProject(self.loadProject))
+        subject.registerObserver(DiscreetSpecifyHostname(self.specifyHostname))
         subject.registerObserver(DiscreetSpecifyProject(self.specifyProject))
         subject.registerObserver(DiscreetSpecifyVolume(self.specifyVolume))
         subject.registerObserver(DiscreetSpecifyUser(self.specifyUser))
+
         subject.registerObserver(DiscreetLoadSetup(self.loadSetup))
         subject.registerObserver(DiscreetSaveSetup(self.saveSetup))
+
+        subject.registerObserver(DiscreetBatchProcess(self.batchProcess))
+        subject.registerObserver(DiscreetBatchProcessOutput(self.batchProcessOutput))
 
         subject.operate()
 
     def loadProject(self, *args, **kwargs):
         LOG.info("NEW PROJECT LOADED")
+        self.reset()
+
+    def specifyHostname(self, hostname, **kwargs):
+        LOG.info("--- HOSTNAME: %s" % (hostname))
+        self.hostname = hostname
 
     def specifyProject(self, project, **kwargs):
         LOG.info("--- PROJECT: %s" % (project))
+        self.project = project
 
     def specifyVolume(self, volume, **kwargs):
         LOG.info("--- VOLUME: %s" % (volume))
+        self.volume = volume
 
     def specifyUser(self, user, **kwargs):
         LOG.info("--- USER: %s" % (user))
+        self.user = user
 
     def loadSetup(self, setup, **kwargs):
         LOG.info("--- LOAD SETUP %s", (setup))
+        self.setup = setup
 
     def saveSetup(self, setup, **kwargs):
         LOG.info("--- SAVE SETUP %s", (setup))
-        print "hey i am: ", self.foo
+
+    def batchProcess(self, event, **kwargs):
+        LOG.info("--- BATCH PROCESS EVENT")
+
+    def batchProcessOutput(self, output, **kwargs):
+        LOG.info("--- BATCH OUTPUT %s" % (output))
 
 if __name__ == '__main__':
     app = DiscreetLogWatcher(sys.argv[1])

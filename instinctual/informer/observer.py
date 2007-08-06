@@ -19,11 +19,8 @@ class Observer(object):
             LOG.debug("[[[ %s event matched: %s ]]]" % (name, data))
             if self._callback:
                 LOG.debug('=' * 80)
-                cb = self._callback
-                print "hey the callback is: ", cb
-                #data['event'] = event
-                print "About to call with data: ", data
-                cb(**data)
+                data['event'] = event
+                self._callback(**data)
                 LOG.debug('=' * 80)
             else:
                 LOG.warn("No callback defined for Observer %s" % (name))
@@ -36,6 +33,14 @@ class DiscreetLoadProject(DiscreetObserver):
         if event.category == 'BUTTON':
             if event.message == "[Start] PrjLoadFirstSelection":
                 return {}
+
+class DiscreetSpecifyHostname(DiscreetObserver):
+    _re = re.compile(r'#\s+Hostname\s+\-\s+(.+)')
+    def process(self, event):
+        if event.category == 'COMMENT':
+            match = self._re.search(event.message)
+            if match != None:
+                return {'hostname': match.group(1)}
 
 class DiscreetSpecifyProject(DiscreetObserver):
     _re = re.compile(r'^Project\s+\((.+)\)')
@@ -77,5 +82,16 @@ class DiscreetSaveSetup(DiscreetObserver):
             if match != None:
                 return {'setup': match.group(1)}
 
-#class DiscreetProcess(DiscreetObserver):
-#
+class DiscreetBatchProcess(DiscreetObserver):
+    def process(self, event):
+        if event.category == 'BUTTON':
+            if event.message == '[Process] BatchProcess':
+                return {}
+
+class DiscreetBatchProcessOutput(DiscreetObserver):
+    _re = re.compile(r'Processing\s(.+)\.\s+\d+\s+frames\.')
+    def process(self, event):
+        if event.category == 'BATCH':
+            match = self._re.search(event.message)
+            if match != None:
+                return {'output': match.group(1)}

@@ -44,7 +44,10 @@ class DiscreetEvent(Event):
                 self.message = match.group(2)
             else:
                 self.message = extra
-
+        elif '# ' == self.event[0:2]:
+            LOG.debug("Found comment [%s]" % (self.event))
+            self.message = self.event
+            self.category = 'COMMENT'
         else:
             LOG.debug("Could not parse[%s]" % (self.event))
             self.message = self.event
