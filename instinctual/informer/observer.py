@@ -1,4 +1,5 @@
 import re
+import new
 import instinctual.informer
 
 LOG = instinctual.informer.getLogger(__name__)
@@ -6,12 +7,10 @@ LOG = instinctual.informer.getLogger(__name__)
 class Observer(object):
     def __init__(self, callback):
         self._callback = callback
+        print "hey the callback is: ", callback
 
     def process(self, event):
         return None
-
-    def callback(*args, **kwargs):
-        self._callback(*args, **kwargs)
 
     def notify(self, event):
         name = self.__class__.__name__
@@ -20,8 +19,11 @@ class Observer(object):
             LOG.debug("[[[ %s event matched: %s ]]]" % (name, data))
             if self._callback:
                 LOG.debug('=' * 80)
-                data['event'] = event
-                self._callback(**data)
+                cb = self._callback
+                print "hey the callback is: ", cb
+                #data['event'] = event
+                print "About to call with data: ", data
+                cb(**data)
                 LOG.debug('=' * 80)
             else:
                 LOG.warn("No callback defined for Observer %s" % (name))
