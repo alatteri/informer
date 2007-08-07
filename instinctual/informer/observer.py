@@ -28,12 +28,6 @@ class Observer(object):
 class DiscreetObserver(Observer):
     pass
 
-class DiscreetLoadProject(DiscreetObserver):
-    def process(self, event):
-        if event.category == 'BUTTON':
-            if event.message == "[Start] PrjLoadFirstSelection":
-                return {}
-
 class DiscreetSpecifyHostname(DiscreetObserver):
     _re = re.compile(r'#\s+Hostname\s+\-\s+(.+)')
     def process(self, event):
@@ -95,3 +89,21 @@ class DiscreetBatchProcessOutput(DiscreetObserver):
             match = self._re.search(event.message)
             if match != None:
                 return {'output': match.group(1)}
+
+class DiscreetBatchPlay(DiscreetObserver):
+    def process(self, event):
+        if event.category == 'BUTTON':
+            if event.message == '[Player] BatchPlay':
+                return {}
+
+class DiscreetBatchEnd(DiscreetObserver):
+    def process(self, event):
+        if event.category == 'BUTTON':
+            if event.message == '[EXIT Batch] BatchEnd':
+                return {}
+
+class DiscreetAppExit(DiscreetObserver):
+    def process(self, event):
+        if event.category == 'VOLUMEMGT':
+            if event.message == 'Uninitialising.':
+                return {}

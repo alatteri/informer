@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
+import re
 import sys
+import os.path
 
 import instinctual.informer
 from instinctual.informer.subject import DiscreetLogSubject
@@ -12,64 +14,166 @@ class DiscreetLogWatcher(object):
     def __init__(self, logpath):
         self._logpath = logpath
 
-        self.hostname = None
-        self.reset()
+        self.resetAppState()
+        self.resetBatchState()
 
-    def reset(self):
+    def resetAppState(self):
         self.user = None
-        self.project = None
-        self.setup = None
         self.volume = None
+        self.project = None
+        self.hostname = None
+
+    def resetBatchState(self):
+        self.queue = []
+        self.outputs = {}
+        self.shot = None
+        self.setup = None
+
+    def flushBatchQueue(self):
+        LOG.info("(((( flushing batch queue ))))")
+        while self.queue:
+            x = self.queue.pop(0)
+            LOG.info("-------- PROCESS ------> %s" % (x))
+
+    def parseShot(self, setup):
+        # TODO: Add shot parsing of the setup file path
+        return os.path.basename(setup)
 
     def run(self):
         subject = DiscreetLogSubject(self._logpath)
 
-        subject.registerObserver(DiscreetLoadProject(self.loadProject))
-        subject.registerObserver(DiscreetSpecifyHostname(self.specifyHostname))
-        subject.registerObserver(DiscreetSpecifyProject(self.specifyProject))
-        subject.registerObserver(DiscreetSpecifyVolume(self.specifyVolume))
-        subject.registerObserver(DiscreetSpecifyUser(self.specifyUser))
+        # app state events
+        subject.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
+        subject.registerObserver(DiscreetSpecifyProject(self.cbSpecifyProject))
+        subject.registerObserver(DiscreetSpecifyVolume(self.cbSpecifyVolume))
+        subject.registerObserver(DiscreetSpecifyUser(self.cbSpecifyUser))
 
-        subject.registerObserver(DiscreetLoadSetup(self.loadSetup))
-        subject.registerObserver(DiscreetSaveSetup(self.saveSetup))
+        # setup events
+        subject.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
+        subject.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
 
-        subject.registerObserver(DiscreetBatchProcess(self.batchProcess))
-        subject.registerObserver(DiscreetBatchProcessOutput(self.batchProcessOutput))
+        # batch processing events
+        subject.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
+        subject.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
+
+        # flushing events
+        subject.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
+        subject.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
+        subject.registerObserver(DiscreetAppExit(self.cbAppExit))
 
         subject.operate()
 
-    def loadProject(self, *args, **kwargs):
-        LOG.info("NEW PROJECT LOADED")
-        self.reset()
-
-    def specifyHostname(self, hostname, **kwargs):
+    def cbSpecifyHostname(self, hostname, **kwargs):
+        """
+        Usually specified once in an app's run. Identifies the
+        hostname of the computer running the app.
+        """
         LOG.info("--- HOSTNAME: %s" % (hostname))
+
         self.hostname = hostname
 
-    def specifyProject(self, project, **kwargs):
+    def cbSpecifyProject(self, project, **kwargs):
+        """
+        Called to identify the current project being worked on.
+        - flushes the batch queue
+        - resets the batch state
+        """
         LOG.info("--- PROJECT: %s" % (project))
+
+        self.flushBatchQueue()
+        self.resetBatchState()
+
         self.project = project
 
-    def specifyVolume(self, volume, **kwargs):
+    def cbSpecifyVolume(self, volume, **kwargs):
+        """
+        Called to identify the current volume being worked with
+        """
         LOG.info("--- VOLUME: %s" % (volume))
+
         self.volume = volume
 
-    def specifyUser(self, user, **kwargs):
+    def cbSpecifyUser(self, user, **kwargs):
+        """
+        Called to identify the current user.
+        - Changing the user flushes the batch queue
+        """
         LOG.info("--- USER: %s" % (user))
+
+        self.flushBatchQueue()
         self.user = user
 
-    def loadSetup(self, setup, **kwargs):
+    def cbLoadSetup(self, setup, **kwargs):
+        """
+        Called when a new setup has been loaded
+        - flushes the batch queue
+        - resets the batch state
+        """
         LOG.info("--- LOAD SETUP %s", (setup))
-        self.setup = setup
 
-    def saveSetup(self, setup, **kwargs):
+        # TODO: PUSH NEW "LOAD" EVENT
+        self.queue.append('LOAD EVENT')
+        self.flushBatchQueue()
+        self.resetBatchState()
+
+        self.setup = setup
+        self.shot = self.parseShot(setup)
+
+    def cbSaveSetup(self, setup, **kwargs):
+        """
+        Called when a setup has been saved
+        - flushes the batch queue
+        """
         LOG.info("--- SAVE SETUP %s", (setup))
 
-    def batchProcess(self, event, **kwargs):
-        LOG.info("--- BATCH PROCESS EVENT")
+        # TODO: PUSH NEW "SAVE" EVENT
+        self.queue.append('SAVE EVENT')
+        self.flushBatchQueue()
 
-    def batchProcessOutput(self, output, **kwargs):
+    def cbBatchProcess(self, event, **kwargs):
+        """
+        Called when the user processes a batch setup
+        """
+        LOG.info("BATCH PROCESS EVENT")
+
+        # TODO: PUSH NEW "PROCESS" EVENT
+        self.queue.append('BATCH PROCESS EVENT')
+
+    def cbBatchProcessOutput(self, output, **kwargs):
+        """
+        Called once per batch process output
+        - adds a new output entry to the batch state
+        """
         LOG.info("--- BATCH OUTPUT %s" % (output))
+        self.outputs[output] = 1
+
+    def cbBatchPlay(self, **kwargs):
+        """
+        Called when the user plays the result of a batch process
+        Used to flush the batch event queue
+        """
+        LOG.info("--- BATCH PLAY")
+        self.flushBatchQueue()
+
+    def cbBatchEnd(self, **kwargs):
+        """
+        Called when the user exits batch mode. This actually does
+        not reset the batch state.
+        - flushes the batch queue
+        """
+        LOG.info("--- EXIT BATCH MODE")
+        self.flushBatchQueue()
+
+    def cbAppExit(self, **kwargs):
+        """
+        Called when the user exits the app.
+        - flushes the batch queue
+        - resets the batch state
+        """
+        LOG.info("--- APP EXIT")
+        self.flushBatchQueue()
+        self.resetBatchState()
+        self.resetAppState()
 
 if __name__ == '__main__':
     app = DiscreetLogWatcher(sys.argv[1])

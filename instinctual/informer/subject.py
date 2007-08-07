@@ -9,7 +9,7 @@ LOG = instinctual.informer.getLogger(__name__)
 class Subject(object):
     def __init__(self):
         LOG.debug("__init__ called for Subject()")
-        self._observers = list()
+        self._observers = []
 
     def registerObserver(self, observer):
         LOG.debug("registerObserver()")
@@ -31,7 +31,7 @@ class LogSubject(Subject):
         self._handle = self._open()
 
         while (1):
-            lines = list()
+            lines = []
             now = os.stat(self._path)
             if previous and now.st_ino != previous.st_ino:
                 # make sure there is nothing else to read
