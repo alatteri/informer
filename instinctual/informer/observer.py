@@ -5,7 +5,7 @@ import instinctual.informer
 LOG = instinctual.informer.getLogger(__name__)
 
 class Observer(object):
-    def __init__(self, callback):
+    def __init__(self, callback=None):
         self._callback = callback
         print "hey the callback is: ", callback
 

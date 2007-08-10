@@ -1,0 +1,294 @@
+# Discreet flame2008beta4_flame_app log file - 1.0
+# Started - (EST) Fri Aug 10 03:28:46 2007
+# Hostname - flame
+[notice] 2557298656 CoMsgLogger.cpp:109 08/10/07:03:28:46.777 Command line: 'flame2008beta4_flame_app'
+[notice] 1109219680 CoThreadLinux.C:187 08/10/07:03:28:46.777 Registered thread 'logger' [ 1109219680 ]
+[notice] 2557298656 log.C:242 08/10/07:03:28:46.785 Autodesk(r) Flame(r)
+[notice] 2557298656 log.C:243 08/10/07:03:28:46.785 Version 2008beta4 P3215
+[notice] 2557298656 log.C:244 08/10/07:03:28:46.785 (c) Autodesk Canada Co./Autodesk Inc. 
+in the USA and other countries, 1992-2007. 
+All rights reserved.
+[notice] 1142778208 CoThreadLinux.C:187 08/10/07:03:28:46.802 Registered thread 'RT Event Manager' [ 1142778208 ]
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:46.802 VOLUMEMGT : Initialising volume 'stonefs'.
+[notice] 2557298656 swClient.C:212 08/10/07:03:28:46.803 Using Stone+Wire API 2008.0beta4 [Productswtlrel_1096] (64 bits).
+[notice] 2557298656 swxStoneAdapter.C:840 08/10/07:03:28:46.803 Compatible S+W filesystem driver (1096) and S+W API (1096) versions detected.
+[notice] 2557298656 swxStoneAdapter.C:903 08/10/07:03:28:46.803 Compatible SWR driver (1096) and S+W API (1096) versions detected.
+[notice] 2557298656 swxStoneIO.C:218 08/10/07:03:28:46.804 Defaulting SW_NUM_DISK_IO_PROCS to 2.
+[notice] 1176336736 CoThreadLinux.C:187 08/10/07:03:28:46.804 Registered thread 'FastLaneServerThread' [ 1176336736 ]
+[notice] 1209895264 CoThreadLinux.C:187 08/10/07:03:28:46.804 Registered thread 'S+W Async Disk I/O' [ 1209895264 ]
+[notice] 2557298656 swInterfaceTCP.C:116 08/10/07:03:28:46.805 Stone+Wire TCP port set to 7000.
+[notice] 1243453792 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Disk I/O' [ 1243453792 ]
+[notice] 1277012320 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Disk I/O' [ 1277012320 ]
+[notice] 1310570848 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Net Input' [ 1310570848 ]
+[notice] 1344129376 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Net Output' [ 1344129376 ]
+[notice] 1377687904 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Net Watchdog' [ 1377687904 ]
+[notice] 1411246432 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Audio Processor' [ 1411246432 ]
+[notice] 1444804960 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Audio Processor' [ 1444804960 ]
+[notice] 1478363488 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Image Converter' [ 1478363488 ]
+[notice] 1511922016 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Background I/O' [ 1511922016 ]
+[notice] 1545480544 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Background I/O' [ 1545480544 ]
+[notice] 1579039072 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Background I/O' [ 1579039072 ]
+[notice] 1612597600 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Background I/O' [ 1612597600 ]
+[notice] 1646156128 CoThreadLinux.C:187 08/10/07:03:28:46.805 Registered thread 'S+W Pipeline' [ 1646156128 ]
+[notice] 1679714656 CoThreadLinux.C:187 08/10/07:03:28:46.806 Registered thread 'S+W Pipeline' [ 1679714656 ]
+[notice] 1713273184 CoThreadLinux.C:187 08/10/07:03:28:46.806 Registered thread 'S+W Pipeline' [ 1713273184 ]
+[notice] 1746831712 CoThreadLinux.C:187 08/10/07:03:28:46.806 Registered thread 'S+W Pipeline' [ 1746831712 ]
+[warn] 2557298656 volumeMgr.C:2184 08/10/07:03:28:46.869 Requested 95 mbps of bandwidth, but got 90.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:46.870 AUDIO : Initialising device.
+[user] 2557298656 AuALSADevice.C:182 08/10/07:03:28:46.964 AUDIO      : AMD AMD8111 audio board detected
+[notice] 1780390240 CoThreadLinux.C:187 08/10/07:03:28:47.039 Registered thread 'Audio Meter' [ 1780390240 ]
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:47.046 AUDIO : Initialising complete.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:47.047 HOTKEYS : Initialising.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:28:47.061 HOTKEY : PUSH Local
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:28:47.075 Last entry repeated 1 more times.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:47.075 PROJECT : Initialising.
+[notice] 2557298656 projectUtils.C:5489 08/10/07:03:28:47.079 PRJMGT : Project list build completed ( took 0.00 sec )
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:28:47.080 Last entry repeated 1 more times.
+[notice] 2557298656 projectUtils.C:6065 08/10/07:03:28:47.080 PRJMGT : User list build completed ( took 0.00 sec )
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:28:47.115 PROJECT : Getting volume list for flame.
+[notice] 2557298656 menu.C:5820 08/10/07:03:28:47.179 PUSH MENU : Main to MainProjectUser
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:47.192 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:47.193 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:28:47.194 PROJMGT    : User "alan" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:28:47.194 PROJMGT    : User "josh" is compatible.
+[notice] 2557298656 menu.C:3151 08/10/07:03:28:54.864 BUTTON : [tether	(720x486)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:28:54.864 PrjListForMgt(0)
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:54.865 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:54.865 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 menu.C:3151 08/10/07:03:28:56.039 BUTTON : [informer	(720x486)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:28:56.039 PrjListForMgt(1)
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:56.040 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:28:56.040 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:00.383 BUTTON : [flame (localhost)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:00.383 FramestoreListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:00.991 BUTTON : [flame (localhost)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:00.991 FramestoreListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:01.185 BUTTON : [flame (localhost)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:01.185 FramestoreListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:01.361 BUTTON : [flame (localhost)]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:01.361 FramestoreListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:03.311 BUTTON : [josh]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:03.311 UsrListForMgt(2)
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:29:03.311 PROJMGT    : User "alan" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:29:03.311 PROJMGT    : User "josh" is compatible.
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:04.927 BUTTON : [stonefs]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:04.927 VolumeListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:05.612 BUTTON : [stonefs]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:05.612 VolumeListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:05.778 BUTTON : [stonefs]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:05.778 VolumeListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:05.965 BUTTON : [stonefs]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:05.965 VolumeListForMgt(0)
+[notice] 2557298656 menu.C:3151 08/10/07:03:29:06.129 BUTTON : [stonefs]
+[notice] 2557298656 menu.C:3157 08/10/07:03:29:06.129 VolumeListForMgt(0)
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:06.912 BUTTON : [Start] PrjLoadFirstSelection
+[notice] 2557298656 project.C:3610 08/10/07:03:29:07.008 PRJMGT : Project (informer)
+[notice] 2557298656 project.C:3611 08/10/07:03:29:07.008 PRJMGT : Volume (stonefs)
+[notice] 2557298656 project.C:3612 08/10/07:03:29:07.008 PRJMGT : User (josh)
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:29:07.030 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:29:07.031 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 menu.C:5757 08/10/07:03:29:07.088 POP MENU : MainProjectUser to Main
+[notice] 2557298656 projectUtils.C:4933 08/10/07:03:29:07.113 PRJMGT : Writing database: /usr/discreet/project/project.db
+[notice] 2557298656 projectUtils.C:5606 08/10/07:03:29:07.178 PRJMGT : Writing database: /usr/discreet/user/effects/user.db
+[user] 2557298656 config.C:228 08/10/07:03:29:07.227 CONFIG     : /usr/discreet/project/informer/cfg/informer.cfg
+[user] 2557298656 video.C:952 08/10/07:03:29:07.228 HIRES RATE : 30HZF
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.296 VOLUMEMGT : Initialising volume 'stonefs'.
+[notice] 2557298656 volumeMgt.C:2072 08/10/07:03:29:07.334 VOLUME : [flame] [720 x 486]
+[user] 2557298656 mp.C:2488 08/10/07:03:29:07.334 PROCESSORS : 1 available
+[notice] 1813948768 CoThreadLinux.C:187 08/10/07:03:29:07.335 Registered thread 'MFork task 1' [ 1813948768 ]
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.336 VOLUMEMGT : Checking volume integrity ...
+[warn] 2557298656 log.C:368 08/10/07:03:29:07.485       Integrity check successful in 0.0647458 sec
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.533 GRIDS-GUIDES : Initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.535 VIDEO : Initialising ....
+[user] 2557298656 video.C:3678 08/10/07:03:29:07.535 VIDEO      : Using No i/o features
+[warn] 2557298656 vtrIOParams.C:345 08/10/07:03:29:07.535 Unsupported number of cpu's for video io.
+[user] 2557298656 video.C:2072 08/10/07:03:29:07.535 Video: width: 720, height: 486, pixelFormat = 8-bit, timing: NTSC
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.536 MEMORY : Initialising frame buffers.
+[user] 2557298656 membufmgt.C:736 08/10/07:03:29:07.537 MEMORY     : SmartHeap version 8.0.0
+[user] 2557298656 membufmgt.C:744 08/10/07:03:29:07.537 MEMORY     : Bytes available: 765 MB
+[user] 2557298656 membufmgt.C:844 08/10/07:03:29:07.537 MEMORY     : Using 382 MB (or 286 buffers of size 720x486 @ 8-bit).
+[user] 2557298656 membufmgt.C:363 08/10/07:03:29:07.538 MEMORY     : Allocated 382 MB at address 0xc6f1000 using memalign()
+[notice] 2557298656 IpSelectionEngine.C:1882 08/10/07:03:29:07.797 File '/usr/discreet/cfg/DLcommon/22/performanceTable.xml' does not exist: performance table not loaded, a new one will be generated
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:29:07.895 Last entry repeated 2 more times.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.891 MONITOR : Initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:07.896 ACTION : Initialising.
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:07.897 Executing command: /bin/sh /bin/rm -f /tmp/dl_tmp*
+[notice] 2557298656 PPLogger.C:126 08/10/07:03:29:09.508 Batch pipeline logger initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:09.527 TEXT : Initialising.
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:09.527 Executing command: /bin/sh /usr/bin/iconv -l | /usr/bin/tail +6 | /usr/bin/tail -c +3 | /bin/cut -d / -f1 | /bin/sort -r > /tmp/DLIconvOut
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:10.010 Executing command: /bin/sh env LANG=en_US.UTF-8 /usr/bin/locale charmap > /tmp/DLLocaleOut
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:10.492 Executing command: /bin/sh /usr/bin/aspell -v | cut -d ' ' -f9 |cut -d ')' -f1 > /tmp/DLSpellOutput.txt
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.013 VTR : Initialising.
+[warn] 2557298656 vtrIOParams.C:345 08/10/07:03:29:11.013 Unsupported number of cpu's for video io.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.027 PLAY : Initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.175 CLIP MGT : Initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.190 NETWORK : Getting the framestore list.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.193 DESKTOP : Initialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.194 HOTKEYS : Initialising.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:29:11.226 HOTKEY : PUSH Local
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:29:11.258 Last entry repeated 1 more times.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:29:11.258 HOTKEY : PUSH Desktop
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.292 CLIP MGT : Loading desktop.
+[notice] 2557298656 desktop.C:4141 08/10/07:03:29:11.481 Load Clip
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:29:11.497 Last entry repeated 10 more times.
+[notice] 2557298656 desktop.C:4141 08/10/07:03:29:11.497 Name Desktop
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:11.780 VOLUMEMGT : Backing up clip library files.
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:11.780 Executing command: /bin/sh cd /usr/discreet/clip/stonefs/informer; /bin/tar --ignore-failed-read -cf /usr/discreet/clip/stonefs/informer.bak1.tar *.library* *.[0-9][0-9][0-9].clib 2> /dev/null
+[notice] 2557298656 shellCmd.C:267 08/10/07:03:29:12.221 Executing command: /bin/sh cd /usr/discreet/clip/stonefs/informer; /bin/tar --ignore-failed-read -cf /usr/discreet/clip/stonefs/informer.desk.bak1.tar *.desktop* *.[0-9][0-9][0-9].desk 2> /dev/null
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:13.307 Startup complete.
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:16.032 BUTTON : [] ChangeMenuInitial
+[notice] 2557298656 menu.C:3093 08/10/07:03:29:18.727 BUTTON : [] Reel(0)
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:28.620 BUTTON : [PROCESSING] ChangeMenuProcessing
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:29.846 BUTTON : [Batch] Batch
+[notice] 2557298656 menu.C:3093 08/10/07:03:29:30.287 BUTTON : [] Reel(0)
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:30.372 BATCH : Initialising.
+[notice] 1847507296 CoThreadLinux.C:187 08/10/07:03:29:30.399 Registered thread 'PaintStarter' [ 1847507296 ]
+[notice] 1847507296 CoThreadLinux.C:187 08/10/07:03:29:30.400 Registered thread 'Starter' [ 1847507296 ]
+[notice] 2557298656 menu.C:5820 08/10/07:03:29:30.496 PUSH MENU : Processing to Batch
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:30.541 BATCH : Backup file detected. Recover?
+[notice] 2557298656 menu.C:3135 08/10/07:03:29:38.110 BUTTON : [Confirm] Confirm(ON)
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:38.248 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc5.correct.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:38.253 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc9.correct.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:29:38.263 HOTKEY : PUSH Colour
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:53.279 BUTTON : [EXIT Batch] BatchEnd
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:53.280 BATCH : Saving Batch session...
+[notice] 2557298656 batch.C:2085 08/10/07:03:29:53.280 BATCH  : SAVING SESSION ( begin )
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:29:53.284 HOTKEY : POP
+[notice] 2557298656 batch.C:2209 08/10/07:03:29:53.290 BATCH  : SAVING SESSION ( completed in 0.0 sec )
+[notice] 2557298656 menu.C:5757 08/10/07:03:29:53.290 POP MENU : Batch to Processing
+[notice] 2557298656 menu.C:3098 08/10/07:03:29:57.822 BUTTON : [Batch] Batch
+[notice] 2557298656 menu.C:3093 08/10/07:03:29:58.541 BUTTON : [] Reel(0)
+[notice] 2557298656 menu.C:5820 08/10/07:03:29:58.751 PUSH MENU : Processing to Batch
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:58.763 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc5.correct.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:29:58.768 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc9.correct.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:29:58.771 HOTKEY : PUSH Colour
+[notice] 2557298656 menu.C:3098 08/10/07:03:30:10.622 BUTTON : [Process] BatchProcess
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:30:10.623 HOTKEY : POP
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:11.946 BATCH : Processing 00404_comp2. 40 frames. 1 processed. 00:00:47.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:12.214 BATCH : Processing output10. 40 frames. 2 processed. 00:00:28.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:13.421 BATCH : Processing 00404_comp2. 40 frames. 3 processed. 00:00:33.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:13.702 BATCH : Processing output10. 40 frames. 4 processed. 00:00:27.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:14.889 BATCH : Processing 00404_comp2. 40 frames. 5 processed. 00:00:29.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:15.140 BATCH : Processing output10. 40 frames. 6 processed. 00:00:25.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:16.389 BATCH : Processing 00404_comp2. 40 frames. 7 processed. 00:00:27.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:16.676 BATCH : Processing output10. 40 frames. 8 processed. 00:00:24.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:17.858 BATCH : Processing 00404_comp2. 40 frames. 9 processed. 00:00:25.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:18.073 BATCH : Processing output10. 40 frames. 10 processed. 00:00:22.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:19.232 BATCH : Processing 00404_comp2. 40 frames. 11 processed. 00:00:22.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:19.507 BATCH : Processing output10. 40 frames. 12 processed. 00:00:20.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:20.724 BATCH : Processing 00404_comp2. 40 frames. 13 processed. 00:00:21.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:21.017 BATCH : Processing output10. 40 frames. 14 processed. 00:00:19.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:22.230 BATCH : Processing 00404_comp2. 40 frames. 15 processed. 00:00:19.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:22.523 BATCH : Processing output10. 40 frames. 16 processed. 00:00:18.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:23.734 BATCH : Processing 00404_comp2. 40 frames. 17 processed. 00:00:18.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:24.009 BATCH : Processing output10. 40 frames. 18 processed. 00:00:16.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:25.235 BATCH : Processing 00404_comp2. 40 frames. 19 processed. 00:00:16.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:25.514 BATCH : Processing output10. 40 frames. 20 processed. 00:00:15.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:26.703 BATCH : Processing 00404_comp2. 40 frames. 21 processed. 00:00:14.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:26.953 BATCH : Processing output10. 40 frames. 22 processed. 00:00:13.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:28.172 BATCH : Processing 00404_comp2. 40 frames. 23 processed. 00:00:13.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:28.464 BATCH : Processing output10. 40 frames. 24 processed. 00:00:12.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:29.683 BATCH : Processing 00404_comp2. 40 frames. 25 processed. 00:00:11.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:29.946 BATCH : Processing output10. 40 frames. 26 processed. 00:00:10.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:31.152 BATCH : Processing 00404_comp2. 40 frames. 27 processed. 00:00:10.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:31.396 BATCH : Processing output10. 40 frames. 28 processed. 00:00:09.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:32.598 BATCH : Processing 00404_comp2. 40 frames. 29 processed. 00:00:08.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:32.842 BATCH : Processing output10. 40 frames. 30 processed. 00:00:07.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:34.073 BATCH : Processing 00404_comp2. 40 frames. 31 processed. 00:00:07.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:34.365 BATCH : Processing output10. 40 frames. 32 processed. 00:00:06.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:35.536 BATCH : Processing 00404_comp2. 40 frames. 33 processed. 00:00:05.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:35.817 BATCH : Processing output10. 40 frames. 34 processed. 00:00:04.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:37.046 BATCH : Processing 00404_comp2. 40 frames. 35 processed. 00:00:04.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:37.339 BATCH : Processing output10. 40 frames. 36 processed. 00:00:03.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:38.564 BATCH : Processing 00404_comp2. 40 frames. 37 processed. 00:00:02.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:38.845 BATCH : Processing output10. 40 frames. 38 processed. 00:00:01.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:39.979 BATCH : Processing 00404_comp2. 40 frames. 39 processed. 00:00:01.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:30:40.182 BATCH : Processing output10. 40 frames. 40 processed. 00:00:00.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:30:40.198 HOTKEY : PUSH Colour
+[notice] 2557298656 menu.C:3098 08/10/07:03:30:56.607 BUTTON : [Player] BatchPlay
+[notice] 1881176416 CoThreadLinux.C:187 08/10/07:03:30:56.610 Registered thread 'FrameServer ReadAhead Process' [ 1881176416 ]
+[notice] 1109219680 CoMsgLogger.cpp:199 08/10/07:03:30:56.787 Last entry repeated 1 more times.
+[notice] 2557298656 menu.C:5820 08/10/07:03:30:56.787 PUSH MENU : Batch to Play
+[notice] 2557298656 menu.C:3098 08/10/07:03:31:23.522 BUTTON : [EXIT Play] EndPlay
+[warn] 2557298656 mp.C:2384 08/10/07:03:31:23.532 LIBMP: MpWaitTask called with a handle containing an unused id.
+[notice] 2557298656 menu.C:5757 08/10/07:03:31:23.533 POP MENU : Play to Batch
+[notice] 2557298656 menu.C:3098 08/10/07:03:31:27.816 BUTTON : [EXIT Batch] BatchEnd
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:31:27.817 BATCH : Saving Batch session...
+[notice] 2557298656 batch.C:2085 08/10/07:03:31:27.817 BATCH  : SAVING SESSION ( begin )
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:31:27.821 HOTKEY : POP
+[notice] 2557298656 batch.C:2209 08/10/07:03:31:27.826 BATCH  : SAVING SESSION ( completed in 0.0 sec )
+[notice] 2557298656 menu.C:5757 08/10/07:03:31:27.827 POP MENU : Batch to Processing
+[notice] 2557298656 desktop.C:4141 08/10/07:03:31:27.827 Batch
+[notice] 2557298656 desktop.C:4146 08/10/07:03:31:27.827 Saving desktop after Batch
+[notice] 2557298656 menu.C:3098 08/10/07:03:31:48.795 BUTTON : [Batch] Batch
+[notice] 2557298656 menu.C:3093 08/10/07:03:31:50.416 BUTTON : [] Reel(2)
+[notice] 2557298656 menu.C:5820 08/10/07:03:31:50.621 PUSH MENU : Processing to Batch
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:31:50.636 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc5.correct.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:31:50.642 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc9.correct.
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:31:50.645 HOTKEY : PUSH Colour
+[notice] 2557298656 menu.C:3098 08/10/07:03:32:24.935 BUTTON : [] BatchViewManagerDisplay
+[notice] 2557298656 menu.C:2813 08/10/07:03:34:14.354 SWIPE : [X]
+[notice] 2557298656 menu.C:3098 08/10/07:03:34:15.323 BUTTON : [] BatchViewManagerDisplay
+[notice] 2557298656 menu.C:3109 08/10/07:03:34:17.795 BUTTON : [
+[notice] 2557298656 menu.C:3110 08/10/07:03:34:17.795 Load Batch
+[notice] 2557298656 menu.C:3112 08/10/07:03:34:17.795 ]
+[notice] 2557298656 menu.C:3118 08/10/07:03:34:17.795 BatchLoad
+[notice] 2557298656 menu.C:5820 08/10/07:03:34:18.013 PUSH MENU : Batch to BatchLoad
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:34:18.018 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:34:18.019 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 menu.C:3093 08/10/07:03:34:20.914 BUTTON : [] FileEntry(0)
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:34:21.044 HOTKEY : POP
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:34:21.046 BATCH : Loading setup /usr/discreet/project/informer/batch/_session.batch.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:34:21.052 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc5.correct.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:34:21.057 BATCH : Loading setup /usr/discreet/project/informer/batch/_session/cc9.correct.
+[notice] 2557298656 library.C:1597 08/10/07:03:34:21.059 FILE ACCESS : [/usr/discreet/project/informer/batch/_session.batch]
+[notice] 2557298656 hotkeyControl.C:588 08/10/07:03:34:21.059 HOTKEY : PUSH Colour
+[notice] 2557298656 menu.C:5757 08/10/07:03:34:21.059 POP MENU : BatchLoad to Batch
+[notice] 2557298656 menu.C:3098 08/10/07:03:34:49.816 BUTTON : [] BatchViewManagerDisplay
+[notice] 2557298656 menu.C:3151 08/10/07:03:35:05.861 BUTTON : []
+[notice] 2557298656 menu.C:3157 08/10/07:03:35:05.861 TimeLine(1)
+[notice] 2557298656 menu.C:3098 08/10/07:03:35:41.789 BUTTON : [] BatchViewManagerDisplay
+[notice] 2557298656 menu.C:2813 08/10/07:03:35:43.521 SWIPE : [X]
+[notice] 2557298656 menu.C:3098 08/10/07:03:35:44.982 BUTTON : [EXIT Batch] BatchEnd
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:35:44.983 BATCH : Saving Batch session...
+[notice] 2557298656 batch.C:2085 08/10/07:03:35:44.983 BATCH  : SAVING SESSION ( begin )
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:35:44.987 HOTKEY : POP
+[notice] 2557298656 batch.C:2209 08/10/07:03:35:44.993 BATCH  : SAVING SESSION ( completed in 0.0 sec )
+[notice] 2557298656 menu.C:5757 08/10/07:03:35:44.993 POP MENU : Batch to Processing
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:35:45.088 CLIP MGT : Desktop auto-save in progress.
+[notice] 2557298656 clipMgt.C:4808 08/10/07:03:35:45.088 AUTOSAVE ( begin )
+[notice] 2557298656 clipMgt.C:4821 08/10/07:03:35:45.387 AUTOSAVE ( completed in 0.3 sec )
+[notice] 2557298656 menu.C:3098 08/10/07:03:35:46.684 BUTTON : [Preferences] DesktopSystemPreferences
+[notice] 2557298656 menu.C:5820 08/10/07:03:35:46.701 PUSH MENU : Processing to Preferences
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:35:46.703 PROJMGT    : Project "tether" is compatible.
+[notice] 2557298656 projectUtils.C:3006 08/10/07:03:35:46.703 PROJMGT    : Project "informer" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:35:46.704 PROJMGT    : User "alan" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:35:46.704 PROJMGT    : User "josh" is compatible.
+[notice] 2557298656 menu.C:3151 08/10/07:03:35:50.906 BUTTON : [alan]
+[notice] 2557298656 menu.C:3157 08/10/07:03:35:50.906 UsrListForMgt(1)
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:35:50.906 PROJMGT    : User "alan" is compatible.
+[notice] 2557298656 projectUtils.C:3175 08/10/07:03:35:50.906 PROJMGT    : User "josh" is compatible.
+[notice] 2557298656 menu.C:3098 08/10/07:03:35:54.121 BUTTON : [EXIT Preferences] DesktopSystemPreferencesEnd
+[notice] 2557298656 menu.C:5757 08/10/07:03:35:54.121 POP MENU : Preferences to Processing
+[notice] 2557298656 hotkeyItem.C:141 08/10/07:03:37:10.056 HOTKEY : [HotkeyGlobalProgramExit] [Program Exit]
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.056 PLAY : Uninitialising.
+[notice] 2557298656 menu.C:5820 08/10/07:03:37:10.057 PUSH MENU : Processing to TitleScreen
+[warn] 2557298656 mp.C:2388 08/10/07:03:37:10.094 LIBMP: MpWaitTask called with an invalid handle.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.399 CLIP MGT : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.520 MONITOR : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.521 ACTION : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.536 MODULAR KEYER : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.537 BATCH : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.564 SPARK : Uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.568 DESKTOP : Uninitialising.
+[notice] 2557298656 hotkeyControl.C:598 08/10/07:03:37:10.569 HOTKEY : POP
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.570 AUDIO : Uninitialising.
+[warn] 2557298656 mp.C:2384 08/10/07:03:37:10.570 LIBMP: MpWaitTask called with a handle containing an unused id.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.591 AUDIO : Uninitialising complete.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.593 LIBRARY : Uninitialising browser.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.594 POINTER : Uninitialising Wacom UD.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.595 GRIDS-GUIDES : Uninitialising.
+[notice] 2557298656 PPLogger.C:140 08/10/07:03:37:10.595 Batch pipeline logger uninitialising.
+[notice] 2557298656 messageAccumulator.C:268 08/10/07:03:37:10.595 VOLUMEMGT : Uninitialising.
+[user] 2557298656 log.C:326 08/10/07:03:37:11.712 LOG : Uninitialising.
+[user] 2557298656 CoAsyncLogger.cpp:163 08/10/07:03:37:11.712 Closing and flushing logs.

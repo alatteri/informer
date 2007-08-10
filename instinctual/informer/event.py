@@ -7,12 +7,12 @@ class Event(object):
     def __init__(self, event):
         self.event = event
 
-class DiscreetEvent(Event):
+class DiscreetLogEvent(Event):
     _reLog = re.compile(r'^\[(\w+)\]\s+(\d+)\s+([\w\.]+):(\d+)\s+([^\s]+)\s+(.*)$')
     _reExtra = re.compile(r'(\w+)\s*:\s*(.*)$')
 
     def __init__(self, event):
-        super(DiscreetEvent, self).__init__(event)
+        super(DiscreetLogEvent, self).__init__(event)
         # print "new event created for [%s]" % (event)
 
         self.level = ''
@@ -61,3 +61,28 @@ class DiscreetEvent(Event):
                          "CATEGORY:", self.category,
                          "MESSAGE:", self.message))
 
+class DiscreetAppEvent(Event):
+    def __init__(self, event):
+        super(DiscreetAppEvent, self).__init__(event)
+
+        self.date = None
+        self.shot = None
+        self.user = None
+        self.setup = None
+        self.volume = None
+        self.project = None
+        self.hostname = None
+
+class DiscreetAppLoadEvent(DiscreetAppEvent):
+    def __init__(self):
+        super(DiscreetAppEvent, self).__init__('LOAD EVENT')
+
+
+class DiscreetAppBatchProcessEvent(DiscreetAppEvent):
+    def __init__(self):
+        super(DiscreetAppEvent, self).__init__('BATCH PROCESS EVENT')
+        self.outputs = []
+
+class DiscreetAppSaveEvent(DiscreetAppEvent):
+    def __init__(self):
+        super(DiscreetAppEvent, self).__init__('SAVE EVENT')
