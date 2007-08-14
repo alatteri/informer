@@ -1,0 +1,45 @@
+#!/usr/local/bin/python
+
+import os
+# import cream.conf as conf
+
+host     = 'localhost'
+user     = 'instinctual'
+database = 'informer'
+password = 'x'
+
+pgadmin = 'postgres'
+
+yn = raw_input("Are you sure you want to init the db? [y/n]: ")
+if yn == 'y':
+    print "To create the new user account:"
+    print "createuser -U %s --createdb --no-adduser --pwprompt %s" % (pgadmin, user)
+    print
+
+    print "Dropping the database..."
+    cmd = "dropdb -U %s %s" % (pgadmin, database) 
+    print "Going to run: " + cmd
+    os.system(cmd)
+
+    print "Creating the database [enter db user pass]..."
+    cmd = "createdb -U %s --owner=%s %s" % (user, user, database)
+    print "Going to run: " + cmd
+    os.system(cmd)
+
+    # print "Installing plpgsql for database..."
+    # cmd = "createlang  -d %s -U %s -W plpgsql" % (database, pgadmin)
+    # print "Going to run: " + cmd
+    # os.system(cmd)
+
+    # print "Initializing the schema [enter db user pass]..."
+    # cmd = "psql -U %s %s < ./postgres.sql" % (user, database)
+    # print "Going to run: " + cmd
+    # os.system(cmd)
+
+    # print "Bootstrapping..."
+    # os.system("bootstrap.py")
+
+    print "Done."
+else:
+    print "Not doing the db stuff."
+
