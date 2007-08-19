@@ -15,7 +15,7 @@ class Subject(object):
     """
 
     def __init__(self):
-        LOG.warn("__init__ called for Subject()")
+        LOG.debug("__init__ called for Subject()")
         self._observers = []
 
     def registerObserver(self, observer):
@@ -23,7 +23,7 @@ class Subject(object):
         self._observers.append(observer)
 
     def notifyObservers(self, event):
-        print "now going to notify with %s" % event.event
+        LOG.debug("now going to notify with %s" % event.event)
         for observer in self._observers:
             observer.notify(event)
 
@@ -33,9 +33,10 @@ class LogSubject(Subject):
     A Subject that generates events for each line appended
     """
 
-    def __init__(self, path):
+    def __init__(self, path, wait=False):
         self._path = path
         self._handle = None
+        self._wait = wait
         Subject.__init__(self)
 
     def operate(self):
@@ -58,8 +59,11 @@ class LogSubject(Subject):
                 # process lines
                 lines = self._read()
                 previous = now
-            else:
+            elif self._wait:
                 time.sleep(1)
+            else:
+                LOG.info("end of file reached")
+                break
 
             for line in lines:
                 event = self.event(line)
@@ -87,12 +91,16 @@ class DiscreetAppSubject(Subject):
     """
     A high-level subject, generates DiscreetAppEvents based on accumulation
     of lower-level DiscreetLogEvents
+
+    Arguments:
+        logpath: the path of the logfile
+        wait: if True, then don't exit when EOF reached and wait for more lines
     """
 
-    def __init__(self, logpath):
-        LOG.warn("what the fuck")
+    def __init__(self, logpath, wait=False):
         Subject.__init__(self)
         self._logpath = logpath
+        self._wait = wait
 
         self.resetAppState()
         self.resetBatchState()
@@ -133,7 +141,7 @@ class DiscreetAppSubject(Subject):
         return os.path.basename(setup)
 
     def operate(self):
-        subject = DiscreetLogSubject(self._logpath)
+        subject = DiscreetLogSubject(self._logpath, wait = self._wait)
 
         # app state events
         subject.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
@@ -217,7 +225,6 @@ class DiscreetAppSubject(Subject):
         appEvent = self._setAppEvent(DiscreetAppLoadEvent(), event)
         self.queue.append(appEvent)
         self.flushBatchQueue()
-
 
     def cbSaveSetup(self, event, setup, **kwargs):
         """

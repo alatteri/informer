@@ -1,5 +1,4 @@
 # Django settings for instinctual project.
-print "hello world!"
 DEBUG = True
 #DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -63,6 +62,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
 )
 
 ROOT_URLCONF = 'instinctual.urls'

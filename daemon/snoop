@@ -4,30 +4,39 @@ import re
 import sys
 import os.path
 
-import instinctual.informer
+import restclient
+from instinctual import informer
 from instinctual.informer.subject import DiscreetAppSubject
 from instinctual.informer.observer import Observer
 
-LOG = instinctual.informer.getLogger(sys.argv[0])
+LOG = informer.getLogger(sys.argv[0])
 
 class MyObserver(Observer):
     def process(self, event):
-        LOG.warn(''.join(['-'*30, 'App Event', '-'*30]))
-        LOG.warn('Event: %s' % event.event)
-        LOG.warn('Date: %s' % event.date)
-        LOG.warn('Shot: %s' % event.shot)
-        LOG.warn('User: %s' % event.user)
-        LOG.warn('Setup: %s' % event.setup)
-        LOG.warn('Volume: %s' % event.volume)
-        LOG.warn('Project: %s' % event.project)
-        LOG.warn('Hostname: %s' % event.hostname)
+        data = {}
+        data['event'] = event.event
+        data['date'] = event.date
+        data['shot'] = event.shot
+        data['user'] = event.user
+        data['setup'] = event.setup
+        data['volume'] = event.volume
+        data['project'] = event.project
+        data['hostname'] = event.hostname
 
         if event.__class__.__name__ == 'DiscreetAppBatchProcessEvent':
-            LOG.warn('Batch output[s]: %s' % (', '.join(event.outputs)))
-        LOG.warn(''.join(['-'*30, '---------', '-'*30]))
+            # joining on '|' is pretty damn ugly...
+            data['outputs'] = '|'.join(event.outputs)
+
+        LOG.warn(''.join(['-'*20, 'App Event', '-'*20]))
+        for (key, val) in data.items():
+            LOG.warn("%s: %s" % (key, val))
+        LOG.warn(''.join(['-'*20, '---------', '-'*20]))
+
+        appEventUrl = informer.getAppEventUrl()
+        LOG.info(restclient.POST(appEventUrl, data, async=False))
 
 if __name__ == '__main__':
     observer = MyObserver()
-    app = DiscreetAppSubject(sys.argv[1])
+    app = DiscreetAppSubject(sys.argv[1], wait=False)
     app.registerObserver(observer)
     app.operate()

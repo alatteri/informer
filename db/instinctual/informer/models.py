@@ -15,35 +15,17 @@ class Project(models.Model):
             return self.name
 
 # ------------------------------------------------------------------------------
-# class Sequence(models.Model):
-#     project     = models.ForeignKey(Project)
-#     name        = models.CharField(maxlength=255)
-#     description = models.CharField(maxlength=4096, null=True, blank=True)
-# 
-#     class Meta:
-#         unique_together = (('project', 'name'),)
-# 
-#     class Admin:
-#         list_display = ('project', 'name', 'description')
-# 
-#     def __str__(self):
-#         if self.description:
-#             return "%s: %s" % (self.name, self.description)
-#         else:
-#             return self.name
-# 
-# ------------------------------------------------------------------------------
 class Shot(models.Model):
     project     = models.ForeignKey(Project)
-    name        = models.CharField(maxlength=255)
+    name        = models.CharField('shot', maxlength=255)
     description = models.CharField(maxlength=4096, null=True, blank=True)
-    setup       = models.CharField(maxlength=255)
+    setup       = models.CharField(maxlength=4096)
 
     class Meta:
         unique_together = (('project', 'name'),)
 
     class Admin:
-        list_display = ('project', 'name', 'description')
+        list_display = ('project', 'name', 'setup', 'description')
 
     def __str__(self):
         if self.description:
@@ -54,7 +36,7 @@ class Shot(models.Model):
 # ------------------------------------------------------------------------------
 class Note(models.Model):
     shot        = models.ForeignKey(Shot)
-    author      = models.CharField(maxlength=255)
+    user        = models.CharField(maxlength=255)
     text        = models.CharField('text', maxlength=4096)
     comment     = models.CharField(maxlength=4096, null=True, blank=True)
     is_checked  = models.BooleanField('is checked', default=False)
@@ -92,12 +74,34 @@ class Element(models.Model):
 class Event(models.Model):
     shot        = models.ForeignKey(Shot)
     type        = models.CharField(maxlength=255)
-    machine     = models.CharField(maxlength=255)
-    username    = models.CharField(maxlength=255)
-    date_added  = models.DateTimeField('date added', auto_now_add=True)
+    host        = models.CharField(maxlength=255)
+    user        = models.CharField(maxlength=255)
+    # date_added  = models.DateTimeField('date added', auto_now_add=True)
+    date_added  = models.DateTimeField('date')
+
+    class Meta:
+        unique_together = (('shot', 'type', 'date_added'),)
+
+    class Admin:
+        list_display = ('shot', 'type', 'user', 'host', 'date_added')
+
+    def __str__(self):
+        return "%s - %s - %s" % (self.type, self.user, self.shot.name)
+
+# ------------------------------------------------------------------------------
+class Output(models.Model):
+    event       = models.ForeignKey(Event)
+    location    = models.CharField(maxlength=4096)
+
+    class Meta:
+        unique_together = (('event', 'location'),)
 
     class Admin:
         pass
 
+    class Admin:
+        list_display = ('event', 'location')
+
     def __str__(self):
-        return "%s - %s - %s" % (self.type, self.username, self.shot.name)
+        return self.location
+

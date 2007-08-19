@@ -75,14 +75,13 @@ class DiscreetAppEvent(Event):
 
 class DiscreetAppLoadEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('LOAD EVENT')
-
+        super(DiscreetAppEvent, self).__init__('LOAD SETUP')
 
 class DiscreetAppBatchProcessEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('BATCH PROCESS EVENT')
+        super(DiscreetAppEvent, self).__init__('BATCH PROCESS')
         self.outputs = []
 
 class DiscreetAppSaveEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('SAVE EVENT')
+        super(DiscreetAppEvent, self).__init__('SAVE SETUP')
