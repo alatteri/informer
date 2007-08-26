@@ -1,0 +1,72 @@
+#!/usr/bin/python
+
+import re
+import sys
+import os.path
+from optparse import OptionParser
+
+import restclient
+from instinctual import informer
+
+LOG = informer.getLogger(sys.argv[0])
+
+parser = OptionParser("usage: gateway " + \
+                      "--setup=<file> " + \
+                      "--action=[get_notes|get_elements] " + \
+                      "--outfile=<outfile")
+
+parser.add_option('-s', '--setup',
+                  action = 'store', dest = 'setup', default = None,
+                  help = "the path of the batch setup file (required)")
+
+parser.add_option('-a', '--action',
+                  action = 'store', dest = 'action', default = None,
+                  help = "the action to perform: [get_notes|get_elements] (required)")
+
+parser.add_option('-o', '--outfile',
+                  action = 'store', dest = 'outfile', default = None,
+                  help = "the output file for saving results")
+
+class Gateway(object):
+    def __init__(self):
+        (options, args) = parser.parse_args()
+        LOG.info("Gateway called with options [%s] args [%s]" % (options, args))
+
+        if options.setup is None:
+            parser.error("A setup file must be specified")
+
+        if options.action is None:
+            parser.error("An action must be specified")
+
+        ok_actions = ('get_notes', 'get_elements')
+        if options.action not in ok_actions:
+            one_of = ", ".join(ok_actions)
+            parser.error("The action specified must be one of: " + one_of)
+
+        parsed = informer.parseSetup(options.setup)
+        if parsed is None:
+            parser.error("Could not parse setup file")
+
+        self.setup   = options.setup
+        self.action  = options.action
+        self.outfile = options.outfile
+        self.shot    = parsed['shot']
+        self.project = parsed['project']
+
+    def run(self):
+        if self.action == 'get_notes':
+            self.getNotes()
+        elif self.action == 'get_elements':
+            self.getElements()
+
+    def getNotes(self):
+        print "Running getNotes()"
+        pass
+
+    def getElements(self):
+        print "Running getElements()"
+        pass
+
+if __name__ == '__main__':
+    app = Gateway()
+    app.run()

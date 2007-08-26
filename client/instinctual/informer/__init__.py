@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import logging.config
 import sys, codecs
@@ -37,3 +38,11 @@ def _getUrlComponent(component):
 
 def getAppEventUrl():
     return _getUrlComponent('app_event_url')
+
+_reSetup = re.compile(r'/project/([^/]+)/batch/(\w+)')
+def parseSetup(setup):
+    match = _reSetup.search(setup)
+    if match != None:
+        return {'project': match.group(1), 'shot': match.group(2)}
+    else:
+        return None

@@ -37,6 +37,7 @@ class MyObserver(Observer):
 
 if __name__ == '__main__':
     observer = MyObserver()
-    app = DiscreetAppSubject(sys.argv[1], wait=False)
+    # app = DiscreetAppSubject(sys.argv[1], wait=False)
+    app = DiscreetAppSubject(sys.argv[1], wait=True)
     app.registerObserver(observer)
     app.operate()
