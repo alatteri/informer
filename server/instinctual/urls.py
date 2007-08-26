@@ -6,19 +6,19 @@ from django_restapi.authentication import *
 
 from django_restapi.receiver import FormReceiver
 
-from informer.models import Project, Shot, Event, Output
+from informer.models import Project, Shot, Note, Element, Event, Output
 from django.http import HttpResponseRedirect
 
 # --------------------
 # RESTful patterns:
 #
-xml_project_collection = Collection(
+xml_all_P_collection = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
     responder = XMLResponder()
 )
 
-xml_shot_collection = Collection(
+xml_all_S_collection = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
     responder = XMLResponder()
@@ -26,6 +26,44 @@ xml_shot_collection = Collection(
 
 xml_event_collection = Collection(
     queryset = Shot.objects.all(),
+    permitted_methods = ['GET'],
+    responder = XMLResponder()
+)
+
+class ProjectShots(Collection):
+    def read(self, request):
+        parts = request.path.split("/")
+        project_name = parts[3]
+        project = Project.objects.get(name=project_name)
+        filtered_set = self.queryset._clone()
+        filtered_set = filtered_set.filter(project=project)
+        return self.responder.list(request, filtered_set)
+
+xml_S_of_P_collection = ProjectShots(
+    queryset = Shot.objects.all(),
+    permitted_methods = ['GET'],
+    responder = XMLResponder()
+)
+
+class ProjectShotCollection(Collection):
+    def read(self, request):
+        parts = request.path.split("/")
+        project_name = parts[3]
+        shot_name = parts[5]
+        project = Project.objects.get(name=project_name)
+        shot = Shot.objects.get(name=shot_name, project=project)
+        filtered_set = self.queryset._clone()
+        filtered_set = filtered_set.filter(shot=shot)
+        return self.responder.list(request, filtered_set)
+
+xml_N_of_S_of_P_collection = ProjectShotCollection(
+    queryset = Note.objects.all(),
+    permitted_methods = ['GET'],
+    responder = XMLResponder()
+)
+
+xml_E_of_S_of_P_collection = ProjectShotCollection(
+    queryset = Element.objects.all(),
     permitted_methods = ['GET'],
     responder = XMLResponder()
 )
@@ -99,8 +137,17 @@ app_event = AppEvent(
 urlpatterns = patterns('',
     # Uncomment this for admin:
     (r'^admin/', include('django.contrib.admin.urls')),
-    (r'^xml/projects/$', xml_project_collection),
-    (r'^xml/projects/\d+/shots/$', xml_shot_collection),
+    (r'^xml/projects/$', xml_all_P_collection),
+    (r'^xml/shots/$', xml_all_S_collection),
+    (r'^xml/projects/(?P<project_name>[^/]+)/$',
+        xml_S_of_P_collection,
+        {'is_entry':False}),
+    (r'^xml/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/notes/$',
+        xml_N_of_S_of_P_collection,
+        {'is_entry':False}),
+    (r'^xml/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/elements/$',
+        xml_E_of_S_of_P_collection,
+        {'is_entry':False}),
     (r'^xml/app_events/$', app_event),
     # (r'^xml/events/$', xml_event_collection),
 )
