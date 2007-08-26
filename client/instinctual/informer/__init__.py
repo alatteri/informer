@@ -39,6 +39,12 @@ def _getUrlComponent(component):
 def getAppEventUrl():
     return _getUrlComponent('app_event_url')
 
+"""
+/x1/j_lo/batch/001_100/0001_comp-01.batch
+    project: j_lo
+    shot: 0001
+    # sometimes sh0001 or sc0001
+"""
 _reSetup = re.compile(r'/project/([^/]+)/batch/(\w+)')
 def parseSetup(setup):
     match = _reSetup.search(setup)
