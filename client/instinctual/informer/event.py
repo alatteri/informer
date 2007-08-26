@@ -63,25 +63,25 @@ class DiscreetLogEvent(Event):
 
 class DiscreetAppEvent(Event):
     def __init__(self, event):
-        super(DiscreetAppEvent, self).__init__(event)
+        Event.__init__(self, event)
 
         self.date = None
         self.shot = None
         self.user = None
         self.setup = None
         self.volume = None
+        self.outputs = []
         self.project = None
         self.hostname = None
 
 class DiscreetAppLoadEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('LOAD SETUP')
+        DiscreetAppEvent.__init__(self, 'LOAD SETUP')
 
 class DiscreetAppBatchProcessEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('BATCH PROCESS')
-        self.outputs = []
+        DiscreetAppEvent.__init__(self, 'BATCH PROCESS')
 
 class DiscreetAppSaveEvent(DiscreetAppEvent):
     def __init__(self):
-        super(DiscreetAppEvent, self).__init__('SAVE SETUP')
+        DiscreetAppEvent.__init__(self, 'SAVE SETUP')
