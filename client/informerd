@@ -3,6 +3,7 @@
 import re
 import sys
 import os.path
+from datetime import datetime
 
 import restclient
 from instinctual import informer
@@ -14,6 +15,7 @@ LOG = informer.getLogger(sys.argv[0])
 class MyObserver(Observer):
     def process(self, event):
         data = {}
+        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
         data['event'] = event.event
         data['date'] = event.date
         data['shot'] = event.shot
