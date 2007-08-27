@@ -69,13 +69,16 @@ xml_E_of_S_of_P_collection = ProjectShotCollection(
 )
 
 from datetime import datetime
-from time import strptime
+from time import strptime, mktime
 def strToDatetime(s):
     s = s[0:s.rindex('.')]
     return datetime(*strptime(s, "%m/%d/%y:%H:%M:%S")[0:6])
 
 class AppEvent(Resource):
     def create(self, request):
+        nowServer = datetime.now()
+        print "Server says now is: ", nowServer
+
         receiver = FormReceiver()
         data = receiver.get_post_data(request)
         print "I got this data:", data
@@ -105,7 +108,15 @@ class AppEvent(Resource):
         user = data['user']
         host = data['hostname']
         event = data['event']
+
         date = strToDatetime(data['date'])
+        print "Unadjusted date is: ", date
+
+        nowClient = strToDatetime(data['now'])
+        print "Client says now is: ", nowClient
+
+        date = date + (nowServer - nowClient)
+        print "Adjusted date is: ", date
         try:
             e = Event.objects.get(shot=s, type=event, date_added=date)
             print "--- event already existed ---"
