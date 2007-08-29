@@ -213,4 +213,5 @@ $(OFILES_C++) : %.o : %.C spark.h
 clean :
 	@echo ""
 	@echo "Making clean..."
-	rm *.o
+	rm -f *.o
+	rm -f *.$(SPARK_EXTENSION)

@@ -38,22 +38,87 @@ static unsigned long *SayHelloWaiting( int CallbackArg, SparkInfoStruct SparkInf
 static unsigned long *SayHelloWaitingTo( int CallbackArg, SparkInfoStruct SparkInfo );
 static unsigned long *SayHelloNoSh( int CallbackArg, SparkInfoStruct SparkInfo );
 
-/******************************
- * User Interface Definitions
- ******************************/
+static unsigned long *NoteChanged( int CallbackArg, SparkInfoStruct SparkInfo );
+static unsigned long *PupChanged( int CallbackArg, SparkInfoStruct SparkInfo );
+
+/*********************************
+ * Informer Notes Data structure
+ *********************************/
+typedef struct {
+    unsigned int    Id;             /* Primary key of Note */
+    char           *User;           /* The user who created the note */
+    char           *Text;           /* The actual note message */
+    int             IsChecked;      /* Boolean: is the note checked? */
+    char           *DateAdded;      /* Date note was added */
+    char           *DateModified;   /* Last time modified */
+} InformerNoteStruct;
+
+InformerNoteStruct Note1 = {1, "Alan", "This is note 1", 0, "1/4/07 4:20PM", "2/1/07 4:20PM"};
+InformerNoteStruct Note2 = {2, "Anna", "This is note 2", 0, "2/4/07 4:20PM", "2/2/07 4:20PM"};
+InformerNoteStruct Note3 = {3, "Josh", "This is note 3", 0, "3/4/07 4:20PM", "2/3/07 4:20PM"};
+InformerNoteStruct Note4 = {4, "Luna", "This is note 4", 0, "4/4/07 4:20PM", "2/4/07 4:20PM"};
+InformerNoteStruct Note5 = {5, "Joey", "This is note 5", 0, "5/4/07 4:20PM", "2/5/07 4:20PM"};
+InformerNoteStruct Note6 = {6, "Meow", "This is note 6", 0, "6/4/07 4:20PM", "2/6/07 4:20PM"};
+
+InformerNoteStruct AllNotes[6];
+unsigned int NoteCount = 6;
+
+/*******************************
+ * ------ Informer NOTES -------
+ *******************************/
 
 /*
- * Module Level
+ * Informer Note Boolean CheckBoxes
  */
+SparkBooleanStruct SparkBoolean6 =  { 0, "", NULL };
+SparkBooleanStruct SparkBoolean7 =  { 0, "", NULL };
+SparkBooleanStruct SparkBoolean8 =  { 0, "", NULL };
+SparkBooleanStruct SparkBoolean9 =  { 0, "", NULL };
+SparkBooleanStruct SparkBoolean10 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean11 = { 0, "", NULL };
 
-SparkPushStruct SparkPush6 = { "Say all in", SayHello };
-SparkPushStruct SparkPush7 = { "Say all in and wait", SayHelloWaiting };
-SparkPushStruct SparkPush8 = { "Say all in and wait", SayHelloWaitingTo };
-SparkPushStruct SparkPush9 = { "Say all in", SayHelloNoSh };
-SparkStringStruct SparkString15 = { "",
-				  "Last exit status: %s",
+/*
+ * Informer Note Text fields
+ */
+SparkStringStruct SparkString13 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString14 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString17 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString18 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+
+/*
+ * Informer From/Date fields
+ */
+SparkStringStruct SparkString27 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString28 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString29 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString30 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString31 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString32 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+
+/*
+ * Informer Note Controls
+ */
+SparkPushStruct SparkPush19 = { "<< Previous Page", SayHelloNoSh };
+SparkPushStruct SparkPush26 = { "Next Page >>", SayHelloNoSh };
+SparkStringStruct SparkString33 = { "",
+				  "Notes 1 - 6 (of 240): Page 1 of 4",
 				  SPARK_FLAG_NO_INPUT,
 				  NULL };
+
+SparkPupStruct SparkPup34 = {0, 2, PupChanged, {"Refresh Notes", "Create New Note"}};
+char note_title[200] = "%d";
+/* SparkIntStruct SparkInt34 = {0, 0, 10, 1, NULL, note_title, NoteChanged}; */
+
+
+/*
+ * Informer Setup UI Elements
+SparkStringStruct SparkSetupString15 = { "",
+				  "Hello from setup.",
+				  NULL,
+				  NULL };
+ */
 
 /*
  * Aliases for Image Buffers
@@ -92,13 +157,25 @@ void	   SparkMemoryTempBuffers( void )
   */
 unsigned int    SparkInitialise( SparkInfoStruct spark_info )
 {
-   char     *setup_name;
-   setup_name = sparkGetLastSetupName();
-   printf("---- SparkInitialise called ----\n");
-   printf("[[[[ setup: %s\n", setup_name);
-   sparkDisableParameter(SPARK_UI_CONTROL, 15);
+    char title[200];
+    char     *setup_name;
+    setup_name = sparkGetLastSetupName();
+    printf("---- SparkInitialise called ----\n");
+    printf("[[[[ setup: %s\n", setup_name);
 
-   return ( SPARK_MODULE );
+
+    AllNotes[1] = Note1;
+    AllNotes[2] = Note2;
+    //sprintf(SparkString13.Value, "%s", Note3.Text );
+    //sprintf(SparkString14.Value, "%s", Note4.Text );
+
+    printf("Note1.Text is: %s\n", AllNotes[1].Text);
+    printf("Note2.Text is: %s\n", AllNotes[2].Text);
+
+
+    sprintf(note_title, "Displaying %%d Note 1 to %d", 6);
+
+    return ( SPARK_MODULE );
 }
 
  /*
@@ -156,6 +233,9 @@ static unsigned long *SayHello( int CallbackArg,
 				SparkInfoStruct SparkInfo )
 {
   char     *setup_name;
+   int answer;
+   sparkMessageDelay(2000, "Hello world");
+   /*answer = sparkMessageConfirm("Hello world?");*/
   setup_name = sparkGetLastSetupName();
   printf("[[[[ setup: %s\n", setup_name);
   sparkSystemSh( FALSE, "THE_MSG=Hello; xmessage $THE_MSG");
@@ -175,8 +255,10 @@ static unsigned long *SayHelloWaitingTo( int CallbackArg,
   int pid = sparkSystemSh( FALSE, "xmessage Hello");
   int status = 0;
   sparkWaitpid( pid, &status, 0 );
+    /* 
   sprintf( SparkString15.Value, "%d", status );
   sparkEnableParameter(SPARK_UI_CONTROL, 15);
+    */
 
   return NULL;
 }
@@ -190,4 +272,19 @@ static unsigned long *SayHelloNoSh( int CallbackArg,
   argv[2] = 0;
   sparkSystemNoSh( FALSE, argv[0], argv );
   return NULL;
+}
+
+static unsigned long *NoteChanged( int CallbackArg,
+				    SparkInfoStruct SparkInfo )
+{
+    //sprintf(note_title, "Displaying %%d Note 1 to %d", SparkInt34.Value);
+    //printf("Hey! The note change got called with: %d, value is: %d\n", CallbackArg, SparkInt34.Value);
+    return NULL;
+}
+
+static unsigned long *PupChanged( int CallbackArg,
+				    SparkInfoStruct SparkInfo )
+{
+    printf("Hey! The pup change got called with: %d, value is: %d\n", CallbackArg, SparkPup34.Value);
+    return NULL;
 }
