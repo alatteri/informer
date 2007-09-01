@@ -11,7 +11,32 @@ system("python setup.py install --prefix=$cwd/..") && die $!;
 chdir($cwd) || die $!;
 
 system("tar zxvf django-rest-interface.tar.gz") && die $!;
-foreach my $install (glob("$cwd/../lib/python*/site-packages")) {
-    system("cp -Rf django-rest-interface $install/") && die $!;
+
+chdir("..") || die $!;
+my $instdir = `pwd`;
+chomp($instdir);
+my @installs = glob("$instdir/lib/python*/site-packages");
+chdir($cwd) || die $!;
+
+foreach my $install (@installs) {
+    system("cp -Rf django-rest-interface/django_restapi $install/") && die $!;
 }
 
+my $informpath = join(':', @installs);
+my $lines = '-'x80;
+
+print <<EOM;
+
+$lines
+Third party install complete. Please add the following to your ~/.cshrc file:
+$lines
+
+set INFORMPATH=$informpath
+setenv DJANGO_SETTINGS_MODULE instinctual.settings
+
+if ( \$?PYTHONPATH ) then
+    setenv PYTHONPATH "\${INFORMPATH}:\${PYTHONPATH}"
+else
+    setenv PYTHONPATH \${INFORMPATH}
+endif
+EOM
