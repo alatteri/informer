@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use strict;
+
+my $cwd = `pwd`;
+chomp($cwd);
+
+system("tar zxvf Django-0.96.tar.gz") && die $!;
+chdir('Django-0.96') || die $!;
+
+system("python setup.py install --prefix=$cwd/..") && die $!;
+chdir($cwd) || die $!;
+
+system("tar zxvf django-rest-interface.tar.gz") && die $!;
+foreach my $install (glob("$cwd/../lib/python*/site-packages")) {
+    system("cp -Rf django-rest-interface $install/") && die $!;
+}
+
