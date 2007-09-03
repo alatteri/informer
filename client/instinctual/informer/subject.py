@@ -74,8 +74,12 @@ class LogSubject(Subject):
 
     def _read(self):
         LOG.debug("---- one readline ---")
-        lines = self._handle.readlines(100*1024)
-        return lines
+        all_lines = []
+        while 1:
+            lines = self._handle.readlines(100*1024)
+            if not lines: break
+            all_lines.extend(lines)
+        return all_lines
 
 # ------------------------------------------------------------------------------
 class DiscreetLogSubject(LogSubject):
