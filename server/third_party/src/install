@@ -10,12 +10,17 @@ sub main {
 
     SYSTEM("tar zxvf Django-0.96.tar.gz");
     CHDIR('Django-0.96');
-
     SYSTEM("python setup.py install --prefix=$cwd/..");
+
+    CHDIR($cwd);
+
+    SYSTEM("tar zxvf pysqlite-2.3.5.tar.gz");
+    CHDIR('pysqlite-2.3.5');
+    SYSTEM("python setup.py install --prefix=$cwd/..");
+
     CHDIR($cwd);
 
     SYSTEM("tar zxvf django-rest-interface.tar.gz");
-
     CHDIR("..");
     my $instdir = CWD();
     my @installs = glob("$instdir/lib/python*/site-packages");
