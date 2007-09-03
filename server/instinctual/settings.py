@@ -9,8 +9,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'postgresql_psycopg2' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = 'informer'      # Or path to database file if using sqlite3.
+DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_NAME = '/Users/jrichards/dev/instinctual/src/server/informer.db'      # Or path to database file if using sqlite3.
 DATABASE_USER = 'instinctual' # Not used with sqlite3.
 DATABASE_PASSWORD = 'x'        # Not used with sqlite3.
 DATABASE_HOST = 'localhost'    # Set to empty string for localhost. Not used with sqlite3.

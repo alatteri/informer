@@ -1,31 +1,34 @@
 #!/usr/bin/perl
 use strict;
 
-my $cwd = `pwd`;
-chomp($cwd);
+sub SYSTEM  { system(shift) && die $!; }
+sub CHDIR   { chdir(shift) || die $!; }
+sub CWD     { chomp(my $cwd = `pwd`); return $cwd; }
 
-system("tar zxvf Django-0.96.tar.gz") && die $!;
-chdir('Django-0.96') || die $!;
+sub main {
+    my $cwd = CWD();
 
-system("python setup.py install --prefix=$cwd/..") && die $!;
-chdir($cwd) || die $!;
+    SYSTEM("tar zxvf Django-0.96.tar.gz");
+    CHDIR('Django-0.96');
 
-system("tar zxvf django-rest-interface.tar.gz") && die $!;
+    SYSTEM("python setup.py install --prefix=$cwd/..");
+    CHDIR($cwd);
 
-chdir("..") || die $!;
-my $instdir = `pwd`;
-chomp($instdir);
-my @installs = glob("$instdir/lib/python*/site-packages");
-chdir($cwd) || die $!;
+    SYSTEM("tar zxvf django-rest-interface.tar.gz");
 
-foreach my $install (@installs) {
-    system("cp -Rf django-rest-interface/django_restapi $install/") && die $!;
-}
+    CHDIR("..");
+    my $instdir = CWD();
+    my @installs = glob("$instdir/lib/python*/site-packages");
+    CHDIR($cwd);
 
-my $informpath = join(':', @installs);
-my $lines = '-'x80;
+    foreach my $install (@installs) {
+        SYSTEM("cp -Rf django-rest-interface/django_restapi $install/");
+    }
 
-print <<EOM;
+    my $informpath = join(':', @installs);
+    my $lines = '-'x80;
+
+    print <<EOM;
 
 $lines
 Third party install complete. Please add the following to your ~/.cshrc file:
@@ -40,3 +43,6 @@ else
     setenv PYTHONPATH \${INFORMPATH}
 endif
 EOM
+}
+
+main();
