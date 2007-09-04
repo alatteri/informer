@@ -6,11 +6,12 @@ import os.path
 from datetime import datetime
 
 import restclient
-from instinctual import informer
+import instinctual
+import instinctual.informer
 from instinctual.parser.subject import DiscreetAppSubject
 from instinctual.parser.observer import Observer
 
-LOG = informer.getLogger(sys.argv[0])
+LOG = instinctual.getLogger(sys.argv[0])
 
 class MyObserver(Observer):
     def process(self, event):
@@ -34,7 +35,7 @@ class MyObserver(Observer):
             LOG.warn("%s: %s" % (key, val))
         LOG.warn(''.join(['-'*20, '---------', '-'*20]))
 
-        appEventUrl = informer.getAppEventUrl()
+        appEventUrl = instinctual.informer.getAppEventUrl()
         LOG.info(restclient.POST(appEventUrl, data, async=False))
 
 if __name__ == '__main__':

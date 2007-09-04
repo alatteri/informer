@@ -1,8 +1,8 @@
 import re
 import new
-import instinctual.informer
+import instinctual
 
-LOG = instinctual.informer.getLogger(__name__)
+LOG = instinctual.getLogger(__name__)
 
 class Observer(object):
     def __init__(self, callback=None):

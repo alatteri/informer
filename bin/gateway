@@ -6,9 +6,9 @@ import os.path
 from optparse import OptionParser
 
 import restclient
-from instinctual import informer
+import instinctual
 
-LOG = informer.getLogger(sys.argv[0])
+LOG = instinctual.getLogger(sys.argv[0])
 
 parser = OptionParser("usage: gateway " + \
                       "--setup=<file> " + \

@@ -1,11 +1,11 @@
 import os
 import time
 
-import instinctual.informer
+import instinctual
 from instinctual.parser.event import *
 from instinctual.parser.observer import *
 
-LOG = instinctual.informer.getLogger(__name__)
+LOG = instinctual.getLogger(__name__)
 
 # ------------------------------------------------------------------------------
 class Subject(object):

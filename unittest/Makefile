@@ -1,2 +1,2 @@
 test :
-	python testClient.py
+	python testParser.py
