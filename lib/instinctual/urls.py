@@ -6,7 +6,7 @@ from django_restapi.authentication import *
 
 from django_restapi.receiver import FormReceiver
 
-from informer.models import Project, Shot, Note, Element, Event, Output
+from instinctual.informer.server.models import Project, Shot, Note, Element, Event, Output
 from django.http import HttpResponseRedirect
 
 # --------------------
