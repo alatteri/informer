@@ -1,8 +1,8 @@
 import unittest
 
 from instinctual import informer
-from instinctual.informer.subject import DiscreetAppSubject
-from instinctual.informer.observer import Observer
+from instinctual.informer.client.subject import DiscreetAppSubject
+from instinctual.informer.client.observer import Observer
 
 # ------------------------------------------------------------------------------
 class DiscreetAppEvent(object):
