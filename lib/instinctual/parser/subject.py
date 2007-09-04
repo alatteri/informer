@@ -2,8 +2,8 @@ import os
 import time
 
 import instinctual.informer
-from instinctual.informer.client.event import *
-from instinctual.informer.client.observer import *
+from instinctual.parser.event import *
+from instinctual.parser.observer import *
 
 LOG = instinctual.informer.getLogger(__name__)
 
