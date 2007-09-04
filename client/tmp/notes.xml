@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="1" model="informer.note"><field to="informer.shot" name="shot" rel="ManyToOneRel">8</field><field type="CharField" name="user">producer</field><field type="CharField" name="text">Make it less green</field><field type="CharField" name="comment"></field><field type="BooleanField" name="is_checked">False</field><field type="DateTimeField" name="date_added">2007-08-25 19:31:54</field><field type="DateTimeField" name="date_modified">2007-08-25 21:49:29</field></object></django-objects>
