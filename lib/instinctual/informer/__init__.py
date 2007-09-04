@@ -5,7 +5,7 @@ import logging.config
 import sys, codecs
 import ConfigParser
 
-rootDir = os.sep.join(__file__.split(os.sep)[:-3])
+rootDir = os.sep.join(__file__.split(os.sep)[:-4])
 confDir = os.path.join(rootDir, 'conf')
 logIni = os.path.join(confDir, 'logging.ini')
 
