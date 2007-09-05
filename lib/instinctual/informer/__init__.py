@@ -18,6 +18,14 @@ def _getUrlComponent(component):
 def getAppEventUrl():
     return _getUrlComponent('app_event_url')
 
+def getProjectShotNotesUrl(project, shot):
+    template = _getUrlComponent('project_shot_notes_url')
+    return template % (project, shot)
+
+def getProjectShotElementsUrl(project, shot):
+    template = _getUrlComponent('project_shot_elements_url')
+    return template % (project, shot)
+
 """
 /x1/j_lo/batch/001_100/0001_comp-01.batch
     project: j_lo

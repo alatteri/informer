@@ -1,13 +1,8 @@
 #!/usr/bin/python
 
-import re
 import sys
-import os.path
-from datetime import datetime
-
-import restclient
 import instinctual
-import instinctual.informer
+from instinctual.informer.client import Client, AppEvent
 from instinctual.parser.subject import DiscreetAppSubject
 from instinctual.parser.observer import Observer
 
@@ -15,28 +10,15 @@ LOG = instinctual.getLogger(sys.argv[0])
 
 class MyObserver(Observer):
     def process(self, event):
-        data = {}
-        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
-        data['event'] = event.event
-        data['date'] = event.date
-        data['shot'] = event.shot
-        data['user'] = event.user
-        data['setup'] = event.setup
-        data['volume'] = event.volume
-        data['project'] = event.project
-        data['hostname'] = event.hostname
-
-        if event.__class__.__name__ == 'DiscreetAppBatchProcessEvent':
-            # joining on '|' is pretty damn ugly...
-            data['outputs'] = '|'.join(event.outputs)
+        appEvent = AppEvent(event)
 
         LOG.warn(''.join(['-'*20, 'App Event', '-'*20]))
-        for (key, val) in data.items():
+        for (key, val) in appEvent.asDict().items():
             LOG.warn("%s: %s" % (key, val))
         LOG.warn(''.join(['-'*20, '---------', '-'*20]))
 
-        appEventUrl = instinctual.informer.getAppEventUrl()
-        LOG.info(restclient.POST(appEventUrl, data, async=False))
+        client = Client()
+        client.postAppEvent(appEvent)
 
 if __name__ == '__main__':
     observer = MyObserver()
