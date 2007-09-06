@@ -1,3 +1,9 @@
+import os
+
+root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-4])
+sqlitePath = os.sep.join([root, 'data', 'informer.db'])
+templatePath = os.sep.join([root, 'templates', 'admin'])
+
 # Django settings for instinctual project.
 DEBUG = True
 #DEBUG = False
@@ -10,8 +16,8 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = '/Users/jrichards/dev/instinctual/src/data/informer.db'      # Or path to database file if using sqlite3.
-DATABASE_USER = 'instinctual' # Not used with sqlite3.
+DATABASE_NAME = sqlitePath     # Or path to database file if using sqlite3.
+DATABASE_USER = 'instinctual'  # Not used with sqlite3.
 DATABASE_PASSWORD = 'x'        # Not used with sqlite3.
 DATABASE_HOST = 'localhost'    # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
@@ -48,7 +54,7 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'gq#gb$_7cm=+fk*$iqa9&)!5rllo_r#v(#&7^g*tpi1+li!j5b'
+SECRET_KEY = 'gq#gb$_7cm=+fk*$iqa9&)LUNAROCKS#v(#&7^g*tpi1+li!j5b'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -71,7 +77,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/Users/jrichards/dev/instinctual/src/templates/admin',
+    templatePath,
 )
 
 INSTALLED_APPS = (

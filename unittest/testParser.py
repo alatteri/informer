@@ -1,3 +1,18 @@
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
 import unittest
 
 from instinctual.parser.subject import DiscreetAppSubject

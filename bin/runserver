@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import os
+import instinctual
+from instinctual.informer import settings
+from django.core.management import execute_manager
+
+conf = instinctual.getConf()
+server = "%s:%s" % (conf.get('informer', 'server'), conf.get('informer', 'port'))
+
+if 'sqlite3' == settings.DATABASE_ENGINE:
+    if not os.path.exists(settings.DATABASE_NAME):
+        print "The sqlite database [%s] does not exist." % (settings.DATABASE_NAME)
+        yn = raw_input("Would you like to initialize the database? [y/n]: ")
+        if yn == 'y':
+            execute_manager(settings, [None, 'syncdb'])
+
+if __name__ == '__main__':
+    execute_manager(settings, [None, 'runserver', server])
