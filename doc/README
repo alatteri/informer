@@ -1,4 +1,16 @@
 # --------------------
+About this directory:
+bin/            scripts to run
+conf/           ini files to tweak
+data/           default location to store sqlite db
+doc/            contains READMES, etc
+lib/            instinctual code libraries
+spark/          code to build the spark
+template/       django templates
+third_party/    third party libraries
+unittest/       unit tests
+
+# --------------------
 To run the server:
 % cd src/bin
 % ./runserver
