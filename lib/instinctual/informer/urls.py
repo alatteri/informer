@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from django_restapi.model_resource import Collection, Entry, reverse
 from django_restapi.resource import Resource
-from django_restapi.responder import *
+from instinctual.informer.responder import *
 from django_restapi.authentication import *
 
 from django_restapi.receiver import FormReceiver
@@ -61,11 +61,21 @@ xml_N_of_S_of_P_collection = ProjectShotCollection(
     permitted_methods = ['GET'],
     responder = XMLResponder()
 )
+py_N_of_S_of_P_collection = ProjectShotCollection(
+    queryset = Note.objects.all(),
+    permitted_methods = ['GET'],
+    responder = PythonResponder()
+)
 
 xml_E_of_S_of_P_collection = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET'],
     responder = XMLResponder()
+)
+py_E_of_S_of_P_collection = ProjectShotCollection(
+    queryset = Element.objects.all(),
+    permitted_methods = ['GET'],
+    responder = PythonResponder()
 )
 
 from datetime import datetime
@@ -156,8 +166,14 @@ urlpatterns = patterns('',
     (r'^xml/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/notes/$',
         xml_N_of_S_of_P_collection,
         {'is_entry':False}),
+    (r'^py/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/notes/$',
+        py_N_of_S_of_P_collection,
+        {'is_entry':False}),
     (r'^xml/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/elements/$',
         xml_E_of_S_of_P_collection,
+        {'is_entry':False}),
+    (r'^py/projects/(?P<project_name>[^/]+)/shots/(?P<shot_name>[^/]+)/elements/$',
+        py_E_of_S_of_P_collection,
         {'is_entry':False}),
     (r'^xml/app_events/$', app_event),
     # (r'^xml/events/$', xml_event_collection),

@@ -73,13 +73,17 @@ class Gateway(object):
         print "Running getNotes()"
         client = Client()
         notes = client.getNotes(self.setup)
-        pass
+        print "Hey I got", len(notes), "notes"
+        for note in notes:
+            print "--->", note
 
     def getElements(self):
         print "Running getElements()"
         client = Client()
         elements = client.getElements(self.setup)
-        pass
+        print "Hey I got", len(elements), "elements"
+        for element in elements:
+            print "--->", elements
 
 if __name__ == '__main__':
     app = Gateway()
