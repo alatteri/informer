@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#define UI_NUM_ROWS 6
+
 /*************************************
  * Informer notes data structure
  *************************************/
@@ -17,7 +19,6 @@ typedef struct {
     char           DateAdded[100];      /* Date note was added */
     char           DateModified[100];   /* Last time modified */
 } InformerNoteStruct;
-
 
 /*************************************
  * Informer function prototypes
@@ -50,12 +51,7 @@ SparkBooleanStruct SparkBoolean9 =  { 0, "", NULL };
 SparkBooleanStruct SparkBoolean10 = { 0, "", NULL };
 SparkBooleanStruct SparkBoolean11 = { 0, "", NULL };
 SparkBooleanStruct SparkBoolean12 = { 0, "", NULL };
-SparkBooleanStruct NoteBooleansUI[] = {SparkBoolean7,
-                                       SparkBoolean8,
-                                       SparkBoolean9,
-                                       SparkBoolean10,
-                                       SparkBoolean11,
-                                       SparkBoolean12};
+SparkBooleanStruct *NoteBooleansUI[] = {&SparkBoolean7, &SparkBoolean8, &SparkBoolean9, &SparkBoolean10, &SparkBoolean11, &SparkBoolean12};
 
 /* Informer Note Text fields */
 SparkStringStruct SparkString14 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -64,6 +60,7 @@ SparkStringStruct SparkString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString17 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString18 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString19 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct *NoteTextUI[] = {&SparkString14, &SparkString15, &SparkString16, &SparkString17, &SparkString18, &SparkString19};
 
 /* Informer From/Date fields */
 SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -72,6 +69,7 @@ SparkStringStruct SparkString30 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString31 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString32 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct *NoteFromUI[] = {&SparkString28, &SparkString29, &SparkString30, &SparkString31, &SparkString32, &SparkString33};
 
 /* Informer Note Controls */
 SparkStringStruct SparkString27 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -92,7 +90,6 @@ SparkStringStruct SparkString39 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
  */
 static int RESULT_ID = 1;
 static int FRONT_ID  = 2;
-static int UI_NUM_ROWS = 6;
 
 static SparkMemBufStruct SparkResult;
 static SparkMemBufStruct SparkSource;
@@ -137,7 +134,6 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     setup_name = sparkGetLastSetupName();
     printf("----> SparkInitialise called <----\n");
     printf("[[[[ setup: %s ]]]]\n", setup_name);
-
 
     //AllNotes[1] = Note1;
     //AllNotes[2] = Note2;
@@ -424,8 +420,10 @@ void InformerShowNoteRow(int row_num)
 void InformerRefreshNotesUI(void)
 {
     int i = 0;
+
     printf("****** Time to refresh the notes UI ********\n");
-    sprintf(SparkString27.Value, "Displaying notes 1 - %d", gNoteCount);
+    sprintf(SparkString27.Value, "Displaying notes 1 - %d (of %d)",
+            gNoteCount, gNoteCount);
 
     for (i=0; i<gNoteCount; i++)
     {
@@ -435,7 +433,16 @@ void InformerRefreshNotesUI(void)
 
 void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
 {
-
+    printf("Truing to update row UI with row_num [%d]\n", row_num);
+    NoteBooleansUI[row_num-1]->Value = source.IsChecked;
+    sprintf(NoteBooleansUI[row_num-1]->Title, "TODO");
+    // if (1 == source.IsChecked) {
+    //     sprintf(NoteBooleansUI[row_num-1]->Title, "Done. %s", source.DateModified);
+    // } else {
+    //     sprintf(NoteBooleansUI[row_num-1]->Title, "%s", "TODO");
+    // }
+    sprintf(NoteTextUI[row_num-1]->Value, "%s", source.Text);
+    sprintf(NoteFromUI[row_num-1]->Value, "%s: %s", source.User, source.DateAdded);
     InformerShowNoteRow(row_num);
 }
 
