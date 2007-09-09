@@ -40,7 +40,9 @@ parser.add_option('-o', '--outfile',
                   action = 'store', dest = 'outfile', default = None,
                   help = "the output file for saving results")
 
+# ------------------------------------------------------------------------------
 class Gateway(object):
+    format = "%D %I:%M%p"
     def __init__(self):
         (options, args) = parser.parse_args()
         LOG.info("Gateway called with options [%s] args [%s]" % (options, args))
@@ -56,28 +58,39 @@ class Gateway(object):
             one_of = ", ".join(ok_actions)
             parser.error("The action specified must be one of: " + one_of)
 
+        self.options = options
         self.setup   = options.setup
         self.action  = options.action
-        self.outfile = options.outfile
 
     def run(self):
-        print "action:", self.action
-        print "setup:", self.setup
+        LOG.info("action: %s" % (self.action))
+        LOG.info("setup: %s" % (self.setup))
+
+        outfile = sys.stdout
+        if self.options.outfile:
+            outfile = open(self.options.outfile, 'w')
 
         if self.action == 'get_notes':
-            self.getNotes()
+            self.getNotes(outfile)
         elif self.action == 'get_elements':
-            self.getElements()
+            self.getElements(outfile)
 
-    def getNotes(self):
-        print "Running getNotes()"
+    def getNotes(self, outfile):
+        LOG.info("Running getNotes()")
         client = Client()
         notes = client.getNotes(self.setup)
-        print "Hey I got", len(notes), "notes"
+        LOG.info("---> data: %s" % (notes))
+        outfile.write("%s\n" % (len(notes)))
         for note in notes:
-            print "--->", note
+            outfile.write("pk: %s\n" % (note['pk']))
+            for key in ('user', 'text'):
+                outfile.write("%s: %s\n" % (key, note['fields'][key]))
+            outfile.write("is_checked: %s\n" % (int(note['fields']['is_checked'])))
+            for key in ('date_added', 'date_modified'):
+                val = note['fields'][key].strftime(self.format)
+                outfile.write("%s: %s\n" % (key, val))
 
-    def getElements(self):
+    def getElements(self, outfile):
         print "Running getElements()"
         client = Client()
         elements = client.getElements(self.setup)
@@ -85,6 +98,7 @@ class Gateway(object):
         for element in elements:
             print "--->", elements
 
+# ------------------------------------------------------------------------------
 if __name__ == '__main__':
     app = Gateway()
     app.run()
