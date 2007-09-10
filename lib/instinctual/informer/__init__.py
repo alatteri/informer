@@ -39,6 +39,8 @@ _reSetup = re.compile(r'/project/([^/]+)/batch/(\w+)')
 def parseSetup(setup):
     match = _reSetup.search(setup)
     if match != None:
-        return {'project': match.group(1), 'shot': match.group(2)}
+        parsed = {'project': match.group(1), 'shot': match.group(2)}
+        LOG.info("parsed ---> %s" % (parsed))
+        return parsed
     else:
         return None
