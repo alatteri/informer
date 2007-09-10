@@ -66,38 +66,51 @@ class Gateway(object):
         LOG.info("action: %s" % (self.action))
         LOG.info("setup: %s" % (self.setup))
 
+        data = ''
+        if self.action == 'get_notes':
+            data = self.getNotes()
+        elif self.action == 'get_elements':
+            data = self.getElements()
+
         outfile = sys.stdout
         if self.options.outfile:
             outfile = open(self.options.outfile, 'w')
+        outfile.write(data)
 
-        if self.action == 'get_notes':
-            self.getNotes(outfile)
-        elif self.action == 'get_elements':
-            self.getElements(outfile)
+    def getNotes(self):
+        """
+        Returns a serialized string representation of the notes
+        """
 
-    def getNotes(self, outfile):
+        data = ''
         client = Client()
 
         LOG.info("Running getNotes()")
         notes = client.getNotes(self.setup)
 
         LOG.info("Lookup found: %s notes" % (len(notes)))
-        outfile.write("%s\n" % (len(notes)))
+        data += "%s\n" % (len(notes))
 
         for note in notes:
             LOG.info("---> note: %s" % (note))
-            outfile.write("pk: %s\n" % (note['pk']))
+            data += "pk: %s\n" % (note['pk'])
 
             for key in ('user', 'text'):
-                outfile.write("%s: %s\n" % (key, note['fields'][key]))
+                data += "%s: %s\n" % (key, note['fields'][key])
 
-            outfile.write("is_checked: %s\n" % (int(note['fields']['is_checked'])))
+            data += "is_checked: %s\n" % (int(note['fields']['is_checked']))
 
             for key in ('date_added', 'date_modified'):
                 val = note['fields'][key].strftime(self.format)
-                outfile.write("%s: %s\n" % (key, val))
+                data += "%s: %s\n" % (key, val)
+
+        return data
 
     def getElements(self, outfile):
+        """
+        Returns a serialized string representation of the notes
+        """
+
         print "Running getElements()"
         client = Client()
         elements = client.getElements(self.setup)
