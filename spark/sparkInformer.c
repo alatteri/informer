@@ -30,13 +30,14 @@ static unsigned long *SayHelloNoSh(int CallbackArg, SparkInfoStruct SparkInfo);
 
 static unsigned long *NoteChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
-char *InformerGetSetupName(void);
-char *InformerGetGatewayPath(void);
+const char *InformerGetSetupName(void);
+const char *InformerGetGatewayPath(void);
 int InformerGetNotes(void);
 
+void InformerShowNoteRow(int row_num);
 void InformerHideNoteRow(int row_num);
 void InformerHideAllNoteRows(void);
-void InformerShowNoteRow(int row_num);
+void InformerToggleNoteRow(int row_num, int on_off);
 void InformerRefreshNotesUI(void);
 void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num);
 
@@ -130,7 +131,7 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
     int i;
     char title[200];
-    char     *setup_name;
+    const char     *setup_name;
     setup_name = sparkGetLastSetupName();
     printf("----> SparkInitialise called <----\n");
     printf("[[[[ setup: %s ]]]]\n", setup_name);
@@ -179,8 +180,8 @@ int SparkClips(void)
 /*--------------------------------------------------------------------------*/
 int SparkProcessStart(SparkInfoStruct spark_info)
 {
-    char *setup;
-    char *gateway;
+    const char *setup;
+    const char *gateway;
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
     printf("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
@@ -221,21 +222,23 @@ void SparkEvent(SparkModuleEvent spark_event)
 /*--------------------------------------------------------------------------*/
 /* Returns the name of the current setup being worked on.                   */
 /*--------------------------------------------------------------------------*/
-char *InformerGetSetupName(void)
+const char *InformerGetSetupName(void)
 {
-    char *setup;
+    const char *setup;
     setup = sparkGetLastSetupName();
     return setup;
 }
 
-char *InformerGetGatewayPath(void)
+const char *InformerGetGatewayPath(void)
 {
     char *home;
     char path[PATH_MAX];
+    const char *const_path;
 
     home = getenv("HOME");
     sprintf(path, "%s/informer/bin/gateway", home);
-    return path;
+    const_path = path;
+    return const_path;
 }
 
 int InformerGetNotes(void)
@@ -243,9 +246,9 @@ int InformerGetNotes(void)
     int pid = 0;
     int status = 0;
     int import_ok = 0;
-    char *setup;
-    char *gateway;
-    char *argv[8];
+    const char *setup;
+    const char *gateway;
+    const char *argv[8];
 
     sparkMessage(GET_NOTES_WAIT);
     InformerHideAllNoteRows();
@@ -329,10 +332,10 @@ int InformerImportNotes(char *filepath)
         /* read the date_added field -> DateAdded */
         /* read the date_modified field -> DateModified */
 
-        if ((fscanf(fp, "%*s %d%*1[\n]", &gNoteData[i].Id) > 0) &&
+        if ((fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].Id) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].User) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].Text) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]", &gNoteData[i].IsChecked) > 0) &&
+            (fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].IsChecked) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].DateAdded) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].DateModified) > 0)) {
             /* looking good -- keep going */
@@ -389,31 +392,31 @@ void InformerHideAllNoteRows(void)
 
 void InformerHideNoteRow(int row_num)
 {
-    /* The numbers below are the ui control offsets */
-    int bool_no = 6;
-    int text_no = 13;
-    int user_no = 27;
-
-    if (1 <= row_num && UI_NUM_ROWS >= row_num) {
-        printf("++++ call to disable note row %d\n", row_num);
-        sparkDisableParameter(SPARK_UI_CONTROL, bool_no + row_num);
-        sparkDisableParameter(SPARK_UI_CONTROL, text_no + row_num);
-        sparkDisableParameter(SPARK_UI_CONTROL, user_no + row_num);
-    }
+    printf("++++ call to disable note row %d\n", row_num);
+    InformerToggleNoteRow(row_num, 0);
 }
 
 void InformerShowNoteRow(int row_num)
 {
-    /* The numbers below are the ui control offsets */
-    int bool_no = 6;
-    int text_no = 13;
-    int user_no = 27;
+    printf("++++ call to enable note row %d\n", row_num);
+    InformerToggleNoteRow(row_num, 1);
+}
+
+void InformerToggleNoteRow(int row_num, int on_off)
+{
+    void (*sparkToggle)(int, int) = NULL;
 
     if (1 <= row_num && UI_NUM_ROWS >= row_num) {
-        printf("++++ call to disable note row %d\n", row_num);
-        sparkEnableParameter(SPARK_UI_CONTROL, bool_no + row_num);
-        sparkEnableParameter(SPARK_UI_CONTROL, text_no + row_num);
-        sparkEnableParameter(SPARK_UI_CONTROL, user_no + row_num);
+        if (0 == on_off) {
+            sparkToggle = sparkDisableParameter;
+        } else {
+            sparkToggle = sparkEnableParameter;
+        }
+
+        /* The numbers below are the ui control column offsets */
+        sparkToggle(SPARK_UI_CONTROL, row_num + 6);
+        sparkToggle(SPARK_UI_CONTROL, row_num + 13);
+        sparkToggle(SPARK_UI_CONTROL, row_num + 27);
     }
 }
 
@@ -435,7 +438,7 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
 {
     printf("Truing to update row UI with row_num [%d]\n", row_num);
     NoteBooleansUI[row_num-1]->Value = source.IsChecked;
-    sprintf(NoteBooleansUI[row_num-1]->Title, "TODO");
+    // sprintf(NoteBooleansUI[row_num-1]->Title, "TODO");
     // if (1 == source.IsChecked) {
     //     sprintf(NoteBooleansUI[row_num-1]->Title, "Done. %s", source.DateModified);
     // } else {
@@ -451,7 +454,7 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
 /*--------------------------------------------------------------------------*/
 static unsigned long *SayHello(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    char     *setup_name;
+    const char     *setup_name;
     int answer;
     sparkMessageDelay(2000, "Hello world");
     /*answer = sparkMessageConfirm("Hello world?");*/
