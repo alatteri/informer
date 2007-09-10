@@ -19,7 +19,7 @@ import sys
 from optparse import OptionParser
 
 import instinctual
-from instinctual.informer.client import Client
+from instinctual.informer.client import Client, ClientConnectionRefused
 
 LOG = instinctual.getLogger(sys.argv[0])
 
@@ -67,10 +67,15 @@ class Gateway(object):
         LOG.info("setup: %s" % (self.setup))
 
         data = ''
-        if self.action == 'get_notes':
-            data = self.getNotes()
-        elif self.action == 'get_elements':
-            data = self.getElements()
+
+        try:
+            if self.action == 'get_notes':
+                data = self.getNotes()
+            elif self.action == 'get_elements':
+                data = self.getElements()
+        except ClientConnectionRefused, e:
+            LOG.error("Could not reach database: %s" % (e))
+            sys.exit(2)
 
         outfile = sys.stdout
         if self.options.outfile:
@@ -89,6 +94,8 @@ class Gateway(object):
         notes = client.getNotes(self.setup)
 
         LOG.info("Lookup found: %s notes" % (len(notes)))
+        LOG.info("Found this: %s", (notes))
+
         data += "%s\n" % (len(notes))
 
         for note in notes:

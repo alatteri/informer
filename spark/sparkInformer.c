@@ -436,14 +436,16 @@ void InformerRefreshNotesUI(void)
 
 void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
 {
+    char checked[80];
+
     printf("Truing to update row UI with row_num [%d]\n", row_num);
     NoteBooleansUI[row_num-1]->Value = source.IsChecked;
-    // sprintf(NoteBooleansUI[row_num-1]->Title, "TODO");
-    // if (1 == source.IsChecked) {
-    //     sprintf(NoteBooleansUI[row_num-1]->Title, "Done. %s", source.DateModified);
-    // } else {
-    //     sprintf(NoteBooleansUI[row_num-1]->Title, "%s", "TODO");
-    // }
+    if (1 == source.IsChecked) {
+        sprintf(checked, "Done. %s", source.DateModified);
+        NoteBooleansUI[row_num-1]->Title = checked;
+    } else {
+        NoteBooleansUI[row_num-1]->Title = "TODO";
+    }
     sprintf(NoteTextUI[row_num-1]->Value, "%s", source.Text);
     sprintf(NoteFromUI[row_num-1]->Value, "%s: %s", source.User, source.DateAdded);
     InformerShowNoteRow(row_num);

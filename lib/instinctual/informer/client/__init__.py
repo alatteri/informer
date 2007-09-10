@@ -13,6 +13,9 @@ from instinctual.informer.client.appevent import AppEvent
 
 LOG = instinctual.getLogger(__name__)
 
+class ClientConnectionRefused(Exception):
+    pass
+
 # ------------------------------------------------------------------------------
 class Client(object):
     def postAppEvent(self, appEvent, async=False):
@@ -24,13 +27,21 @@ class Client(object):
         project = parsed['project']
         shot = parsed['shot']
         url = informer.getProjectShotNotesUrl(TYPE_PYTHON, project, shot)
-        data = restclient.GET(url)
-        return eval(data)
+        return self.GET(url)
 
     def getElements(self, setup):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
         shot = parsed['shot']
         url = informer.getProjectShotElementsUrl(TYPE_PYTHON, project, shot)
+        return self.GET(url)
+
+    def GET(self, url):
         data = restclient.GET(url)
-        return eval(data)
+        data = eval(data) # whoa! scary!
+
+        if len(data) == 2:
+            if data[0] == 111:
+                raise ClientConnectionRefused("%s %s: %s" % (url, data[0], data[1]))
+
+        return data
