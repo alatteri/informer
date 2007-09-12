@@ -23,10 +23,14 @@ from instinctual.informer.client import Client, ClientConnectionRefused
 
 LOG = instinctual.getLogger(sys.argv[0])
 
+ok_actions = ('get_notes', 'get_elements', 'update_note')
+ok_actions_str = '|'.join(ok_actions)
+
 parser = OptionParser("usage: gateway " + \
                       "--setup=<file> " + \
-                      "--action=[get_notes|get_elements] " + \
-                      "--outfile=<outfile")
+                      "--action=(%s) " % ok_actions_str + \
+                      "[--infile=<infile>] " + \
+                      "[--outfile=<outfile>]")
 
 parser.add_option('-s', '--setup',
                   action = 'store', dest = 'setup', default = None,
@@ -34,11 +38,15 @@ parser.add_option('-s', '--setup',
 
 parser.add_option('-a', '--action',
                   action = 'store', dest = 'action', default = None,
-                  help = "the action to perform: [get_notes|get_elements] (required)")
+                  help = "the action to perform: (%s) (required)" % ok_actions_str)
 
 parser.add_option('-o', '--outfile',
                   action = 'store', dest = 'outfile', default = None,
-                  help = "the output file for saving results")
+                  help = "the output file for saving results (default: stdout)")
+
+parser.add_option('-i', '--infile',
+                  action = 'store', dest = 'infile', default = None,
+                  help = "the input file for reading data (default: stdin)")
 
 # ------------------------------------------------------------------------------
 class Gateway(object):
@@ -53,7 +61,6 @@ class Gateway(object):
         if options.action is None:
             parser.error("An action must be specified")
 
-        ok_actions = ('get_notes', 'get_elements')
         if options.action not in ok_actions:
             one_of = ", ".join(ok_actions)
             parser.error("The action specified must be one of: " + one_of)
@@ -68,19 +75,27 @@ class Gateway(object):
 
         data = ''
 
+        outfile = sys.stdout
+        if self.options.outfile:
+            outfile = open(self.options.outfile, 'w')
+
+        infile = sys.stdin
+        if self.options.infile:
+            infile = open(self.options.infile, 'r')
+
         try:
             if self.action == 'get_notes':
                 data = self.getNotes()
+                outfile.write(data)
             elif self.action == 'get_elements':
                 data = self.getElements()
+                outfile.write(data)
+            elif self.action == 'update_note':
+                print "Hells yes."
         except ClientConnectionRefused, e:
             LOG.error("Could not reach database: %s" % (e))
             sys.exit(2)
 
-        outfile = sys.stdout
-        if self.options.outfile:
-            outfile = open(self.options.outfile, 'w')
-        outfile.write(data)
 
     def getNotes(self):
         """
