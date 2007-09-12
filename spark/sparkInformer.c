@@ -32,8 +32,11 @@ static unsigned long *NoteChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
 const char *InformerGetSetupName(void);
 const char *InformerGetGatewayPath(void);
-int InformerGetNotes(void);
+int InformerGetNotesDB(void);
+int InformerUpdateNoteDB(int id, int is_checked);
+int InformerCallGateway(char *action, char *infile, char *outfile);
 
+int InformerRowToIndex(int row_num);
 void InformerShowNoteRow(int row_num);
 void InformerHideNoteRow(int row_num);
 void InformerHideAllNoteRows(void);
@@ -44,14 +47,22 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num);
 static unsigned long *InformerNotesPagePrev(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesPageNext(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesPupChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+void InformerNotesToggleRow(int row_num);
 
 /* Informer Note Boolean CheckBoxes */
-SparkBooleanStruct SparkBoolean7 =  { 0, "", NULL };
-SparkBooleanStruct SparkBoolean8 =  { 0, "", NULL };
-SparkBooleanStruct SparkBoolean9 =  { 0, "", NULL };
-SparkBooleanStruct SparkBoolean10 = { 0, "", NULL };
-SparkBooleanStruct SparkBoolean11 = { 0, "", NULL };
-SparkBooleanStruct SparkBoolean12 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean7 =  { 0, "", InformerNotesRow1BoolChanged };
+SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerNotesRow2BoolChanged };
+SparkBooleanStruct SparkBoolean9 =  { 0, "", InformerNotesRow3BoolChanged };
+SparkBooleanStruct SparkBoolean10 = { 0, "", InformerNotesRow4BoolChanged };
+SparkBooleanStruct SparkBoolean11 = { 0, "", InformerNotesRow5BoolChanged };
+SparkBooleanStruct SparkBoolean12 = { 0, "", InformerNotesRow6BoolChanged };
 SparkBooleanStruct *NoteBooleansUI[] = {&SparkBoolean7, &SparkBoolean8, &SparkBoolean9, &SparkBoolean10, &SparkBoolean11, &SparkBoolean12};
 
 /* Informer Note Text fields */
@@ -105,6 +116,7 @@ InformerNoteStruct gNoteData[100];      /* The array of note data */
 
 static char GATEWAY_STATUS_ERR[] = "Unable to get notes";
 static char GET_NOTES_WAIT[] = "Getting notes from database...";
+static char UPDATE_NOTE_WAIT[] = "Updating database...";
 
 /****************************************************************************
  *                      Spark Base Function Calls                           *
@@ -186,7 +198,7 @@ int SparkProcessStart(SparkInfoStruct spark_info)
     gateway = InformerGetGatewayPath();
     printf("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
            setup, gateway);
-    InformerGetNotes();
+    InformerGetNotesDB();
     return 1;
 }
 
@@ -241,17 +253,56 @@ const char *InformerGetGatewayPath(void)
     return const_path;
 }
 
-int InformerGetNotes(void)
+int InformerGetNotesDB(void)
 {
-    int pid = 0;
     int status = 0;
     int import_ok = 0;
-    const char *setup;
-    const char *gateway;
-    const char *argv[8];
 
     sparkMessage(GET_NOTES_WAIT);
     InformerHideAllNoteRows();
+
+    status = InformerCallGateway("get_notes", NULL, "/tmp/trinity");
+
+    if (1 == status) {
+        import_ok = InformerImportNotes("/tmp/trinity");
+        if (1 == import_ok) {
+            InformerRefreshNotesUI();
+            return 1;
+        } else {
+            // TODO: What should happen here?
+            sprintf(SparkString27.Value, "%s", GET_NOTES_WAIT);
+            return 0;
+        }
+    }
+}
+
+int InformerUpdateNoteDB(int id, int is_checked)
+{
+    int status = 0;
+    int export_ok = 0;
+
+    sparkMessage(UPDATE_NOTE_WAIT);
+
+    export_ok = InformerExportNote("/tmp/trinity2", id, is_checked);
+
+    if (1 == export_ok) {
+        status = InformerCallGateway("update_note", "/tmp/trinity2", NULL);
+
+        if (1 == status) {
+            InformerRefreshNotesUI();
+        }
+    }
+
+    return status;
+}
+
+int InformerCallGateway(char *action, char *infile, char *outfile)
+{
+    int pid = 0;
+    int status = 0;
+    const char *setup;
+    const char *gateway;
+    const char *argv[8];
 
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
@@ -262,13 +313,20 @@ int InformerGetNotes(void)
     argv[1] = "-s";
     argv[2] = setup;
     argv[3] = "-a";
-    argv[4] = "get_notes";
-    argv[5] = "-o";
-    argv[6] = "/tmp/trinity";
+    argv[4] = action;
+
+    if (infile != NULL) {
+        argv[5] = "-i";
+        argv[6] = infile;
+    } else {
+        argv[5] = "-o";
+        argv[6] = outfile;
+    }
+
     argv[7] = 0;
 
-    printf("argv[0] is [%s]\n", argv[0]);
 
+    printf("argv[0] is [%s]\n", argv[0]);
     printf("About to make gateway call [%s %s %s %s %s %s %s]\n",
            argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
 
@@ -277,22 +335,46 @@ int InformerGetNotes(void)
     printf("Gateway returned. status [%d]\n", status);
 
     if (0 != status) {
+        // TODO: Map the status to a human readable string
         sprintf(SparkString27.Value, "%s: status [%d]",
                 GATEWAY_STATUS_ERR, status);
         return 0;
     } else {
-        import_ok = InformerImportNotes("/tmp/trinity");
-        if (1 == import_ok) {
-            InformerRefreshNotesUI();
-            return 1;
-        } else {
-            sprintf(SparkString27.Value, "%s", GET_NOTES_WAIT);
-        }
+        return 1;
     }
 }
 
+
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
+int InformerExportNote(char *filepath, int id, int is_checked)
+{
+    FILE *fp;
+
+    printf("here we go. writing datafile [%s]\n", filepath);
+
+    if ((fp=fopen(filepath, "w")) == NULL) {
+        sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
+                GATEWAY_STATUS_ERR, filepath);
+        return 0;
+    }
+
+    printf("-------- OK -------- opened the file for writing!\n");
+
+    if ((fprintf(fp, "1\n") > 0) &&
+        (fprintf(fp, "pk: %d\n", id) > 0) &&
+        (fprintf(fp, "is_checked: %d\n", is_checked) > 0)) {
+        printf("... write of note ok!\n");
+        fclose(fp);
+        return 1;
+    } else {
+        printf("------- WHOA! error writing to datafile!\n");
+        sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
+                GATEWAY_STATUS_ERR, filepath);
+        return 0;
+    }
+}
+
 int InformerImportNotes(char *filepath)
 {
     FILE *fp;
@@ -355,6 +437,12 @@ int InformerImportNotes(char *filepath)
 /****************************************************************************
  *                      Informer UI Function Calls                          *
  ****************************************************************************/
+int InformerRowToIndex(int row_num)
+{
+    // TODO: make this work with pages
+    return row_num - 1;
+}
+
 static unsigned long *InformerNotesPupChanged(int CallbackArg,
                                               SparkInfoStruct SparkInfo )
 {
@@ -362,10 +450,66 @@ static unsigned long *InformerNotesPupChanged(int CallbackArg,
             CallbackArg, SparkPup34.Value);
 
     if (1 == CallbackArg) {
-        InformerGetNotes();
+        InformerGetNotesDB();
     }
 
     return NULL;
+}
+
+static unsigned long *InformerNotesRow1BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(1);
+    return NULL;
+}
+
+static unsigned long *InformerNotesRow2BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(2);
+    return NULL;
+}
+
+static unsigned long *InformerNotesRow3BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(3);
+    return NULL;
+}
+
+static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(4);
+    return NULL;
+}
+
+static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(5);
+    return NULL;
+}
+
+static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg,
+                                                   SparkInfoStruct SparkInfo )
+{
+    InformerNotesToggleRow(6);
+    return NULL;
+}
+
+void InformerNotesToggleRow(int row_num)
+{
+    int status = 0;
+    int index = InformerRowToIndex(row_num);
+    int id = gNoteData[index].Id;
+    int is_checked = NoteBooleansUI[row_num-1]->Value;
+
+    printf("It's id is: (%d)\n", id);
+    printf("Row number (%d) was changed\n", row_num);
+    printf("It's value is: %d\n", is_checked);
+
+    status = InformerUpdateNoteDB(id, is_checked);
 }
 
 static unsigned long *InformerNotesPagePrev(int CallbackArg,
