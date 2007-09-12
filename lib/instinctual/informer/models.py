@@ -39,12 +39,12 @@ class Note(models.Model):
     user        = models.CharField(maxlength=255)
     text        = models.CharField('text', maxlength=4096)
     comment     = models.CharField(maxlength=4096, null=True, blank=True)
-    is_checked  = models.BooleanField('is checked', default=False)
+    is_checked  = models.BooleanField('completed', default=False)
     date_added  = models.DateTimeField('date added', auto_now_add=True)
     date_modified = models.DateTimeField('date modified', auto_now=True)
 
     class Admin:
-        pass
+        list_display = ('shot', 'is_checked', 'text', 'user', 'date_added', 'date_modified')
 
     def __str__(self):
         if self.comment:
