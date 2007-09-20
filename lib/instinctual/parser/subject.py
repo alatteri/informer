@@ -76,6 +76,7 @@ class LogSubject(Subject):
         LOG.debug("---- one readline ---")
         all_lines = []
         while 1:
+            # TODO: should this be xreadlines?
             lines = self._handle.readlines(100*1024)
             if not lines: break
             all_lines.extend(lines)

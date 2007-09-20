@@ -3,9 +3,6 @@ import instinctual
 
 LOG = instinctual.getLogger(__name__)
 
-TYPE_XML = 'xml'
-TYPE_PYTHON = 'py'
-
 def getServerRoot():
     conf = instinctual.getConf()
     proto = conf.get('informer', 'proto')
@@ -18,15 +15,19 @@ def _getUrlComponent(component):
     root = getServerRoot()
     return "%s/%s" % (root, conf.get('informer', component))
 
-def getAppEventUrl(type):
-    return _getUrlComponent('%s_app_event_url' % type)
+def getAppEventUrl():
+    return _getUrlComponent('url_app_event')
 
-def getProjectShotNotesUrl(type, project, shot):
-    template = _getUrlComponent('%s_project_shot_notes_url' % type)
+def getProjectShotNotesUrl(project, shot):
+    template = _getUrlComponent('url_project_shot_notes')
     return template % (project, shot)
 
-def getProjectShotElementsUrl(type, project, shot):
-    template = _getUrlComponent('%s_project_shot_elements_url' % type)
+def getProjectShotNoteUrl(project, shot, pk):
+    template = _getUrlComponent('url_project_shot_note')
+    return template % (project, shot, pk)
+
+def getProjectShotElementsUrl(project, shot):
+    template = _getUrlComponent('url_project_shot_elements')
     return template % (project, shot)
 
 """
