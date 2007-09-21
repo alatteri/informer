@@ -20,8 +20,10 @@ class Receiver(object):
     """
     def get_data(self, request, method):
         raise Exception("Receiver subclass needs to implement get_data!")
+    
     def get_post_data(self, request):
         return self.get_data(request, 'POST')
+    
     def get_put_data(self, request):
         return self.get_data(request, 'PUT')
 
@@ -35,13 +37,13 @@ class FormReceiver(Receiver):
 
 class SerializeReceiver(Receiver):
     """
-    Base class for all data formats that are possible
-    with Django's serializer framework.
+    Base class for all data formats possible
+    within Django's serializer framework.
     """
     def __init__(self, format):
         self.format = format
+    
     def get_data(self, request, method):
-        # TODO: Allow partial updates?
         try:
             deserialized_objects = list(serializers.deserialize(self.format, request.raw_post_data))
         except serializers.base.DeserializationError:
@@ -52,10 +54,8 @@ class SerializeReceiver(Receiver):
         data = {}
         for field in model._meta.fields:
             data[field.name] = getattr(model, field.name)
-        # TODO: m2m receiver
-        #m2m = deserialized_objects[0].m2m_data
-        #for accessor_name, object_list in m2m.items():
-        #    setattr(self.object, accessor_name, object_list)
+        # m2m = deserialized_objects[0].m2m_data
+        # data.update(m2m)
         return data
 
 class JSONReceiver(SerializeReceiver):

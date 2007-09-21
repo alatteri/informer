@@ -1,8 +1,9 @@
 """
 Generic resource class.
 """
+from authentication import NoAuthentication
 from django.core.urlresolvers import reverse as _reverse
-from django.http import Http404, HttpResponseNotAllowed, QueryDict
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed
 
 def load_put_and_files(request):
     """
@@ -15,27 +16,35 @@ def load_put_and_files(request):
     if request.method == 'PUT':
         request.method = 'POST'
         request._load_post_and_files()
-        request.PUT = request.POST
         request.method = 'PUT'
+        request.PUT = request.POST
+        del request._post
 
-def reverse(viewname, args=(), kwargs={}):
+def reverse(viewname, args=(), kwargs=None):
     """
     Return the URL associated with a view and specified parameters.
     If the regular expression used specifies an optional slash at 
     the end of the URL, add the slash.
     """
+    if not kwargs:
+        kwargs = {}
     url = _reverse(viewname, None, args, kwargs)
     if url[-2:] == '/?':
         url = url[:-1]
     return url
 
-class Resource(object):
+class HttpMethodNotAllowed(Exception):
     """
-    Generic resource class that can be used for
-    resources that are not based on Django models.
+    Signals that request.method was not part of
+    the list of permitted methods.
     """
-    def __init__(self, authentication=None, permitted_methods=None,
-                 mimetype='text/html'):
+
+class ResourceBase(object):
+    """
+    Base class for both model-based and non-model-based 
+    resources.
+    """
+    def __init__(self, authentication=None, permitted_methods=None):
         """
         authentication:
             the authentication instance that checks whether a
@@ -45,40 +54,30 @@ class Resource(object):
             resource e.g. ('GET', 'PUT')
         """
         # Access restrictions
+        if not authentication:
+            authentication = NoAuthentication()
         self.authentication = authentication
-        if permitted_methods:
-            self.permitted_methods = [op.upper() for op in permitted_methods]
-        else:
-            self.permitted_methods = ["GET"]
         
+        if not permitted_methods:
+            permitted_methods = ["GET"]
+        self.permitted_methods = [m.upper() for m in permitted_methods]
     
-    def __call__(self, request, *args, **kwargs):
+    def dispatch(self, request, target, *args, **kwargs):
         """
-        Redirects to one of the CRUD methods depending 
-        on the HTTP method of the request. Checks whether
-        the requested method is allowed for this resource.
         """
-        # Check permission
-        if self.authentication:
-            if not self.authentication.is_authenticated(request):
-                response =  HttpResponse(_('Authorization Required'), mimetype="text/plain")
-                challenge_headers = self.authentication.challenge_headers()
-                response.headers.update(challenge_headers)
-                response.status_code = 401
-                return response
         request_method = request.method.upper()
         if request_method not in self.permitted_methods:
-            return HttpResponseNotAllowed(self.permitted_methods)
+            raise HttpMethodNotAllowed
         
         if request_method == 'GET':
-            return self.read(request, *args, **kwargs)
+            return target.read(request, *args, **kwargs)
         elif request_method == 'POST':
-            return self.create(request, *args, **kwargs)
+            return target.create(request, *args, **kwargs)
         elif request_method == 'PUT':
             load_put_and_files(request)
-            return self.update(request, *args, **kwargs)
+            return target.update(request, *args, **kwargs)
         elif request_method == 'DELETE':
-            return self.delete(request, *args, **kwargs)
+            return target.delete(request, *args, **kwargs)
         else:
             raise Http404
     
@@ -87,7 +86,7 @@ class Resource(object):
         Returns resource URL.
         """
         return reverse(self)
-    
+
     # The four CRUD methods that any class that 
     # inherits from Resource may implement:
     
@@ -102,4 +101,47 @@ class Resource(object):
     
     def delete(self, request):
         raise Http404
+
+class Resource(ResourceBase):
+    """
+    Generic resource class that can be used for
+    resources that are not based on Django models.
+    """
+    def __init__(self, authentication=None, permitted_methods=None,
+                 mimetype=None):
+        """
+        authentication:
+            the authentication instance that checks whether a
+            request is authenticated
+        permitted_methods:
+            the HTTP request methods that are allowed for this 
+            resource e.g. ('GET', 'PUT')
+        mimetype:
+            if the default None is not changed, any HttpResponse calls 
+            use settings.DEFAULT_CONTENT_TYPE and settings.DEFAULT_CHARSET
+        """
+        ResourceBase.__init__(self, authentication, permitted_methods)
+        self.mimetype = mimetype
+    
+    def __call__(self, request, *args, **kwargs):
+        """
+        Redirects to one of the CRUD methods depending 
+        on the HTTP method of the request. Checks whether
+        the requested method is allowed for this resource.
+        """
+        # Check permission
+        if not self.authentication.is_authenticated(request):
+            response = HttpResponse(_('Authorization Required'), mimetype=self.mimetype)
+            challenge_headers = self.authentication.challenge_headers()
+            response.headers.update(challenge_headers)
+            response.status_code = 401
+            return response
+        
+        try:
+            return self.dispatch(request, self, *args, **kwargs)
+        except HttpMethodNotAllowed:
+            response = HttpResponseNotAllowed(self.permitted_methods)
+            response.mimetype = self.mimetype
+            return response
+
     

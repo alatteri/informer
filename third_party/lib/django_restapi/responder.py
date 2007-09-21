@@ -2,8 +2,7 @@
 Data format classes ("responders") that can be plugged 
 into model_resource.ModelResource and determine how
 the objects of a ModelResource instance are rendered
-(e.g. serialized to XML, rendered by Django's generic
-views, ...).
+(e.g. serialized to XML, rendered by templates, ...).
 """
 from django.core import serializers
 from django.core.handlers.wsgi import STATUS_CODE_TEXT
@@ -30,8 +29,7 @@ class SerializeResponder(object):
             framework. By default: xml, python, json, (yaml).
         mimetype:
             if the default None is not changed, any HttpResponse calls 
-            use settings.DEFAULT_CONTENT_TYPE and
-            settings.DEFAULT_CHARSET
+            use settings.DEFAULT_CONTENT_TYPE and settings.DEFAULT_CHARSET
         paginate_by:
             Number of elements per page. Default: All elements.
         """
@@ -48,8 +46,8 @@ class SerializeResponder(object):
         """
         # Hide unexposed fields
         hidden_fields = []
-        for object in list(object_list):
-            for field in object._meta.fields:
+        for obj in list(object_list):
+            for field in obj._meta.fields:
                 if not field.name in self.expose_fields and field.serialize:
                     field.serialize = False
                     hidden_fields.append(field)
@@ -63,16 +61,17 @@ class SerializeResponder(object):
         """
         Renders single model objects to HttpResponse.
         """
-        # TODO: Include the resource urls of related resources?
         return HttpResponse(self.render([elem]), self.mimetype)
     
-    def error(self, request, status_code, error_dict=ErrorDict()):
+    def error(self, request, status_code, error_dict=None):
         """
         Handles errors in a RESTful way.
         - appropriate status code
         - appropriate mimetype
         - human-readable error message
         """
+        if not error_dict:
+            error_dict = ErrorDict()
         response = HttpResponse(mimetype = self.mimetype)
         response.write('%d %s' % (status_code, STATUS_CODE_TEXT[status_code]))
         if error_dict:
@@ -97,11 +96,8 @@ class SerializeResponder(object):
                     object_list = []
                 else:
                     return self.error(request, 404)
-            # TODO: Each page needs to include a link to the next page
         else:
             object_list = list(queryset)
-        # TODO: Each element needs to include its resource url
-        # TODO: Include the resource urls of related resources?
         return HttpResponse(self.render(object_list), self.mimetype)
     
 class JSONResponder(SerializeResponder):
@@ -112,12 +108,14 @@ class JSONResponder(SerializeResponder):
         SerializeResponder.__init__(self, 'json', 'application/json',
                     paginate_by=paginate_by, allow_empty=allow_empty)
 
-    def error(self, request, status_code, error_dict=ErrorDict()):
+    def error(self, request, status_code, error_dict=None):
         """
         Return JSON error response that includes a human readable error
         message, application-specific errors and a machine readable
         status code.
         """
+        if not error_dict:
+            error_dict = ErrorDict()
         response = HttpResponse(mimetype = self.mimetype)
         response.status_code = status_code
         response_dict = {
@@ -136,13 +134,15 @@ class XMLResponder(SerializeResponder):
         SerializeResponder.__init__(self, 'xml', 'application/xml',
                     paginate_by=paginate_by, allow_empty=allow_empty)
 
-    def error(self, request, status_code, error_dict=ErrorDict()):
+    def error(self, request, status_code, error_dict=None):
         """
         Return XML error response that includes a human readable error
         message, application-specific errors and a machine readable
         status code.
         """
         from django.conf import settings
+        if not error_dict:
+            error_dict = ErrorDict()
         response = HttpResponse(mimetype = self.mimetype)
         response.status_code = status_code
         xml = SimplerXMLGenerator(response, settings.DEFAULT_CHARSET)
@@ -166,11 +166,13 @@ class TemplateResponder(object):
     generic views).
     """
     def __init__(self, template_dir, paginate_by=None, template_loader=loader,
-                 extra_context={}, allow_empty=False, context_processors=None,
+                 extra_context=None, allow_empty=False, context_processors=None,
                  template_object_name='object', mimetype=None):
         self.template_dir = template_dir
         self.paginate_by = paginate_by
         self.template_loader = template_loader
+        if not extra_context:
+            extra_context = {}
         for key, value in extra_context.items():
             if callable(value):
                 extra_context[key] = value()
@@ -252,10 +254,12 @@ class TemplateResponder(object):
         populate_xheaders(request, response, elem.__class__, getattr(elem, elem._meta.pk.name))
         return response
     
-    def error(self, request, status_code, error_dict=ErrorDict()):
+    def error(self, request, status_code, error_dict=None):
         """
         Renders error template (template name: error status code).
         """
+        if not error_dict:
+            error_dict = ErrorDict()
         response = direct_to_template(request, 
             template = '%s/%s.html' % (self.template_dir, str(status_code)),
             extra_context = { 'errors' : error_dict },
@@ -263,11 +267,11 @@ class TemplateResponder(object):
         response.status_code = status_code
         return response
     
-    def create_form(self, request, queryset):
+    def create_form(self, request, queryset, form_class):
         """
         Render form for creation of new collection entry.
         """
-        ResourceForm = forms.form_for_model(queryset.model)
+        ResourceForm = forms.form_for_model(queryset.model, form=form_class)
         if request.POST:
             form = ResourceForm(request.POST)
         else:
@@ -275,14 +279,14 @@ class TemplateResponder(object):
         template_name = '%s/%s_form.html' % (self.template_dir, queryset.model._meta.module_name)
         return render_to_response(template_name, {'form':form})
 
-    def update_form(self, request, pk, queryset):
+    def update_form(self, request, pk, queryset, form_class):
         """
         Render edit form for single entry.
         """
         # Remove queryset cache by cloning the queryset
         queryset = queryset._clone()
         elem = queryset.get(**{queryset.model._meta.pk.name : pk})
-        ResourceForm = forms.form_for_instance(elem)
+        ResourceForm = forms.form_for_instance(elem, form=form_class)
         if request.PUT:
             form = ResourceForm(request.PUT)
         else:

@@ -3,30 +3,31 @@ Model-bound resource class.
 """
 from django import newforms as forms
 from django.conf.urls.defaults import patterns
-from django.db.models.fields import AutoField, CharField, IntegerField, \
-         PositiveIntegerField, SlugField, SmallIntegerField
 from django.http import *
+from django.newforms import BaseForm
 from django.newforms.util import ErrorDict
 from django.utils.functional import curry
 from django.utils.translation.trans_null import _
-from django_restapi.resource import Resource, load_put_and_files, reverse
-from django_restapi.receiver import FormReceiver
+from resource import ResourceBase, load_put_and_files, reverse, HttpMethodNotAllowed
+from receiver import FormReceiver
 
 class InvalidModelData(Exception):
     """
     Raised if create/update fails because the PUT/POST 
     data is not appropriate.
     """
-    def __init__(self, errors=ErrorDict()):
+    def __init__(self, errors=None):
+        if not errors:
+            errors = ErrorDict()
         self.errors = errors
 
-class Collection(Resource):
+class Collection(ResourceBase):
     """
     Resource for a collection of models (queryset).
     """
-    def __init__(self, queryset, responder, receiver=None,
-                 authentication=None, permitted_methods=None,
-                 expose_fields=None, entry_class=None):
+    def __init__(self, queryset, responder, receiver=None, authentication=None,
+                 permitted_methods=None, expose_fields=None, entry_class=None,
+                 form_class=None):
         """
         queryset:
             determines the subset of objects (of a Django model)
@@ -48,13 +49,24 @@ class Collection(Resource):
             the model fields that can be accessed
             by the HTTP methods described in permitted_methods
         entry_class:
-            class used for entries in create() and get_entry()
+            class used for entries in create() and get_entry();
+            default: class Entry (see below)
+        form_class:
+            base form class used for data validation and
+            conversion in self.create() and Entry.update()
         """
         # Available data
         self.queryset = queryset
         
         # Input format
-        self.receiver = receiver or FormReceiver()
+        if not receiver:
+            receiver = FormReceiver()
+        self.receiver = receiver
+        
+        # Input validation
+        if not form_class:
+            form_class = BaseForm
+        self.form_class = form_class
         
         # Output format / responder setup
         self.responder = responder
@@ -62,14 +74,16 @@ class Collection(Resource):
             expose_fields = [field.name for field in queryset.model._meta.fields]
         responder.expose_fields = expose_fields
         if hasattr(responder, 'create_form'):
-            responder.create_form = curry(responder.create_form, queryset=queryset)
+            responder.create_form = curry(responder.create_form, queryset=queryset, form_class=form_class)
         if hasattr(responder, 'update_form'):
-            responder.update_form = curry(responder.update_form, queryset=queryset)
-                
-        # Access restrictions
-        Resource.__init__(self, authentication, permitted_methods)
+            responder.update_form = curry(responder.update_form, queryset=queryset, form_class=form_class)
         
-        self.entry_class = entry_class or Entry
+        # Resource class for individual objects of the collection
+        if not entry_class:
+            entry_class = Entry
+        self.entry_class = entry_class
+        
+        ResourceBase.__init__(self, authentication, permitted_methods)
     
     def __call__(self, request, *args, **kwargs):
         """
@@ -79,22 +93,13 @@ class Collection(Resource):
         Catches errors.
         """
         # Check authentication
-        if self.authentication:
-            if not self.authentication.is_authenticated(request):
-                response = self.responder.error(request, 401)
-                challenge_headers = self.authentication.challenge_headers()
-                response.headers.update(challenge_headers)
-                return response
-        
-        # Make sure HTTP method is permitted
-        request_method = request.method.upper()
-        print "request(%s) permitted(%s)" % (request_method, self.permitted_methods)
-        if request_method not in self.permitted_methods:
-            response = self.responder.error(request, 405)
-            response['Allow'] = ', '.join(self.permitted_methods)
+        if not self.authentication.is_authenticated(request):
+            response = self.responder.error(request, 401)
+            challenge_headers = self.authentication.challenge_headers()
+            response.headers.update(challenge_headers)
             return response
         
-        # Remove queryset cache by cloning queryset
+        # Remove queryset cache
         self.queryset = self.queryset._clone()
         
         # Determine whether the collection or a specific
@@ -112,26 +117,19 @@ class Collection(Resource):
         try:
             if is_entry:
                 entry = self.get_entry(*args, **kwargs)
-                if request_method == 'GET':
-                    return entry.read(request)
-                elif request_method == 'PUT':
-                    load_put_and_files(request)
-                    return entry.update(request)
-                elif request_method == 'DELETE':
-                    return entry.delete(request)
+                return self.dispatch(request, entry)
             else:
-                if request_method == 'GET':
-                    return self.read(request)
-                elif request_method == 'POST':
-                    return self.create(request)
+                return self.dispatch(request, self)
+        except HttpMethodNotAllowed:
+            response = self.responder.error(request, 405)
+            response['Allow'] = ', '.join(self.permitted_methods)
+            return response
         except (self.queryset.model.DoesNotExist, Http404):
-            # 404 Page not found
             return self.responder.error(request, 404)
         except InvalidModelData, i:
-            # 400 Bad Request error
             return self.responder.error(request, 400, i.errors)
         
-        # No other methods allowed: Bad Request
+        # No other methods allowed: 400 Bad Request
         return self.responder.error(request, 400)
     
     def create(self, request):
@@ -140,7 +138,7 @@ class Collection(Resource):
         redirects to the resource URI. 
         """
         # Create form filled with POST data
-        ResourceForm = forms.form_for_model(self.queryset.model)
+        ResourceForm = forms.form_for_model(self.queryset.model, form=self.form_class)
         data = self.receiver.get_post_data(request)
         form = ResourceForm(data)
         
@@ -192,9 +190,12 @@ class Entry(object):
         pk_value = getattr(self.model, self.model._meta.pk.name)
         return reverse(self.collection, (pk_value,))
     
+    def create(self, request):
+        raise Http404
+    
     def read(self, request):
         """
-        Returns a representation of a single model..
+        Returns a representation of a single model.
         The format depends on which responder (e.g. JSONResponder)
         is assigned to this ModelResource instance. Usually called by a
         HTTP request to the resource URI with method GET.
@@ -208,7 +209,7 @@ class Entry(object):
         request to the resource URI with method PUT.
         """
         # Create a form from the model/PUT data
-        ResourceForm = forms.form_for_instance(self.model)
+        ResourceForm = forms.form_for_instance(self.model, form=self.collection.form_class)
         data = self.collection.receiver.get_put_data(request)
         form = ResourceForm(data)
         
