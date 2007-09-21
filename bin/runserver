@@ -17,7 +17,7 @@ except ImportError, e:
 
 import os
 import instinctual
-from instinctual.informer import settings
+from instinctual import settings
 from django.core.management import execute_manager
 
 conf = instinctual.getConf()

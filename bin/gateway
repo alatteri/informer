@@ -15,6 +15,7 @@ except ImportError, e:
 # END BOOTSTRAP
 # ------------------------------------------------------------------------------
 
+import re
 import sys
 from optparse import OptionParser
 
@@ -91,11 +92,39 @@ class Gateway(object):
                 data = self.getElements()
                 outfile.write(data)
             elif self.action == 'update_note':
-                print "Hells yes."
+                data = self.parseInfile(infile)
+                self.updateNotes(data)
         except ClientConnectionRefused, e:
             LOG.error("Could not reach database: %s" % (e))
             sys.exit(2)
 
+    def parseInfile(self, infile):
+        data = []
+        _re = re.compile(r'^(\w+):\s*(.+)$')
+        count = int(infile.readline()[:-1])
+        for line in infile.xreadlines():
+            match = _re.search(line)
+            if match != None:
+                key = match.group(1)
+                val = match.group(2)
+                if key == 'pk':
+                    data.append({})
+                data[-1][key] = val
+
+        if len(data) != count:
+            msg = "The number of elements read did not match count"
+            LOG.error(msg)
+            raise IOError(msg)
+
+        return data
+
+    def updateNotes(self, data):
+        print "Hells yes."
+        client = Client()
+
+        for entry in data:
+            LOG.info("Running putNote()")
+            client.putNote(self.setup, entry)
 
     def getNotes(self):
         """

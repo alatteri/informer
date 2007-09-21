@@ -8,7 +8,8 @@ def getServerRoot():
     proto = conf.get('informer', 'proto')
     server = conf.get('informer', 'server')
     port = conf.get('informer', 'port')
-    return "%s://%s:%s" % (proto, server, port)
+    base = conf.get('informer', 'url_base')
+    return "%s://%s:%s/%s" % (proto, server, port, base)
 
 def _getUrlComponent(component):
     conf = instinctual.getConf()
@@ -18,13 +19,13 @@ def _getUrlComponent(component):
 def getAppEventUrl():
     return _getUrlComponent('url_app_event')
 
-def getProjectShotNotesUrl(project, shot):
-    template = _getUrlComponent('url_project_shot_notes')
-    return template % (project, shot)
-
 def getProjectShotNoteUrl(project, shot, pk):
     template = _getUrlComponent('url_project_shot_note')
     return template % (project, shot, pk)
+
+def getProjectShotNotesUrl(project, shot):
+    template = _getUrlComponent('url_project_shot_notes')
+    return template % (project, shot)
 
 def getProjectShotElementsUrl(project, shot):
     template = _getUrlComponent('url_project_shot_elements')

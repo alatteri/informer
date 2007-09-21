@@ -1,6 +1,6 @@
 import os
 
-root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-4])
+root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
 sqlitePath = os.sep.join([root, 'data', 'informer.db'])
 templatePath = os.sep.join([root, 'templates', 'admin'])
 
@@ -71,7 +71,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
 )
 
-ROOT_URLCONF = 'instinctual.informer.urls'
+ROOT_URLCONF = 'instinctual.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
