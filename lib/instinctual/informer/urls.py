@@ -3,7 +3,7 @@ from django.conf.urls.defaults import patterns
 import instinctual
 from instinctual.informer.responder import XMLResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
-from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver
+from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver, PkEntry
 
 
 # --------------------
@@ -21,12 +21,6 @@ xml_shots = Collection(
     responder = XMLResponder()
 )
 
-xml_event_collection = Collection(
-    queryset = Shot.objects.all(),
-    permitted_methods = ['GET'],
-    responder = XMLResponder()
-)
-
 xml_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
@@ -35,14 +29,14 @@ xml_project_shots = ProjectShots(
 
 xml_note = Collection(
     queryset = Note.objects.all(),
-    permitted_methods = ['GET','PUT', 'POST'],
-    receiver = XMLReceiver(),
-    responder = XMLResponder()
+    permitted_methods = ['GET','PUT'],
+    responder = XMLResponder(),
+    entry_class = PkEntry,
 )
 
 xml_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
-    permitted_methods = ['GET'],
+    permitted_methods = ['GET', 'POST'],
     responder = XMLResponder()
 )
 

@@ -362,7 +362,7 @@ int InformerExportNote(char *filepath, int id, int is_checked)
     printf("-------- OK -------- opened the file for writing!\n");
 
     if ((fprintf(fp, "1\n") > 0) &&
-        (fprintf(fp, "pk: %d\n", id) > 0) &&
+        (fprintf(fp, "id: %d\n", id) > 0) &&
         (fprintf(fp, "is_checked: %d\n", is_checked) > 0)) {
         printf("... write of note ok!\n");
         fclose(fp);
@@ -407,7 +407,7 @@ int InformerImportNotes(char *filepath)
     for (i=0; i<gNoteCount; i++) {
         /* skip the "key:" read the value */
 
-        /* read the pk field -> Id */
+        /* read the id field -> Id */
         /* read the user field -> User */
         /* read the text field -> Text */
         /* read the is_checked field -> IsChecked */

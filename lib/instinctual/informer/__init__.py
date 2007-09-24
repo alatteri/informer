@@ -45,4 +45,4 @@ def parseSetup(setup):
         LOG.info("parsed ---> %s" % (parsed))
         return parsed
     else:
-        return None
+        raise ValueError("Unable to parse setup: %s" % (setup))

@@ -5,6 +5,6 @@ from django.conf.urls.defaults import *
 #
 urlpatterns = patterns('',
     (r'^admin/', include('django.contrib.admin.urls')),
-    (r'^instinctual/1.0/', include('instinctual.informer.urls')),
+    (r'^informer/1.0/', include('instinctual.informer.urls')),
 )
 

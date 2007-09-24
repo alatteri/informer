@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 
 from django_restapi.resource import Resource
 from django_restapi.receiver import FormReceiver, XMLReceiver
-from django_restapi.model_resource import Collection, Entry, reverse
+from django_restapi.model_resource import Collection, Entry, reverse, InvalidModelData
 
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
 
@@ -43,6 +43,62 @@ class ProjectShotCollection(Collection):
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(shot=shot)
         return self.responder.list(request, filtered_set)
+
+    def create(self, request):
+        """
+        Creates a resource with attributes given by POST, then
+        redirects to the resource URI.
+
+        Unlike the base Collection create() it does not require every
+        since field to be specified.
+        """
+        # TODO: specifiy form_class in urls.py to verify data
+        project_name = getProjectNameFromRequest(request)
+        project = Project.objects.get(name=project_name)
+
+        shot_name = getShotNameFromRequest(request)
+        shot = Shot.objects.get(name=shot_name, project=project)
+
+        data = self.receiver.get_post_data(request)
+        new_model = self.queryset.model()
+
+        # associate with the shot
+        new_model.shot = shot
+
+        # seed with POST data
+        for (key, val) in data.items():
+            new_model.__setattr__(key, val)
+
+        # If the data contains no errors, save the model,
+        # return a "201 Created" response with the model's
+        # URI in the location header and a representation
+        # of the model in the response body.
+        new_model.save()
+        model_entry = self.entry_class(self, new_model)
+        response = model_entry.read(request)
+        response.status_code = 201
+        response.headers['Location'] = model_entry.get_url()
+        return response
+
+
+class PkEntry(Entry):
+    """
+    Creates the Entry from the primary key and only updates
+    those fields that are specified in the put data
+    """
+    def update(self, request):
+        # TODO: data validation/checking
+        data = self.collection.receiver.get_put_data(request)
+
+        for (key, val) in data.items():
+            self.model.__setattr__(key, val)
+
+        self.model.save()
+
+        response = self.read(request)
+        response.status_code = 200
+        response.headers['Location'] = self.get_url()
+        return response
 
 class AppEvent(Resource):
     def create(self, request):

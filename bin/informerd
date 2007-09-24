@@ -33,7 +33,7 @@ class MyObserver(Observer):
         LOG.warn(''.join(['-'*20, '---------', '-'*20]))
 
         client = Client()
-        client.postAppEvent(appEvent)
+        client.newAppEvent(appEvent)
 
 if __name__ == '__main__':
     observer = MyObserver()

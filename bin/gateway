@@ -9,6 +9,7 @@ except ImportError, e:
     import os
     import sys
     lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    print "hey lib is:", lib
     sys.path.append(lib)
     import sitecustomize
 # ------------------------------------------------------------------------------
@@ -20,11 +21,12 @@ import sys
 from optparse import OptionParser
 
 import instinctual
-from instinctual.informer.client import Client, ClientConnectionRefused
+from instinctual import settings
+from instinctual.informer.client import Client, ClientConnectionError
 
 LOG = instinctual.getLogger(sys.argv[0])
 
-ok_actions = ('get_notes', 'get_elements', 'update_note')
+ok_actions = ('get_notes', 'get_elements', 'update_note', 'new_note')
 ok_actions_str = '|'.join(ok_actions)
 
 parser = OptionParser("usage: gateway " + \
@@ -94,7 +96,10 @@ class Gateway(object):
             elif self.action == 'update_note':
                 data = self.parseInfile(infile)
                 self.updateNotes(data)
-        except ClientConnectionRefused, e:
+            elif self.action == 'new_note':
+                data = self.parseInfile(infile)
+                self.newNotes(data)
+        except ClientConnectionError, e:
             LOG.error("Could not reach database: %s" % (e))
             sys.exit(2)
 
@@ -107,7 +112,7 @@ class Gateway(object):
             if match != None:
                 key = match.group(1)
                 val = match.group(2)
-                if key == 'pk':
+                if key == 'id':
                     data.append({})
                 data[-1][key] = val
 
@@ -118,13 +123,17 @@ class Gateway(object):
 
         return data
 
-    def updateNotes(self, data):
-        print "Hells yes."
+    def newNotes(self, data):
         client = Client()
-
         for entry in data:
-            LOG.info("Running putNote()")
-            client.putNote(self.setup, entry)
+            LOG.info("Running newNote()")
+            client.newNote(self.setup, entry)
+
+    def updateNotes(self, data):
+        client = Client()
+        for entry in data:
+            LOG.info("Running updateNote()")
+            client.updateNote(self.setup, entry)
 
     def getNotes(self):
         """
@@ -144,16 +153,12 @@ class Gateway(object):
 
         for note in notes:
             LOG.info("---> note: %s" % (note))
-            data += "pk: %s\n" % (note['pk'])
-
-            for key in ('user', 'text'):
-                data += "%s: %s\n" % (key, note['fields'][key])
-
-            data += "is_checked: %s\n" % (int(note['fields']['is_checked']))
-
-            for key in ('date_added', 'date_modified'):
-                val = note['fields'][key].strftime(self.format)
-                data += "%s: %s\n" % (key, val)
+            data += "id: %s\n" % (note.id)
+            data += "user: %s\n" % (note.user)
+            data += "text: %s\n" % (note.text)
+            data += "is_checked: %s\n" % (int(note.is_checked))
+            data += "date_added: %s\n" % (note.date_added.strftime(self.format))
+            data += "date_modified: %s\n" % (note.date_modified.strftime(self.format))
 
         return data
 
