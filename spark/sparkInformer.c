@@ -12,7 +12,7 @@
  * Informer notes data structure
  *************************************/
 typedef struct {
-    unsigned int    Id;                 /* Primary key of Note */
+    unsigned int   Id;                  /* Primary key of Note */
     char           User[255];           /* The user who created the note */
     char           Text[4096];          /* The actual note message */
     unsigned int   IsChecked;           /* Boolean: is the note checked? */
@@ -243,14 +243,8 @@ const char *InformerGetSetupName(void)
 
 const char *InformerGetGatewayPath(void)
 {
-    char *home;
-    char path[PATH_MAX];
-    const char *const_path;
-
-    home = getenv("HOME");
-    sprintf(path, "%s/informer/bin/gateway", home);
-    const_path = path;
-    return const_path;
+    const char *path = "/usr/discreet/instinctual/informer/bin/gateway";
+    return path;
 }
 
 int InformerGetNotesDB(void)
