@@ -7,10 +7,10 @@ import instinctual
 from instinctual import settings
 
 import restclient
-from django.core.serializers.xml_serializer import Deserializer, Serializer
 
 from instinctual import informer
 from instinctual.informer.client.appevent import AppEvent
+from instinctual.informer.client.xml_serializer import Deserializer
 
 LOG = instinctual.getLogger(__name__)
 
@@ -81,17 +81,6 @@ class Client(object):
                 objects.append(data.object)
         except StopIteration, e:
             pass
-
-    def _getObjects(self, deserializer):
-        objects = []
-        try:
-            while 1:
-                data = deserializer.next()
-                objects.append(data.object)
-        except StopIteration, e:
-            pass
-
-        return objects
 
         return objects
 
