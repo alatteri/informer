@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #define UI_NUM_ROWS 6
+#define USERNAME_MAX 255
 
 extern int errno;
 
@@ -17,12 +18,13 @@ extern int errno;
  * Informer notes data structure
  *************************************/
 typedef struct {
-    unsigned int   Id;                  /* Primary key of Note */
-    char           User[255];           /* The user who created the note */
-    char           Text[4096];          /* The actual note message */
-    unsigned int   IsChecked;           /* Boolean: is the note checked? */
-    char           DateAdded[100];      /* Date note was added */
-    char           DateModified[100];   /* Last time modified */
+    unsigned int   Id;                       /* Primary key of Note */
+    char           Text[4096];               /* The actual note message */
+    unsigned int   IsChecked;                /* Boolean: is the note checked? */
+    char           CreatedBy[USERNAME_MAX];  /* The user who created the note */
+    char           CreatedOn[100];           /* Date note was created */
+    char           ModifiedBy[USERNAME_MAX]; /* The user who last modified the note */
+    char           ModifiedOn[100];          /* Date note was last modified */
 } InformerNoteStruct;
 
 /*************************************
@@ -443,7 +445,7 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
 
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
-int InformerExportNote(char *filepath, int id, int is_checked)
+int InformerExportNote(char *filepath, int id, int is_checked, char *modified_by)
 {
     FILE *fp;
 
@@ -459,7 +461,8 @@ int InformerExportNote(char *filepath, int id, int is_checked)
 
     if ((fprintf(fp, "1\n") > 0) &&
         (fprintf(fp, "id: %d\n", id) > 0) &&
-        (fprintf(fp, "is_checked: %d\n", is_checked) > 0)) {
+        (fprintf(fp, "is_checked: %d\n", is_checked) > 0) &&
+        (fprintf(fp, "modified_by: %s\n", modified_by) > 0)) {
         printf("... write of note ok!\n");
         fclose(fp);
         return 1;
@@ -504,18 +507,18 @@ int InformerImportNotes(char *filepath)
         /* skip the "key:" read the value */
 
         /* read the id field -> Id */
-        /* read the user field -> User */
         /* read the text field -> Text */
         /* read the is_checked field -> IsChecked */
         /* read the date_added field -> DateAdded */
         /* read the date_modified field -> DateModified */
 
         if ((fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].Id) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].User) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].Text) > 0) &&
             (fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].IsChecked) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].DateAdded) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].DateModified) > 0)) {
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].CreatedBy) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].CreatedOn) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].ModifiedBy) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].ModifiedOn) > 0)) {
             /* looking good -- keep going */
             printf("... read note [%d] ok!\n", i);
         } else {
@@ -685,13 +688,13 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
     printf("Truing to update row UI with row_num [%d]\n", row_num);
     NoteBooleansUI[row_num-1]->Value = source.IsChecked;
     if (1 == source.IsChecked) {
-        sprintf(checked, "Done. %s", source.DateModified);
+        sprintf(checked, "Done. %s", source.ModifiedOn);
         NoteBooleansUI[row_num-1]->Title = checked;
     } else {
         NoteBooleansUI[row_num-1]->Title = "TODO";
     }
     sprintf(NoteTextUI[row_num-1]->Value, "%s", source.Text);
-    sprintf(NoteFromUI[row_num-1]->Value, "by %s on %s", source.User, source.DateAdded);
+    sprintf(NoteFromUI[row_num-1]->Value, "by %s on %s", source.CreatedBy, source.CreatedOn);
     InformerShowNoteRow(row_num);
 }
 
