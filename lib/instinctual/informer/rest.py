@@ -1,7 +1,7 @@
 from datetime import datetime
 from time import strptime, mktime
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
 from django_restapi.resource import Resource
 from django_restapi.receiver import FormReceiver, XMLReceiver
@@ -162,5 +162,6 @@ class AppEvent(Resource):
                     o = Output(location=output, event=e)
                     o.save()
                     print "--- saved o ---"
-        return HttpResponseRedirect('/')
+
+        return HttpResponse('')
 
