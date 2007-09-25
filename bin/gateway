@@ -154,11 +154,12 @@ class Gateway(object):
         for note in notes:
             LOG.info("---> note: %s" % (note))
             data += "id: %s\n" % (note.id)
-            data += "user: %s\n" % (note.user)
             data += "text: %s\n" % (note.text)
             data += "is_checked: %s\n" % (int(note.is_checked))
-            data += "date_added: %s\n" % (note.date_added.strftime(self.format))
-            data += "date_modified: %s\n" % (note.date_modified.strftime(self.format))
+            data += "created_by: %s\n" % (note.created_by)
+            data += "created_on: %s\n" % (note.created_on.strftime(self.format))
+            data += "modified_by: %s\n" % (note.modified_by)
+            data += "modified_on: %s\n" % (note.modified_on.strftime(self.format))
 
         return data
 

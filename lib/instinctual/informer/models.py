@@ -36,15 +36,17 @@ class Shot(models.Model):
 # ------------------------------------------------------------------------------
 class Note(models.Model):
     shot        = models.ForeignKey(Shot)
-    user        = models.CharField(maxlength=255)
     text        = models.CharField('text', maxlength=4096)
     comment     = models.CharField(maxlength=4096, null=True, blank=True)
     is_checked  = models.BooleanField('completed', default=False)
-    date_added  = models.DateTimeField('date added', auto_now_add=True)
-    date_modified = models.DateTimeField('date modified', auto_now=True)
+    created_on  = models.DateTimeField('date created', auto_now_add=True)
+    created_by  = models.CharField('created by', maxlength=255)
+    modified_on = models.DateTimeField('date modified', auto_now=True)
+    modified_by = models.CharField('modified by', maxlength=255)
 
     class Admin:
-        list_display = ('shot', 'is_checked', 'text', 'user', 'date_added', 'date_modified')
+        list_display = ('shot', 'is_checked', 'text', 'created_by',
+                        'created_on', 'modified_by', 'modified_on')
 
     def __str__(self):
         if self.comment:
