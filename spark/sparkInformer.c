@@ -5,8 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
 #define UI_NUM_ROWS 6
+
+extern int errno;
 
 /*************************************
  * Informer notes data structure
@@ -30,8 +35,12 @@ static unsigned long *SayHelloNoSh(int CallbackArg, SparkInfoStruct SparkInfo);
 
 static unsigned long *NoteChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
+const char *DiscreetGetUserdbPath(void);
+
 const char *InformerGetSetupName(void);
 const char *InformerGetGatewayPath(void);
+int InformerGetCurrentUser(char *user, int max_length);
+
 int InformerGetNotesDB(void);
 int InformerUpdateNoteDB(int id, int is_checked);
 int InformerCallGateway(char *action, char *infile, char *outfile);
@@ -84,6 +93,8 @@ SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct *NoteFromUI[] = {&SparkString28, &SparkString29, &SparkString30, &SparkString31, &SparkString32, &SparkString33};
 
 /* Informer Note Controls */
+SparkPupStruct SparkPup6 = {0, 2, InformerNotesPupChanged, {"Sort by date",
+                                                             "Sort by status"}};
 SparkStringStruct SparkString27 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPushStruct SparkPush13 = { "<< Previous Page", InformerNotesPagePrev };
 SparkPushStruct SparkPush20 = { "Next Page >>", InformerNotesPageNext };
@@ -117,6 +128,7 @@ InformerNoteStruct gNoteData[100];      /* The array of note data */
 static char GATEWAY_STATUS_ERR[] = "Unable to get notes";
 static char GET_NOTES_WAIT[] = "Getting notes from database...";
 static char UPDATE_NOTE_WAIT[] = "Updating database...";
+static char CURRENT_USER_ERR[] = "Unable to determine user";
 
 /****************************************************************************
  *                      Spark Base Function Calls                           *
@@ -144,9 +156,29 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     int i;
     char title[200];
     const char     *setup_name;
+    const char     *name;
+    char  who[32];
+
+    extern char **environ;
+
+    char **ptr = environ;
+
+    while (*ptr) {
+        printf("ok trying this out... %s\n", *ptr);
+        *ptr++;
+    }
+
+    if (TRUE == InformerGetCurrentUser(who, 32)) {
+        printf("The who is [%s]\n", who);
+    } else {
+        printf("hrm. unable to get current user!\n");
+    }
+
+    name = sparkProgramGetName();
     setup_name = sparkGetLastSetupName();
     printf("----> SparkInitialise called <----\n");
     printf("[[[[ setup: %s ]]]]\n", setup_name);
+    printf("[[[[ name: %s ]]]]\n", name);
 
     //AllNotes[1] = Note1;
     //AllNotes[2] = Note2;
@@ -241,10 +273,84 @@ const char *InformerGetSetupName(void)
     return setup;
 }
 
+/*--------------------------------------------------------------------------*/
+/* Returns path to the informer gateway script                              */
+/*--------------------------------------------------------------------------*/
 const char *InformerGetGatewayPath(void)
 {
     const char *path = "/usr/discreet/instinctual/informer/bin/gateway";
     return path;
+}
+
+/*--------------------------------------------------------------------------*/
+/* Get the current spark user into the char* argument                       */
+/* Returns TRUE on success, FALSE on faliure                                */
+/*--------------------------------------------------------------------------*/
+int InformerGetCurrentUser(char *user, int max_length)
+{
+    FILE *fp;
+    char line[1024];
+    const char *filepath;
+
+    int i;
+    char *c;
+    char *start;
+    char *end;
+
+    filepath = DiscreetGetUserdbPath();
+    if (NULL == filepath) {
+        return FALSE;
+    }
+
+    if ((fp=fopen(filepath, "r")) == NULL) {
+        printf("I couldn't open %s: %s\n", filepath, strerror(errno));
+        sprintf(SparkString27.Value, "%s: can't open [%s]",
+                CURRENT_USER_ERR, filepath);
+        return FALSE;
+    }
+
+    do {
+        c = fgets(line, 1024, fp);
+        if (c != NULL) {
+            if (strstr(line, "UserGroupStatus:UsrGroup1={") != NULL) {
+                start = index(line, '{');
+                end = rindex(line, '}');
+                if (end != NULL && start != NULL) {
+                    if (end - start < max_length)
+                        max_length = end - start;
+
+                    strncpy(user, start + 1, max_length - 1);
+                    user[max_length] = '\0';
+                    return TRUE;
+                }
+            }
+        }
+    } while (c != NULL);
+
+
+    return FALSE;
+}
+
+const char *DiscreetGetUserdbPath(void)
+{
+    const char *program;
+    const char *effects = "/usr/discreet/user/effects/user.db";
+    const char *editing = "/usr/discreet/user/editing/user.db";
+
+    program = sparkProgramGetName();
+
+    if (0 == strcmp("flame", program) ||
+        0 == strcmp("flint", program) ||
+        0 == strcmp("inferno", program)) {
+        return effects;
+    } else if (0 == strcmp("fire", program) ||
+               0 == strcmp("smoke", program)) {
+        return editing;
+    } else {
+        sprintf(SparkString27.Value, "%s: unknown program [%s]",
+                CURRENT_USER_ERR, program);
+        return NULL;
+    }
 }
 
 int InformerGetNotesDB(void)
@@ -281,10 +387,6 @@ int InformerUpdateNoteDB(int id, int is_checked)
 
     if (1 == export_ok) {
         status = InformerCallGateway("update_note", "/tmp/trinity2", NULL);
-
-        if (1 == status) {
-            InformerRefreshNotesUI();
-        }
     }
 
     return status;
@@ -504,6 +606,10 @@ void InformerNotesToggleRow(int row_num)
     printf("It's value is: %d\n", is_checked);
 
     status = InformerUpdateNoteDB(id, is_checked);
+
+    /* if (1 == status) {
+        InformerRefreshNotesUI();
+    }*/
 }
 
 static unsigned long *InformerNotesPagePrev(int CallbackArg,
@@ -585,7 +691,7 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
         NoteBooleansUI[row_num-1]->Title = "TODO";
     }
     sprintf(NoteTextUI[row_num-1]->Value, "%s", source.Text);
-    sprintf(NoteFromUI[row_num-1]->Value, "%s: %s", source.User, source.DateAdded);
+    sprintf(NoteFromUI[row_num-1]->Value, "by %s on %s", source.User, source.DateAdded);
     InformerShowNoteRow(row_num);
 }
 
