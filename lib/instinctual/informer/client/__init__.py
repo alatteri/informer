@@ -20,7 +20,7 @@ class ClientConnectionError(Exception):
 # ------------------------------------------------------------------------------
 class Client(object):
     def newAppEvent(self, appEvent):
-        appEventUrl = instinctual.informer.getAppEventUrl()
+        appEventUrl = instinctual.informer.getAppEventsUrl()
         data = appEvent.asDict()
         result = self.POST(appEventUrl, data)
 

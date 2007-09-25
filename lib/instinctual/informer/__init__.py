@@ -16,8 +16,8 @@ def _getUrlComponent(component):
     root = getServerRoot()
     return "%s/%s" % (root, conf.get('informer', component))
 
-def getAppEventUrl():
-    return _getUrlComponent('url_app_event')
+def getAppEventsUrl():
+    return _getUrlComponent('url_app_events')
 
 def getProjectShotNoteUrl(project, shot, pk):
     template = _getUrlComponent('url_project_shot_note')
