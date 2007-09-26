@@ -61,7 +61,11 @@ class Client(object):
         del updates['id']
 
         url = informer.getProjectShotNoteUrl(project, shot, id)
-        self.PUT(url, updates)
+        result = self.PUT(url, updates)
+
+        deserializer = Deserializer(result)
+        notes = self._getObjects(deserializer)
+        return notes
 
     def newNote(self, setup, data):
         if 'id' in data:

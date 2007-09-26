@@ -76,8 +76,6 @@ class Gateway(object):
         LOG.info("action: %s" % (self.action))
         LOG.info("setup: %s" % (self.setup))
 
-        data = ''
-
         outfile = sys.stdout
         if self.options.outfile:
             outfile = open(self.options.outfile, 'w')
@@ -88,17 +86,20 @@ class Gateway(object):
 
         try:
             if self.action == 'get_notes':
-                data = self.getNotes()
-                outfile.write(data)
-            elif self.action == 'get_elements':
-                data = self.getElements()
+                result = self.getNotes()
+                data = self.serializeNotes(result)
                 outfile.write(data)
             elif self.action == 'update_note':
-                data = self.parseInfile(infile)
-                self.updateNotes(data)
+                input = self.parseInfile(infile)
+                result = self.updateNote(input[0])
+                data = self.serializeNotes(result)
+                outfile.write(data)
             elif self.action == 'new_note':
-                data = self.parseInfile(infile)
-                self.newNotes(data)
+                input = self.parseInfile(infile)
+                self.newNote(input[0])
+            elif self.action == 'get_elements':
+                result = self.getElements()
+                outfile.write(result)
         except ClientConnectionError, e:
             LOG.error("Could not reach database: %s" % (e))
             sys.exit(2)
@@ -123,24 +124,20 @@ class Gateway(object):
 
         return data
 
-    def newNotes(self, data):
+    def newNote(self, data):
         client = Client()
-        for entry in data:
-            LOG.info("Running newNote()")
-            client.newNote(self.setup, entry)
+        LOG.info("Running newNote()")
+        client.newNote(self.setup, data)
 
-    def updateNotes(self, data):
+    def updateNote(self, data):
         client = Client()
-        for entry in data:
-            LOG.info("Running updateNote()")
-            client.updateNote(self.setup, entry)
+        LOG.info("Running updateNote()")
+        return client.updateNote(self.setup, data)
 
     def getNotes(self):
         """
-        Returns a serialized string representation of the notes
+        Returns an array of note objects
         """
-
-        data = ''
         client = Client()
 
         LOG.info("Running getNotes()")
@@ -149,6 +146,11 @@ class Gateway(object):
         LOG.info("Lookup found: %s notes" % (len(notes)))
         LOG.info("Found this: %s", (notes))
 
+        return notes
+
+
+    def serializeNotes(self, notes):
+        data = ''
         data += "%s\n" % (len(notes))
 
         for note in notes:

@@ -49,9 +49,9 @@ class Deserializer(object):
             if 'CharField' == field_type:
                 pass
             elif 'BooleanField' == field_type:
-                if 'True' == field_val:
+                if 'True' == field_val or '1' == field_val:
                     field_val = True
-                elif 'False' == field_val:
+                elif 'False' == field_val or '0' == field_val:
                     field_val = False
                 else:
                     err = "BooleanField (%s) was not 'True' or 'False': %s"

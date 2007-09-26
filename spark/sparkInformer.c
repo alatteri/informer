@@ -30,19 +30,13 @@ typedef struct {
 /*************************************
  * Informer function prototypes
  *************************************/
-static unsigned long *SayHello(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *SayHelloWaiting(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *SayHelloWaitingTo(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *SayHelloNoSh(int CallbackArg, SparkInfoStruct SparkInfo);
-
-static unsigned long *NoteChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-
 const char *DiscreetGetUserdbPath(void);
 
 const char *InformerGetSetupName(void);
 const char *InformerGetGatewayPath(void);
 int InformerGetCurrentUser(char *user, int max_length);
 
+int InformerImportNotes(char *filepath, int index, int update_count);
 int InformerGetNotesDB(void);
 int InformerUpdateNoteDB(int id, int is_checked);
 int InformerCallGateway(char *action, char *infile, char *outfile);
@@ -357,76 +351,89 @@ const char *DiscreetGetUserdbPath(void)
 
 int InformerGetNotesDB(void)
 {
-    int status = 0;
-    int import_ok = 0;
-
     sparkMessage(GET_NOTES_WAIT);
     InformerHideAllNoteRows();
 
-    status = InformerCallGateway("get_notes", NULL, "/tmp/trinity");
-
-    if (1 == status) {
-        import_ok = InformerImportNotes("/tmp/trinity");
-        if (1 == import_ok) {
+    if (TRUE == InformerCallGateway("get_notes", NULL, "/tmp/trinity")) {
+        if (TRUE == InformerImportNotes("/tmp/trinity", 0, TRUE)) {
             InformerRefreshNotesUI();
-            return 1;
+            return TRUE;
         } else {
             // TODO: What should happen here?
             sprintf(SparkString27.Value, "%s", GET_NOTES_WAIT);
-            return 0;
+            return FALSE;
         }
     }
 }
 
 int InformerUpdateNoteDB(int id, int is_checked)
 {
-    int status = 0;
+    int index;
     int export_ok = 0;
+    char user[USERNAME_MAX];
 
     sparkMessage(UPDATE_NOTE_WAIT);
 
-    export_ok = InformerExportNote("/tmp/trinity2", id, is_checked);
-
-    if (1 == export_ok) {
-        status = InformerCallGateway("update_note", "/tmp/trinity2", NULL);
+    if (TRUE != InformerGetCurrentUser(user, USERNAME_MAX)) {
+        printf("Unable to determine the current user!\n");
+        return FALSE;
     }
 
-    return status;
+    if (TRUE == InformerExportNote("/tmp/trinity2", id, is_checked, user)) {
+        index = InformerRowToIndex(id);
+        printf("--------- update note ----------\n");
+        printf("is_checked [%d], user [%s], row [%d], index [%d]\n",
+               is_checked, user, id, index);
+        printf("--------- update note ----------\n");
+        if (TRUE == InformerCallGateway("update_note", "/tmp/trinity2", "/tmp/trinity3")) {
+            if (TRUE == InformerImportNotes("/tmp/trinity3", index, FALSE)) {
+                InformerRefreshNotesUI();
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
 }
 
 int InformerCallGateway(char *action, char *infile, char *outfile)
 {
     int pid = 0;
+    int index = 0;
     int status = 0;
     const char *setup;
     const char *gateway;
-    const char *argv[8];
+    const char *argv[10];
+    const char **ptr = argv;
 
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
 
     printf("the gateway is [%s]\n", gateway);
 
-    argv[0] = gateway;
-    argv[1] = "-s";
-    argv[2] = setup;
-    argv[3] = "-a";
-    argv[4] = action;
+    argv[index++] = gateway;
+    argv[index++] = "-s";
+    argv[index++] = setup;
+    argv[index++] = "-a";
+    argv[index++] = action;
 
     if (infile != NULL) {
-        argv[5] = "-i";
-        argv[6] = infile;
-    } else {
-        argv[5] = "-o";
-        argv[6] = outfile;
+        argv[index++] = "-i";
+        argv[index++] = infile;
     }
 
-    argv[7] = 0;
+    if (outfile != NULL) {
+        argv[index++] = "-o";
+        argv[index++] = outfile;
+    }
 
+    argv[index] = 0;    /* This is required to end the array */
 
-    printf("argv[0] is [%s]\n", argv[0]);
-    printf("About to make gateway call [%s %s %s %s %s %s %s]\n",
-           argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]);
+    printf("---- calling gateway ----\n");
+    while (*ptr) {
+        printf("%s ", *ptr++);
+    }
+    printf("\n---- calling gateway ----\n");
 
     pid = sparkSystemNoSh(FALSE, argv[0], argv);
     sparkWaitpid(pid, &status, 0);
@@ -436,9 +443,9 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
         // TODO: Map the status to a human readable string
         sprintf(SparkString27.Value, "%s: status [%d]",
                 GATEWAY_STATUS_ERR, status);
-        return 0;
+        return FALSE;
     } else {
-        return 1;
+        return TRUE;
     }
 }
 
@@ -454,7 +461,7 @@ int InformerExportNote(char *filepath, int id, int is_checked, char *modified_by
     if ((fp=fopen(filepath, "w")) == NULL) {
         sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
-        return 0;
+        return FALSE;
     }
 
     printf("-------- OK -------- opened the file for writing!\n");
@@ -465,27 +472,29 @@ int InformerExportNote(char *filepath, int id, int is_checked, char *modified_by
         (fprintf(fp, "modified_by: %s\n", modified_by) > 0)) {
         printf("... write of note ok!\n");
         fclose(fp);
-        return 1;
+        return TRUE;
     } else {
         printf("------- WHOA! error writing to datafile!\n");
         sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
-        return 0;
+        return FALSE;
     }
 }
 
-int InformerImportNotes(char *filepath)
+int InformerImportNotes(char *filepath, int index, int update_count)
 {
     FILE *fp;
     int i = 0;
+    int count = 0;
     int result = 1;
 
-    printf("here we go. reading datafile [%s]\n", filepath);
+    printf("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
+           filepath, index, update_count);
 
     if ((fp=fopen(filepath, "r")) == NULL) {
         sprintf(SparkString27.Value, "%s: can't open datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
-        return 0;
+        return FALSE;
     }
 
     /*
@@ -494,16 +503,16 @@ int InformerImportNotes(char *filepath)
         - entries are of form
             key: value
     */
-    result = fscanf(fp, "%d%*1[\n]", &gNoteCount);
+    result = fscanf(fp, "%d%*1[\n]", &count);
     if (1 != result) {
         sprintf(SparkString27.Value, "%s: can't parse datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
-        return 0;
+        return FALSE;
     }
 
-    printf("OK there are %d entries\n", gNoteCount);
+    printf("OK there are %d entries\n", count);
 
-    for (i=0; i<gNoteCount; i++) {
+    for (i=0; i<count; i++) {
         /* skip the "key:" read the value */
 
         /* read the id field -> Id */
@@ -512,25 +521,28 @@ int InformerImportNotes(char *filepath)
         /* read the date_added field -> DateAdded */
         /* read the date_modified field -> DateModified */
 
-        if ((fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].Id) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].Text) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[i].IsChecked) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].CreatedBy) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].CreatedOn) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].ModifiedBy) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[i].ModifiedOn) > 0)) {
+        if ((fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[index+i].Id) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[index+i].Text) > 0) &&
+            (fscanf(fp, "%*s %d%*1[\n]",     &gNoteData[index+i].IsChecked) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[index+i].CreatedBy) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[index+i].CreatedOn) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[index+i].ModifiedBy) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNoteData[index+i].ModifiedOn) > 0)) {
             /* looking good -- keep going */
             printf("... read note [%d] ok!\n", i);
         } else {
             sprintf(SparkString27.Value, "%s: can't parse datafile [%s]",
                     GATEWAY_STATUS_ERR, filepath);
-            return 0;
+            return FALSE;
         }
     }
 
+    if (TRUE == update_count)
+        gNoteCount = count;
+
     printf("All notes read ok. Word up.\n");
 
-    return 1;
+    return TRUE;
 }
 
 /****************************************************************************
@@ -688,68 +700,12 @@ void InformerUpdateNotesRowUI(InformerNoteStruct source, int row_num)
     printf("Truing to update row UI with row_num [%d]\n", row_num);
     NoteBooleansUI[row_num-1]->Value = source.IsChecked;
     if (1 == source.IsChecked) {
-        sprintf(checked, "Done. %s", source.ModifiedOn);
+        sprintf(checked, "by %s on %s", source.ModifiedBy, source.ModifiedOn);
         NoteBooleansUI[row_num-1]->Title = checked;
     } else {
         NoteBooleansUI[row_num-1]->Title = "TODO";
     }
     sprintf(NoteTextUI[row_num-1]->Value, "%s", source.Text);
-    sprintf(NoteFromUI[row_num-1]->Value, "by %s on %s", source.CreatedBy, source.CreatedOn);
+    sprintf(NoteFromUI[row_num-1]->Value, "from %s at %s", source.CreatedBy, source.CreatedOn);
     InformerShowNoteRow(row_num);
 }
-
-/*--------------------------------------------------------------------------*/
-/*                      ------------ BULLSHIT ------------                  */
-/*--------------------------------------------------------------------------*/
-static unsigned long *SayHello(int CallbackArg, SparkInfoStruct SparkInfo)
-{
-    const char     *setup_name;
-    int answer;
-    sparkMessageDelay(2000, "Hello world");
-    /*answer = sparkMessageConfirm("Hello world?");*/
-    setup_name = sparkGetLastSetupName();
-    printf("[[[[ setup: %s\n", setup_name);
-    sparkSystemSh( FALSE, "THE_MSG=Hello; xmessage $THE_MSG");
-    return NULL;
-}
-
-static unsigned long *SayHelloWaiting(int CallbackArg,
-                                      SparkInfoStruct SparkInfo)
-{
-    sparkSystemSh( TRUE, "xmessage Hello");
-    return NULL;
-}
-
-static unsigned long *SayHelloWaitingTo(int CallbackArg,
-                                        SparkInfoStruct SparkInfo )
-{
-    int pid = sparkSystemSh( FALSE, "xmessage Hello");
-    int status = 0;
-    sparkWaitpid( pid, &status, 0 );
-    /* 
-    sprintf( SparkString15.Value, "%d", status );
-    sparkEnableParameter(SPARK_UI_CONTROL, 15);
-    */
-
-    return NULL;
-}
-
-static unsigned long *SayHelloNoSh(int CallbackArg,
-                                   SparkInfoStruct SparkInfo )
-{
-    const char *argv[3];
-    argv[0] = "/bin/sh";
-    argv[1] = "xmessage Hello";
-    argv[2] = 0;
-    sparkSystemNoSh( FALSE, argv[0], argv );
-    return NULL;
-}
-
-static unsigned long *NoteChanged(int CallbackArg,
-                                  SparkInfoStruct SparkInfo )
-{
-    //sprintf(note_title, "Displaying %%d Note 1 to %d", SparkInt34.Value);
-    //printf("Hey! The note change got called with: %d, value is: %d\n", CallbackArg, SparkInt34.Value);
-    return NULL;
-}
-
