@@ -5,7 +5,7 @@ from instinctual.informer.responder import XMLResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver, PkEntry
 
-fields_note = ['text', 'is_checked', 'added_by', 'added_on', 'modified_by', 'modified_on']
+fields_note = ['text', 'is_checked', 'created_by', 'created_on', 'modified_by', 'modified_on']
 
 # --------------------
 # RESTful patterns:

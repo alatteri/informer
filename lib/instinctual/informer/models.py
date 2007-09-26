@@ -37,7 +37,6 @@ class Shot(models.Model):
 class Note(models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField('text', maxlength=4096)
-    comment     = models.CharField(maxlength=4096, null=True, blank=True)
     is_checked  = models.BooleanField('completed', default=False)
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.CharField('created by', maxlength=255)
@@ -49,10 +48,7 @@ class Note(models.Model):
                         'created_on', 'modified_by', 'modified_on')
 
     def __str__(self):
-        if self.comment:
-            return "%s: %s" % (self.text, self.comment)
-        else:
-            return self.text
+        return self.text
 
 # ------------------------------------------------------------------------------
 class Element(models.Model):
