@@ -18,38 +18,37 @@ extern int errno;
  * Informer notes data structure
  *************************************/
 typedef struct {
-    unsigned int   Id;                          /* Primary key of Note */
-    char           Text[4096];                  /* The actual note message */
-    unsigned int   IsChecked;                   /* Boolean: is the note checked? */
-    char           CreatedBy[USERNAME_MAX];     /* The user who created the note */
-    char           CreatedOn[100];              /* Date note was created */
-    char           ModifiedBy[USERNAME_MAX];    /* The user who last modified the note */
-    char           ModifiedOn[100];             /* Date note was last modified */
-} InformerNoteEntryStruct;
-
-typedef struct {
-    unsigned int                Count;          /* Total number of NoteEntry objects */
-    unsigned int                NeedsInit;      /* Bool: have the notes ever been checked? */
-    InformerNoteEntryStruct     Notes[100];     /* All of the notes */
+    unsigned int   id;                          /* Primary key of Note */
+    char           text[4096];                  /* The actual note message */
+    unsigned int   is_checked;                  /* Boolean: is the note checked? */
+    char           created_by[USERNAME_MAX];    /* The user who created the note */
+    char           created_on[100];             /* Date note was created */
+    char           modified_by[USERNAME_MAX];   /* The user who last modified the note */
+    char           modified_on[100];            /* Date note was last modified */
 } InformerNoteDataStruct;
 
 
 typedef struct {
-    char                BooleanText[256];       /* Text for the Note boolean is_checked */
-    SparkBooleanStruct  *BooleanUI;             /* Pointer to the row's check box UI element */
-    SparkStringStruct   *TextUI;                /* Pointer to the row's message UI element */
-    SparkStringStruct   *FromUI;                /* Pointer to the row's from UI element */
-} InformerNoteUIRowStruct;
-
-typedef struct {
-    unsigned int            CurrentPage;        /* Current page number */
-    InformerNoteUIRowStruct Row[UI_NUM_ROWS];   /* Data to describe each UI Row */
+    char                boolean_text[256];      /* Text for the Note boolean is_checked */
+    SparkBooleanStruct  *boolean_ui;            /* Pointer to the row's check box UI element */
+    SparkStringStruct   *text_ui;               /* Pointer to the row's message UI element */
+    SparkStringStruct   *from_ui;               /* Pointer to the row's from UI element */
 } InformerNoteUIStruct;
 
+
+typedef struct {
+    unsigned int                notes_ui_count;         /* Total number of NoteUI structs */
+    unsigned int                notes_data_count;       /* Total number of NoteData structs */
+    unsigned int                notes_cur_page;         /* Current note page number */
+    InformerNoteDataStruct      notes_data[100];        /* All of the note data */
+    InformerNoteUIStruct        notes_ui[UI_NUM_ROWS];  /* Data to describe each UI row */
+} InformerAppStruct;
 
 /*************************************
  * Informer function prototypes
  *************************************/
+InformerAppStruct *InformerGetApp(void);
+
 const char *DiscreetGetUserdbPath(void);
 
 const char *InformerGetSetupName(void);
@@ -67,7 +66,7 @@ void InformerHideNoteRow(int row_num);
 void InformerHideAllNoteRows(void);
 void InformerToggleNoteRow(int row_num, int on_off);
 void InformerRefreshNotesUI(void);
-void InformerUpdateNotesRowUI(InformerNoteEntryStruct source, int row_num);
+void InformerUpdateNotesRowUI(InformerNoteDataStruct source, int row_num);
 
 static unsigned long *InformerNotesPagePrev(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesPageNext(int CallbackArg, SparkInfoStruct SparkInfo);
@@ -134,8 +133,7 @@ static SparkMemBufStruct SparkSource;
 /*************************************
  * Informer globals
  *************************************/
-InformerNoteUIStruct    gNotesUI;
-InformerNoteDataStruct  gNotesData;
+InformerAppStruct    gApp;
 
 
 /*************************************
@@ -169,31 +167,33 @@ void SparkMemoryTempBuffers(void)
 /*--------------------------------------------------------------------------*/
 unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
+    InformerAppStruct *app = InformerGetApp();
+
     /* Initialize the notes data container */
-    gNotesData.Count = 0;
-    gNotesData.NeedsInit = TRUE;
+    app->notes_ui_count = UI_NUM_ROWS;
+    app->notes_data_count = 0;
 
     /* Initialize the notes UI container */
-    gNotesUI.Row[0].BooleanUI = &SparkBoolean7;
-    gNotesUI.Row[1].BooleanUI = &SparkBoolean8;
-    gNotesUI.Row[2].BooleanUI = &SparkBoolean9;
-    gNotesUI.Row[3].BooleanUI = &SparkBoolean10;
-    gNotesUI.Row[4].BooleanUI = &SparkBoolean11;
-    gNotesUI.Row[5].BooleanUI = &SparkBoolean12;
+    app->notes_ui[0].boolean_ui = &SparkBoolean7;
+    app->notes_ui[1].boolean_ui = &SparkBoolean8;
+    app->notes_ui[2].boolean_ui = &SparkBoolean9;
+    app->notes_ui[3].boolean_ui = &SparkBoolean10;
+    app->notes_ui[4].boolean_ui = &SparkBoolean11;
+    app->notes_ui[5].boolean_ui = &SparkBoolean12;
 
-    gNotesUI.Row[0].TextUI = &SparkString14;
-    gNotesUI.Row[1].TextUI = &SparkString15;
-    gNotesUI.Row[2].TextUI = &SparkString16;
-    gNotesUI.Row[3].TextUI = &SparkString17;
-    gNotesUI.Row[4].TextUI = &SparkString18;
-    gNotesUI.Row[5].TextUI = &SparkString19;
+    app->notes_ui[0].text_ui = &SparkString14;
+    app->notes_ui[1].text_ui = &SparkString15;
+    app->notes_ui[2].text_ui = &SparkString16;
+    app->notes_ui[3].text_ui = &SparkString17;
+    app->notes_ui[4].text_ui = &SparkString18;
+    app->notes_ui[5].text_ui = &SparkString19;
 
-    gNotesUI.Row[0].FromUI = &SparkString28;
-    gNotesUI.Row[1].FromUI = &SparkString29;
-    gNotesUI.Row[2].FromUI = &SparkString30;
-    gNotesUI.Row[3].FromUI = &SparkString31;
-    gNotesUI.Row[4].FromUI = &SparkString32;
-    gNotesUI.Row[5].FromUI = &SparkString33;
+    app->notes_ui[0].from_ui = &SparkString28;
+    app->notes_ui[1].from_ui = &SparkString29;
+    app->notes_ui[2].from_ui = &SparkString30;
+    app->notes_ui[3].from_ui = &SparkString31;
+    app->notes_ui[4].from_ui = &SparkString32;
+    app->notes_ui[5].from_ui = &SparkString33;
 
     sparkControlTitle(SPARK_CONTROL_1, "Notes");
     sparkControlTitle(SPARK_CONTROL_2, "Elements");
@@ -266,6 +266,13 @@ void SparkEvent(SparkModuleEvent spark_event)
 /****************************************************************************
  *                      Informer Utility Calls                              *
  ****************************************************************************/
+/*--------------------------------------------------------------------------*/
+/* Returns the main application data object                                 */
+/*--------------------------------------------------------------------------*/
+InformerAppStruct *InformerGetApp(void)
+{
+    return &gApp;
+}
 
 /*--------------------------------------------------------------------------*/
 /* Returns the name of the current setup being worked on.                   */
@@ -499,6 +506,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
     int i = 0;
     int count = 0;
     int result = 1;
+    InformerAppStruct *app = InformerGetApp();
 
     printf("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
            filepath, index, update_count);
@@ -533,13 +541,13 @@ int InformerImportNotes(char *filepath, int index, int update_count)
         /* read the date_added field -> DateAdded */
         /* read the date_modified field -> DateModified */
 
-        if ((fscanf(fp, "%*s %d%*1[\n]",     &gNotesData.Notes[index+i].Id) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNotesData.Notes[index+i].Text) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]",     &gNotesData.Notes[index+i].IsChecked) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNotesData.Notes[index+i].CreatedBy) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNotesData.Notes[index+i].CreatedOn) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNotesData.Notes[index+i].ModifiedBy) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &gNotesData.Notes[index+i].ModifiedOn) > 0)) {
+        if ((fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].id)) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].text)) > 0) &&
+            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].is_checked)) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].created_by)) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].created_on)) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_by)) > 0) &&
+            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_on)) > 0)) {
             /* looking good -- keep going */
             printf("... read note [%d] ok!\n", i);
         } else {
@@ -550,7 +558,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
     }
 
     if (TRUE == update_count)
-        gNotesData.Count = count;
+        app->notes_data_count = count;
 
     printf("All notes read ok. Word up.\n");
 
@@ -623,10 +631,12 @@ static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg,
 
 void InformerNotesToggleRow(int row_num)
 {
+    InformerAppStruct *app = InformerGetApp();
+
     int status = 0;
     int index = InformerRowToIndex(row_num);
-    int note_id = gNotesData.Notes[index].Id;
-    int is_checked = gNotesUI.Row[row_num-1].BooleanUI->Value;
+    int note_id = app->notes_data[index].id;
+    int is_checked = app->notes_ui[row_num-1].boolean_ui->Value;
 
     printf("It's note_id is: (%d)\n", note_id);
     printf("Row number (%d) was changed\n", row_num);
@@ -693,33 +703,35 @@ void InformerToggleNoteRow(int row_num, int on_off)
 
 void InformerRefreshNotesUI(void)
 {
+    InformerAppStruct *app = InformerGetApp();
     int i = 0;
 
     printf("****** Time to refresh the notes UI ********\n");
     sprintf(SparkString27.Value, "Displaying notes 1 - %d (of %d)",
-            gNotesData.Count, gNotesData.Count);
+            app->notes_data_count, app->notes_data_count);
 
-    for (i=0; i<gNotesData.Count; i++)
+    for (i=0; i<app->notes_ui_count; i++)
     {
-        InformerUpdateNotesRowUI(gNotesData.Notes[i], i+1);
+        InformerUpdateNotesRowUI(app->notes_data[i], i+1);
     }
 }
 
-void InformerUpdateNotesRowUI(InformerNoteEntryStruct source, int row_num)
+void InformerUpdateNotesRowUI(InformerNoteDataStruct source, int row_num)
 {
-    InformerNoteUIRowStruct *note_ui;
-    note_ui = &(gNotesUI.Row[row_num - 1]);
+    InformerAppStruct *app = InformerGetApp();
+    InformerNoteUIStruct *note_ui;
+    note_ui = &(app->notes_ui[row_num - 1]);
 
     printf("Truing to update row UI with row_num [%d]\n", row_num);
-    note_ui->BooleanUI->Value = source.IsChecked;
-    if (1 == source.IsChecked) {
-        sprintf(note_ui->BooleanText, "by %s on %s", source.ModifiedBy, source.ModifiedOn);
+    note_ui->boolean_ui->Value = source.is_checked;
+    if (1 == source.is_checked) {
+        sprintf(note_ui->boolean_text, "by %s on %s", source.modified_by, source.modified_on);
     } else {
-        sprintf(note_ui->BooleanText, "TODO");
+        sprintf(note_ui->boolean_text, "TODO");
     }
-    note_ui->BooleanUI->Title = note_ui->BooleanText;
-    sprintf(note_ui->TextUI->Value, "%s", source.Text);
-    sprintf(note_ui->FromUI->Value, "from %s at %s", source.CreatedBy, source.CreatedOn);
+    note_ui->boolean_ui->Title = note_ui->boolean_text;
+    sprintf(note_ui->text_ui->Value, "%s", source.text);
+    sprintf(note_ui->from_ui->Value, "from %s at %s", source.created_by, source.created_on);
     InformerShowNoteRow(row_num);
 }
 
