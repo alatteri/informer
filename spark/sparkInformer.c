@@ -23,14 +23,17 @@ typedef struct {
     char           text[4096];                  /* The actual note message */
     unsigned int   is_checked;                  /* Boolean: is the note checked? */
     char           created_by[USERNAME_MAX];    /* The user who created the note */
-    char           created_on[100];             /* Date note was created */
+                                                /* Date note was created */
+    char           created_on[SPARK_MAX_STRING_LENGTH];
     char           modified_by[USERNAME_MAX];   /* The user who last modified the note */
-    char           modified_on[100];            /* Date note was last modified */
+                                                /* Date note was last modified */
+    char           modified_on[SPARK_MAX_STRING_LENGTH];
 } InformerNoteDataStruct;
 
 
 typedef struct {
-    char                boolean_text[256];      /* Text for the Note boolean is_checked */
+                                                /* Text for the Note boolean is_checked */
+    char                boolean_text[SPARK_MAX_STRING_LENGTH];
     SparkBooleanStruct  *boolean_ui;            /* Pointer to the row's check box UI element */
     SparkStringStruct   *text_ui;               /* Pointer to the row's message UI element */
     SparkStringStruct   *from_ui;               /* Pointer to the row's from UI element */
@@ -49,7 +52,13 @@ typedef struct {
     SparkPupStruct              *notes_ui_mode;         /* ptr to the ui mode element */
     SparkStringStruct           *notes_ui_status;       /* ptr to the ui status element */
     SparkPushStruct             *notes_ui_button_a;     /* ptr to ui element of button A */
+                                                        /* the text for button A */
+    char                        notes_ui_button_a_text[SPARK_MAX_STRING_LENGTH];
     SparkPushStruct             *notes_ui_button_b;     /* ptr to ui element of button B */
+                                                        /* the text for button B */
+    char                        notes_ui_button_b_text[SPARK_MAX_STRING_LENGTH];
+    SparkPupStruct              *notes_ui_sort;         /* ptr to the ui element for sorting */
+    unsigned int                notes_ui_sort_id;       /* the numerical id of the ui element */
 } InformerAppStruct;
 
 /*************************************
@@ -95,6 +104,7 @@ void InformerShowNoteRow(int row_num);
 void InformerHideNoteRow(int row_num);
 void InformerHideAllNoteRows(void);
 void InformerToggleNoteRow(int row_num, int on_off);
+void InformerCreateNotesUI(void);
 void InformerRefreshNotesUI(void);
 void InformerUpdateNotesRowUI(InformerNoteDataStruct source, int row_num);
 
@@ -110,6 +120,25 @@ static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStr
 static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 void InformerNotesToggleRow(int row_num);
+
+void CanvasDraw(SparkCanvasInfo);
+int  CanvasInteract(SparkCanvasInfo Canvas,
+                    int PointerX, int PointerY,
+                    float PointerPressure); /* return 1 for canvas display */
+
+void CanvasDraw(SparkCanvasInfo canvas_info)
+{
+    printf("-- draw event called --\n");
+}
+
+int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
+{
+    printf("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
+    return 1;
+}
+
+
+SparkCanvasStruct SparkCanvas1 = { CanvasDraw, CanvasInteract };
 
 /* Informer Note Boolean CheckBoxes */
 SparkBooleanStruct SparkBoolean7 =  { 0, "", InformerNotesRow1BoolChanged };
@@ -139,8 +168,8 @@ SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPupStruct SparkPup6 = {0, 2, InformerNotesSortChanged, {"Sort by date",
                                                              "Sort by status"}};
 SparkStringStruct SparkString27 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
-SparkPushStruct SparkPush13 = { "<< Previous Page", InformerNotesButtonA };
-SparkPushStruct SparkPush20 = { "Next Page >>", InformerNotesButtonB };
+SparkPushStruct SparkPush13 = { "(none a)", InformerNotesButtonA };
+SparkPushStruct SparkPush20 = { "(none b)", InformerNotesButtonB };
 
 SparkPupStruct SparkPup34 = {0, 2, InformerNotesModeChanged, {"Refresh Notes",
                                                              "Create New Note"}};
@@ -174,6 +203,8 @@ static char GATEWAY_STATUS_ERR[] = "Unable to get notes";
 static char GET_NOTES_WAIT[] = "Getting notes from database...";
 static char UPDATE_NOTE_WAIT[] = "Updating database...";
 static char CURRENT_USER_ERR[] = "Unable to determine user";
+static char PREV_PAGE[] = "<< Previous Page";
+static char NEXT_PAGE[] = "Next Page >>";
 
 /****************************************************************************
  *                      Spark Base Function Calls                           *
@@ -199,6 +230,7 @@ void SparkMemoryTempBuffers(void)
 unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
+    printf("----> SparkInitialise called <----\n");
 
     /* Initialize the notes data container */
     app->notes_data_count = 0;
@@ -207,10 +239,17 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     app->notes_ui_cur_page = 1;
     app->notes_ui_count = UI_NUM_ROWS;
 
+    app->notes_ui_sort = &SparkPup6;
+    app->notes_ui_sort_id = 6;  /* This must match the number in SparkPup6 */
     app->notes_ui_mode = &SparkPup34;
     app->notes_ui_status = &SparkString27;
     app->notes_ui_button_a = &SparkPush13;
     app->notes_ui_button_b = &SparkPush20;
+
+    sprintf(app->notes_ui_button_a_text, PREV_PAGE);
+    sprintf(app->notes_ui_button_b_text, NEXT_PAGE);
+    app->notes_ui_button_a->Title = app->notes_ui_button_a_text;
+    app->notes_ui_button_b->Title = app->notes_ui_button_b_text;
 
     app->notes_ui[0].boolean_ui = &SparkBoolean7;
     app->notes_ui[1].boolean_ui = &SparkBoolean8;
@@ -237,7 +276,6 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     sparkControlTitle(SPARK_CONTROL_2, "Elements");
 
     InformerHideAllNoteRows();
-
     return SPARK_MODULE;
 }
 
@@ -246,6 +284,7 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 void SparkUnInitialise(SparkInfoStruct spark_info)
 {
+    InformerAppStruct *app = InformerGetApp();
     printf("----> SparkUnInitialise called <----\n");
 }
 
@@ -268,6 +307,8 @@ int SparkProcessStart(SparkInfoStruct spark_info)
 {
     const char *setup;
     const char *gateway;
+    InformerAppStruct *app = InformerGetApp();
+
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
     printf("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
@@ -633,6 +674,7 @@ static unsigned long *InformerNotesModeChanged(int CallbackArg,
         InformerGetNotesDB();
     } else if (INFORMER_NOTE_MODE_CREATE == mode) {
         printf("Hey! Go create a note!\n");
+        InformerCreateNotesUI();
     }
 
     return NULL;
@@ -695,8 +737,9 @@ void InformerNotesToggleRow(int row_num)
     int note_id;
     int is_checked;
     int index = InformerRowToIndex(row_num);
+    InformerNoteModeChoice mode = InformerGetNoteUIMode();
 
-    if (index < app->notes_data_count) {
+    if (mode == INFORMER_NOTE_MODE_REFRESH && index < app->notes_data_count) {
         note_id = app->notes_data[index].id;
         is_checked = app->notes_ui[row_num-1].boolean_ui->Value;
 
@@ -750,7 +793,12 @@ void InformerNotesButtonEvent(InformerNoteButtonChoice button)
             }
         }
     } else if (INFORMER_NOTE_MODE_CREATE == mode) {
-        printf("TODO: add create/cancel handlers\n");
+        if (INFORMER_NOTE_BUTTON_A == button) {
+            printf("-> cancel new note\n");
+            InformerRefreshNotesUI();
+        } else {
+            printf("TODO: create new note\n");
+        }
     }
 }
 
@@ -792,15 +840,33 @@ void InformerToggleNoteRow(int row_num, int on_off)
     }
 }
 
+void InformerCreateNotesUI(void)
+{
+    InformerAppStruct *app = InformerGetApp();
+
+    InformerHideAllNoteRows();
+    sprintf(app->notes_ui_button_a_text, "Cancel");
+    sprintf(app->notes_ui_button_b_text, "Create");
+    sparkDisableParameter(SPARK_UI_CONTROL, app->notes_ui_sort_id);
+
+    /* enable the text field for input */
+    sparkEnableParameter(SPARK_UI_CONTROL, 14);  /* SparkString14 */
+}
+
 void InformerRefreshNotesUI(void)
 {
     InformerAppStruct *app = InformerGetApp();
+
     int row;
     int index;
     int start = 0;
     int end = 0;
 
     InformerHideAllNoteRows();
+    sprintf(app->notes_ui_button_a_text, PREV_PAGE);
+    sprintf(app->notes_ui_button_b_text, NEXT_PAGE);
+    app->notes_ui_mode->Value = INFORMER_NOTE_MODE_REFRESH;
+    sparkEnableParameter(SPARK_UI_CONTROL, app->notes_ui_sort_id);
 
     printf("****** Time to refresh the notes UI ********\n");
 
@@ -847,8 +913,10 @@ void InformerUpdateNotesRowUI(InformerNoteDataStruct source, int row_num)
     } else {
         sprintf(note_ui->boolean_text, "TODO");
     }
+
     note_ui->boolean_ui->Title = note_ui->boolean_text;
     sprintf(note_ui->text_ui->Value, "%s", source.text);
+    note_ui->text_ui->Flags = SPARK_FLAG_NO_INPUT;
     sprintf(note_ui->from_ui->Value, "from %s at %s", source.created_by, source.created_on);
     InformerShowNoteRow(row_num);
 }
