@@ -58,7 +58,7 @@ int InformerGetCurrentUser(char *user, int max_length);
 
 int InformerImportNotes(char *filepath, int index, int update_count);
 int InformerGetNotesDB(void);
-int InformerUpdateNoteDB(int id, int is_checked);
+int InformerUpdateNoteDB(int index, int note_id, int is_checked);
 int InformerCallGateway(char *action, char *infile, char *outfile);
 
 int InformerRowToIndex(int row_num);
@@ -301,6 +301,8 @@ int InformerGetCurrentUser(char *user, int max_length)
     char *start;
     char *end;
 
+    max_length -= 1;
+
     filepath = DiscreetGetUserdbPath();
     if (NULL == filepath) {
         return FALSE;
@@ -316,15 +318,19 @@ int InformerGetCurrentUser(char *user, int max_length)
     do {
         c = fgets(line, 1024, fp);
         if (c != NULL) {
+            printf("Checking line: %s\n", line);
             if (strstr(line, "UserGroupStatus:UsrGroup1={") != NULL) {
+                printf("MATCH! -> %s\n", line);
                 start = index(line, '{');
                 end = rindex(line, '}');
                 if (end != NULL && start != NULL) {
-                    if (end - start < max_length)
+                    if (end - start < max_length - 1)
                         max_length = end - start;
+                    printf("start [%c], end [%c], max_length [%d]\n", *start, *end, max_length);
 
                     strncpy(user, start + 1, max_length - 1);
-                    user[max_length] = '\0';
+                    user[max_length-1] = '\0';
+                    printf("Going to return user [%s]\n", user);
                     return TRUE;
                 }
             }
@@ -374,9 +380,8 @@ int InformerGetNotesDB(void)
     }
 }
 
-int InformerUpdateNoteDB(int id, int is_checked)
+int InformerUpdateNoteDB(int index, int note_id, int is_checked)
 {
-    int index;
     int export_ok = 0;
     char user[USERNAME_MAX];
 
@@ -387,11 +392,10 @@ int InformerUpdateNoteDB(int id, int is_checked)
         return FALSE;
     }
 
-    if (TRUE == InformerExportNote("/tmp/trinity2", id, is_checked, user)) {
-        index = InformerRowToIndex(id);
+    if (TRUE == InformerExportNote("/tmp/trinity2", note_id, is_checked, user)) {
         printf("--------- update note ----------\n");
-        printf("is_checked [%d], user [%s], row [%d], index [%d]\n",
-               is_checked, user, id, index);
+        printf("is_checked [%d], user [%s], id [%d], index [%d]\n",
+               is_checked, user, note_id, index);
         printf("--------- update note ----------\n");
         if (TRUE == InformerCallGateway("update_note", "/tmp/trinity2", "/tmp/trinity3")) {
             if (TRUE == InformerImportNotes("/tmp/trinity3", index, FALSE)) {
@@ -460,7 +464,7 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
 
 /*--------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
-int InformerExportNote(char *filepath, int id, int is_checked, char *modified_by)
+int InformerExportNote(char *filepath, int note_id, int is_checked, char *modified_by)
 {
     FILE *fp;
 
@@ -475,7 +479,7 @@ int InformerExportNote(char *filepath, int id, int is_checked, char *modified_by
     printf("-------- OK -------- opened the file for writing!\n");
 
     if ((fprintf(fp, "1\n") > 0) &&
-        (fprintf(fp, "id: %d\n", id) > 0) &&
+        (fprintf(fp, "id: %d\n", note_id) > 0) &&
         (fprintf(fp, "is_checked: %d\n", is_checked) > 0) &&
         (fprintf(fp, "modified_by: %s\n", modified_by) > 0)) {
         printf("... write of note ok!\n");
@@ -621,14 +625,14 @@ void InformerNotesToggleRow(int row_num)
 {
     int status = 0;
     int index = InformerRowToIndex(row_num);
-    int id = gNotesData.Notes[index].Id;
+    int note_id = gNotesData.Notes[index].Id;
     int is_checked = gNotesUI.Row[row_num-1].BooleanUI->Value;
 
-    printf("It's id is: (%d)\n", id);
+    printf("It's note_id is: (%d)\n", note_id);
     printf("Row number (%d) was changed\n", row_num);
     printf("It's value is: %d\n", is_checked);
 
-    status = InformerUpdateNoteDB(id, is_checked);
+    status = InformerUpdateNoteDB(index, note_id, is_checked);
 
     /* if (1 == status) {
         InformerRefreshNotesUI();
