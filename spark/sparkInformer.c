@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <math.h>
 
-#define UI_NUM_ROWS 6
+#define UI_NUM_ROWS 5
 #define USERNAME_MAX 32
 
 extern int errno;
@@ -35,14 +35,15 @@ typedef struct {
                                                 /* Text for the Note boolean is_checked */
     char                boolean_text[SPARK_MAX_STRING_LENGTH];
     SparkBooleanStruct  *boolean_ui;            /* Pointer to the row's check box UI element */
+    unsigned int        boolean_ui_id;          /* The numerical id of the boolean element */
     SparkStringStruct   *text_ui;               /* Pointer to the row's message UI element */
+    unsigned int        text_ui_id;             /* The numerical id of the text element */
     SparkStringStruct   *from_ui;               /* Pointer to the row's from UI element */
+    unsigned int        from_ui_id;             /* The numerical id of the from element */
 } InformerNoteUIStruct;
 
 
 typedef struct {
-    SparkStringStruct           *ui_status;             /* ptr to the status, regardless of mode */
-
     InformerNoteDataStruct      notes_data[100];        /* All of the note data */
     unsigned int                notes_data_count;       /* Total number of NoteData structs */
 
@@ -118,7 +119,6 @@ static unsigned long *InformerNotesRow3BoolChanged(int CallbackArg, SparkInfoStr
 static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 void InformerNotesToggleRow(int row_num);
 
 void CanvasDraw(SparkCanvasInfo);
@@ -128,7 +128,7 @@ int  CanvasInteract(SparkCanvasInfo Canvas,
 
 void CanvasDraw(SparkCanvasInfo canvas_info)
 {
-    printf("-- draw event called --\n");
+    // printf("-- draw event called --\n");
 }
 
 int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
@@ -141,15 +141,13 @@ int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
 SparkCanvasStruct SparkCanvas1 = { CanvasDraw, CanvasInteract };
 
 /* Informer Note Boolean CheckBoxes */
-SparkBooleanStruct SparkBoolean7 =  { 0, "", InformerNotesRow1BoolChanged };
-SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerNotesRow2BoolChanged };
-SparkBooleanStruct SparkBoolean9 =  { 0, "", InformerNotesRow3BoolChanged };
-SparkBooleanStruct SparkBoolean10 = { 0, "", InformerNotesRow4BoolChanged };
-SparkBooleanStruct SparkBoolean11 = { 0, "", InformerNotesRow5BoolChanged };
-SparkBooleanStruct SparkBoolean12 = { 0, "", InformerNotesRow6BoolChanged };
+SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerNotesRow1BoolChanged };
+SparkBooleanStruct SparkBoolean9 =  { 0, "", InformerNotesRow2BoolChanged };
+SparkBooleanStruct SparkBoolean10 = { 0, "", InformerNotesRow3BoolChanged };
+SparkBooleanStruct SparkBoolean11 = { 0, "", InformerNotesRow4BoolChanged };
+SparkBooleanStruct SparkBoolean12 = { 0, "", InformerNotesRow5BoolChanged };
 
 /* Informer Note Text fields */
-SparkStringStruct SparkString14 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString17 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -157,7 +155,6 @@ SparkStringStruct SparkString18 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString19 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /* Informer From/Date fields */
-SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString29 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString30 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString31 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -165,14 +162,16 @@ SparkStringStruct SparkString32 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /* Informer Note Controls */
-SparkPupStruct SparkPup6 = {0, 2, InformerNotesSortChanged, {"Sort by date",
+SparkPupStruct SparkPup7 = {0, 2, InformerNotesSortChanged, {"Sort by date",
                                                              "Sort by status"}};
-SparkStringStruct SparkString27 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
-SparkPushStruct SparkPush13 = { "(none a)", InformerNotesButtonA };
-SparkPushStruct SparkPush20 = { "(none b)", InformerNotesButtonB };
+SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkPushStruct SparkPush14 = { "(none a)", InformerNotesButtonA };
+SparkPushStruct SparkPush21 = { "(none b)", InformerNotesButtonB };
 
 SparkPupStruct SparkPup34 = {0, 2, InformerNotesModeChanged, {"Refresh Notes",
                                                              "Create New Note"}};
+
+SparkStringStruct SparkString13 = { "", "                click here to create a new note", SPARK_FLAG_NONE, NULL };
 
 SparkStringStruct SparkString39 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
 /*
@@ -239,38 +238,38 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     app->notes_ui_cur_page = 1;
     app->notes_ui_count = UI_NUM_ROWS;
 
-    app->notes_ui_sort = &SparkPup6;
-    app->notes_ui_sort_id = 6;  /* This must match the number in SparkPup6 */
+    app->notes_ui_sort = &SparkPup7;
+    app->notes_ui_sort_id = 7;  /* This must match the number in SparkPup7 */
     app->notes_ui_mode = &SparkPup34;
-    app->notes_ui_status = &SparkString27;
-    app->notes_ui_button_a = &SparkPush13;
-    app->notes_ui_button_b = &SparkPush20;
+    app->notes_ui_status = &SparkString28;
+    app->notes_ui_button_a = &SparkPush14;
+    app->notes_ui_button_b = &SparkPush21;
 
     sprintf(app->notes_ui_button_a_text, PREV_PAGE);
     sprintf(app->notes_ui_button_b_text, NEXT_PAGE);
     app->notes_ui_button_a->Title = app->notes_ui_button_a_text;
     app->notes_ui_button_b->Title = app->notes_ui_button_b_text;
 
-    app->notes_ui[0].boolean_ui = &SparkBoolean7;
-    app->notes_ui[1].boolean_ui = &SparkBoolean8;
-    app->notes_ui[2].boolean_ui = &SparkBoolean9;
-    app->notes_ui[3].boolean_ui = &SparkBoolean10;
-    app->notes_ui[4].boolean_ui = &SparkBoolean11;
-    app->notes_ui[5].boolean_ui = &SparkBoolean12;
+    // app->notes_ui[0].boolean_ui = &SparkBoolean7;
+    app->notes_ui[0].boolean_ui = &SparkBoolean8;
+    app->notes_ui[1].boolean_ui = &SparkBoolean9;
+    app->notes_ui[2].boolean_ui = &SparkBoolean10;
+    app->notes_ui[3].boolean_ui = &SparkBoolean11;
+    app->notes_ui[4].boolean_ui = &SparkBoolean12;
 
-    app->notes_ui[0].text_ui = &SparkString14;
-    app->notes_ui[1].text_ui = &SparkString15;
-    app->notes_ui[2].text_ui = &SparkString16;
-    app->notes_ui[3].text_ui = &SparkString17;
-    app->notes_ui[4].text_ui = &SparkString18;
-    app->notes_ui[5].text_ui = &SparkString19;
+    // app->notes_ui[0].text_ui = &SparkString14;
+    app->notes_ui[0].text_ui = &SparkString15;
+    app->notes_ui[1].text_ui = &SparkString16;
+    app->notes_ui[2].text_ui = &SparkString17;
+    app->notes_ui[3].text_ui = &SparkString18;
+    app->notes_ui[4].text_ui = &SparkString19;
 
-    app->notes_ui[0].from_ui = &SparkString28;
-    app->notes_ui[1].from_ui = &SparkString29;
-    app->notes_ui[2].from_ui = &SparkString30;
-    app->notes_ui[3].from_ui = &SparkString31;
-    app->notes_ui[4].from_ui = &SparkString32;
-    app->notes_ui[5].from_ui = &SparkString33;
+    // app->notes_ui[0].from_ui = &SparkString28;
+    app->notes_ui[0].from_ui = &SparkString29;
+    app->notes_ui[1].from_ui = &SparkString30;
+    app->notes_ui[2].from_ui = &SparkString31;
+    app->notes_ui[3].from_ui = &SparkString32;
+    app->notes_ui[4].from_ui = &SparkString33;
 
     sparkControlTitle(SPARK_CONTROL_1, "Notes");
     sparkControlTitle(SPARK_CONTROL_2, "Elements");
@@ -396,7 +395,7 @@ int InformerGetCurrentUser(char *user, int max_length)
 
     if ((fp=fopen(filepath, "r")) == NULL) {
         printf("I couldn't open %s: %s\n", filepath, strerror(errno));
-        sprintf(SparkString27.Value, "%s: can't open [%s]",
+        sprintf(SparkString28.Value, "%s: can't open [%s]",
                 CURRENT_USER_ERR, filepath);
         return FALSE;
     }
@@ -443,7 +442,7 @@ const char *DiscreetGetUserdbPath(void)
                0 == strcmp("smoke", program)) {
         return editing;
     } else {
-        sprintf(SparkString27.Value, "%s: unknown program [%s]",
+        sprintf(SparkString28.Value, "%s: unknown program [%s]",
                 CURRENT_USER_ERR, program);
         return NULL;
     }
@@ -460,7 +459,7 @@ int InformerGetNotesDB(void)
             return TRUE;
         } else {
             // TODO: What should happen here?
-            sprintf(SparkString27.Value, "%s", GET_NOTES_WAIT);
+            sprintf(SparkString28.Value, "%s", GET_NOTES_WAIT);
             return FALSE;
         }
     }
@@ -539,7 +538,7 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
 
     if (0 != status) {
         // TODO: Map the status to a human readable string
-        sprintf(SparkString27.Value, "%s: status [%d]",
+        sprintf(SparkString28.Value, "%s: status [%d]",
                 GATEWAY_STATUS_ERR, status);
         return FALSE;
     } else {
@@ -557,7 +556,7 @@ int InformerExportNote(char *filepath, int note_id, int is_checked, char *modifi
     printf("here we go. writing datafile [%s]\n", filepath);
 
     if ((fp=fopen(filepath, "w")) == NULL) {
-        sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
+        sprintf(SparkString28.Value, "%s: can't write datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
@@ -573,7 +572,7 @@ int InformerExportNote(char *filepath, int note_id, int is_checked, char *modifi
         return TRUE;
     } else {
         printf("------- WHOA! error writing to datafile!\n");
-        sprintf(SparkString27.Value, "%s: can't write datafile [%s]",
+        sprintf(SparkString28.Value, "%s: can't write datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
@@ -591,7 +590,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
            filepath, index, update_count);
 
     if ((fp=fopen(filepath, "r")) == NULL) {
-        sprintf(SparkString27.Value, "%s: can't open datafile [%s]",
+        sprintf(SparkString28.Value, "%s: can't open datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
@@ -604,7 +603,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
     */
     result = fscanf(fp, "%d%*1[\n]", &count);
     if (1 != result) {
-        sprintf(SparkString27.Value, "%s: can't parse datafile [%s]",
+        sprintf(SparkString28.Value, "%s: can't parse datafile [%s]",
                 GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
@@ -630,7 +629,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
             /* looking good -- keep going */
             printf("... read note [%d] ok!\n", i);
         } else {
-            sprintf(SparkString27.Value, "%s: can't parse datafile [%s]",
+            sprintf(SparkString28.Value, "%s: can't parse datafile [%s]",
                     GATEWAY_STATUS_ERR, filepath);
             return FALSE;
         }
@@ -683,8 +682,9 @@ static unsigned long *InformerNotesModeChanged(int CallbackArg,
 static unsigned long *InformerNotesSortChanged(int CallbackArg,
                                               SparkInfoStruct SparkInfo )
 {
+    InformerAppStruct *app = InformerGetApp();
     printf("Hey! The notes sort change got called with: %d, value is: %d\n",
-            CallbackArg, SparkPup6.Value);
+            CallbackArg, app->notes_ui_sort->Value);
     return NULL;
 }
 
@@ -720,13 +720,6 @@ static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg,
                                                    SparkInfoStruct SparkInfo )
 {
     InformerNotesToggleRow(5);
-    return NULL;
-}
-
-static unsigned long *InformerNotesRow6BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
-{
-    InformerNotesToggleRow(6);
     return NULL;
 }
 
@@ -834,9 +827,9 @@ void InformerToggleNoteRow(int row_num, int on_off)
         }
 
         /* The numbers below are the ui control column offsets */
-        sparkToggle(SPARK_UI_CONTROL, row_num + 6);
-        sparkToggle(SPARK_UI_CONTROL, row_num + 13);
-        sparkToggle(SPARK_UI_CONTROL, row_num + 27);
+        sparkToggle(SPARK_UI_CONTROL, row_num + 7);
+        sparkToggle(SPARK_UI_CONTROL, row_num + 14);
+        sparkToggle(SPARK_UI_CONTROL, row_num + 28);
     }
 }
 
@@ -873,7 +866,7 @@ void InformerRefreshNotesUI(void)
     if (app->notes_data_count > 0) {
         if (1 == app->notes_data_count) {
             start = end = 1;
-            sprintf(SparkString27.Value, "Displaying note 1 (of 1)");
+            sprintf(SparkString28.Value, "Displaying note 1 (of 1)");
         } else {
             start = (app->notes_ui_cur_page - 1) * app->notes_ui_count;
             if (app->notes_data_count - start < app->notes_ui_count) {
@@ -884,11 +877,11 @@ void InformerRefreshNotesUI(void)
                 end = start + app->notes_ui_count - 1;
             }
 
-            sprintf(SparkString27.Value, "Displaying notes %d - %d (of %d)",
+            sprintf(SparkString28.Value, "Displaying notes %d - %d (of %d)",
                     start + 1, end + 1, app->notes_data_count);
         }
     } else {
-        sprintf(SparkString27.Value, "No notes to display");
+        sprintf(SparkString28.Value, "No notes to display");
     }
 
     for (row=1; row <= app->notes_ui_count; row++) {
