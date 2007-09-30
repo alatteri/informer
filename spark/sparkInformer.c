@@ -48,8 +48,8 @@ typedef struct {
 } InformerPupUI;
 
 typedef struct {
-    unsigned int        id;
-    SparkPushStruct     *ui;
+    unsigned int        id;                             /* the id of the button element */
+    SparkPushStruct     *ui;                            /* prt to the ui element */
 } InformerPushUI;
 
 typedef struct {
@@ -84,7 +84,9 @@ typedef enum {
 typedef enum {
     INFORMER_NOTE_SORT_DATE_CREATED = 0,
     INFORMER_NOTE_SORT_DATE_MODIFIED = 1,
-    INFORMER_NOTE_SORT_STATUS = 2
+    INFORMER_NOTE_SORT_STATUS = 2,
+    INFORMER_NOTE_SORT_ARTIST = 3,
+    INFORMER_NOTE_SORT_AUTHOR = 4
 } InformerNoteSortChoice;
 
 typedef enum {
@@ -98,6 +100,13 @@ typedef enum {
  *************************************/
 void InformerDEBUG(const char *format, ...);
 void InformerERROR(const char *format, ...);
+
+int InformerSortNoteData(void);
+int InformerCompareNoteByDateCreated(const void *a, const void *b);
+int InformerCompareNoteByDateModified(const void *a, const void *b);
+int InformerCompareNoteByStatus(const void *a, const void *b);
+int InformerCompareNoteByArtist(const void *a, const void *b);
+int InformerCompareNoteByAuthor(const void *a, const void *b);
 
 InformerAppStruct *InformerGetApp(void);
 InformerNoteData InformerInitNoteData(void);
@@ -154,7 +163,7 @@ void CanvasDraw(SparkCanvasInfo canvas_info)
 
 int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
 {
-    InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
+    // InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
     return 1;
 }
 
@@ -183,9 +192,11 @@ SparkStringStruct SparkString32 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /* Informer Note Controls */
-SparkPupStruct SparkPup7 = {0, 3, InformerNotesSortChanged, {"Sort by date created",
+SparkPupStruct SparkPup7 = {0, 5, InformerNotesSortChanged, {"Sort by date created",
                                                              "Sort by date modified",
-                                                             "Sort by status"}};
+                                                             "Sort by status",
+                                                             "Sort by artist",
+                                                             "Sort by author"}};
 SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPushStruct SparkPush14 = { "<< Previous Page", InformerNotesButtonA };
 SparkPushStruct SparkPush21 = { "Next Page >>", InformerNotesButtonB };
@@ -252,6 +263,9 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
+
+    double rate = sparkFrameRate();
+    printf("This is the frame rate [%f]\n", rate);
 
     /* Initialize the notes data container */
     app->notes_data_count = 0;
@@ -358,6 +372,31 @@ void SparkEvent(SparkModuleEvent spark_event)
 /****************************************************************************
  *                      Informer Utility Calls                              *
  ****************************************************************************/
+void InformerDEBUG(const char *format, ...)
+{
+    va_list args;
+    char str[4096];
+
+    va_start(args, format);
+    vsprintf(str, format, args);
+    va_end(args);
+
+    fprintf(stderr, "DEBUG: %s", str);
+}
+
+void InformerERROR(const char *format, ...)
+{
+    va_list args;
+    char str[4096];
+
+    va_start(args, format);
+    vsprintf(str, format, args);
+    va_end(args);
+
+    fprintf(stderr, "ERROR: %s", str);
+    sparkMessage(str);
+}
+
 InformerNoteData InformerInitNoteData(void)
 {
     InformerNoteData result;
@@ -691,13 +730,6 @@ int InformerImportNotes(char *filepath, int index, int update_count)
 
     for (i=0; i<count; i++) {
         /* skip the "key:" read the value */
-
-        /* read the id field -> Id */
-        /* read the text field -> Text */
-        /* read the is_checked field -> IsChecked */
-        /* read the date_added field -> DateAdded */
-        /* read the date_modified field -> DateModified */
-
         if ((fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].id)) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].text)) > 0) &&
             (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].is_checked)) > 0) &&
@@ -718,6 +750,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
         app->notes_data_count = count;
     }
 
+    InformerSortNoteData();
     InformerDEBUG("All notes read ok. Word up.\n");
 
     return TRUE;
@@ -760,6 +793,8 @@ static unsigned long *InformerNotesSortChanged(int CallbackArg,
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("Hey! The notes sort change got called with: %d, value is: %d\n",
             CallbackArg, app->notes_ui_sort.ui->Value);
+    InformerSortNoteData();
+    InformerRefreshNotesUI();
     return NULL;
 }
 
@@ -1001,28 +1036,136 @@ static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfo
     return NULL;
 }
 
-void InformerDEBUG(const char *format, ...)
+int InformerSortNoteData(void)
 {
-    va_list args;
-    char str[4096];
+    InformerAppStruct *app = InformerGetApp();
+    InformerNoteSortChoice sort_by = app->notes_ui_sort.ui->Value;
+    int (*compare)(const void *, const void *) = NULL;
 
-    va_start(args, format);
-    vsprintf(str, format, args);
-    va_end(args);
+    if (INFORMER_NOTE_SORT_DATE_CREATED == sort_by) {
+        compare = InformerCompareNoteByDateCreated;
+    } else if (INFORMER_NOTE_SORT_DATE_MODIFIED == sort_by) {
+        compare = InformerCompareNoteByDateModified;
+    } else if (INFORMER_NOTE_SORT_STATUS == sort_by) {
+        compare = InformerCompareNoteByStatus;
+    } else if (INFORMER_NOTE_SORT_ARTIST == sort_by) {
+        compare = InformerCompareNoteByArtist;
+    } else if (INFORMER_NOTE_SORT_AUTHOR == sort_by) {
+        compare = InformerCompareNoteByAuthor;
+    } else {
+        InformerERROR("Unable to sort: unknown menu value [%d]\n", sort_by);
+        return FALSE;
+    }
 
-    fprintf(stderr, "DEBUG: %s", str);
+    InformerDEBUG("Now going to call qsort\n");
+    qsort(app->notes_data, app->notes_data_count, sizeof(InformerNoteData), compare);
 }
 
-void InformerERROR(const char *format, ...)
+int InformerCompareNoteByDateCreated(const void *a, const void *b)
 {
-    va_list args;
-    char str[4096];
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
 
-    va_start(args, format);
-    vsprintf(str, format, args);
-    va_end(args);
+    InformerDEBUG("InformerCompareNoteByDateCreated called\n");
 
-    fprintf(stderr, "ERROR: %s", str);
-    sparkMessage(str);
+    if (note_a->created_on > note_b->created_on)
+        return -1;
+    else if (note_a->created_on < note_b->created_on)
+        return 1;
+    else
+        return 0;
 }
 
+int InformerCompareNoteByDateModified(const void *a, const void *b)
+{
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByDateModified called\n");
+
+    if (note_a->modified_on > note_b->modified_on)
+        return -1;
+    else if (note_a->modified_on < note_b->modified_on)
+        return 1;
+    else
+        return 0;
+
+}
+
+int InformerCompareNoteByStatus(const void *a, const void *b)
+{
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByStatus called\n");
+
+    if (note_a->is_checked < note_b->is_checked)
+        return -1;
+    else if (note_a->is_checked > note_b->is_checked)
+        return 1;
+    else if (note_a->modified_on > note_b->modified_on)
+        return -1;
+    else if (note_a->modified_on < note_b->modified_on)
+        return 1;
+    else
+        return 0;
+}
+
+int InformerCompareNoteByArtist(const void *a, const void *b)
+{
+    int result;
+
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByArtist called\n");
+
+    if (note_a->is_checked > note_b->is_checked) {
+        // a is checked
+        return -1;
+    } else if (note_a->is_checked < note_b->is_checked) {
+        // b is checked
+        return 1;
+    } else if (0 == note_a->is_checked) {
+        // neither are checked
+        if (note_a->created_on > note_b->created_on)
+            return -1;
+        else if (note_a->created_on < note_b->created_on)
+            return 1;
+        else
+            return 0;
+    } else {
+        // they are both checked
+        result = strncmp(note_a->modified_by, note_b->modified_by, USERNAME_MAX);
+
+        if (0 != result)
+            return result;
+        else if (note_a->modified_on > note_b->modified_on)
+            return -1;
+        else if (note_a->modified_on < note_b->modified_on)
+            return 1;
+        else
+            return 0;
+    }
+}
+
+int InformerCompareNoteByAuthor(const void *a, const void *b)
+{
+    int result;
+
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByAuthor called\n");
+
+    result = strncmp(note_a->created_by, note_b->created_by, USERNAME_MAX);
+
+    if (0 != result)
+        return result;
+    else if (note_a->created_on > note_b->created_on)
+        return -1;
+    else if (note_a->created_on < note_b->created_on)
+        return 1;
+    else
+        return 0;
+}
