@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <time.h>
 
 #define UI_NUM_ROWS 5
 #define USERNAME_MAX 32
@@ -24,11 +25,9 @@ typedef struct {
     char            text[4096];                  /* The actual note message */
     int             is_checked;                  /* Boolean: is the note checked? */
     char            created_by[USERNAME_MAX];    /* The user who created the note */
-                                                /* Date note was created */
-    char            created_on[SPARK_MAX_STRING_LENGTH];
+    time_t          created_on;                  /* Date note was created */
     char            modified_by[USERNAME_MAX];   /* The user who last modified the note */
-                                                /* Date note was last modified */
-    char            modified_on[SPARK_MAX_STRING_LENGTH];
+    time_t          modified_on;                 /* Date note was last modified */
 } InformerNoteData;
 
 typedef struct {
@@ -82,8 +81,9 @@ typedef enum {
 } InformerNoteModeChoice;
 
 typedef enum {
-    INFORMER_NOTE_SORT_STATUS = 0,
-    INFORMER_NOTE_SORT_DATE = 1
+    INFORMER_NOTE_SORT_DATE_CREATED = 0,
+    INFORMER_NOTE_SORT_DATE_MODIFIED = 1,
+    INFORMER_NOTE_SORT_STATUS = 2
 } InformerNoteSortChoice;
 
 typedef enum {
@@ -179,7 +179,8 @@ SparkStringStruct SparkString32 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /* Informer Note Controls */
-SparkPupStruct SparkPup7 = {0, 2, InformerNotesSortChanged, {"Sort by date",
+SparkPupStruct SparkPup7 = {0, 3, InformerNotesSortChanged, {"Sort by date created",
+                                                             "Sort by date modified",
                                                              "Sort by status"}};
 SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPushStruct SparkPush14 = { "<< Previous Page", InformerNotesButtonA };
@@ -359,9 +360,9 @@ InformerNoteData InformerInitNoteData(void)
     result.is_checked = NOTE_NONE;
     sprintf(result.text, "");
     sprintf(result.created_by, "");
-    sprintf(result.created_on, "");
+    result.created_on = NOTE_NONE;
     sprintf(result.modified_by, "");
-    sprintf(result.modified_on, "");
+    result.modified_on = NOTE_NONE;
     return result;
 }
 InformerPupUI InformerInitPupUI(unsigned int id, SparkPupStruct *ui)
@@ -701,9 +702,9 @@ int InformerImportNotes(char *filepath, int index, int update_count)
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].text)) > 0) &&
             (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].is_checked)) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].created_by)) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].created_on)) > 0) &&
+            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].created_on)) > 0) &&
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_by)) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_on)) > 0)) {
+            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].modified_on)) > 0)) {
             /* looking good -- keep going */
             printf("... read note [%d] ok!\n", i);
         } else {
@@ -949,21 +950,27 @@ void InformerRefreshNotesUI(void)
 
 void InformerUpdateNotesRowUI(InformerNoteData source, int row_num)
 {
+    char str[32];
     InformerAppStruct *app = InformerGetApp();
     InformerNoteRowUI *note_ui;
+
     note_ui = &(app->notes_ui[row_num - 1]);
 
     printf("Truing to update row UI with row_num [%d]\n", row_num);
     note_ui->status.ui->Value = source.is_checked;
     if (1 == source.is_checked) {
-        sprintf(note_ui->status.text, "by %s on %s", source.modified_by, source.modified_on);
+        strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
+        sprintf(note_ui->status.text, "by %s on %s", source.modified_by, str);
     } else {
         sprintf(note_ui->status.text, "TODO");
     }
 
     note_ui->status.ui->Title = note_ui->status.text;
     sprintf(note_ui->message.ui->Value, "%s", source.text);
-    sprintf(note_ui->from.ui->Value, "from %s at %s", source.created_by, source.created_on);
+
+    strftime(str, sizeof(str), "%D %I:%M%p", localtime(&source.created_on));
+    sprintf(note_ui->from.ui->Value, "from %s at %s", source.created_by, str);
+
     InformerShowNoteRow(row_num);
 }
 
@@ -987,7 +994,7 @@ static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfo
 
     if (TRUE == InformerExportNote("/tmp/trinity8", &note_data)) {
         if (TRUE == InformerCallGateway("new_note", "/tmp/trinity8", NULL)) {
-            InformerRefreshNotesUI();
+            InformerGetNotesDB();
         }
     }
 

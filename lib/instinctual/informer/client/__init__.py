@@ -88,7 +88,7 @@ class Client(object):
 
         return objects
 
-    def wrapRestClient(method):
+    def wrapRestClient(method, expected):
         def wrapper(self, *args, **kwargs):
             kwargs['resp'] = True
             kwargs['async'] = False
@@ -97,7 +97,7 @@ class Client(object):
 
             LOG.info(data)
 
-            if 200 != resp.status:
+            if resp.status not in expected:
                 err = "Request failed: status=%s" % (resp.status)
                 raise ClientConnectionError(err)
 
@@ -105,6 +105,6 @@ class Client(object):
 
         return wrapper
 
-    GET  = wrapRestClient(restclient.GET)
-    PUT  = wrapRestClient(restclient.PUT)
-    POST = wrapRestClient(restclient.POST)
+    GET  = wrapRestClient(restclient.GET,  [200])
+    PUT  = wrapRestClient(restclient.PUT,  [200])
+    POST = wrapRestClient(restclient.POST, [201])
