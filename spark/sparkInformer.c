@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <math.h>
 #include <time.h>
+#include <stdarg.h>
 
 #define UI_NUM_ROWS 5
 #define USERNAME_MAX 32
@@ -95,6 +96,9 @@ typedef enum {
 /*************************************
  * Informer function prototypes
  *************************************/
+void InformerDEBUG(const char *format, ...);
+void InformerERROR(const char *format, ...);
+
 InformerAppStruct *InformerGetApp(void);
 InformerNoteData InformerInitNoteData(void);
 InformerPupUI InformerInitPupUI(unsigned int id, SparkPupStruct *ui);
@@ -145,12 +149,12 @@ int  CanvasInteract(SparkCanvasInfo Canvas,
 
 void CanvasDraw(SparkCanvasInfo canvas_info)
 {
-    // printf("-- draw event called --\n");
+    // InformerDEBUG("-- draw event called --\n");
 }
 
 int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
 {
-    printf("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
+    InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
     return 1;
 }
 
@@ -192,6 +196,7 @@ static char CREATE_NOTE_UI[] = "                click here to create a new note"
 SparkStringStruct SparkString13 = { "", CREATE_NOTE_UI, SPARK_FLAG_NONE, InformerNotesCreateNoteCallback };
 
 SparkStringStruct SparkString39 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
+
 /*
  * Informer Setup UI Elements
  * SparkStringStruct SparkSetupString15 = { "", "Hello.", NULL, NULL };
@@ -246,7 +251,7 @@ void SparkMemoryTempBuffers(void)
 unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
-    printf("----> SparkInitialise called <----\n");
+    InformerDEBUG("----> SparkInitialise called <----\n");
 
     /* Initialize the notes data container */
     app->notes_data_count = 0;
@@ -293,7 +298,7 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 void SparkUnInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
-    printf("----> SparkUnInitialise called <----\n");
+    InformerDEBUG("----> SparkUnInitialise called <----\n");
 }
 
 /*--------------------------------------------------------------------------*/
@@ -301,7 +306,7 @@ void SparkUnInitialise(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 int SparkClips(void)
 {
-    printf("----> SparkClips called <----\n");
+    InformerDEBUG("----> SparkClips called <----\n");
     return 1;
 }
 
@@ -319,7 +324,7 @@ int SparkProcessStart(SparkInfoStruct spark_info)
 
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
-    printf("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
+    InformerDEBUG("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
            setup, gateway);
     InformerGetNotesDB();
     return 1;
@@ -332,7 +337,7 @@ int SparkProcessStart(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 unsigned long *SparkProcess(SparkInfoStruct spark_info)
 {
-    printf("-----> SparkProcess called <------\n");
+    InformerDEBUG("-----> SparkProcess called <------\n");
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
@@ -347,7 +352,7 @@ unsigned long *SparkProcess(SparkInfoStruct spark_info)
 void SparkEvent(SparkModuleEvent spark_event)
 {
     /* I don't have a use for this right now... */
-    printf("-----> SparkEvent (%d) <-----\n", spark_event);
+    InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
 }
 
 /****************************************************************************
@@ -448,28 +453,27 @@ int InformerGetCurrentUser(char *user, int max_length)
     }
 
     if ((fp=fopen(filepath, "r")) == NULL) {
-        printf("I couldn't open %s: %s\n", filepath, strerror(errno));
-        sprintf(SparkString28.Value, "%s: can't open [%s]",
-                CURRENT_USER_ERR, filepath);
+        InformerERROR("%s: can't open [%s]: %s", CURRENT_USER_ERR,
+                      filepath, strerror(errno));
         return FALSE;
     }
 
     do {
         c = fgets(line, 1024, fp);
         if (c != NULL) {
-            printf("Checking line: %s\n", line);
+            InformerDEBUG("Checking line: %s\n", line);
             if (strstr(line, "UserGroupStatus:UsrGroup1={") != NULL) {
-                printf("MATCH! -> %s\n", line);
+                InformerDEBUG("MATCH! -> %s\n", line);
                 start = index(line, '{');
                 end = rindex(line, '}');
                 if (end != NULL && start != NULL) {
                     if (end - start < max_length - 1)
                         max_length = end - start;
-                    printf("start [%c], end [%c], max_length [%d]\n", *start, *end, max_length);
+                    InformerDEBUG("start [%c], end [%c], max_length [%d]\n", *start, *end, max_length);
 
                     strncpy(user, start + 1, max_length - 1);
                     user[max_length-1] = '\0';
-                    printf("Going to return user [%s]\n", user);
+                    InformerDEBUG("Going to return user [%s]\n", user);
                     return TRUE;
                 }
             }
@@ -496,8 +500,7 @@ const char *DiscreetGetUserdbPath(void)
                0 == strcmp("smoke", program)) {
         return editing;
     } else {
-        sprintf(SparkString28.Value, "%s: unknown program [%s]",
-                CURRENT_USER_ERR, program);
+        InformerERROR("%s: unknown program [%s]", CURRENT_USER_ERR, program);
         return NULL;
     }
 }
@@ -513,7 +516,7 @@ int InformerGetNotesDB(void)
             return TRUE;
         } else {
             // TODO: What should happen here?
-            sprintf(SparkString28.Value, "%s", GET_NOTES_WAIT);
+            InformerERROR("%s", GET_NOTES_WAIT);
             return FALSE;
         }
     }
@@ -526,7 +529,7 @@ int InformerUpdateNoteDB(int index, int note_id, int is_checked)
     sparkMessage(UPDATE_NOTE_WAIT);
 
     if (TRUE != InformerGetCurrentUser(note_data.modified_by, USERNAME_MAX)) {
-        printf("Unable to determine the current user!\n");
+        InformerERROR("Unable to determine the current user\n");
         return FALSE;
     }
 
@@ -534,10 +537,10 @@ int InformerUpdateNoteDB(int index, int note_id, int is_checked)
     note_data.is_checked = is_checked;
 
     if (TRUE == InformerExportNote("/tmp/trinity2", &note_data)) {
-        printf("--------- update note ----------\n");
-        printf("is_checked [%d], user [%s], id [%d], index [%d]\n",
+        InformerDEBUG("--------- update note ----------\n");
+        InformerDEBUG("is_checked [%d], user [%s], id [%d], index [%d]\n",
                note_data.is_checked, note_data.modified_by, note_data.id, index);
-        printf("--------- update note ----------\n");
+        InformerDEBUG("--------- update note ----------\n");
         if (TRUE == InformerCallGateway("update_note", "/tmp/trinity2", "/tmp/trinity3")) {
             if (TRUE == InformerImportNotes("/tmp/trinity3", index, FALSE)) {
                 InformerRefreshNotesUI();
@@ -562,7 +565,7 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
     setup = InformerGetSetupName();
     gateway = InformerGetGatewayPath();
 
-    printf("the gateway is [%s]\n", gateway);
+    InformerDEBUG("the gateway is [%s]\n", gateway);
 
     argv[index++] = gateway;
     argv[index++] = "-s";
@@ -582,20 +585,19 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
 
     argv[index] = 0;    /* This is required to end the array */
 
-    printf("---- calling gateway ----\n");
+    InformerDEBUG("---- calling gateway ----\n");
     while (*ptr) {
-        printf("%s ", *ptr++);
+        InformerDEBUG("%s ", *ptr++);
     }
-    printf("\n---- calling gateway ----\n");
+    InformerDEBUG("\n---- calling gateway ----\n");
 
     pid = sparkSystemNoSh(FALSE, argv[0], argv);
     sparkWaitpid(pid, &status, 0);
-    printf("Gateway returned. status [%d]\n", status);
+    InformerDEBUG("Gateway returned. status [%d]\n", status);
 
     if (0 != status) {
         // TODO: Map the status to a human readable string
-        sprintf(SparkString28.Value, "%s: status [%d]",
-                GATEWAY_STATUS_ERR, status);
+        InformerERROR("%s: status [%d]", GATEWAY_STATUS_ERR, status);
         return FALSE;
     } else {
         return TRUE;
@@ -610,15 +612,15 @@ int InformerExportNote(char *filepath, InformerNoteData *note)
     FILE *fp;
     int result = 1;
 
-    printf("here we go. writing datafile [%s]\n", filepath);
+    InformerDEBUG("here we go. writing datafile [%s]\n", filepath);
 
     if ((fp=fopen(filepath, "w")) == NULL) {
-        sprintf(SparkString28.Value, "%s: can't write datafile [%s]",
-                GATEWAY_STATUS_ERR, filepath);
+        InformerERROR("%s: can't write datafile [%s]",
+                      GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
 
-    printf("-------- OK -------- opened the file for writing!\n");
+    InformerDEBUG("-------- OK -------- opened the file for writing!\n");
 
     if (result > 0) {
         result = fprintf(fp, "1\n");
@@ -647,13 +649,12 @@ int InformerExportNote(char *filepath, InformerNoteData *note)
     fclose(fp);
 
     if (!result) {
-        printf("------- WHOA! error writing to datafile!\n");
-        sprintf(SparkString28.Value, "%s: can't write datafile [%s]",
-                GATEWAY_STATUS_ERR, filepath);
+        InformerERROR("%s: can't write datafile [%s]",
+                      GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
 
-    printf("... write of note ok!\n");
+    InformerDEBUG("... write of note ok!\n");
     return TRUE;
 }
 
@@ -665,12 +666,12 @@ int InformerImportNotes(char *filepath, int index, int update_count)
     int result = 1;
     InformerAppStruct *app = InformerGetApp();
 
-    printf("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
-           filepath, index, update_count);
+    InformerDEBUG("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
+                  filepath, index, update_count);
 
     if ((fp=fopen(filepath, "r")) == NULL) {
-        sprintf(SparkString28.Value, "%s: can't open datafile [%s]",
-                GATEWAY_STATUS_ERR, filepath);
+        InformerERROR("%s: can't open datafile [%s]: %s",
+                      GATEWAY_STATUS_ERR, filepath, strerror(errno));
         return FALSE;
     }
 
@@ -682,12 +683,11 @@ int InformerImportNotes(char *filepath, int index, int update_count)
     */
     result = fscanf(fp, "%d%*1[\n]", &count);
     if (1 != result) {
-        sprintf(SparkString28.Value, "%s: can't parse datafile [%s]",
-                GATEWAY_STATUS_ERR, filepath);
+        InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
         return FALSE;
     }
 
-    printf("OK there are %d entries\n", count);
+    InformerDEBUG("OK there are %d entries\n", count);
 
     for (i=0; i<count; i++) {
         /* skip the "key:" read the value */
@@ -706,10 +706,9 @@ int InformerImportNotes(char *filepath, int index, int update_count)
             (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_by)) > 0) &&
             (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].modified_on)) > 0)) {
             /* looking good -- keep going */
-            printf("... read note [%d] ok!\n", i);
+            InformerDEBUG("... read note [%d] ok!\n", i);
         } else {
-            sprintf(SparkString28.Value, "%s: can't parse datafile [%s]",
-                    GATEWAY_STATUS_ERR, filepath);
+            InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
             return FALSE;
         }
     }
@@ -719,7 +718,7 @@ int InformerImportNotes(char *filepath, int index, int update_count)
         app->notes_data_count = count;
     }
 
-    printf("All notes read ok. Word up.\n");
+    InformerDEBUG("All notes read ok. Word up.\n");
 
     return TRUE;
 }
@@ -746,7 +745,7 @@ static unsigned long *InformerNotesModeChanged(int CallbackArg,
     InformerAppStruct *app = InformerGetApp();
     InformerNoteModeChoice mode = InformerGetNoteUIMode();
 
-    printf("Hey! The notes mode change got called with: value: %d\n", mode);
+    InformerDEBUG("Hey! The notes mode change got called with: value: %d\n", mode);
 
     if (INFORMER_NOTE_MODE_REFRESH == mode) {
         InformerGetNotesDB();
@@ -759,7 +758,7 @@ static unsigned long *InformerNotesSortChanged(int CallbackArg,
                                               SparkInfoStruct SparkInfo )
 {
     InformerAppStruct *app = InformerGetApp();
-    printf("Hey! The notes sort change got called with: %d, value is: %d\n",
+    InformerDEBUG("Hey! The notes sort change got called with: %d, value is: %d\n",
             CallbackArg, app->notes_ui_sort.ui->Value);
     return NULL;
 }
@@ -812,13 +811,13 @@ void InformerNotesToggleRow(int row_num)
         note_id = app->notes_data[index].id;
         is_checked = app->notes_ui[row_num-1].status.ui->Value;
 
-        printf("It's note_id is: (%d)\n", note_id);
-        printf("Row number (%d) was changed\n", row_num);
-        printf("It's value is: %d\n", is_checked);
+        InformerDEBUG("It's note_id is: (%d)\n", note_id);
+        InformerDEBUG("Row number (%d) was changed\n", row_num);
+        InformerDEBUG("It's value is: %d\n", is_checked);
 
         InformerUpdateNoteDB(index, note_id, is_checked);
     } else {
-        printf("Whoa! can't toggle secret hidden notes! :)\n");
+        InformerDEBUG("Whoa! can't toggle secret hidden notes! :)\n");
     }
 }
 
@@ -844,21 +843,21 @@ void InformerNotesButtonEvent(InformerNoteButtonChoice button)
 
     if (INFORMER_NOTE_MODE_REFRESH == mode) {
         if (INFORMER_NOTE_BUTTON_A == button) {
-            printf("You clicked Notes Page Prev\n");
+            InformerDEBUG("You clicked Notes Page Prev\n");
             if (app->notes_ui_cur_page > 1) {
                 app->notes_ui_cur_page -= 1;
                 InformerRefreshNotesUI();
             } else {
-                printf("You can't go past page 1\n");
+                InformerDEBUG("You can't go past page 1\n");
             }
         } else if (INFORMER_NOTE_BUTTON_B == button) {
-            printf("You clicked Notes Page Next\n");
+            InformerDEBUG("You clicked Notes Page Next\n");
             max_page = (int) ceil((float)app->notes_data_count/app->notes_ui_count);
             if (app->notes_ui_cur_page < max_page) {
                 app->notes_ui_cur_page += 1;
                 InformerRefreshNotesUI();
             } else {
-                printf("You can't go past the last page (%d)\n", max_page);
+                InformerDEBUG("You can't go past the last page (%d)\n", max_page);
             }
         }
     }
@@ -874,13 +873,13 @@ void InformerHideAllNoteRows(void)
 
 void InformerHideNoteRow(int row_num)
 {
-    printf("++++ call to disable note row %d\n", row_num);
+    InformerDEBUG("++++ call to disable note row %d\n", row_num);
     InformerToggleNoteRow(row_num, 0);
 }
 
 void InformerShowNoteRow(int row_num)
 {
-    printf("++++ call to enable note row %d\n", row_num);
+    InformerDEBUG("++++ call to enable note row %d\n", row_num);
     InformerToggleNoteRow(row_num, 1);
 }
 
@@ -916,12 +915,12 @@ void InformerRefreshNotesUI(void)
     app->notes_ui_mode.ui->Value = INFORMER_NOTE_MODE_REFRESH;
     sparkEnableParameter(SPARK_UI_CONTROL, app->notes_ui_sort.id);
 
-    printf("****** Time to refresh the notes UI ********\n");
+    InformerDEBUG("****** Time to refresh the notes UI ********\n");
 
     if (app->notes_data_count > 0) {
         if (1 == app->notes_data_count) {
             start = end = 1;
-            sprintf(SparkString28.Value, "Displaying note 1 (of 1)");
+            sprintf(app->notes_ui_statusbar.ui->Value, "Displaying note 1 (of 1)");
         } else {
             start = (app->notes_ui_cur_page - 1) * app->notes_ui_count;
             if (app->notes_data_count - start < app->notes_ui_count) {
@@ -932,17 +931,18 @@ void InformerRefreshNotesUI(void)
                 end = start + app->notes_ui_count - 1;
             }
 
-            sprintf(SparkString28.Value, "Displaying notes %d - %d (of %d)",
+            sprintf(app->notes_ui_statusbar.ui->Value,
+                    "Displaying notes %d - %d (of %d)",
                     start + 1, end + 1, app->notes_data_count);
         }
     } else {
-        sprintf(SparkString28.Value, "No notes to display");
+        sprintf(app->notes_ui_statusbar.ui->Value, "No notes to display");
     }
 
     for (row=1; row <= app->notes_ui_count; row++) {
         index = start + row - 1;
         if (index <= end) {
-            printf("Going to display index [%d] at row [%d]\n", index, row);
+            InformerDEBUG("Going to display index [%d] at row [%d]\n", index, row);
             InformerUpdateNotesRowUI(app->notes_data[index], row);
         }
     }
@@ -956,7 +956,7 @@ void InformerUpdateNotesRowUI(InformerNoteData source, int row_num)
 
     note_ui = &(app->notes_ui[row_num - 1]);
 
-    printf("Truing to update row UI with row_num [%d]\n", row_num);
+    InformerDEBUG("Truing to update row UI with row_num [%d]\n", row_num);
     note_ui->status.ui->Value = source.is_checked;
     if (1 == source.is_checked) {
         strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
@@ -980,11 +980,11 @@ static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfo
     InformerNoteData note_data = InformerInitNoteData();
 
     sparkMessage(CREATE_NOTE_WAIT);
-    printf("New note text was entered\n");
-    printf("The text value is: [%s]\n", app->notes_ui_create.ui->Value);
+    InformerDEBUG("New note text was entered\n");
+    InformerDEBUG("The text value is: [%s]\n", app->notes_ui_create.ui->Value);
 
     if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
-        printf("Unable to determine the current user!\n");
+        InformerERROR("Unable to determine the current user\n");
         return FALSE;
     }
 
@@ -1000,3 +1000,29 @@ static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfo
 
     return NULL;
 }
+
+void InformerDEBUG(const char *format, ...)
+{
+    va_list args;
+    char str[4096];
+
+    va_start(args, format);
+    vsprintf(str, format, args);
+    va_end(args);
+
+    fprintf(stderr, "DEBUG: %s", str);
+}
+
+void InformerERROR(const char *format, ...)
+{
+    va_list args;
+    char str[4096];
+
+    va_start(args, format);
+    vsprintf(str, format, args);
+    va_end(args);
+
+    fprintf(stderr, "ERROR: %s", str);
+    sparkMessage(str);
+}
+
