@@ -61,6 +61,7 @@ typedef struct {
 typedef struct {
     InformerNoteData            notes_data[100];        /* All of the note data */
     unsigned int                notes_data_count;       /* Total number of NoteData structs */
+    int                         notes_data_been_read;   /* has any note data been read? */
 
     InformerNoteRowUI           notes_ui[UI_NUM_ROWS];  /* Data to describe each UI row */
     unsigned int                notes_ui_count;         /* Total number of NoteUI structs */
@@ -273,6 +274,7 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 
     /* Initialize the notes data container */
     app->notes_data_count = 0;
+    app->notes_data_been_read = FALSE;
 
     /* Initialize the notes UI container */
     app->notes_ui_cur_page = 1;
@@ -344,7 +346,11 @@ int SparkProcessStart(SparkInfoStruct spark_info)
     gateway = InformerGetGatewayPath();
     InformerDEBUG("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
            setup, gateway);
-    InformerGetNotesDB();
+
+    if (FALSE == app->notes_data_been_read) {
+        InformerGetNotesDB();
+    }
+
     return 1;
 }
 
@@ -550,11 +556,13 @@ const char *DiscreetGetUserdbPath(void)
 
 int InformerGetNotesDB(void)
 {
+    InformerAppStruct *app = InformerGetApp();
     sparkMessage(GET_NOTES_WAIT);
     InformerHideAllNoteRows();
 
     if (TRUE == InformerCallGateway("get_notes", NULL, "/tmp/trinity")) {
         if (TRUE == InformerImportNotes("/tmp/trinity", 0, TRUE)) {
+            app->notes_data_been_read = TRUE;
             InformerRefreshNotesUI();
             return TRUE;
         } else {
