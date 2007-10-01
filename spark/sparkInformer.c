@@ -138,6 +138,10 @@ void InformerToggleNoteRow(int row_num, int on_off);
 void InformerRefreshNotesUI(void);
 void InformerUpdateNotesRowUI(InformerNoteData source, int row_num);
 
+int InformerReadValAsInt(FILE *fp, int *data);
+int InformerReadValAsLong(FILE *fp, long int *data);
+int InformerReadValAsString(FILE *fp, char *data);
+
 static unsigned long *InformerNotesButtonA(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesButtonB(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
@@ -730,13 +734,13 @@ int InformerImportNotes(char *filepath, int index, int update_count)
 
     for (i=0; i<count; i++) {
         /* skip the "key:" read the value */
-        if ((fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].id)) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].text)) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].is_checked)) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].created_by)) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].created_on)) > 0) &&
-            (fscanf(fp, "%*s %[^\n]%*1[\n]", &(app->notes_data[index+i].modified_by)) > 0) &&
-            (fscanf(fp, "%*s %d%*1[\n]",     &(app->notes_data[index+i].modified_on)) > 0)) {
+        if (TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].id)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].text) &&
+            TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].is_checked)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].created_by) &&
+            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].created_on)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].modified_by) &&
+            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].modified_on))) {
             /* looking good -- keep going */
             InformerDEBUG("... read note [%d] ok!\n", i);
         } else {
@@ -1011,25 +1015,33 @@ void InformerUpdateNotesRowUI(InformerNoteData source, int row_num)
 
 static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
 {
+    char *input;
     InformerAppStruct *app = InformerGetApp();
     InformerNoteData note_data = InformerInitNoteData();
 
-    sparkMessage(CREATE_NOTE_WAIT);
-    InformerDEBUG("New note text was entered\n");
-    InformerDEBUG("The text value is: [%s]\n", app->notes_ui_create.ui->Value);
+    input = app->notes_ui_create.ui->Value;
 
-    if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
-        InformerERROR("Unable to determine the current user\n");
-        return FALSE;
-    }
+    if (strncmp("", input, SPARK_MAX_STRING_LENGTH) == 0) {
+        // ignore -- nothing was entered
+        InformerDEBUG("Ignoring empty input\n");
+    } else {
+        sparkMessage(CREATE_NOTE_WAIT);
+        InformerDEBUG("New note text was entered\n");
+        InformerDEBUG("The text value is: [%s]\n", input);
 
-    note_data.is_checked = 0;
-    sprintf(note_data.text, "%s", app->notes_ui_create.ui->Value);
-    sprintf(note_data.modified_by, "%s", note_data.created_by);
+        if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
+            InformerERROR("Unable to determine the current user\n");
+            return FALSE;
+        }
 
-    if (TRUE == InformerExportNote("/tmp/trinity8", &note_data)) {
-        if (TRUE == InformerCallGateway("new_note", "/tmp/trinity8", NULL)) {
-            InformerGetNotesDB();
+        note_data.is_checked = 0;
+        sprintf(note_data.text, "%s", input);
+        sprintf(note_data.modified_by, "%s", note_data.created_by);
+
+        if (TRUE == InformerExportNote("/tmp/trinity8", &note_data)) {
+            if (TRUE == InformerCallGateway("new_note", "/tmp/trinity8", NULL)) {
+                InformerGetNotesDB();
+            }
         }
     }
 
@@ -1168,4 +1180,56 @@ int InformerCompareNoteByAuthor(const void *a, const void *b)
         return 1;
     else
         return 0;
+}
+
+int InformerReadValAsInt(FILE *fp, int *data)
+{
+    char line[4096];
+
+    if (TRUE == InformerReadValAsString(fp, line)) {
+        *data = atoi(line);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+int InformerReadValAsLong(FILE *fp, long int *data)
+{
+    char line[4096];
+
+    if (TRUE == InformerReadValAsString(fp, line)) {
+        *data = atol(line);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+int InformerReadValAsString(FILE *fp, char *data)
+{
+    int length;
+    char *start;
+    char *end;
+    char line[4096];
+
+    if (fgets(line, 4096, fp) != NULL) {
+        printf("The line is [%s]\n", line);
+        start = index(line, ':');
+        if (start != NULL) {
+            start += 2;     /* the space after the : */
+            length = strlen(line);
+            end = line + length - 1;    /* no null and no newline */
+            strncpy(data, start, end - start);
+            data[end - start] = '\0';
+            printf("I read [%s]\n", data);
+            return TRUE;
+        } else {
+            InformerERROR("Parse error reading from filehandle: no key found\n");
+            return FALSE;
+        }
+    } else {
+        InformerERROR("Unable to read from filehandle: %s\n", strerror(errno));
+        return FALSE;
+    }
 }
