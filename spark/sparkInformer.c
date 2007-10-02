@@ -59,10 +59,15 @@ typedef struct {
 } InformerNoteRowUI;
 
 typedef struct {
+    /* SETUP UI ELEMENTS */
+    InformerStringUI            setup_ui_setup_path;    /* the path of the batch setup file */
+
+    /* NOTE DATA */
     InformerNoteData            notes_data[100];        /* All of the note data */
     unsigned int                notes_data_count;       /* Total number of NoteData structs */
     int                         notes_data_been_read;   /* has any note data been read? */
 
+    /* NOTE UI ELEMENTS */
     InformerNoteRowUI           notes_ui[UI_NUM_ROWS];  /* Data to describe each UI row */
     unsigned int                notes_ui_count;         /* Total number of NoteUI structs */
     unsigned int                notes_ui_cur_page;      /* Current note page number */
@@ -116,9 +121,7 @@ InformerPushUI InformerInitPushUI(unsigned int id, SparkPushStruct *ui);
 InformerStringUI InformerInitStringUI(unsigned int id, SparkStringStruct *ui);
 InformerBooleanUI InformerInitBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text);
 
-const char *DiscreetGetUserdbPath(void);
-
-const char *InformerGetSetupName(void);
+const char *InformerGetSetupPath(void);
 const char *InformerGetGatewayPath(void);
 int InformerGetCurrentUser(char *user, int max_length);
 
@@ -215,8 +218,8 @@ SparkStringStruct SparkString39 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
 
 /*
  * Informer Setup UI Elements
- * SparkStringStruct SparkSetupString15 = { "", "Hello.", NULL, NULL };
  */
+SparkStringStruct SparkSetupString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /*
  * Aliases for Image Buffers
@@ -266,11 +269,14 @@ void SparkMemoryTempBuffers(void)
 /*--------------------------------------------------------------------------*/
 unsigned int SparkInitialise(SparkInfoStruct spark_info)
 {
+    const char *setup;
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
 
     double rate = sparkFrameRate();
     printf("This is the frame rate [%f]\n", rate);
+
+    app->setup_ui_setup_path = InformerInitStringUI(15, &SparkSetupString15);
 
     /* Initialize the notes data container */
     app->notes_data_count = 0;
@@ -338,14 +344,9 @@ int SparkClips(void)
 /*--------------------------------------------------------------------------*/
 int SparkProcessStart(SparkInfoStruct spark_info)
 {
-    const char *setup;
-    const char *gateway;
     InformerAppStruct *app = InformerGetApp();
 
-    setup = InformerGetSetupName();
-    gateway = InformerGetGatewayPath();
-    InformerDEBUG("----> SparkProcessStart called: setup (%s) gateway (%s) <----\n",
-           setup, gateway);
+    InformerDEBUG("----> SparkProcessStart called <----\n");
 
     if (FALSE == app->notes_data_been_read) {
         InformerGetNotesDB();
@@ -379,6 +380,26 @@ void SparkEvent(SparkModuleEvent spark_event)
     InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
 }
 
+/*--------------------------------------------------------------------------*/
+/* Callback for setup saving and loading                                    */
+/*--------------------------------------------------------------------------*/
+void SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
+{
+    InformerAppStruct *app = InformerGetApp();
+
+    printf("SparkSetupIOEvent called with [%d] path [%s] file [%s]\n",
+            event, path, file);
+
+    if (SPARK_EVENT_LOADSETUP == event || SPARK_EVENT_SAVESETUP == event) {
+        if (NULL == strstr(path, "/_session")) {
+            /* ignore auto load/saves */
+            InformerDEBUG("LOADING/SAVING SETUP: %s\n", path);
+            strncpy(app->setup_ui_setup_path.ui->Value, path, SPARK_MAX_STRING_LENGTH);
+        }
+    }
+}
+
+
 /****************************************************************************
  *                      Informer Utility Calls                              *
  ****************************************************************************/
@@ -404,7 +425,7 @@ void InformerERROR(const char *format, ...)
     va_end(args);
 
     fprintf(stderr, "ERROR: %s", str);
-    sparkMessage(str);
+    sparkError(str);
 }
 
 InformerNoteData InformerInitNoteData(void)
@@ -463,11 +484,21 @@ InformerAppStruct *InformerGetApp(void)
 /*--------------------------------------------------------------------------*/
 /* Returns the name of the current setup being worked on.                   */
 /*--------------------------------------------------------------------------*/
-const char *InformerGetSetupName(void)
+const char *InformerGetSetupPath(void)
 {
+    SparkInfoStruct info;
     const char *setup;
+    InformerAppStruct *app = InformerGetApp();
+
     setup = sparkGetLastSetupName();
-    return setup;
+    sparkGetInfo(&info);
+
+    printf("------------------------------------------------\n");
+    printf("app->setup_ui_setup_path---> [%s]\n", app->setup_ui_setup_path.ui->Value);
+    printf("sparkGetLastSetupName --> [%s]\n", setup);
+    printf("SparkInfoStruct.Name ---> [%s]\n", info.Name);
+    printf("------------------------------------------------\n");
+    return app->setup_ui_setup_path.ui->Value;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -487,17 +518,24 @@ int InformerGetCurrentUser(char *user, int max_length)
 {
     FILE *fp;
     char line[1024];
+    const char *program;
     const char *filepath;
 
-    int i;
     char *c;
     char *start;
     char *end;
 
-    max_length -= 1;
+    program = sparkProgramGetName();
 
-    filepath = DiscreetGetUserdbPath();
-    if (NULL == filepath) {
+    if (0 == strcmp("flame", program) ||
+        0 == strcmp("flint", program) ||
+        0 == strcmp("inferno", program)) {
+        filepath = "/usr/discreet/user/effects/user.db";
+    } else if (0 == strcmp("fire", program) ||
+               0 == strcmp("smoke", program)) {
+        filepath = "/usr/discreet/user/editing/user.db";
+    } else {
+        InformerERROR("%s: unknown program [%s]", CURRENT_USER_ERR, program);
         return FALSE;
     }
 
@@ -506,6 +544,8 @@ int InformerGetCurrentUser(char *user, int max_length)
                       filepath, strerror(errno));
         return FALSE;
     }
+
+    max_length -= 1; /* account for the null */
 
     do {
         c = fgets(line, 1024, fp);
@@ -531,27 +571,6 @@ int InformerGetCurrentUser(char *user, int max_length)
 
 
     return FALSE;
-}
-
-const char *DiscreetGetUserdbPath(void)
-{
-    const char *program;
-    const char *effects = "/usr/discreet/user/effects/user.db";
-    const char *editing = "/usr/discreet/user/editing/user.db";
-
-    program = sparkProgramGetName();
-
-    if (0 == strcmp("flame", program) ||
-        0 == strcmp("flint", program) ||
-        0 == strcmp("inferno", program)) {
-        return effects;
-    } else if (0 == strcmp("fire", program) ||
-               0 == strcmp("smoke", program)) {
-        return editing;
-    } else {
-        InformerERROR("%s: unknown program [%s]", CURRENT_USER_ERR, program);
-        return NULL;
-    }
 }
 
 int InformerGetNotesDB(void)
@@ -613,7 +632,7 @@ int InformerCallGateway(char *action, char *infile, char *outfile)
     const char *argv[10];
     const char **ptr = argv;
 
-    setup = InformerGetSetupName();
+    setup = InformerGetSetupPath();
     gateway = InformerGetGatewayPath();
 
     InformerDEBUG("the gateway is [%s]\n", gateway);
@@ -963,6 +982,7 @@ void InformerRefreshNotesUI(void)
     sparkEnableParameter(SPARK_UI_CONTROL, app->notes_ui_sort.id);
 
     InformerDEBUG("****** Time to refresh the notes UI ********\n");
+    InformerDEBUG("I think there are [%d] notes\n", app->notes_data_count);
 
     if (app->notes_data_count > 0) {
         if (1 == app->notes_data_count) {
@@ -982,16 +1002,16 @@ void InformerRefreshNotesUI(void)
                     "Displaying notes %d - %d (of %d)",
                     start + 1, end + 1, app->notes_data_count);
         }
+
+        for (row=1; row <= app->notes_ui_count; row++) {
+            index = start + row - 1;
+            if (index <= end) {
+                InformerDEBUG("Going to display index [%d] at row [%d]\n", index, row);
+                InformerUpdateNotesRowUI(app->notes_data[index], row);
+            }
+        }
     } else {
         sprintf(app->notes_ui_statusbar.ui->Value, "No notes to display");
-    }
-
-    for (row=1; row <= app->notes_ui_count; row++) {
-        index = start + row - 1;
-        if (index <= end) {
-            InformerDEBUG("Going to display index [%d] at row [%d]\n", index, row);
-            InformerUpdateNotesRowUI(app->notes_data[index], row);
-        }
     }
 }
 
@@ -1062,7 +1082,10 @@ int InformerSortNoteData(void)
     InformerNoteSortChoice sort_by = app->notes_ui_sort.ui->Value;
     int (*compare)(const void *, const void *) = NULL;
 
-    if (INFORMER_NOTE_SORT_DATE_CREATED == sort_by) {
+    if (app->notes_data_count < 2) {
+        InformerDEBUG("Less than 2 data elements -- can't sort\n");
+        return TRUE;
+    } else if (INFORMER_NOTE_SORT_DATE_CREATED == sort_by) {
         compare = InformerCompareNoteByDateCreated;
     } else if (INFORMER_NOTE_SORT_DATE_MODIFIED == sort_by) {
         compare = InformerCompareNoteByDateModified;
@@ -1079,6 +1102,7 @@ int InformerSortNoteData(void)
 
     InformerDEBUG("Now going to call qsort\n");
     qsort(app->notes_data, app->notes_data_count, sizeof(InformerNoteData), compare);
+    return TRUE;
 }
 
 int InformerCompareNoteByDateCreated(const void *a, const void *b)
