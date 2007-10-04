@@ -111,4 +111,5 @@ class Client(object):
 
     GET  = wrapRestClient(restclient.GET,  [200])
     PUT  = wrapRestClient(restclient.PUT,  [200])
-    POST = wrapRestClient(restclient.POST, [201])
+    # TODO: remove 200 this is just for AppEvents...
+    POST = wrapRestClient(restclient.POST, [200, 201])
