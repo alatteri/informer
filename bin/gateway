@@ -100,7 +100,8 @@ class Gateway(object):
                 self.newNote(input[0])
             elif self.action == 'get_elements':
                 result = self.getElements()
-                outfile.write(result)
+                data = self.serializeElements(result)
+                outfile.write(data)
         except ClientConnectionError, e:
             LOG.error("Could not reach database: %s" % (e))
             sys.exit(2)
@@ -170,17 +171,34 @@ class Gateway(object):
 
         return data
 
-    def getElements(self, outfile):
+    def getElements(self):
         """
-        Returns a serialized string representation of the notes
+        Returns an array of element objects
         """
-
-        print "Running getElements()"
         client = Client()
+
+        LOG.info("Running getElements()")
         elements = client.getElements(self.setup)
-        print "Hey I got", len(elements), "elements"
+
+        LOG.info("Lookup found: %s elements" % (len(elements)))
+        LOG.info("Found this: %s", (elements))
+
+        return elements
+
+    def serializeElements(self, elements):
+        data = ''
+        data += "%s\n" % (len(elements))
+
         for element in elements:
-            print "--->", elements
+            LOG.info("---> element: %s" % (element))
+            data += "id: %s\n" % (element.id)
+            data += "text: %s\n" % (element.text)
+            data += "is_checked: %s\n" % (int(element.is_checked))
+            data += "created_by: %s\n" % (element.created_by)
+            created_on = int(time.mktime(element.created_on.timetuple()))
+            data += "created_on: %s\n" % (created_on)
+
+        return data
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':

@@ -54,18 +54,14 @@ class Note(models.Model):
 class Element(models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField(maxlength=4096)
-    comment     = models.CharField(maxlength=4096, null=True, blank=True)
     is_checked  = models.BooleanField('is checked', default=False)
-    date_added  = models.DateTimeField('date added', auto_now_add=True)
-    date_modified = models.DateTimeField('date modified', auto_now=True)
+    created_on  = models.DateTimeField('date created', auto_now_add=True)
+    created_by  = models.CharField('created by', maxlength=255)
 
     class Admin:
-        pass
+        list_display = ('shot', 'is_checked', 'text', 'created_by', 'created_on')
 
     def __str__(self):
-        if self.comment:
-            return "%s: %s" % (self.text, self.comment)
-        else:
             return self.text
 
 # ------------------------------------------------------------------------------

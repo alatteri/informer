@@ -29,7 +29,11 @@ class Client(object):
         project = parsed['project']
         shot = parsed['shot']
         url = informer.getProjectShotElementsUrl(project, shot)
-        return self.GET(url)
+
+        data = self.GET(url)
+        deserializer = Deserializer(data)
+        elements = self._getObjects(deserializer)
+        return elements
 
     def getNote(self, setup, id):
         parsed = informer.parseSetup(setup)
