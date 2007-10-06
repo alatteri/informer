@@ -158,11 +158,7 @@ SPARKDESTINATION=.
 # each line.
 #
 SPARK_CFILES = \
- sparkInformer.c \
-	informer.c \
-	informerUI.c \
-	informerNotes.c \
-	informerNotesUI.c
+ sparkInformer.c
 
 #
 # sparkInvert_16fp depends on the half data type (a 16bit floating point 
@@ -203,10 +199,9 @@ sparks_target:    $(SFILES) $(SFILES_C++)
 $(SFILES) : $(OFILES)
 $(OFILES) : %.o : %.c spark.h
 	@echo ""
-	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
-sparkInformer.$(SPARK_EXTENSION) : $(OFILES)
 	@echo "MAKING SPARK ..."
-	ld $(LDFLAGS) $(OFILES) -o $(SPARKDESTINATION)/sparkInformer.$(SPARK_EXTENSION)
+	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
+	ld $(LDFLAGS) $(SPARKSOURCE)/$*.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 $(SFILES_C++) : $(OFILES_C++)
 $(OFILES_C++) : %.o : %.C spark.h
