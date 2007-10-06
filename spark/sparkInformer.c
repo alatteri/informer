@@ -18,6 +18,13 @@
 
 extern int errno;
 
+static char GATEWAY_STATUS_ERR[] = "Unable to get notes";
+static char GET_NOTES_WAIT[] = "Getting notes from database...";
+static char UPDATE_NOTE_WAIT[] = "Updating database...";
+static char CREATE_NOTE_WAIT[] = "Creating new note...";
+static char CURRENT_USER_ERR[] = "Unable to determine user";
+static char CREATE_NOTE_UI[] = "                click here to create a new note";
+
 /*************************************
  * Informer notes data structure
  *************************************/
@@ -159,24 +166,14 @@ static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg, SparkInfoStr
 static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo);
 void InformerNotesToggleRow(int row_num);
 
-void CanvasDraw(SparkCanvasInfo);
-int  CanvasInteract(SparkCanvasInfo Canvas,
-                    int PointerX, int PointerY,
-                    float PointerPressure); /* return 1 for canvas display */
-
-void CanvasDraw(SparkCanvasInfo canvas_info)
-{
-    // InformerDEBUG("-- draw event called --\n");
-}
-
-int CanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
-{
-    // InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
-    return 1;
-}
+void InformerNotesCanvasDraw(SparkCanvasInfo);
+int  InformerNotesCanvasInteract(SparkCanvasInfo Canvas, int PointerX, int PointerY, float PointerPressure);
 
 
-SparkCanvasStruct SparkCanvas1 = { CanvasDraw, CanvasInteract };
+/*************************************
+ * Notes UI
+ *************************************/
+SparkCanvasStruct SparkCanvas1 = { InformerNotesCanvasDraw, InformerNotesCanvasInteract };
 
 /* Informer Note Boolean CheckBoxes */
 SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerNotesRow1BoolChanged };
@@ -211,15 +208,61 @@ SparkPushStruct SparkPush21 = { "Next Page >>", InformerNotesButtonB };
 
 SparkPupStruct SparkPup34 = {0, 1, InformerNotesModeChanged, {"Refresh Notes"}};
 
-static char CREATE_NOTE_UI[] = "                click here to create a new note";
 SparkStringStruct SparkString13 = { "", CREATE_NOTE_UI, SPARK_FLAG_NONE, InformerNotesCreateNoteCallback };
 
-SparkStringStruct SparkString39 = { "", "", SPARK_FLAG_NO_INPUT, NULL };
 
-/*
- * Informer Setup UI Elements
- */
+/*************************************
+ * Elements UI
+ *************************************/
+SparkPupStruct SparkPup36 = {0, 5, NULL, {"Sort by date added",
+                                          "Sort by last modified",
+                                          "Sort by status",
+                                          "Sort by artist",
+                                          "Sort by author"}};
+
+SparkStringStruct SparkString57 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkPushStruct SparkPush43 = { "<< Previous Page", NULL };
+SparkPushStruct SparkPush50 = { "Next Page >>", NULL };
+
+SparkPupStruct SparkPup63 = {0, 1, NULL, {"Refresh Elements"}};
+
+/* Informer Element Boolean CheckBoxes */
+SparkBooleanStruct SparkBoolean37 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean38 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean39 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean40 = { 0, "", NULL };
+SparkBooleanStruct SparkBoolean41 = { 0, "", NULL };
+
+/* Informer Element Text fields */
+SparkStringStruct SparkString44 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString45 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString46 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString47 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString48 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+
+/* Informer Element From/Date fields */
+SparkStringStruct SparkString58 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString59 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString60 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString61 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkString62 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+
+
+/*************************************
+ * Setup UI
+ *************************************/
 SparkStringStruct SparkSetupString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+
+
+/*************************************
+ * Informer globals
+ *************************************/
+InformerAppStruct    gApp;
+
+
+/****************************************************************************
+ *                      Spark Base Function Calls                           *
+ ****************************************************************************/
 
 /*
  * Aliases for Image Buffers
@@ -229,26 +272,6 @@ static int FRONT_ID  = 2;
 
 static SparkMemBufStruct SparkResult;
 static SparkMemBufStruct SparkSource;
-
-
-/*************************************
- * Informer globals
- *************************************/
-InformerAppStruct    gApp;
-
-
-/*************************************
- * Informer error strings
- *************************************/
-static char GATEWAY_STATUS_ERR[] = "Unable to get notes";
-static char GET_NOTES_WAIT[] = "Getting notes from database...";
-static char UPDATE_NOTE_WAIT[] = "Updating database...";
-static char CREATE_NOTE_WAIT[] = "Creating new note...";
-static char CURRENT_USER_ERR[] = "Unable to determine user";
-
-/****************************************************************************
- *                      Spark Base Function Calls                           *
- ****************************************************************************/
 
 /*--------------------------------------------------------------------------*/
 /* Called before initialising the Spark. Sparks defining                    */
@@ -1265,3 +1288,16 @@ int InformerReadValAsString(FILE *fp, char *data)
         return FALSE;
     }
 }
+
+void InformerNotesCanvasDraw(SparkCanvasInfo canvas_info)
+{
+    // InformerDEBUG("-- draw event called --\n");
+}
+
+int InformerNotesCanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
+{
+    InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
+    /* return 1 for canvas display */
+    return 1;
+}
+
