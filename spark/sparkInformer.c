@@ -25,18 +25,54 @@ static char CREATE_NOTE_WAIT[] = "Creating new note...";
 static char CURRENT_USER_ERR[] = "Unable to determine user";
 static char CREATE_NOTE_UI[] = "                click here to create a new note";
 
+
+/*************************************
+ * Informer enums
+ *************************************/
+typedef enum {
+    INFORMER_NOTE_MODE_REFRESH
+} InformerNoteModeChoice;
+
+typedef enum {
+    INFORMER_NOTE_SORT_DATE_CREATED,
+    INFORMER_NOTE_SORT_DATE_MODIFIED,
+    INFORMER_NOTE_SORT_STATUS,
+    INFORMER_NOTE_SORT_ARTIST,
+    INFORMER_NOTE_SORT_AUTHOR
+} InformerNoteSortChoice;
+
+typedef enum {
+    INFORMER_TABLE_BUTTON_A,
+    INFORMER_TABLE_BUTTON_B
+} InformerTableButtonChoice;
+
+typedef enum {
+    INFORMER_APP_MODE_SETUP,
+    INFORMER_APP_MODE_NOTES,
+    INFORMER_APP_MODE_ELEMS
+} InformerAppModeChoice;
+
+
 /*************************************
  * Informer notes data structure
  *************************************/
 typedef struct {
-    int             id;                          /* Primary key of Note */
-    char            text[4096];                  /* The actual note message */
-    int             is_checked;                  /* Boolean: is the note checked? */
-    char            created_by[USERNAME_MAX];    /* The user who created the note */
-    time_t          created_on;                  /* Date note was created */
-    char            modified_by[USERNAME_MAX];   /* The user who last modified the note */
-    time_t          modified_on;                 /* Date note was last modified */
+    int                 id;                             /* Primary key of Note */
+    char                text[4096];                     /* The actual note message */
+    int                 is_checked;                     /* Boolean: is the note checked? */
+    char                created_by[USERNAME_MAX];       /* The user who created the note */
+    time_t              created_on;                     /* Date note was created */
+    char                modified_by[USERNAME_MAX];      /* The user who last modified the note */
+    time_t              modified_on;                    /* Date note was last modified */
 } InformerNoteData;
+
+typedef struct {
+    int                 id;                             /* Primary key of the element */
+    char                text[4096];                     /* the element path/message */
+    int                 is_checked;                     /* is the element checked? */
+    char                created_by[USERNAME_MAX];       /* the user who created the element */
+    time_t              created_on;                     /* when the element was created */
+} InformerElemData;
 
 typedef struct {
     unsigned int        id;                             /* the id of the boolean element */
@@ -60,52 +96,47 @@ typedef struct {
 } InformerPushUI;
 
 typedef struct {
-    InformerBooleanUI   status;                         /* the status of the note */
-    InformerStringUI    message;                        /* the note's message */
-    InformerStringUI    from;                           /* who the note is from */
-} InformerNoteRowUI;
+    InformerBooleanUI   status;                         /* the status of the row */
+    InformerStringUI    message;                        /* the row's message */
+    InformerStringUI    from;                           /* who the row is from */
+} InformerTableRowUI;
 
 typedef struct {
-    /* SETUP UI ELEMENTS */
+    InformerTableRowUI          row[UI_NUM_ROWS];       /* Data to describe each UI row */
+    unsigned int                row_count;              /* Total number of row structs */
+    unsigned int                cur_page;               /* Current page number */
+
+    InformerPupUI               sort;                   /* the sort popup */
+    InformerPushUI              button_a;               /* the left button */
+    InformerPushUI              button_b;               /* the right button */
+    InformerStringUI            statusbar;              /* status bar for feedback/display */
+} InformerTableUI;
+
+typedef struct {
+    InformerAppModeChoice       app_current_mode;       /* The current mode: setup, notes, elem */
+
+    /* SETUP UI */
     InformerStringUI            setup_ui_setup_path;    /* the path of the batch setup file */
 
-    /* NOTE DATA */
+    /* NOTES DATA */
     InformerNoteData            notes_data[100];        /* All of the note data */
     unsigned int                notes_data_count;       /* Total number of NoteData structs */
     int                         notes_data_been_read;   /* has any note data been read? */
 
-    /* NOTE UI ELEMENTS */
-    InformerNoteRowUI           notes_ui[UI_NUM_ROWS];  /* Data to describe each UI row */
-    unsigned int                notes_ui_count;         /* Total number of NoteUI structs */
-    unsigned int                notes_ui_cur_page;      /* Current note page number */
-
+    /* NOTES UI */
     InformerPupUI               notes_ui_mode;          /* popup to select the note mode */
-    InformerPupUI               notes_ui_sort;          /* the sort popup */
+    InformerTableUI             notes_ui_table;         /* the data table for notes */
     InformerStringUI            notes_ui_create;        /* text field to input new notes */
-    InformerPushUI              notes_ui_button_a;      /* the left button */
-    InformerPushUI              notes_ui_button_b;      /* the right button */
-    InformerStringUI            notes_ui_statusbar;     /* status bar for feedback/display */
+
+    /* ELEMENTS DATA */
+    InformerElemData            elems_data[100];        /* all the element data */
+    unsigned int                elems_data_count;       /* Total number of ElemData structs */
+    int                         elems_data_been_read;   /* has any elem data been read? */
+
+    /* ELEMENTS UI */
+    InformerPupUI               elems_ui_mode;          /* popup to select the element mode */
+    InformerTableUI             elems_ui_table;         /* the data table for elements */
 } InformerAppStruct;
-
-/*************************************
- * Informer enums
- *************************************/
-typedef enum {
-    INFORMER_NOTE_MODE_REFRESH = 0
-} InformerNoteModeChoice;
-
-typedef enum {
-    INFORMER_NOTE_SORT_DATE_CREATED = 0,
-    INFORMER_NOTE_SORT_DATE_MODIFIED = 1,
-    INFORMER_NOTE_SORT_STATUS = 2,
-    INFORMER_NOTE_SORT_ARTIST = 3,
-    INFORMER_NOTE_SORT_AUTHOR = 4
-} InformerNoteSortChoice;
-
-typedef enum {
-    INFORMER_NOTE_BUTTON_A = 0,
-    INFORMER_NOTE_BUTTON_B = 1
-} InformerNoteButtonChoice;
 
 
 /*************************************
@@ -113,6 +144,10 @@ typedef enum {
  *************************************/
 void InformerDEBUG(const char *format, ...);
 void InformerERROR(const char *format, ...);
+
+/* app level functions */
+InformerAppModeChoice InformerGetAppMode(InformerAppStruct *app);
+void InformerSetAppMode(InformerAppStruct *app, InformerAppModeChoice mode);
 
 int InformerSortNoteData(void);
 int InformerCompareNoteByDateCreated(const void *a, const void *b);
@@ -133,7 +168,7 @@ const char *InformerGetGatewayPath(void);
 int InformerGetCurrentUser(char *user, int max_length);
 
 InformerNoteModeChoice InformerGetNoteUIMode(void);
-void InformerNotesButtonEvent(InformerNoteButtonChoice button);
+void InformerTableButtonEvent(InformerTableButtonChoice button);
 
 int InformerExportNote(char *filepath, InformerNoteData *note);
 int InformerImportNotes(char *filepath, int index, int update_count);
@@ -153,34 +188,34 @@ int InformerReadValAsInt(FILE *fp, int *data);
 int InformerReadValAsLong(FILE *fp, long int *data);
 int InformerReadValAsString(FILE *fp, char *data);
 
-static unsigned long *InformerNotesButtonA(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesButtonB(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableButtonA(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableButtonB(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+static unsigned long *InformerTableRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo);
-void InformerNotesToggleRow(int row_num);
+void InformerTableToggleRow(int row_num);
 
-void InformerNotesCanvasDraw(SparkCanvasInfo);
-int  InformerNotesCanvasInteract(SparkCanvasInfo Canvas, int PointerX, int PointerY, float PointerPressure);
+void InformerTableCanvasDraw(SparkCanvasInfo);
+int  InformerTableCanvasInteract(SparkCanvasInfo Canvas, int PointerX, int PointerY, float PointerPressure);
 
 
 /*************************************
  * Notes UI
  *************************************/
-SparkCanvasStruct SparkCanvas1 = { InformerNotesCanvasDraw, InformerNotesCanvasInteract };
+SparkCanvasStruct SparkCanvas1 = { InformerTableCanvasDraw, InformerTableCanvasInteract };
 
 /* Informer Note Boolean CheckBoxes */
-SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerNotesRow1BoolChanged };
-SparkBooleanStruct SparkBoolean9 =  { 0, "", InformerNotesRow2BoolChanged };
-SparkBooleanStruct SparkBoolean10 = { 0, "", InformerNotesRow3BoolChanged };
-SparkBooleanStruct SparkBoolean11 = { 0, "", InformerNotesRow4BoolChanged };
-SparkBooleanStruct SparkBoolean12 = { 0, "", InformerNotesRow5BoolChanged };
+SparkBooleanStruct SparkBoolean8 =  { 0, "", InformerTableRow1BoolChanged };
+SparkBooleanStruct SparkBoolean9 =  { 0, "", InformerTableRow2BoolChanged };
+SparkBooleanStruct SparkBoolean10 = { 0, "", InformerTableRow3BoolChanged };
+SparkBooleanStruct SparkBoolean11 = { 0, "", InformerTableRow4BoolChanged };
+SparkBooleanStruct SparkBoolean12 = { 0, "", InformerTableRow5BoolChanged };
 
 /* Informer Note Text fields */
 SparkStringStruct SparkString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -203,8 +238,8 @@ SparkPupStruct SparkPup7 = {0, 5, InformerNotesSortChanged, {"Sort by date creat
                                                              "Sort by artist",
                                                              "Sort by author"}};
 SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
-SparkPushStruct SparkPush14 = { "<< Previous Page", InformerNotesButtonA };
-SparkPushStruct SparkPush21 = { "Next Page >>", InformerNotesButtonB };
+SparkPushStruct SparkPush14 = { "<< Previous Page", InformerTableButtonA };
+SparkPushStruct SparkPush21 = { "Next Page >>", InformerTableButtonB };
 
 SparkPupStruct SparkPup34 = {0, 1, InformerNotesModeChanged, {"Refresh Notes"}};
 
@@ -281,7 +316,8 @@ static SparkMemBufStruct SparkSource;
 /* Input clip buffers and the output buffers are registered by IFFF. The    */
 /* output ID is 1 while input clips have ID's 2 to n inputs.                */
 /*--------------------------------------------------------------------------*/
-void SparkMemoryTempBuffers(void)
+void
+SparkMemoryTempBuffers(void)
 {
     /* no temporary buffers */
 }
@@ -290,7 +326,8 @@ void SparkMemoryTempBuffers(void)
 /* Called when the spark object is first loaded.                            */
 /* Return value indicates this spark operates at the MODULE level.          */
 /*--------------------------------------------------------------------------*/
-unsigned int SparkInitialise(SparkInfoStruct spark_info)
+unsigned int
+SparkInitialise(SparkInfoStruct spark_info)
 {
     const char *setup;
     InformerAppStruct *app = InformerGetApp();
@@ -305,38 +342,40 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
     app->notes_data_count = 0;
     app->notes_data_been_read = FALSE;
 
-    /* Initialize the notes UI container */
-    app->notes_ui_cur_page = 1;
-    app->notes_ui_count = UI_NUM_ROWS;
-
+    /* Initialize the notes UI */
     app->notes_ui_mode = InformerInitPupUI(34, &SparkPup34);
-    app->notes_ui_sort = InformerInitPupUI(7, &SparkPup7);
     app->notes_ui_create = InformerInitStringUI(13, &SparkString13);
-    app->notes_ui_button_a  = InformerInitPushUI(14, &SparkPush14);
-    app->notes_ui_button_b  = InformerInitPushUI(21, &SparkPush21);
-    app->notes_ui_statusbar = InformerInitStringUI(28, &SparkString28);
 
-    app->notes_ui[0].status = InformerInitBooleanUI(8, &SparkBoolean8, "");
-    app->notes_ui[1].status = InformerInitBooleanUI(9, &SparkBoolean9, "");
-    app->notes_ui[2].status = InformerInitBooleanUI(10, &SparkBoolean10, "");
-    app->notes_ui[3].status = InformerInitBooleanUI(11, &SparkBoolean11, "");
-    app->notes_ui[4].status = InformerInitBooleanUI(12, &SparkBoolean12, "");
+    app->notes_ui_table.cur_page = 1;
+    app->notes_ui_table.row_count = UI_NUM_ROWS;
 
-    app->notes_ui[0].message = InformerInitStringUI(15, &SparkString15);
-    app->notes_ui[1].message = InformerInitStringUI(16, &SparkString16);
-    app->notes_ui[2].message = InformerInitStringUI(17, &SparkString17);
-    app->notes_ui[3].message = InformerInitStringUI(18, &SparkString18);
-    app->notes_ui[4].message = InformerInitStringUI(19, &SparkString19);
+    app->notes_ui_table.sort = InformerInitPupUI(7, &SparkPup7);
+    app->notes_ui_table.button_a  = InformerInitPushUI(14, &SparkPush14);
+    app->notes_ui_table.button_b  = InformerInitPushUI(21, &SparkPush21);
+    app->notes_ui_table.statusbar = InformerInitStringUI(28, &SparkString28);
 
-    app->notes_ui[0].from = InformerInitStringUI(29, &SparkString29);
-    app->notes_ui[1].from = InformerInitStringUI(30, &SparkString30);
-    app->notes_ui[2].from = InformerInitStringUI(31, &SparkString31);
-    app->notes_ui[3].from = InformerInitStringUI(32, &SparkString32);
-    app->notes_ui[4].from = InformerInitStringUI(33, &SparkString33);
+    app->notes_ui_table.row[0].status = InformerInitBooleanUI(8, &SparkBoolean8, "");
+    app->notes_ui_table.row[1].status = InformerInitBooleanUI(9, &SparkBoolean9, "");
+    app->notes_ui_table.row[2].status = InformerInitBooleanUI(10, &SparkBoolean10, "");
+    app->notes_ui_table.row[3].status = InformerInitBooleanUI(11, &SparkBoolean11, "");
+    app->notes_ui_table.row[4].status = InformerInitBooleanUI(12, &SparkBoolean12, "");
+
+    app->notes_ui_table.row[0].message = InformerInitStringUI(15, &SparkString15);
+    app->notes_ui_table.row[1].message = InformerInitStringUI(16, &SparkString16);
+    app->notes_ui_table.row[2].message = InformerInitStringUI(17, &SparkString17);
+    app->notes_ui_table.row[3].message = InformerInitStringUI(18, &SparkString18);
+    app->notes_ui_table.row[4].message = InformerInitStringUI(19, &SparkString19);
+
+    app->notes_ui_table.row[0].from = InformerInitStringUI(29, &SparkString29);
+    app->notes_ui_table.row[1].from = InformerInitStringUI(30, &SparkString30);
+    app->notes_ui_table.row[2].from = InformerInitStringUI(31, &SparkString31);
+    app->notes_ui_table.row[3].from = InformerInitStringUI(32, &SparkString32);
+    app->notes_ui_table.row[4].from = InformerInitStringUI(33, &SparkString33);
 
     sparkControlTitle(SPARK_CONTROL_1, "Notes");
     sparkControlTitle(SPARK_CONTROL_2, "Elements");
 
+    InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
     InformerHideAllNoteRows();
     return SPARK_MODULE;
 }
@@ -344,7 +383,8 @@ unsigned int SparkInitialise(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 /* Called when the spark is unloaded.                                       */
 /*--------------------------------------------------------------------------*/
-void SparkUnInitialise(SparkInfoStruct spark_info)
+void
+SparkUnInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkUnInitialise called <----\n");
@@ -353,7 +393,8 @@ void SparkUnInitialise(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 /* Returns the number of source clips that are required for the spark       */
 /*--------------------------------------------------------------------------*/
-int SparkClips(void)
+int
+SparkClips(void)
 {
     InformerDEBUG("----> SparkClips called <----\n");
     return 1;
@@ -365,7 +406,8 @@ int SparkClips(void)
 /* Return: indicates the number of frames to be generated for the current   */
 /* input frame.                                                             */
 /*--------------------------------------------------------------------------*/
-int SparkProcessStart(SparkInfoStruct spark_info)
+int
+SparkProcessStart(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
 
@@ -383,7 +425,8 @@ int SparkProcessStart(SparkInfoStruct spark_info)
 /* simply copying the source image. The function returns the address of the */
 /* buffer of processed data.                                                */
 /*--------------------------------------------------------------------------*/
-unsigned long *SparkProcess(SparkInfoStruct spark_info)
+unsigned long *
+SparkProcess(SparkInfoStruct spark_info)
 {
     InformerDEBUG("-----> SparkProcess called <------\n");
 
@@ -397,16 +440,28 @@ unsigned long *SparkProcess(SparkInfoStruct spark_info)
 /*--------------------------------------------------------------------------*/
 /* Callback to indicate various spark events have ocurred.                  */
 /*--------------------------------------------------------------------------*/
-void SparkEvent(SparkModuleEvent spark_event)
+void
+SparkEvent(SparkModuleEvent spark_event)
 {
+    InformerAppStruct *app = InformerGetApp();
+
     /* I don't have a use for this right now... */
     InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
+
+    if (7 == spark_event) {
+        InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
+    } else if (9 == spark_event) {
+        InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
+    } else if (10 == spark_event) {
+        InformerSetAppMode(app, INFORMER_APP_MODE_ELEMS);
+    }
 }
 
 /*--------------------------------------------------------------------------*/
 /* Callback for setup saving and loading                                    */
 /*--------------------------------------------------------------------------*/
-void SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
+void
+SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
 {
     InformerAppStruct *app = InformerGetApp();
 
@@ -426,7 +481,8 @@ void SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
 /****************************************************************************
  *                      Informer Utility Calls                              *
  ****************************************************************************/
-void InformerDEBUG(const char *format, ...)
+void
+InformerDEBUG(const char *format, ...)
 {
     va_list args;
     char str[4096];
@@ -438,7 +494,8 @@ void InformerDEBUG(const char *format, ...)
     fprintf(stderr, "DEBUG: %s", str);
 }
 
-void InformerERROR(const char *format, ...)
+void
+InformerERROR(const char *format, ...)
 {
     va_list args;
     char str[4096];
@@ -451,7 +508,8 @@ void InformerERROR(const char *format, ...)
     sparkError(str);
 }
 
-InformerNoteData InformerInitNoteData(void)
+InformerNoteData
+InformerInitNoteData(void)
 {
     InformerNoteData result;
     result.id = NOTE_NONE;
@@ -463,7 +521,9 @@ InformerNoteData InformerInitNoteData(void)
     result.modified_on = NOTE_NONE;
     return result;
 }
-InformerPupUI InformerInitPupUI(unsigned int id, SparkPupStruct *ui)
+
+InformerPupUI
+InformerInitPupUI(unsigned int id, SparkPupStruct *ui)
 {
     InformerPupUI result;
     result.id = id;
@@ -471,7 +531,8 @@ InformerPupUI InformerInitPupUI(unsigned int id, SparkPupStruct *ui)
     return result;
 }
 
-InformerPushUI InformerInitPushUI(unsigned int id, SparkPushStruct *ui)
+InformerPushUI
+InformerInitPushUI(unsigned int id, SparkPushStruct *ui)
 {
     InformerPushUI result;
     result.id = id;
@@ -479,7 +540,8 @@ InformerPushUI InformerInitPushUI(unsigned int id, SparkPushStruct *ui)
     return result;
 }
 
-InformerStringUI InformerInitStringUI(unsigned int id, SparkStringStruct *ui)
+InformerStringUI
+InformerInitStringUI(unsigned int id, SparkStringStruct *ui)
 {
     InformerStringUI result;
     result.id = id;
@@ -487,7 +549,8 @@ InformerStringUI InformerInitStringUI(unsigned int id, SparkStringStruct *ui)
     return result;
 }
 
-InformerBooleanUI InformerInitBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text)
+InformerBooleanUI
+InformerInitBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text)
 {
     InformerBooleanUI result;
     result.id = id;
@@ -496,10 +559,631 @@ InformerBooleanUI InformerInitBooleanUI(unsigned int id, SparkBooleanStruct *ui,
     return result;
 }
 
+int
+InformerGetNotesDB(void)
+{
+    InformerAppStruct *app = InformerGetApp();
+    sparkMessage(GET_NOTES_WAIT);
+    InformerHideAllNoteRows();
+
+    if (TRUE == InformerCallGateway("get_notes", NULL, "/tmp/trinity")) {
+        if (TRUE == InformerImportNotes("/tmp/trinity", 0, TRUE)) {
+            app->notes_data_been_read = TRUE;
+            InformerRefreshNotesUI();
+            return TRUE;
+        } else {
+            // TODO: What should happen here?
+            InformerERROR("%s", GET_NOTES_WAIT);
+            return FALSE;
+        }
+    }
+}
+
+int
+InformerUpdateNoteDB(int index, int note_id, int is_checked)
+{
+    InformerNoteData note_data = InformerInitNoteData();
+
+    sparkMessage(UPDATE_NOTE_WAIT);
+
+    if (TRUE != InformerGetCurrentUser(note_data.modified_by, USERNAME_MAX)) {
+        InformerERROR("Unable to determine the current user\n");
+        return FALSE;
+    }
+
+    note_data.id = note_id;
+    note_data.is_checked = is_checked;
+
+    if (TRUE == InformerExportNote("/tmp/trinity2", &note_data)) {
+        InformerDEBUG("--------- update note ----------\n");
+        InformerDEBUG("is_checked [%d], user [%s], id [%d], index [%d]\n",
+               note_data.is_checked, note_data.modified_by, note_data.id, index);
+        InformerDEBUG("--------- update note ----------\n");
+        if (TRUE == InformerCallGateway("update_note", "/tmp/trinity2", "/tmp/trinity3")) {
+            if (TRUE == InformerImportNotes("/tmp/trinity3", index, FALSE)) {
+                InformerRefreshNotesUI();
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
+}
+
+int
+InformerCallGateway(char *action, char *infile, char *outfile)
+{
+    int pid = 0;
+    int index = 0;
+    int status = 0;
+    const char *setup;
+    const char *gateway;
+    const char *argv[10];
+    const char **ptr = argv;
+
+    setup = InformerGetSetupPath();
+    gateway = InformerGetGatewayPath();
+
+    InformerDEBUG("the gateway is [%s]\n", gateway);
+
+    argv[index++] = gateway;
+    argv[index++] = "-s";
+    argv[index++] = setup;
+    argv[index++] = "-a";
+    argv[index++] = action;
+
+    if (infile != NULL) {
+        argv[index++] = "-i";
+        argv[index++] = infile;
+    }
+
+    if (outfile != NULL) {
+        argv[index++] = "-o";
+        argv[index++] = outfile;
+    }
+
+    argv[index] = 0;    /* This is required to end the array */
+
+    InformerDEBUG("---- calling gateway ----\n");
+    while (*ptr) {
+        InformerDEBUG("%s ", *ptr++);
+    }
+    InformerDEBUG("\n---- calling gateway ----\n");
+
+    pid = sparkSystemNoSh(FALSE, argv[0], argv);
+    sparkWaitpid(pid, &status, 0);
+    InformerDEBUG("Gateway returned. status [%d]\n", status);
+
+    if (0 != status) {
+        // TODO: Map the status to a human readable string
+        InformerERROR("%s: status [%d]", GATEWAY_STATUS_ERR, status);
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
+
+/*--------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------*/
+int
+InformerExportNote(char *filepath, InformerNoteData *note)
+{
+    FILE *fp;
+    int result = 1;
+
+    InformerDEBUG("here we go. writing datafile [%s]\n", filepath);
+
+    if ((fp=fopen(filepath, "w")) == NULL) {
+        InformerERROR("%s: can't write datafile [%s]",
+                      GATEWAY_STATUS_ERR, filepath);
+        return FALSE;
+    }
+
+    InformerDEBUG("-------- OK -------- opened the file for writing!\n");
+
+    if (result > 0) {
+        result = fprintf(fp, "1\n");
+    }
+
+    if (result > 0 && note->id != NOTE_NONE) {
+        result = fprintf(fp, "id: %d\n", note->id);
+    }
+
+    if (result > 0 && note->is_checked != NOTE_NONE) {
+        result = fprintf(fp, "is_checked: %d\n", note->is_checked);
+    }
+
+    if (result > 0 && 0 != strcmp("", note->created_by)) {
+        result = fprintf(fp, "created_by: %s\n", note->created_by);
+    }
+
+    if (result > 0 && 0 != strcmp("", note->modified_by)) {
+        result = fprintf(fp, "modified_by: %s\n", note->modified_by);
+    }
+
+    if (result > 0 && 0 != strcmp("", note->text)) {
+        result = fprintf(fp, "text: %s\n", note->text);
+    }
+
+    fclose(fp);
+
+    if (!result) {
+        InformerERROR("%s: can't write datafile [%s]",
+                      GATEWAY_STATUS_ERR, filepath);
+        return FALSE;
+    }
+
+    InformerDEBUG("... write of note ok!\n");
+    return TRUE;
+}
+
+int
+InformerImportNotes(char *filepath, int index, int update_count)
+{
+    FILE *fp;
+    int i = 0;
+    int count = 0;
+    int result = 1;
+    InformerAppStruct *app = InformerGetApp();
+
+    InformerDEBUG("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
+                  filepath, index, update_count);
+
+    if ((fp=fopen(filepath, "r")) == NULL) {
+        InformerERROR("%s: can't open datafile [%s]: %s",
+                      GATEWAY_STATUS_ERR, filepath, strerror(errno));
+        return FALSE;
+    }
+
+    /*
+        read the data file:
+        - first line is number of note objects (not lines...)
+        - entries are of form
+            key: value
+    */
+    result = fscanf(fp, "%d%*1[\n]", &count);
+    if (1 != result) {
+        InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
+        return FALSE;
+    }
+
+    InformerDEBUG("OK there are %d entries\n", count);
+
+    for (i=0; i<count; i++) {
+        /* skip the "key:" read the value */
+        if (TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].id)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].text) &&
+            TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].is_checked)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].created_by) &&
+            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].created_on)) &&
+            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].modified_by) &&
+            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].modified_on))) {
+            /* looking good -- keep going */
+            InformerDEBUG("... read note [%d] ok!\n", i);
+        } else {
+            InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
+            return FALSE;
+        }
+    }
+
+    if (TRUE == update_count) {
+        app->notes_ui_table.cur_page = 1;
+        app->notes_data_count = count;
+    }
+
+    InformerSortNoteData();
+    InformerDEBUG("All notes read ok. Word up.\n");
+
+    return TRUE;
+}
+
+/****************************************************************************
+ *                      Informer UI Function Calls                          *
+ ****************************************************************************/
+int
+InformerRowToIndex(int row_num)
+{
+    InformerAppStruct *app = InformerGetApp();
+    return (app->notes_ui_table.cur_page - 1) * app->notes_ui_table.row_count + row_num - 1;
+}
+
+InformerNoteModeChoice
+InformerGetNoteUIMode(void)
+{
+    InformerAppStruct *app = InformerGetApp();
+    return (InformerNoteModeChoice) app->notes_ui_mode.ui->Value;
+}
+
+static unsigned long *
+InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
+{
+    InformerAppStruct *app = InformerGetApp();
+    InformerNoteModeChoice mode = InformerGetNoteUIMode();
+
+    InformerDEBUG("Hey! The notes mode change got called with: value: %d\n", mode);
+
+    if (INFORMER_NOTE_MODE_REFRESH == mode) {
+        InformerGetNotesDB();
+    }
+
+    return NULL;
+}
+
+static unsigned long *
+InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo)
+{
+    InformerAppStruct *app = InformerGetApp();
+    InformerDEBUG("Hey! The notes sort change got called with: %d, value is: %d\n",
+            CallbackArg, app->notes_ui_table.sort.ui->Value);
+    InformerSortNoteData();
+    InformerRefreshNotesUI();
+    return NULL;
+}
+
+
+void
+InformerHideAllNoteRows(void)
+{
+    int i;
+    for (i=1; i<=UI_NUM_ROWS; i++) {
+        InformerHideNoteRow(i);
+    }
+}
+
+void
+InformerHideNoteRow(int row_num)
+{
+    InformerDEBUG("++++ call to disable note row %d\n", row_num);
+    InformerToggleNoteRow(row_num, 0);
+}
+
+void
+InformerShowNoteRow(int row_num)
+{
+    InformerDEBUG("++++ call to enable note row %d\n", row_num);
+    InformerToggleNoteRow(row_num, 1);
+}
+
+void
+InformerToggleNoteRow(int row_num, int on_off)
+{
+    InformerAppStruct *app = InformerGetApp();
+    void (*sparkToggle)(int, int) = NULL;
+
+    if (1 <= row_num && UI_NUM_ROWS >= row_num) {
+        if (0 == on_off) {
+            sparkToggle = sparkDisableParameter;
+        } else {
+            sparkToggle = sparkEnableParameter;
+        }
+
+        /* The numbers below are the ui control column offsets */
+        sparkToggle(SPARK_UI_CONTROL, app->notes_ui_table.row[row_num - 1].status.id);
+        sparkToggle(SPARK_UI_CONTROL, app->notes_ui_table.row[row_num - 1].message.id);
+        sparkToggle(SPARK_UI_CONTROL, app->notes_ui_table.row[row_num - 1].from.id);
+    }
+}
+
+void
+InformerRefreshNotesUI(void)
+{
+    InformerAppStruct *app = InformerGetApp();
+
+    int row;
+    int index;
+    int start = 0;
+    int end = 0;
+
+    InformerHideAllNoteRows();
+    app->notes_ui_mode.ui->Value = INFORMER_NOTE_MODE_REFRESH;
+    sparkEnableParameter(SPARK_UI_CONTROL, app->notes_ui_table.sort.id);
+
+    InformerDEBUG("****** Time to refresh the notes UI ********\n");
+    InformerDEBUG("I think there are [%d] notes\n", app->notes_data_count);
+
+    if (app->notes_data_count > 0) {
+        if (1 == app->notes_data_count) {
+            start = end = 1;
+            sprintf(app->notes_ui_table.statusbar.ui->Value, "Displaying note 1 (of 1)");
+        } else {
+            start = (app->notes_ui_table.cur_page - 1) * app->notes_ui_table.row_count;
+            if (app->notes_data_count - start < app->notes_ui_table.row_count) {
+                /* if there is less than a page left, calculate partial */
+                end = start - 1 + (app->notes_data_count - start) % app->notes_ui_table.row_count;
+            } else {
+                /* there is more than a full page left, max it out */
+                end = start + app->notes_ui_table.row_count - 1;
+            }
+
+            sprintf(app->notes_ui_table.statusbar.ui->Value,
+                    "Displaying notes %d - %d (of %d)",
+                    start + 1, end + 1, app->notes_data_count);
+        }
+
+        for (row=1; row <= app->notes_ui_table.row_count; row++) {
+            index = start + row - 1;
+            if (index <= end) {
+                InformerDEBUG("Going to display index [%d] at row [%d]\n", index, row);
+                InformerUpdateNotesRowUI(app->notes_data[index], row);
+            }
+        }
+    } else {
+        sprintf(app->notes_ui_table.statusbar.ui->Value, "No notes to display");
+    }
+}
+
+void
+InformerUpdateNotesRowUI(InformerNoteData source, int row_num)
+{
+    char str[32];
+    InformerAppStruct *app = InformerGetApp();
+    InformerTableRowUI *note_ui;
+
+    note_ui = &(app->notes_ui_table.row[row_num - 1]);
+
+    InformerDEBUG("Truing to update row UI with row_num [%d]\n", row_num);
+    note_ui->status.ui->Value = source.is_checked;
+    if (1 == source.is_checked) {
+        strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
+        sprintf(note_ui->status.text, "by %s on %s", source.modified_by, str);
+    } else {
+        sprintf(note_ui->status.text, "TODO");
+    }
+
+    note_ui->status.ui->Title = note_ui->status.text;
+    sprintf(note_ui->message.ui->Value, "%s", source.text);
+
+    strftime(str, sizeof(str), "%D %I:%M%p", localtime(&source.created_on));
+    sprintf(note_ui->from.ui->Value, "from %s at %s", source.created_by, str);
+
+    InformerShowNoteRow(row_num);
+}
+
+static unsigned long *
+InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
+{
+    char *input;
+    InformerAppStruct *app = InformerGetApp();
+    InformerNoteData note_data = InformerInitNoteData();
+
+    input = app->notes_ui_create.ui->Value;
+
+    if (strncmp("", input, SPARK_MAX_STRING_LENGTH) == 0) {
+        // ignore -- nothing was entered
+        InformerDEBUG("Ignoring empty input\n");
+    } else {
+        sparkMessage(CREATE_NOTE_WAIT);
+        InformerDEBUG("New note text was entered\n");
+        InformerDEBUG("The text value is: [%s]\n", input);
+
+        if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
+            InformerERROR("Unable to determine the current user\n");
+            return FALSE;
+        }
+
+        note_data.is_checked = 0;
+        sprintf(note_data.text, "%s", input);
+        sprintf(note_data.modified_by, "%s", note_data.created_by);
+
+        if (TRUE == InformerExportNote("/tmp/trinity8", &note_data)) {
+            if (TRUE == InformerCallGateway("new_note", "/tmp/trinity8", NULL)) {
+                InformerGetNotesDB();
+            }
+        }
+    }
+
+    return NULL;
+}
+
+int
+InformerSortNoteData(void)
+{
+    InformerAppStruct *app = InformerGetApp();
+    InformerNoteSortChoice sort_by = app->notes_ui_table.sort.ui->Value;
+    int (*compare)(const void *, const void *) = NULL;
+
+    if (app->notes_data_count < 2) {
+        InformerDEBUG("Less than 2 data elements -- can't sort\n");
+        return TRUE;
+    } else if (INFORMER_NOTE_SORT_DATE_CREATED == sort_by) {
+        compare = InformerCompareNoteByDateCreated;
+    } else if (INFORMER_NOTE_SORT_DATE_MODIFIED == sort_by) {
+        compare = InformerCompareNoteByDateModified;
+    } else if (INFORMER_NOTE_SORT_STATUS == sort_by) {
+        compare = InformerCompareNoteByStatus;
+    } else if (INFORMER_NOTE_SORT_ARTIST == sort_by) {
+        compare = InformerCompareNoteByArtist;
+    } else if (INFORMER_NOTE_SORT_AUTHOR == sort_by) {
+        compare = InformerCompareNoteByAuthor;
+    } else {
+        InformerERROR("Unable to sort: unknown menu value [%d]\n", sort_by);
+        return FALSE;
+    }
+
+    InformerDEBUG("Now going to call qsort\n");
+    qsort(app->notes_data, app->notes_data_count, sizeof(InformerNoteData), compare);
+    return TRUE;
+}
+
+int
+InformerCompareNoteByDateCreated(const void *a, const void *b)
+{
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByDateCreated called\n");
+
+    if (note_a->created_on > note_b->created_on)
+        return -1;
+    else if (note_a->created_on < note_b->created_on)
+        return 1;
+    else
+        return 0;
+}
+
+int
+InformerCompareNoteByDateModified(const void *a, const void *b)
+{
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByDateModified called\n");
+
+    if (note_a->modified_on > note_b->modified_on)
+        return -1;
+    else if (note_a->modified_on < note_b->modified_on)
+        return 1;
+    else
+        return 0;
+
+}
+
+int
+InformerCompareNoteByStatus(const void *a, const void *b)
+{
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByStatus called\n");
+
+    if (note_a->is_checked < note_b->is_checked)
+        return -1;
+    else if (note_a->is_checked > note_b->is_checked)
+        return 1;
+    else if (note_a->modified_on > note_b->modified_on)
+        return -1;
+    else if (note_a->modified_on < note_b->modified_on)
+        return 1;
+    else
+        return 0;
+}
+
+int
+InformerCompareNoteByArtist(const void *a, const void *b)
+{
+    int result;
+
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByArtist called\n");
+
+    if (note_a->is_checked > note_b->is_checked) {
+        // a is checked
+        return -1;
+    } else if (note_a->is_checked < note_b->is_checked) {
+        // b is checked
+        return 1;
+    } else if (0 == note_a->is_checked) {
+        // neither are checked
+        if (note_a->created_on > note_b->created_on)
+            return -1;
+        else if (note_a->created_on < note_b->created_on)
+            return 1;
+        else
+            return 0;
+    } else {
+        // they are both checked
+        result = strncmp(note_a->modified_by, note_b->modified_by, USERNAME_MAX);
+
+        if (0 != result)
+            return result;
+        else if (note_a->modified_on > note_b->modified_on)
+            return -1;
+        else if (note_a->modified_on < note_b->modified_on)
+            return 1;
+        else
+            return 0;
+    }
+}
+
+int
+InformerCompareNoteByAuthor(const void *a, const void *b)
+{
+    int result;
+
+    InformerNoteData *note_a = (InformerNoteData*) a;
+    InformerNoteData *note_b = (InformerNoteData*) b;
+
+    InformerDEBUG("InformerCompareNoteByAuthor called\n");
+
+    result = strncmp(note_a->created_by, note_b->created_by, USERNAME_MAX);
+
+    if (0 != result)
+        return result;
+    else if (note_a->created_on > note_b->created_on)
+        return -1;
+    else if (note_a->created_on < note_b->created_on)
+        return 1;
+    else
+        return 0;
+}
+
+int
+InformerReadValAsInt(FILE *fp, int *data)
+{
+    char line[4096];
+
+    if (TRUE == InformerReadValAsString(fp, line)) {
+        *data = atoi(line);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+int
+InformerReadValAsLong(FILE *fp, long int *data)
+{
+    char line[4096];
+
+    if (TRUE == InformerReadValAsString(fp, line)) {
+        *data = atol(line);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+int
+InformerReadValAsString(FILE *fp, char *data)
+{
+    int length;
+    char *start;
+    char *end;
+    char line[4096];
+
+    if (fgets(line, 4096, fp) != NULL) {
+        printf("The line is [%s]\n", line);
+        start = index(line, ':');
+        if (start != NULL) {
+            start += 2;     /* the space after the : */
+            length = strlen(line);
+            end = line + length - 1;    /* no null and no newline */
+            strncpy(data, start, end - start);
+            data[end - start] = '\0';
+            printf("I read [%s]\n", data);
+            return TRUE;
+        } else {
+            InformerERROR("Parse error reading from filehandle: no key found\n");
+            return FALSE;
+        }
+    } else {
+        InformerERROR("Unable to read from filehandle: %s\n", strerror(errno));
+        return FALSE;
+    }
+}
+
+
+/****************************************************************************/
+/*** INFORMER APP ***********************************************************/
+
 /*--------------------------------------------------------------------------*/
 /* Returns the main application data object                                 */
 /*--------------------------------------------------------------------------*/
-InformerAppStruct *InformerGetApp(void)
+InformerAppStruct *
+InformerGetApp(void)
 {
     return &gApp;
 }
@@ -507,7 +1191,8 @@ InformerAppStruct *InformerGetApp(void)
 /*--------------------------------------------------------------------------*/
 /* Returns the name of the current setup being worked on.                   */
 /*--------------------------------------------------------------------------*/
-const char *InformerGetSetupPath(void)
+const char *
+InformerGetSetupPath(void)
 {
     SparkInfoStruct info;
     const char *setup;
@@ -527,7 +1212,8 @@ const char *InformerGetSetupPath(void)
 /*--------------------------------------------------------------------------*/
 /* Returns path to the informer gateway script                              */
 /*--------------------------------------------------------------------------*/
-const char *InformerGetGatewayPath(void)
+const char *
+InformerGetGatewayPath(void)
 {
     const char *path = "/usr/discreet/instinctual/informer/bin/gateway";
     return path;
@@ -537,7 +1223,8 @@ const char *InformerGetGatewayPath(void)
 /* Get the current spark user into the char* argument                       */
 /* Returns TRUE on success, FALSE on faliure                                */
 /*--------------------------------------------------------------------------*/
-int InformerGetCurrentUser(char *user, int max_length)
+int
+InformerGetCurrentUser(char *user, int max_length)
 {
     FILE *fp;
     char line[1024];
@@ -596,298 +1283,60 @@ int InformerGetCurrentUser(char *user, int max_length)
     return FALSE;
 }
 
-int InformerGetNotesDB(void)
-{
-    InformerAppStruct *app = InformerGetApp();
-    sparkMessage(GET_NOTES_WAIT);
-    InformerHideAllNoteRows();
 
-    if (TRUE == InformerCallGateway("get_notes", NULL, "/tmp/trinity")) {
-        if (TRUE == InformerImportNotes("/tmp/trinity", 0, TRUE)) {
-            app->notes_data_been_read = TRUE;
-            InformerRefreshNotesUI();
-            return TRUE;
-        } else {
-            // TODO: What should happen here?
-            InformerERROR("%s", GET_NOTES_WAIT);
-            return FALSE;
-        }
-    }
+InformerAppModeChoice
+InformerGetAppMode(InformerAppStruct *app)
+{
+    return app->app_current_mode;
 }
 
-int InformerUpdateNoteDB(int index, int note_id, int is_checked)
+void
+InformerSetAppMode(InformerAppStruct *app, InformerAppModeChoice mode)
 {
-    InformerNoteData note_data = InformerInitNoteData();
-
-    sparkMessage(UPDATE_NOTE_WAIT);
-
-    if (TRUE != InformerGetCurrentUser(note_data.modified_by, USERNAME_MAX)) {
-        InformerERROR("Unable to determine the current user\n");
-        return FALSE;
-    }
-
-    note_data.id = note_id;
-    note_data.is_checked = is_checked;
-
-    if (TRUE == InformerExportNote("/tmp/trinity2", &note_data)) {
-        InformerDEBUG("--------- update note ----------\n");
-        InformerDEBUG("is_checked [%d], user [%s], id [%d], index [%d]\n",
-               note_data.is_checked, note_data.modified_by, note_data.id, index);
-        InformerDEBUG("--------- update note ----------\n");
-        if (TRUE == InformerCallGateway("update_note", "/tmp/trinity2", "/tmp/trinity3")) {
-            if (TRUE == InformerImportNotes("/tmp/trinity3", index, FALSE)) {
-                InformerRefreshNotesUI();
-                return TRUE;
-            }
-        }
-    }
-
-    return FALSE;
-}
-
-int InformerCallGateway(char *action, char *infile, char *outfile)
-{
-    int pid = 0;
-    int index = 0;
-    int status = 0;
-    const char *setup;
-    const char *gateway;
-    const char *argv[10];
-    const char **ptr = argv;
-
-    setup = InformerGetSetupPath();
-    gateway = InformerGetGatewayPath();
-
-    InformerDEBUG("the gateway is [%s]\n", gateway);
-
-    argv[index++] = gateway;
-    argv[index++] = "-s";
-    argv[index++] = setup;
-    argv[index++] = "-a";
-    argv[index++] = action;
-
-    if (infile != NULL) {
-        argv[index++] = "-i";
-        argv[index++] = infile;
-    }
-
-    if (outfile != NULL) {
-        argv[index++] = "-o";
-        argv[index++] = outfile;
-    }
-
-    argv[index] = 0;    /* This is required to end the array */
-
-    InformerDEBUG("---- calling gateway ----\n");
-    while (*ptr) {
-        InformerDEBUG("%s ", *ptr++);
-    }
-    InformerDEBUG("\n---- calling gateway ----\n");
-
-    pid = sparkSystemNoSh(FALSE, argv[0], argv);
-    sparkWaitpid(pid, &status, 0);
-    InformerDEBUG("Gateway returned. status [%d]\n", status);
-
-    if (0 != status) {
-        // TODO: Map the status to a human readable string
-        InformerERROR("%s: status [%d]", GATEWAY_STATUS_ERR, status);
-        return FALSE;
-    } else {
-        return TRUE;
-    }
+    InformerDEBUG("Now setting app mode to [%d]\n", mode);
+    app->app_current_mode = mode;
 }
 
 
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-int InformerExportNote(char *filepath, InformerNoteData *note)
+/****************************************************************************/
+/*** INFORMER TABLE *********************************************************/
+static unsigned long *
+InformerTableRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    FILE *fp;
-    int result = 1;
-
-    InformerDEBUG("here we go. writing datafile [%s]\n", filepath);
-
-    if ((fp=fopen(filepath, "w")) == NULL) {
-        InformerERROR("%s: can't write datafile [%s]",
-                      GATEWAY_STATUS_ERR, filepath);
-        return FALSE;
-    }
-
-    InformerDEBUG("-------- OK -------- opened the file for writing!\n");
-
-    if (result > 0) {
-        result = fprintf(fp, "1\n");
-    }
-
-    if (result > 0 && note->id != NOTE_NONE) {
-        result = fprintf(fp, "id: %d\n", note->id);
-    }
-
-    if (result > 0 && note->is_checked != NOTE_NONE) {
-        result = fprintf(fp, "is_checked: %d\n", note->is_checked);
-    }
-
-    if (result > 0 && 0 != strcmp("", note->created_by)) {
-        result = fprintf(fp, "created_by: %s\n", note->created_by);
-    }
-
-    if (result > 0 && 0 != strcmp("", note->modified_by)) {
-        result = fprintf(fp, "modified_by: %s\n", note->modified_by);
-    }
-
-    if (result > 0 && 0 != strcmp("", note->text)) {
-        result = fprintf(fp, "text: %s\n", note->text);
-    }
-
-    fclose(fp);
-
-    if (!result) {
-        InformerERROR("%s: can't write datafile [%s]",
-                      GATEWAY_STATUS_ERR, filepath);
-        return FALSE;
-    }
-
-    InformerDEBUG("... write of note ok!\n");
-    return TRUE;
-}
-
-int InformerImportNotes(char *filepath, int index, int update_count)
-{
-    FILE *fp;
-    int i = 0;
-    int count = 0;
-    int result = 1;
-    InformerAppStruct *app = InformerGetApp();
-
-    InformerDEBUG("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
-                  filepath, index, update_count);
-
-    if ((fp=fopen(filepath, "r")) == NULL) {
-        InformerERROR("%s: can't open datafile [%s]: %s",
-                      GATEWAY_STATUS_ERR, filepath, strerror(errno));
-        return FALSE;
-    }
-
-    /*
-        read the data file:
-        - first line is number of note objects (not lines...)
-        - entries are of form
-            key: value
-    */
-    result = fscanf(fp, "%d%*1[\n]", &count);
-    if (1 != result) {
-        InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-        return FALSE;
-    }
-
-    InformerDEBUG("OK there are %d entries\n", count);
-
-    for (i=0; i<count; i++) {
-        /* skip the "key:" read the value */
-        if (TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].id)) &&
-            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].text) &&
-            TRUE == InformerReadValAsInt(fp,    &(app->notes_data[index+i].is_checked)) &&
-            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].created_by) &&
-            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].created_on)) &&
-            TRUE == InformerReadValAsString(fp, app->notes_data[index+i].modified_by) &&
-            TRUE == InformerReadValAsLong(fp,   &(app->notes_data[index+i].modified_on))) {
-            /* looking good -- keep going */
-            InformerDEBUG("... read note [%d] ok!\n", i);
-        } else {
-            InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-            return FALSE;
-        }
-    }
-
-    if (TRUE == update_count) {
-        app->notes_ui_cur_page = 1;
-        app->notes_data_count = count;
-    }
-
-    InformerSortNoteData();
-    InformerDEBUG("All notes read ok. Word up.\n");
-
-    return TRUE;
-}
-
-/****************************************************************************
- *                      Informer UI Function Calls                          *
- ****************************************************************************/
-int InformerRowToIndex(int row_num)
-{
-    // TODO: make this work with pages
-    InformerAppStruct *app = InformerGetApp();
-    return (app->notes_ui_cur_page - 1) * app->notes_ui_count + row_num - 1;
-}
-
-InformerNoteModeChoice InformerGetNoteUIMode(void)
-{
-    InformerAppStruct *app = InformerGetApp();
-    return (InformerNoteModeChoice) app->notes_ui_mode.ui->Value;
-}
-
-static unsigned long *InformerNotesModeChanged(int CallbackArg,
-                                              SparkInfoStruct SparkInfo )
-{
-    InformerAppStruct *app = InformerGetApp();
-    InformerNoteModeChoice mode = InformerGetNoteUIMode();
-
-    InformerDEBUG("Hey! The notes mode change got called with: value: %d\n", mode);
-
-    if (INFORMER_NOTE_MODE_REFRESH == mode) {
-        InformerGetNotesDB();
-    }
-
+    InformerTableToggleRow(1);
     return NULL;
 }
 
-static unsigned long *InformerNotesSortChanged(int CallbackArg,
-                                              SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerAppStruct *app = InformerGetApp();
-    InformerDEBUG("Hey! The notes sort change got called with: %d, value is: %d\n",
-            CallbackArg, app->notes_ui_sort.ui->Value);
-    InformerSortNoteData();
-    InformerRefreshNotesUI();
+    InformerTableToggleRow(2);
     return NULL;
 }
 
-static unsigned long *InformerNotesRow1BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerNotesToggleRow(1);
+    InformerTableToggleRow(3);
     return NULL;
 }
 
-static unsigned long *InformerNotesRow2BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerNotesToggleRow(2);
+    InformerTableToggleRow(4);
     return NULL;
 }
 
-static unsigned long *InformerNotesRow3BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerNotesToggleRow(3);
+    InformerTableToggleRow(5);
     return NULL;
 }
 
-static unsigned long *InformerNotesRow4BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
-{
-    InformerNotesToggleRow(4);
-    return NULL;
-}
-
-static unsigned long *InformerNotesRow5BoolChanged(int CallbackArg,
-                                                   SparkInfoStruct SparkInfo )
-{
-    InformerNotesToggleRow(5);
-    return NULL;
-}
-
-void InformerNotesToggleRow(int row_num)
+void
+InformerTableToggleRow(int row_num)
 {
     InformerAppStruct *app = InformerGetApp();
 
@@ -898,7 +1347,7 @@ void InformerNotesToggleRow(int row_num)
 
     if (mode == INFORMER_NOTE_MODE_REFRESH && index < app->notes_data_count) {
         note_id = app->notes_data[index].id;
-        is_checked = app->notes_ui[row_num-1].status.ui->Value;
+        is_checked = app->notes_ui_table.row[row_num-1].status.ui->Value;
 
         InformerDEBUG("It's note_id is: (%d)\n", note_id);
         InformerDEBUG("Row number (%d) was changed\n", row_num);
@@ -910,40 +1359,41 @@ void InformerNotesToggleRow(int row_num)
     }
 }
 
-static unsigned long *InformerNotesButtonA(int CallbackArg,
-                                            SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableButtonA(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerNotesButtonEvent(INFORMER_NOTE_BUTTON_A);
+    InformerTableButtonEvent(INFORMER_TABLE_BUTTON_A);
     return NULL;
 }
 
-static unsigned long *InformerNotesButtonB(int CallbackArg,
-                                            SparkInfoStruct SparkInfo )
+static unsigned long *
+InformerTableButtonB(int CallbackArg, SparkInfoStruct SparkInfo)
 {
-    InformerNotesButtonEvent(INFORMER_NOTE_BUTTON_B);
+    InformerTableButtonEvent(INFORMER_TABLE_BUTTON_B);
     return NULL;
 }
 
-void InformerNotesButtonEvent(InformerNoteButtonChoice button)
+void
+InformerTableButtonEvent(InformerTableButtonChoice button)
 {
     int max_page;
     InformerAppStruct *app = InformerGetApp();
     InformerNoteModeChoice mode = InformerGetNoteUIMode();
 
     if (INFORMER_NOTE_MODE_REFRESH == mode) {
-        if (INFORMER_NOTE_BUTTON_A == button) {
+        if (INFORMER_TABLE_BUTTON_A == button) {
             InformerDEBUG("You clicked Notes Page Prev\n");
-            if (app->notes_ui_cur_page > 1) {
-                app->notes_ui_cur_page -= 1;
+            if (app->notes_ui_table.cur_page > 1) {
+                app->notes_ui_table.cur_page -= 1;
                 InformerRefreshNotesUI();
             } else {
                 InformerDEBUG("You can't go past page 1\n");
             }
-        } else if (INFORMER_NOTE_BUTTON_B == button) {
+        } else if (INFORMER_TABLE_BUTTON_B == button) {
             InformerDEBUG("You clicked Notes Page Next\n");
-            max_page = (int) ceil((float)app->notes_data_count/app->notes_ui_count);
-            if (app->notes_ui_cur_page < max_page) {
-                app->notes_ui_cur_page += 1;
+            max_page = (int) ceil((float)app->notes_data_count/app->notes_ui_table.row_count);
+            if (app->notes_ui_table.cur_page < max_page) {
+                app->notes_ui_table.cur_page += 1;
                 InformerRefreshNotesUI();
             } else {
                 InformerDEBUG("You can't go past the last page (%d)\n", max_page);
@@ -952,349 +1402,14 @@ void InformerNotesButtonEvent(InformerNoteButtonChoice button)
     }
 }
 
-void InformerHideAllNoteRows(void)
-{
-    int i;
-    for (i=1; i<=UI_NUM_ROWS; i++) {
-        InformerHideNoteRow(i);
-    }
-}
-
-void InformerHideNoteRow(int row_num)
-{
-    InformerDEBUG("++++ call to disable note row %d\n", row_num);
-    InformerToggleNoteRow(row_num, 0);
-}
-
-void InformerShowNoteRow(int row_num)
-{
-    InformerDEBUG("++++ call to enable note row %d\n", row_num);
-    InformerToggleNoteRow(row_num, 1);
-}
-
-void InformerToggleNoteRow(int row_num, int on_off)
-{
-    InformerAppStruct *app = InformerGetApp();
-    void (*sparkToggle)(int, int) = NULL;
-
-    if (1 <= row_num && UI_NUM_ROWS >= row_num) {
-        if (0 == on_off) {
-            sparkToggle = sparkDisableParameter;
-        } else {
-            sparkToggle = sparkEnableParameter;
-        }
-
-        /* The numbers below are the ui control column offsets */
-        sparkToggle(SPARK_UI_CONTROL, app->notes_ui[row_num - 1].status.id);
-        sparkToggle(SPARK_UI_CONTROL, app->notes_ui[row_num - 1].message.id);
-        sparkToggle(SPARK_UI_CONTROL, app->notes_ui[row_num - 1].from.id);
-    }
-}
-
-void InformerRefreshNotesUI(void)
-{
-    InformerAppStruct *app = InformerGetApp();
-
-    int row;
-    int index;
-    int start = 0;
-    int end = 0;
-
-    InformerHideAllNoteRows();
-    app->notes_ui_mode.ui->Value = INFORMER_NOTE_MODE_REFRESH;
-    sparkEnableParameter(SPARK_UI_CONTROL, app->notes_ui_sort.id);
-
-    InformerDEBUG("****** Time to refresh the notes UI ********\n");
-    InformerDEBUG("I think there are [%d] notes\n", app->notes_data_count);
-
-    if (app->notes_data_count > 0) {
-        if (1 == app->notes_data_count) {
-            start = end = 1;
-            sprintf(app->notes_ui_statusbar.ui->Value, "Displaying note 1 (of 1)");
-        } else {
-            start = (app->notes_ui_cur_page - 1) * app->notes_ui_count;
-            if (app->notes_data_count - start < app->notes_ui_count) {
-                /* if there is less than a page left, calculate partial */
-                end = start - 1 + (app->notes_data_count - start) % app->notes_ui_count;
-            } else {
-                /* there is more than a full page left, max it out */
-                end = start + app->notes_ui_count - 1;
-            }
-
-            sprintf(app->notes_ui_statusbar.ui->Value,
-                    "Displaying notes %d - %d (of %d)",
-                    start + 1, end + 1, app->notes_data_count);
-        }
-
-        for (row=1; row <= app->notes_ui_count; row++) {
-            index = start + row - 1;
-            if (index <= end) {
-                InformerDEBUG("Going to display index [%d] at row [%d]\n", index, row);
-                InformerUpdateNotesRowUI(app->notes_data[index], row);
-            }
-        }
-    } else {
-        sprintf(app->notes_ui_statusbar.ui->Value, "No notes to display");
-    }
-}
-
-void InformerUpdateNotesRowUI(InformerNoteData source, int row_num)
-{
-    char str[32];
-    InformerAppStruct *app = InformerGetApp();
-    InformerNoteRowUI *note_ui;
-
-    note_ui = &(app->notes_ui[row_num - 1]);
-
-    InformerDEBUG("Truing to update row UI with row_num [%d]\n", row_num);
-    note_ui->status.ui->Value = source.is_checked;
-    if (1 == source.is_checked) {
-        strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
-        sprintf(note_ui->status.text, "by %s on %s", source.modified_by, str);
-    } else {
-        sprintf(note_ui->status.text, "TODO");
-    }
-
-    note_ui->status.ui->Title = note_ui->status.text;
-    sprintf(note_ui->message.ui->Value, "%s", source.text);
-
-    strftime(str, sizeof(str), "%D %I:%M%p", localtime(&source.created_on));
-    sprintf(note_ui->from.ui->Value, "from %s at %s", source.created_by, str);
-
-    InformerShowNoteRow(row_num);
-}
-
-static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
-{
-    char *input;
-    InformerAppStruct *app = InformerGetApp();
-    InformerNoteData note_data = InformerInitNoteData();
-
-    input = app->notes_ui_create.ui->Value;
-
-    if (strncmp("", input, SPARK_MAX_STRING_LENGTH) == 0) {
-        // ignore -- nothing was entered
-        InformerDEBUG("Ignoring empty input\n");
-    } else {
-        sparkMessage(CREATE_NOTE_WAIT);
-        InformerDEBUG("New note text was entered\n");
-        InformerDEBUG("The text value is: [%s]\n", input);
-
-        if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
-            InformerERROR("Unable to determine the current user\n");
-            return FALSE;
-        }
-
-        note_data.is_checked = 0;
-        sprintf(note_data.text, "%s", input);
-        sprintf(note_data.modified_by, "%s", note_data.created_by);
-
-        if (TRUE == InformerExportNote("/tmp/trinity8", &note_data)) {
-            if (TRUE == InformerCallGateway("new_note", "/tmp/trinity8", NULL)) {
-                InformerGetNotesDB();
-            }
-        }
-    }
-
-    return NULL;
-}
-
-int InformerSortNoteData(void)
-{
-    InformerAppStruct *app = InformerGetApp();
-    InformerNoteSortChoice sort_by = app->notes_ui_sort.ui->Value;
-    int (*compare)(const void *, const void *) = NULL;
-
-    if (app->notes_data_count < 2) {
-        InformerDEBUG("Less than 2 data elements -- can't sort\n");
-        return TRUE;
-    } else if (INFORMER_NOTE_SORT_DATE_CREATED == sort_by) {
-        compare = InformerCompareNoteByDateCreated;
-    } else if (INFORMER_NOTE_SORT_DATE_MODIFIED == sort_by) {
-        compare = InformerCompareNoteByDateModified;
-    } else if (INFORMER_NOTE_SORT_STATUS == sort_by) {
-        compare = InformerCompareNoteByStatus;
-    } else if (INFORMER_NOTE_SORT_ARTIST == sort_by) {
-        compare = InformerCompareNoteByArtist;
-    } else if (INFORMER_NOTE_SORT_AUTHOR == sort_by) {
-        compare = InformerCompareNoteByAuthor;
-    } else {
-        InformerERROR("Unable to sort: unknown menu value [%d]\n", sort_by);
-        return FALSE;
-    }
-
-    InformerDEBUG("Now going to call qsort\n");
-    qsort(app->notes_data, app->notes_data_count, sizeof(InformerNoteData), compare);
-    return TRUE;
-}
-
-int InformerCompareNoteByDateCreated(const void *a, const void *b)
-{
-    InformerNoteData *note_a = (InformerNoteData*) a;
-    InformerNoteData *note_b = (InformerNoteData*) b;
-
-    InformerDEBUG("InformerCompareNoteByDateCreated called\n");
-
-    if (note_a->created_on > note_b->created_on)
-        return -1;
-    else if (note_a->created_on < note_b->created_on)
-        return 1;
-    else
-        return 0;
-}
-
-int InformerCompareNoteByDateModified(const void *a, const void *b)
-{
-    InformerNoteData *note_a = (InformerNoteData*) a;
-    InformerNoteData *note_b = (InformerNoteData*) b;
-
-    InformerDEBUG("InformerCompareNoteByDateModified called\n");
-
-    if (note_a->modified_on > note_b->modified_on)
-        return -1;
-    else if (note_a->modified_on < note_b->modified_on)
-        return 1;
-    else
-        return 0;
-
-}
-
-int InformerCompareNoteByStatus(const void *a, const void *b)
-{
-    InformerNoteData *note_a = (InformerNoteData*) a;
-    InformerNoteData *note_b = (InformerNoteData*) b;
-
-    InformerDEBUG("InformerCompareNoteByStatus called\n");
-
-    if (note_a->is_checked < note_b->is_checked)
-        return -1;
-    else if (note_a->is_checked > note_b->is_checked)
-        return 1;
-    else if (note_a->modified_on > note_b->modified_on)
-        return -1;
-    else if (note_a->modified_on < note_b->modified_on)
-        return 1;
-    else
-        return 0;
-}
-
-int InformerCompareNoteByArtist(const void *a, const void *b)
-{
-    int result;
-
-    InformerNoteData *note_a = (InformerNoteData*) a;
-    InformerNoteData *note_b = (InformerNoteData*) b;
-
-    InformerDEBUG("InformerCompareNoteByArtist called\n");
-
-    if (note_a->is_checked > note_b->is_checked) {
-        // a is checked
-        return -1;
-    } else if (note_a->is_checked < note_b->is_checked) {
-        // b is checked
-        return 1;
-    } else if (0 == note_a->is_checked) {
-        // neither are checked
-        if (note_a->created_on > note_b->created_on)
-            return -1;
-        else if (note_a->created_on < note_b->created_on)
-            return 1;
-        else
-            return 0;
-    } else {
-        // they are both checked
-        result = strncmp(note_a->modified_by, note_b->modified_by, USERNAME_MAX);
-
-        if (0 != result)
-            return result;
-        else if (note_a->modified_on > note_b->modified_on)
-            return -1;
-        else if (note_a->modified_on < note_b->modified_on)
-            return 1;
-        else
-            return 0;
-    }
-}
-
-int InformerCompareNoteByAuthor(const void *a, const void *b)
-{
-    int result;
-
-    InformerNoteData *note_a = (InformerNoteData*) a;
-    InformerNoteData *note_b = (InformerNoteData*) b;
-
-    InformerDEBUG("InformerCompareNoteByAuthor called\n");
-
-    result = strncmp(note_a->created_by, note_b->created_by, USERNAME_MAX);
-
-    if (0 != result)
-        return result;
-    else if (note_a->created_on > note_b->created_on)
-        return -1;
-    else if (note_a->created_on < note_b->created_on)
-        return 1;
-    else
-        return 0;
-}
-
-int InformerReadValAsInt(FILE *fp, int *data)
-{
-    char line[4096];
-
-    if (TRUE == InformerReadValAsString(fp, line)) {
-        *data = atoi(line);
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
-
-int InformerReadValAsLong(FILE *fp, long int *data)
-{
-    char line[4096];
-
-    if (TRUE == InformerReadValAsString(fp, line)) {
-        *data = atol(line);
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
-
-int InformerReadValAsString(FILE *fp, char *data)
-{
-    int length;
-    char *start;
-    char *end;
-    char line[4096];
-
-    if (fgets(line, 4096, fp) != NULL) {
-        printf("The line is [%s]\n", line);
-        start = index(line, ':');
-        if (start != NULL) {
-            start += 2;     /* the space after the : */
-            length = strlen(line);
-            end = line + length - 1;    /* no null and no newline */
-            strncpy(data, start, end - start);
-            data[end - start] = '\0';
-            printf("I read [%s]\n", data);
-            return TRUE;
-        } else {
-            InformerERROR("Parse error reading from filehandle: no key found\n");
-            return FALSE;
-        }
-    } else {
-        InformerERROR("Unable to read from filehandle: %s\n", strerror(errno));
-        return FALSE;
-    }
-}
-
-void InformerNotesCanvasDraw(SparkCanvasInfo canvas_info)
+void
+InformerTableCanvasDraw(SparkCanvasInfo canvas_info)
 {
     // InformerDEBUG("-- draw event called --\n");
 }
 
-int InformerNotesCanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
+int
+InformerTableCanvasInteract(SparkCanvasInfo canvas_info, int x, int y, float pressure)
 {
     InformerDEBUG("--- interact event called x: %d, y: %d, pressure %f ---\n", x, y, pressure);
     /* return 1 for canvas display */
