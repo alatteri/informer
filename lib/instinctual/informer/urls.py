@@ -6,7 +6,7 @@ from instinctual.informer.models import Project, Shot, Note, Element, Event, Out
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver, PkEntry
 
 fields_note = ['text', 'is_checked', 'created_by', 'created_on', 'modified_by', 'modified_on']
-fields_element = ['text', 'is_checked', 'created_by', 'created_on']
+fields_element = ['text', 'type', 'is_checked', 'created_by', 'created_on']
 
 # --------------------
 # RESTful patterns:
