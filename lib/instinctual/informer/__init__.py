@@ -27,6 +27,10 @@ def getProjectShotNotesUrl(project, shot):
     template = _getUrlComponent('url_project_shot_notes')
     return template % (project, shot)
 
+def getProjectShotElementUrl(project, shot, pk):
+    template = _getUrlComponent('url_project_shot_element')
+    return template % (project, shot, pk)
+
 def getProjectShotElementsUrl(project, shot):
     template = _getUrlComponent('url_project_shot_elements')
     return template % (project, shot)

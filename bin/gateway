@@ -27,7 +27,7 @@ from instinctual.informer.client import Client, ClientConnectionError
 
 LOG = instinctual.getLogger(sys.argv[0])
 
-ok_actions = ('get_notes', 'get_elements', 'update_note', 'new_note')
+ok_actions = ('get_notes', 'get_elements', 'update_note', 'update_element', 'new_note')
 ok_actions_str = '|'.join(ok_actions)
 
 parser = OptionParser("usage: gateway " + \
@@ -100,6 +100,11 @@ class Gateway(object):
                 self.newNote(input[0])
             elif self.action == 'get_elements':
                 result = self.getElements()
+                data = self.serializeElements(result)
+                outfile.write(data)
+            elif self.action == 'update_element':
+                input = self.parseInfile(infile)
+                result = self.updateElement(input[0])
                 data = self.serializeElements(result)
                 outfile.write(data)
         except ClientConnectionError, e:
@@ -184,6 +189,11 @@ class Gateway(object):
         LOG.info("Found this: %s", (elements))
 
         return elements
+
+    def updateElement(self, data):
+        client = Client()
+        LOG.info("Running updateElement()")
+        return client.updateElement(self.setup, data)
 
     def serializeElements(self, elements):
         data = ''

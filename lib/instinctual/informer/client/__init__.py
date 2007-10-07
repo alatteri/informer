@@ -35,6 +35,20 @@ class Client(object):
         elements = self._getObjects(deserializer)
         return elements
 
+    def updateElement(self, setup, updates):
+        parsed = informer.parseSetup(setup)
+        project = parsed['project']
+        shot = parsed['shot']
+        id = updates['id']
+        del updates['id']
+
+        url = informer.getProjectShotElementsUrl(project, shot, id)
+        result = self.PUT(url, updates)
+
+        deserializer = Deserializer(result)
+        elements = self._getObjects(deserializer)
+        return elements
+
     def getNote(self, setup, id):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
