@@ -53,14 +53,14 @@ class Note(models.Model):
 # ------------------------------------------------------------------------------
 class Element(models.Model):
     shot        = models.ForeignKey(Shot)
-    type        = models.CharField(maxlength=32)
+    kind        = models.CharField(maxlength=32)
     text        = models.CharField(maxlength=4096)
     is_checked  = models.BooleanField('is checked', default=False)
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.CharField('created by', maxlength=255)
 
     class Admin:
-        list_display = ('shot', 'type', 'is_checked', 'text', 'created_by', 'created_on')
+        list_display = ('shot', 'kind', 'is_checked', 'text', 'created_by', 'created_on')
 
     def __str__(self):
             return self.text

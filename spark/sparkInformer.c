@@ -73,7 +73,7 @@ typedef struct {
 
 typedef struct {
     int                 id;                             /* Primary key of the element */
-    char                type[SPARK_MAX_STRING_LENGTH];  /* the type of the element */
+    char                kind[SPARK_MAX_STRING_LENGTH];  /* the kind of the element */
     char                text[4096];                     /* the element path/message */
     int                 is_checked;                     /* is the element checked? */
     char                created_by[USERNAME_MAX];       /* the user who created the element */
@@ -906,7 +906,7 @@ InformerGatewayImportElems(char *filepath, int index, int update_count)
     for (i=0; i<count; i++) {
         /* skip the "key:" read the value */
         if (TRUE == InformerFileReadValAsInt(fp,    &(app->elems_data[index+i].id)) &&
-            TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].type) &&
+            TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].kind) &&
             TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].text) &&
             TRUE == InformerFileReadValAsInt(fp,    &(app->elems_data[index+i].is_checked)) &&
             TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].created_by) &&
@@ -1040,7 +1040,7 @@ InformerTableRowUpdateUIWithElems(int data_index, int row_num)
 
     row = &(app->elems_ui_table.row[row_num - 1]);
     InformerTableRowSetStatusValue(row, source.is_checked);
-    InformerTableRowSetStatusText(row, "%s", source.type);
+    InformerTableRowSetStatusText(row, "%s", source.kind);
 
     InformerTableRowSetMessageText(row, "%s", source.text);
     strftime(str, sizeof(str), "%D %I:%M%p", localtime(&source.created_on));

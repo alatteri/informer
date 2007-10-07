@@ -192,7 +192,7 @@ class Gateway(object):
         for element in elements:
             LOG.info("---> element: %s" % (element))
             data += "id: %s\n" % (element.id)
-            data += "type: %s\n" % (element.type)
+            data += "kind: %s\n" % (element.kind)
             data += "text: %s\n" % (element.text)
             data += "is_checked: %s\n" % (int(element.is_checked))
             data += "created_by: %s\n" % (element.created_by)
