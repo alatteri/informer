@@ -42,7 +42,7 @@ class Client(object):
         id = updates['id']
         del updates['id']
 
-        url = informer.getProjectShotElementsUrl(project, shot, id)
+        url = informer.getProjectShotElementUrl(project, shot, id)
         result = self.PUT(url, updates)
 
         deserializer = Deserializer(result)
