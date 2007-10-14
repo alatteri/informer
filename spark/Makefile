@@ -158,7 +158,7 @@ SPARKDESTINATION=.
 # each line.
 #
 SPARK_CFILES = \
- sparkInformer.c
+ informer.c
 
 #
 # sparkInvert_16fp depends on the half data type (a 16bit floating point 
