@@ -196,12 +196,15 @@ sparks_target:    $(SFILES) $(SFILES_C++)
 # what SGI terms a DSO (dynamic shared object). Please consult your SGI
 # documentation for more info regarding shared objects (use 'man dso').
 #
+rgb.o : rgb.c rgb.h
+	@echo "MAKING RGB..."
+	cc $(CFLAGS) -c rgb.c
 $(SFILES) : $(OFILES)
-$(OFILES) : %.o : %.c spark.h
+$(OFILES) : %.o : %.c spark.h rgb.o
 	@echo ""
 	@echo "MAKING SPARK ..."
 	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
-	ld $(LDFLAGS) $(SPARKSOURCE)/$*.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+	ld $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 $(SFILES_C++) : $(OFILES_C++)
 $(OFILES_C++) : %.o : %.C spark.h

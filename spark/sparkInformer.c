@@ -1,6 +1,7 @@
 /****************************************************************************
  *                                 Informer                                 *
  ****************************************************************************/
+#include "rgb.h"
 #include "spark.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,6 +67,10 @@ typedef enum {
     INFORMER_APP_MODE_ELEMS
 } InformerAppModeChoice;
 
+typedef enum {
+    INFORMER_APP_STATE_OK,
+    INFORMER_APP_STATE_ERR
+} InformerAppStateChoice;
 
 /*************************************
  * Informer notes data structure
@@ -128,6 +133,7 @@ typedef struct {
 } InformerTableUI;
 
 typedef struct {
+    int                         app_state;              /* the app state: OK or ERR */
     InformerAppModeChoice       app_current_mode;       /* The current mode: setup, notes, elem */
 
     /* SETUP UI */
@@ -384,6 +390,8 @@ SparkInitialise(SparkInfoStruct spark_info)
     double rate = sparkFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);
 
+    app->app_state = INFORMER_APP_STATE_OK;
+
     /* ------ SETUP ------ */
     app->setup_ui_setup_path = InformerCreateStringUI(15, &SparkSetupString15, "");
 
@@ -498,7 +506,9 @@ SparkProcessStart(SparkInfoStruct spark_info)
     InformerDEBUG("----> SparkProcessStart called <----\n");
 
     if (FALSE == app->notes_data_been_read) {
-        InformerGatewayGetNotes();
+            InformerGatewayGetNotes();
+    } else {
+        InformerDEBUG("Not getting notes. app_state not OK\n");
     }
 
     return 1;
@@ -512,12 +522,75 @@ SparkProcessStart(SparkInfoStruct spark_info)
 unsigned long *
 SparkProcess(SparkInfoStruct spark_info)
 {
-    InformerDEBUG("-----> SparkProcess called <------\n");
+    int row;
+    int col;
+    int rgb;
+    int index;
+    unsigned char *ptr;
+    unsigned char buf[1049760];
+
+    FILE *fp;
+    char path[256];
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
+
+    InformerDEBUG("-----> SparkProcess called <------\n");
+    sprintf(path, "/tmp/frame%04d.rgb", spark_info.FrameNo);
+    InformerDEBUG("-----> PATH: %s\n", path);
+
+    // if (1 == spark_info.FrameNo) {
+    InformerDEBUG("          (SparkInfo)\n");
+    InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
+    InformerDEBUG("*** width: %d, height: %d, depth: %d\n",
+                  spark_info.FrameWidth, spark_info.FrameHeight, spark_info.FrameDepth);
+    InformerDEBUG("*** TotalClips: %d, FramePixels: %d, FrameBytes: %d\n",
+                  spark_info.TotalClips, spark_info.FramePixels, spark_info.FrameBytes);
+
+    InformerDEBUG("          (SparkSource)\n");
+    InformerDEBUG("*** total buffers (%d) ***\n", SparkSource.TotalBuffers);
+    InformerDEBUG("*** buffer state (%d) ***\n", SparkSource.BufState);
+    InformerDEBUG("*** buffer size (%d) ***\n", SparkSource.BufSize);
+    InformerDEBUG("*** buffer format (%d) ***\n", SparkSource.BufFmt);
+
+    InformerDEBUG("*** buffer width (%d) ***\n", SparkSource.BufWidth);
+    InformerDEBUG("*** buffer height (%d) ***\n", SparkSource.BufHeight);
+    InformerDEBUG("*** buffer depth (%d) ***\n", SparkSource.BufDepth);
+    InformerDEBUG("*** buffer stride (%d) ***\n", SparkSource.Stride);
+    InformerDEBUG("*** buffer inc (%d) ***\n", SparkSource.Inc);
+
+        if ((fp=fopen(path, "w")) == NULL) {
+            InformerERROR("can't write datafile [%s]", path);
+            return FALSE;
+        }
+
+        // rgb_header_write(fp,
+        //                  1,     // int BYTE_SWAP, 0 for no byte swapping, 1 for byte swapping.
+        //                  SparkResult.BufWidth,
+        //                  SparkResult.BufHeight,
+        //                  3,     // 1=B/W, 3=RGB, 4=RGBA
+        //                  1);    // 1=uncompressed
+
+        RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
+
+        ptr = (unsigned char *) SparkResult.Buffer;
+
+        for (index = 0; index < spark_info.FramePixels; index++) {
+            buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
+            buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
+            buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
+        }
+
+        fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
+        fclose(fp);
+
+        printf("The size of a ptr is p[%d]\n", sizeof(ulong));
+        printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
+        printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
+    // }
+
     return SparkResult.Buffer;
 }
 
@@ -568,6 +641,19 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
     }
 }
 
+unsigned long *SparkInteract( SparkInfoStruct SparkInfo,
+                              int SX, int SY, float Pressure,
+                              float VX, float VY, float VZ )
+{
+    // InformerDEBUG("SparkInteract event called SX: %d, SY: %d, VX: %f, VY: %f, pressure %f ---\n", SX, SY, VX, VY, Pressure);
+    return NULL;
+}
+
+void SparkOverlay(SparkInfoStruct SparkInfo, float zoom_factor)
+{
+    // InformerDEBUG("------- OVERLAY CALLED -------\n");
+}
+
 
 /****************************************************************************
  *                      Informer Utility Calls                              *
@@ -575,14 +661,14 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
 void
 InformerDEBUG(const char *format, ...)
 {
-    va_list args;
-    char str[4096];
+    // va_list args;
+    // char str[4096];
 
-    va_start(args, format);
-    vsprintf(str, format, args);
-    va_end(args);
+    // va_start(args, format);
+    // vsprintf(str, format, args);
+    // va_end(args);
 
-    fprintf(stderr, "DEBUG: %s", str);
+    // fprintf(stderr, "DEBUG: %s", str);
 }
 
 void
@@ -590,12 +676,14 @@ InformerERROR(const char *format, ...)
 {
     va_list args;
     char str[4096];
+    InformerAppStruct *app = InformerGetApp();
 
     va_start(args, format);
     vsprintf(str, format, args);
     va_end(args);
 
     fprintf(stderr, "ERROR: %s", str);
+    app->app_state = INFORMER_APP_STATE_ERR;
     sparkError(str);
 }
 
@@ -671,16 +759,20 @@ InformerGatewayGetNotes(void)
     sparkMessage(GET_NOTES_WAIT);
     InformerTableHideAllRows();
 
-    if (TRUE == InformerGatewayCall("get_notes", NULL, "/tmp/trinity")) {
-        if (TRUE == InformerGatewayImportNotes("/tmp/trinity", 0, TRUE)) {
-            app->notes_data_been_read = TRUE;
-            InformerTableRefreshUI();
-            return TRUE;
-        } else {
-            // TODO: What should happen here?
-            InformerERROR("Unable to get notes from the database\n");
-            return FALSE;
+    if (INFORMER_APP_STATE_OK == app->app_state) {
+        if (TRUE == InformerGatewayCall("get_notes", NULL, "/tmp/trinity")) {
+            if (TRUE == InformerGatewayImportNotes("/tmp/trinity", 0, TRUE)) {
+                app->notes_data_been_read = TRUE;
+                InformerTableRefreshUI();
+                return TRUE;
+            } else {
+                // TODO: What should happen here?
+                InformerERROR("Unable to get notes from the database\n");
+                return FALSE;
+            }
         }
+    } else {
+        InformerDEBUG("Not calling GetNotes: app state is not OK\n");
     }
 }
 
@@ -691,16 +783,20 @@ InformerGatewayGetElems(void)
     sparkMessage(GET_ELEMS_WAIT);
     InformerTableHideAllRows();
 
-    if (TRUE == InformerGatewayCall("get_elements", NULL, "/tmp/trinity20")) {
-        if (TRUE == InformerGatewayImportElems("/tmp/trinity20", 0, TRUE)) {
-            app->elems_data_been_read = TRUE;
-            InformerTableRefreshUI();
-            return TRUE;
-        } else {
-            // TODO: What should happen here?
-            InformerERROR("Unable to get elements from the database\n");
-            return FALSE;
+    if (INFORMER_APP_STATE_OK == app->app_state) {
+        if (TRUE == InformerGatewayCall("get_elements", NULL, "/tmp/trinity20")) {
+            if (TRUE == InformerGatewayImportElems("/tmp/trinity20", 0, TRUE)) {
+                app->elems_data_been_read = TRUE;
+                InformerTableRefreshUI();
+                return TRUE;
+            } else {
+                // TODO: What should happen here?
+                InformerERROR("Unable to get elements from the database\n");
+                return FALSE;
+            }
         }
+    } else {
+        InformerDEBUG("Not calling GetElems: app state is not OK\n");
     }
 }
 
@@ -1070,6 +1166,7 @@ InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     InformerDEBUG("Hey! The notes mode change got called with: value: %d\n", mode);
 
     if (INFORMER_NOTE_MODE_REFRESH == mode) {
+        app->app_state = INFORMER_APP_STATE_OK;
         InformerGatewayGetNotes();
     }
 
@@ -1085,6 +1182,7 @@ InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     InformerDEBUG("Hey! The elements mode change got called with: value: %d\n", mode);
 
     if (INFORMER_ELEM_MODE_REFRESH == mode) {
+        app->app_state = INFORMER_APP_STATE_OK;
         InformerGatewayGetElems();
     }
 
