@@ -3,6 +3,8 @@
  ****************************************************************************/
 #include "rgb.h"
 #include "spark.h"
+#include "python.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -469,6 +471,9 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
     InformerTableHideAllRows();
+
+    PythonInitialize();
+
     return SPARK_MODULE;
 }
 
@@ -480,6 +485,7 @@ SparkUnInitialise(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkUnInitialise called <----\n");
+    PythonExit();
 }
 
 /*--------------------------------------------------------------------------*/
@@ -514,6 +520,13 @@ SparkProcessStart(SparkInfoStruct spark_info)
     return 1;
 }
 
+unsigned long *
+SparkAnalyse(SparkInfoStruct spark_info)
+{
+    InformerDEBUG("----> SparkAnalyse called <-----\n");
+    return NULL;
+}
+
 /*--------------------------------------------------------------------------*/
 /* The SparkProcess function performs the actual image manipulation by      */
 /* simply copying the source image. The function returns the address of the */
@@ -537,59 +550,54 @@ SparkProcess(SparkInfoStruct spark_info)
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
 
+
     InformerDEBUG("-----> SparkProcess called <------\n");
+    InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
+    InformerDEBUG("   context is [%d]\n", spark_info.Context);
+
     sprintf(path, "/tmp/frame%04d.rgb", spark_info.FrameNo);
-    InformerDEBUG("-----> PATH: %s\n", path);
+    // InformerDEBUG("-----> PATH: %s\n", path);
 
-    // if (1 == spark_info.FrameNo) {
-    InformerDEBUG("          (SparkInfo)\n");
-    InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
-    InformerDEBUG("*** width: %d, height: %d, depth: %d\n",
-                  spark_info.FrameWidth, spark_info.FrameHeight, spark_info.FrameDepth);
-    InformerDEBUG("*** TotalClips: %d, FramePixels: %d, FrameBytes: %d\n",
-                  spark_info.TotalClips, spark_info.FramePixels, spark_info.FrameBytes);
+    // InformerDEBUG("          (SparkInfo)\n");
+    // InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
+    // InformerDEBUG("*** width: %d, height: %d, depth: %d\n",
+    //               spark_info.FrameWidth, spark_info.FrameHeight, spark_info.FrameDepth);
+    // InformerDEBUG("*** TotalClips: %d, FramePixels: %d, FrameBytes: %d\n",
+    //               spark_info.TotalClips, spark_info.FramePixels, spark_info.FrameBytes);
 
-    InformerDEBUG("          (SparkSource)\n");
-    InformerDEBUG("*** total buffers (%d) ***\n", SparkSource.TotalBuffers);
-    InformerDEBUG("*** buffer state (%d) ***\n", SparkSource.BufState);
-    InformerDEBUG("*** buffer size (%d) ***\n", SparkSource.BufSize);
-    InformerDEBUG("*** buffer format (%d) ***\n", SparkSource.BufFmt);
+    // InformerDEBUG("          (SparkSource)\n");
+    // InformerDEBUG("*** total buffers (%d) ***\n", SparkSource.TotalBuffers);
+    // InformerDEBUG("*** buffer state (%d) ***\n", SparkSource.BufState);
+    // InformerDEBUG("*** buffer size (%d) ***\n", SparkSource.BufSize);
+    // InformerDEBUG("*** buffer format (%d) ***\n", SparkSource.BufFmt);
 
-    InformerDEBUG("*** buffer width (%d) ***\n", SparkSource.BufWidth);
-    InformerDEBUG("*** buffer height (%d) ***\n", SparkSource.BufHeight);
-    InformerDEBUG("*** buffer depth (%d) ***\n", SparkSource.BufDepth);
-    InformerDEBUG("*** buffer stride (%d) ***\n", SparkSource.Stride);
-    InformerDEBUG("*** buffer inc (%d) ***\n", SparkSource.Inc);
+    // InformerDEBUG("*** buffer width (%d) ***\n", SparkSource.BufWidth);
+    // InformerDEBUG("*** buffer height (%d) ***\n", SparkSource.BufHeight);
+    // InformerDEBUG("*** buffer depth (%d) ***\n", SparkSource.BufDepth);
+    // InformerDEBUG("*** buffer stride (%d) ***\n", SparkSource.Stride);
+    // InformerDEBUG("*** buffer inc (%d) ***\n", SparkSource.Inc);
 
-        if ((fp=fopen(path, "w")) == NULL) {
-            InformerERROR("can't write datafile [%s]", path);
-            return FALSE;
-        }
+    if ((fp=fopen(path, "w")) == NULL) {
+        InformerERROR("can't write datafile [%s]", path);
+        return FALSE;
+    }
 
-        // rgb_header_write(fp,
-        //                  1,     // int BYTE_SWAP, 0 for no byte swapping, 1 for byte swapping.
-        //                  SparkResult.BufWidth,
-        //                  SparkResult.BufHeight,
-        //                  3,     // 1=B/W, 3=RGB, 4=RGBA
-        //                  1);    // 1=uncompressed
+    RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
 
-        RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
+    ptr = (unsigned char *) SparkResult.Buffer;
 
-        ptr = (unsigned char *) SparkResult.Buffer;
+    for (index = 0; index < spark_info.FramePixels; index++) {
+        buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
+        buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
+        buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
+    }
 
-        for (index = 0; index < spark_info.FramePixels; index++) {
-            buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
-            buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
-            buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
-        }
+    fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
+    fclose(fp);
 
-        fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
-        fclose(fp);
-
-        printf("The size of a ptr is p[%d]\n", sizeof(ulong));
-        printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
-        printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
-    // }
+    // printf("The size of a ptr is p[%d]\n", sizeof(ulong));
+    // printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
+    // printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
 
     return SparkResult.Buffer;
 }
@@ -604,15 +612,15 @@ SparkEvent(SparkModuleEvent spark_event)
 
     InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
 
-    if (7 == spark_event) {
+    if (SPARK_EVENT_SETUP == spark_event) {
         InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
-    } else if (9 == spark_event) {
+    } else if (SPARK_EVENT_CONTROL1 == spark_event) {
         InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
 
         if (FALSE == app->notes_data_been_read) {
             InformerGatewayGetNotes();
         }
-    } else if (10 == spark_event) {
+    } else if (SPARK_EVENT_CONTROL2 == spark_event) {
         InformerSetAppMode(app, INFORMER_APP_MODE_ELEMS);
 
         if (FALSE == app->elems_data_been_read) {
@@ -661,14 +669,14 @@ void SparkOverlay(SparkInfoStruct SparkInfo, float zoom_factor)
 void
 InformerDEBUG(const char *format, ...)
 {
-    // va_list args;
-    // char str[4096];
+    va_list args;
+    char str[4096];
 
-    // va_start(args, format);
-    // vsprintf(str, format, args);
-    // va_end(args);
+    va_start(args, format);
+    vsprintf(str, format, args);
+    va_end(args);
 
-    // fprintf(stderr, "DEBUG: %s", str);
+    fprintf(stderr, "DEBUG: %s", str);
 }
 
 void

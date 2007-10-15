@@ -187,6 +187,9 @@ SFILES_C++ = $(SPARK_C++FILES:.C=.$(SPARK_EXTENSION))
 
 sparks_target:    $(SFILES) $(SFILES_C++)
 
+PYINC=/usr/include/python2.3
+PYFLAGS = -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm
+
 #
 # These script lines perform the actual compilation and linking of the
 # Sparks themselves. The creation of a Spark is actually twofold. The
@@ -199,19 +202,29 @@ sparks_target:    $(SFILES) $(SFILES_C++)
 rgb.o : rgb.c rgb.h
 	@echo "MAKING RGB..."
 	cc $(CFLAGS) -c rgb.c
+
+#gcc -g -I../../Include -I/usr/include/python2.3  -c -o demo.o demo.c
+#gcc -Xlinker -export-dynamic demo.o /usr/lib64/python2.3/config/libpython2.3.a  -lnsl -ldl -lreadline -ltermcap-lieee -lpthread -lutil -lm -o demo
+
+python.o : python.c python.h
+	@echo "MAKING PYTHON..."
+	cc $(CFLAGS) -I$(PYINC) -c -o python.o python.c
+#	cc -Xlinker -export-dynamic python.o $(PYLIB) -lnsl -ldl -lreadline -ltermcap-lieee -lpthread -lutil -lm -o demo
+
 $(SFILES) : $(OFILES)
-$(OFILES) : %.o : %.c spark.h rgb.o
+$(OFILES) : %.o : %.c spark.h rgb.o python.o
 	@echo ""
 	@echo "MAKING SPARK ..."
 	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
-	ld $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+	ld -export-dynamic python.o /usr/lib64/libpython2.3.so  -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+#	ld $(LDFLAGS) $(PYFLAGS) --export-dynamic /usr/lib64/libpython2.3.so -lpython2.3 $(SPARKSOURCE)/$*.o rgb.o python.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
-$(SFILES_C++) : $(OFILES_C++)
-$(OFILES_C++) : %.o : %.C spark.h
-	@echo ""
-	@echo "MAKING SPARK ..."
-	$(CXX) $(CFLAGS) -c $(SPARKSOURCE)/$*.C -o $(SPARKSOURCE)/$*.o
-	$(CXX) $(LDFLAGS) $(SPARKSOURCE)/$*.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+# $(SFILES_C++) : $(OFILES_C++)
+# $(OFILES_C++) : %.o : %.C spark.h
+# 	@echo ""
+# 	@echo "MAKING SPARK ..."
+# 	$(CXX) $(CFLAGS) -c $(SPARKSOURCE)/$*.C -o $(SPARKSOURCE)/$*.o
+# 	$(CXX) $(LDFLAGS) $(SPARKSOURCE)/$*.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 clean :
 	@echo ""
