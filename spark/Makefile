@@ -203,13 +203,9 @@ rgb.o : rgb.c rgb.h
 	@echo "MAKING RGB..."
 	cc $(CFLAGS) -c rgb.c
 
-#gcc -g -I../../Include -I/usr/include/python2.3  -c -o demo.o demo.c
-#gcc -Xlinker -export-dynamic demo.o /usr/lib64/python2.3/config/libpython2.3.a  -lnsl -ldl -lreadline -ltermcap-lieee -lpthread -lutil -lm -o demo
-
 python.o : python.c python.h
 	@echo "MAKING PYTHON..."
 	cc $(CFLAGS) -I$(PYINC) -c -o python.o python.c
-#	cc -Xlinker -export-dynamic python.o $(PYLIB) -lnsl -ldl -lreadline -ltermcap-lieee -lpthread -lutil -lm -o demo
 
 $(SFILES) : $(OFILES)
 $(OFILES) : %.o : %.c spark.h rgb.o python.o
@@ -217,7 +213,7 @@ $(OFILES) : %.o : %.c spark.h rgb.o python.o
 	@echo "MAKING SPARK ..."
 	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
 	ld -export-dynamic python.o /usr/lib64/libpython2.3.so  -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
-#	ld $(LDFLAGS) $(PYFLAGS) --export-dynamic /usr/lib64/libpython2.3.so -lpython2.3 $(SPARKSOURCE)/$*.o rgb.o python.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+	ln -f $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION) ../../$(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 # $(SFILES_C++) : $(OFILES_C++)
 # $(OFILES_C++) : %.o : %.C spark.h

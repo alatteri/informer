@@ -1694,7 +1694,7 @@ InformerSetSetupPath(char *path)
 const char *
 InformerGetGatewayPath(void)
 {
-    const char *path = "/usr/discreet/instinctual/informer/bin/gateway";
+    const char *path = "/usr/discreet/sparks/instinctual/informer/bin";
     return path;
 }
 
