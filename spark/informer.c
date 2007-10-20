@@ -20,6 +20,7 @@
 #define DATA_NONE -1
 
 extern int errno;
+extern char **environ;
 
 static char GATEWAY_STATUS_ERR[] = "Unable to process";
 static char GET_NOTES_WAIT[] = "Getting notes from database...";
@@ -386,11 +387,19 @@ unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
     const char *setup;
+    char **env = environ;
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
 
     double rate = sparkFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);
+
+    InformerDEBUG("^^^^^^ The program is: %s ^^^^^^^^^^^\n", sparkProgramGetName());
+
+    while (env != NULL && *env != NULL) {
+        InformerDEBUG("ENV: %s\n", *env);
+        env++;
+    }
 
     app->app_state = INFORMER_APP_STATE_OK;
 
@@ -1694,7 +1703,7 @@ InformerSetSetupPath(char *path)
 const char *
 InformerGetGatewayPath(void)
 {
-    const char *path = "/usr/discreet/sparks/instinctual/informer/bin";
+    const char *path = "/usr/discreet/sparks/instinctual/informer/bin/gateway";
     return path;
 }
 

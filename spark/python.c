@@ -1,19 +1,23 @@
 /* Example of embedding Python in another program */
 
-#include "Python.h"
+#include <Python.h>
 #include <dlfcn.h>
 
 void initxyzzy(void); /* Forward */
 
 void* PyModule;
 
+int gUnloadPython = 0;
+
+PyThreadState *myThreadState = NULL;
+PyThreadState *mainThreadState = NULL;
+PyInterpreterState *mainInterpreterState = NULL;
+
 void PythonInitialize(void)
 {
     int argc = 1;
     char *argv[1];
-    PyThreadState *myThreadState;
-    PyThreadState *mainThreadState;
-    PyInterpreterState *mainInterpreterState;
+    PyThreadState *tempState = NULL;
 
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
     if (!PyModule) {
@@ -26,100 +30,123 @@ void PythonInitialize(void)
 
     printf("********** NOW GOING TO INIT PYTHON *****************\n");
 
-    printf("************ never before initialized! ************\n");
+    if (Py_IsInitialized()) {
+        printf("************ Python was already loaded ************\n");
+        gUnloadPython = 0;
+    } else {
+        printf("************ never before initialized! ************\n");
+        gUnloadPython = 1;
 
-    /* Initialize the Python interpreter.  Required. */
-    Py_Initialize();
-    printf("1\n");
+        // Initialize the Python interpreter.  Required.
+        printf("Py_Initialize...\n");
+        Py_Initialize();
 
-    /* Pass argv[0] to the Python interpreter */
-    Py_SetProgramName(argv[0]);
-    printf("2\n");
+        // Initialize thread support -- OK to call multiple times
+        //printf("PyEval_InitThreads...\n");
+        PyEval_InitThreads();
 
-    // Initialize thread support
-    PyEval_InitThreads();
-    printf("3\n");
+        // Save a pointer to the main PyThreadState object
+        //printf("PyThreadState_Get...\n");
+        //mainThreadState = PyThreadState_Get();
 
-    // save a pointer to the main PyThreadState object
-    mainThreadState = PyThreadState_Get();
+        //if (mainThreadState == NULL) {
+        //    printf("*********** FUCKING SHIT MAIN THREAD IS NULL ***************\n");
+        //}
 
-    /* Add a static module */
-    // initxyzzy();
+        // Get a reference to the PyInterpreterState
+        // mainInterpreterState = mainThreadState->interp;
 
-    /* Define sys.argv.  It is up to the application if you
-       want this; you can also let it undefined (since the Python 
-       code is generally not a main program it has no business
-       touching sys.argv...) */
-    // PySys_SetArgv(argc, argv);
-    printf("4\n");
+        // Create a thread state object for this thread
+        // myThreadState = PyThreadState_New(mainInterpreterState);
 
-    printf("))))))) now going to mainThreadState->interp ))))))))))))\n");
+        // Release global lock
+        // PyEval_ReleaseLock();
 
-    // get a reference to the PyInterpreterState
-    // mainInterpreterState = mainThreadState->interp;
+        // Acquire global lock
+        // PyEval_AcquireLock();
 
-    printf(")))))))) now going to create a thread state object for this thread ))))))))\n");
+        // Swap in main thread state
+        // tempState = PyThreadState_Swap(mainThreadState);
 
-    // create a thread state object for this thread
-    // myThreadState = PyThreadState_New(mainInterpreterState);
+        // printf(")))))))) now going to create a thread state object for this thread ))))))))\n");
 
-    // swap in my thread state
-    // PyThreadState_Swap(myThreadState);
+        /* Do some application specific code */
+        printf("Hello, brave new world\n\n");
 
-    /* Do some application specific code */
-    printf("Hello, brave new world\n\n");
+        /* Execute some Python statements (in module __main__) */
+        printf("----------- what is sys ------------\n");
+        PyRun_SimpleString("print 'sys is:', sys\n");
+        printf("----------- going to import sys ------------\n");
+        PyRun_SimpleString("import sys\n");
+        printf("----------- going to append ------------\n");
+        PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
+        PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
+        PyRun_SimpleString("print 'after:', sys.path\n");
 
-    /* Execute some Python statements (in module __main__) */
-    // PyRun_SimpleString("import sys\n");
-    // PyRun_SimpleString("print sys.builtin_module_names\n");
-    // PyRun_SimpleString("print sys.modules.keys()\n");
-    // PyRun_SimpleString("print sys.executable\n");
-    // PyRun_SimpleString("print sys.argv\n");
+        PyRun_SimpleString("import sitecustomize\n");
 
-    /* Note that you can call any public function of the Python
-       interpreter here, e.g. call_object(). */
-    printf("----------- what is sys ------------\n");
-    PyRun_SimpleString("print 'sys is:', sys\n");
-    printf("----------- going to import sys ------------\n");
-    PyRun_SimpleString("import sys\n");
-    printf("----------- going to append ------------\n");
-    PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
-    PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
-    PyRun_SimpleString("print 'after:', sys.path\n");
+        PyRun_SimpleString("import instinctual\n");
+        PyRun_SimpleString("import instinctual.informer\n");
+        PyRun_SimpleString("from instinctual.informer.spark import Spark\n");
+        PyRun_SimpleString("SPARK = Spark()\n");
+        PyRun_SimpleString("SPARK.start()\n");
 
-    printf("----------- going to import instinctual ------------\n");
-    PyRun_SimpleString("import instinctual\n");
-    PyRun_SimpleString("print instinctual\n");
+        PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
 
-    printf("----------- going to import instinctual settings ------------\n");
-    PyRun_SimpleString("from instinctual import settings\n");
-    PyRun_SimpleString("print settings\n");
+        mainThreadState = PyThreadState_Get();
 
-    printf("----------- going to import instinctual client ------------\n");
-    PyRun_SimpleString("from instinctual.informer.client import Client, ClientConnectionError\n");
-    PyRun_SimpleString("print Client, ClientConnectionError\n");
-    PyRun_SimpleString("from instinctual.informer.spark import Spark\n");
-    PyRun_SimpleString("Spark().start()\n");
+        // PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
+        // PyRun_SimpleString("SPARK.stop()\n");
 
-    PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
+        // Swap out the current thread
+        // PyThreadState_Swap(tempState);
 
-    // clear the thread state
-    // PyThreadState_Swap(NULL);
-
-    // release the lock
-    PyEval_ReleaseLock();
+        // release the lock
+        PyEval_ReleaseLock();
+    }
 }
 
 void PythonExit(void)
 {
+    PyThreadState *tempState = NULL;
+
     printf("********** NOW GOING TO EXIT PYTHON *****************\n");
     /* Some more application specific code */
     printf("\nGoodbye, cruel world\n");
-    /* Exit, cleaning up the interpreter */
-    PyEval_AcquireLock();
-    Py_Finalize();
 
-    dlclose(PyModule);
+    if (gUnloadPython == 1) {
+        //printf("(((( i loaded it. now unloading python ))))\n");
+
+        printf("PyEval_AcquireLock...\n");
+        PyEval_AcquireLock();
+        printf("lock was acquired\n");
+
+        //// Swap in main thread state
+        tempState = PyThreadState_Swap(mainThreadState);
+
+        //PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
+        //PyRun_SimpleString("SPARK.stop()\n");
+
+        Py_Finalize();
+
+        //// Swap out the current thread
+        PyThreadState_Swap(tempState);
+
+        // Release global lock
+        PyEval_ReleaseLock();
+
+        //// Clean up thread state
+        //// PyThreadState_Clear(myThreadState);
+        //// PyThreadState_Delete(myThreadState);
+
+
+        printf("python was finalized\n");
+
+        dlclose(PyModule);
+        printf("dlclose was called\n");
+    } else {
+        printf("---> gUnloadPython was false -- not doing shit\n");
+    }
 }
 
 /* A static module */
