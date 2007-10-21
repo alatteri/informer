@@ -8,16 +8,15 @@ void initxyzzy(void); /* Forward */
 void* PyModule;
 
 int gUnloadPython = 0;
-
-PyThreadState *myThreadState = NULL;
-PyThreadState *mainThreadState = NULL;
-PyInterpreterState *mainInterpreterState = NULL;
+PyThreadState *tstate = NULL;
 
 void PythonInitialize(void)
 {
     int argc = 1;
     char *argv[1];
-    PyThreadState *tempState = NULL;
+
+    PyThreadState *mainThreadState = NULL;
+    PyInterpreterState *mainInterpreterState = NULL;
 
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
     if (!PyModule) {
@@ -41,39 +40,24 @@ void PythonInitialize(void)
         printf("Py_Initialize...\n");
         Py_Initialize();
 
-        // Initialize thread support -- OK to call multiple times
-        //printf("PyEval_InitThreads...\n");
+        // Initialize thread support
+        printf("PyEval_InitThreads...\n");
         PyEval_InitThreads();
 
-        // Save a pointer to the main PyThreadState object
-        //printf("PyThreadState_Get...\n");
-        //mainThreadState = PyThreadState_Get();
+        // save a pointer to the main PyThreadState object
+        // mainThreadState = PyThreadState_Get();
 
-        //if (mainThreadState == NULL) {
-        //    printf("*********** FUCKING SHIT MAIN THREAD IS NULL ***************\n");
-        //}
-
-        // Get a reference to the PyInterpreterState
+        // get a reference to the PyInterpreterState
         // mainInterpreterState = mainThreadState->interp;
 
-        // Create a thread state object for this thread
-        // myThreadState = PyThreadState_New(mainInterpreterState);
+        // create a thread state object for this thread
+        // PyThreadState_New(mainInterpreterState);
 
-        // Release global lock
-        // PyEval_ReleaseLock();
+        // XXX Do I care about
+        // PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
 
-        // Acquire global lock
-        // PyEval_AcquireLock();
-
-        // Swap in main thread state
-        // tempState = PyThreadState_Swap(mainThreadState);
-
-        // printf(")))))))) now going to create a thread state object for this thread ))))))))\n");
-
-        /* Do some application specific code */
         printf("Hello, brave new world\n\n");
 
-        /* Execute some Python statements (in module __main__) */
         printf("----------- what is sys ------------\n");
         PyRun_SimpleString("print 'sys is:', sys\n");
         printf("----------- going to import sys ------------\n");
@@ -83,6 +67,7 @@ void PythonInitialize(void)
         PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
         PyRun_SimpleString("print 'after:', sys.path\n");
 
+        PyRun_SimpleString("import threading\n");
         PyRun_SimpleString("import sitecustomize\n");
 
         PyRun_SimpleString("import instinctual\n");
@@ -93,16 +78,7 @@ void PythonInitialize(void)
 
         PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
 
-        mainThreadState = PyThreadState_Get();
-
-        // PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
-        // PyRun_SimpleString("SPARK.stop()\n");
-
-        // Swap out the current thread
-        // PyThreadState_Swap(tempState);
-
-        // release the lock
-        PyEval_ReleaseLock();
+        tstate = PyEval_SaveThread();
     }
 }
 
@@ -111,35 +87,25 @@ void PythonExit(void)
     PyThreadState *tempState = NULL;
 
     printf("********** NOW GOING TO EXIT PYTHON *****************\n");
-    /* Some more application specific code */
-    printf("\nGoodbye, cruel world\n");
 
     if (gUnloadPython == 1) {
-        //printf("(((( i loaded it. now unloading python ))))\n");
+        printf("(((( i loaded it. now unloading python ))))\n");
 
-        printf("PyEval_AcquireLock...\n");
-        PyEval_AcquireLock();
-        printf("lock was acquired\n");
+        PyEval_RestoreThread(tstate);
 
-        //// Swap in main thread state
-        tempState = PyThreadState_Swap(mainThreadState);
+        PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
+        PyRun_SimpleString("SPARK.stop()\n");
 
-        //PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
-        //PyRun_SimpleString("SPARK.stop()\n");
+        // swap my thread state out of the interpreter
+        // PyThreadState_Swap(NULL);
+
+        // clear out any cruft from thread state object
+        // PyThreadState_Clear(tstate);
+
+        // delete my thread state object
+        // PyThreadState_Delete(tstate);
 
         Py_Finalize();
-
-        //// Swap out the current thread
-        PyThreadState_Swap(tempState);
-
-        // Release global lock
-        PyEval_ReleaseLock();
-
-        //// Clean up thread state
-        //// PyThreadState_Clear(myThreadState);
-        //// PyThreadState_Delete(myThreadState);
-
-
         printf("python was finalized\n");
 
         dlclose(PyModule);
@@ -147,6 +113,8 @@ void PythonExit(void)
     } else {
         printf("---> gUnloadPython was false -- not doing shit\n");
     }
+
+    printf("\nGoodbye, cruel world\n");
 }
 
 /* A static module */

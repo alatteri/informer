@@ -397,7 +397,7 @@ SparkInitialise(SparkInfoStruct spark_info)
     InformerDEBUG("^^^^^^ The program is: %s ^^^^^^^^^^^\n", sparkProgramGetName());
 
     while (env != NULL && *env != NULL) {
-        InformerDEBUG("ENV: %s\n", *env);
+        // InformerDEBUG("ENV: %s\n", *env);
         env++;
     }
 

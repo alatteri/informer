@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+import Queue
 import commands
 import threading
 
@@ -19,45 +21,132 @@ LOG = instinctual.getLogger(__name__)
 
 class Spark(object):
     def __init__(self):
+
+        self.scheduler = SchedulerThread('scheduler', interval=4.0)
+
+        # --------------------
+        # THREADS
+        #
+        # self.threads['events'] = None
+        # self.threads['osd'] = None
+        # self.threads['gui'] = None
+
+        self.scheduler.register(SparkThread('A'), 5)
+        self.scheduler.register(SparkThread('B'), 13)
+        self.scheduler.register(SparkThread('C'), 17)
+        self.scheduler.register(LogfileThread('logfile'), 1)
+
+    def start(self):
+        self.scheduler.queue.put('process')
+        self.scheduler.start()
+
+    def stop(self):
+        self.scheduler.queue.put('stop')
+
+class SparkThread(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self, name=name)
+
+        self.name = self.getName()
+        self.isProcessing = False
+        self.lastProcess = 0
+        self.queue = Queue.Queue(100)
+
+    def getNextCommand(self):
+        return self.queue.get()
+
+    def run(self):
+        shouldRun = True
+        while shouldRun:
+            cmd = self.getNextCommand()
+            print "Thread [%s] got: %s" % (self.name, cmd)
+            if cmd == 'process':
+                self.isProcessing = True
+                self.process()
+                self.lastProcess = time.time()
+                self.isProcessing = False
+            elif cmd == 'stop':
+                self.stop()
+                shouldRun = False
+            else:
+                LOG.warn("unknown command passed to thread [%s]: %s" % (self.name, cmd))
+
+        print "Thread %s: goodbye." % (self.name)
+
+    def process(self):
+        print "Thread %s: process called." % (self.name)
+
+    def stop(self):
+        print "Thread %s: stop called." % (self.name)
+
+
+class SchedulerThread(SparkThread):
+    def __init__(self, name, interval):
+        SparkThread.__init__(self, name)
+        self.waits = {}
+        self.threads = {}
+        self.interval = interval
+
+    def register(self, thread, wait):
+        self.threads[thread.name] = thread
+        self.waits[thread.name] = wait
+
+        print "STARTING THREAD: %s..." % (thread.name)
+        thread.start()
+
+    def getNextCommand(self):
+        try:
+            return self.queue.get(timeout=self.interval)
+        except Queue.Empty, e:
+            return 'process'
+
+    def process(self):
+        now = time.time()
+
+        for thread in self.threads.values():
+            if thread.isProcessing:
+                print "Thread [%s] is currently processing" % (thread.name)
+            else:
+                wait = self.waits[thread.name]
+                delta = now - thread.lastProcess
+                if delta > wait:
+                    thread.queue.put('process')
+                else:
+                    print("Thread [%s] needs [%s] more seconds time" %
+                          (thread.name, wait - delta))
+
+    def stop(self):
+        for thread in self.threads.values():
+            thread.queue.put('stop')
+            if thread.isAlive():
+                print "STOPPING THREAD: %s..." % (thread.name)
+                thread.join()
+            else:
+                print "Thread %s was dead\n" % (thread.name)
+
+class LogfileThread(SparkThread):
+    def __init__(self, name):
+        SparkThread.__init__(self, name)
+
         # figure out the logfile path
         if 'DL_FLAVOR' in os.environ:
             root = "/usr/discreet/log/" + os.environ['DL_FLAVOR']
             version = commands.getoutput(GET_FLAME_VERSION)
             hostname = commands.getoutput("hostname -s")
-            self.logfile = "%s%s_%s_shell.log" % (root, version, hostname)
+            self.logfile = "%s%s_%s_app.log" % (root, version, hostname)
         else:
             err = "Unable to determine logfile path: env DL_FLAVOR not set"
             raise EnvironmentError(err)
 
         print "-----------> LOGFILE:", self.logfile
 
-        self.app = None
-        self.threads = {}
+        observer = _MyObserver()
+        self.app = DiscreetAppSubject(self.logfile)
+        self.app.registerObserver(observer)
 
-        # --------------------
-        # THREADS
-        #
-        # self.threads['log'] = LogfileThread(self.logfile)
-        # self.threads['events'] = None
-        # self.threads['osd'] = None
-        # self.threads['gui'] = None
-
-        self.threads['A'] = SampleThread('A', 5)
-        #self.threads['B'] = SampleThread('B', 7)
-        #self.threads['C'] = SampleThread('C', 11)
-
-    def start(self):
-        for thread in self.threads.values():
-            print "STARTING THREAD: %s..." % (thread.name)
-            thread.start()
-
-    def stop(self):
-        for thread in self.threads.values():
-            if thread.isAlive():
-                print "STOPPING THREAD: %s..." % (thread.name)
-                thread.join()
-            else:
-                print "Thread %s was dead\n" % (thread.name)
+    def process(self):
+        LOG.info("Now going to kick off the logwatcher")
+        self.app.operate()
 
 class _MyObserver(Observer):
     def process(self, event):
@@ -71,29 +160,3 @@ class _MyObserver(Observer):
         client = Client()
         client.newAppEvent(appEvent)
 
-class LogfileThread(threading.Thread):
-    def __init__(self, logpath):
-        threading.Thread.__init__(self)
-
-        observer = _MyObserver()
-        self.app = DiscreetAppSubject(logpath, wait=True)
-        self.app.registerObserver(observer)
-
-    def run(self):
-        LOG.info("Now going to kick off the logwatcher")
-        self.app.operate()
-
-class SampleThread(threading.Thread):
-    def __init__(self, name, wait):
-        threading.Thread.__init__(self)
-
-        self.name = name
-        self.wait = wait
-
-    def run(self):
-        import time
-        # while True:
-        for i in range(5):
-            print "Thread %s: hello. [wait: %s]" % (self.name, self.wait)
-            time.sleep(self.wait)
-        print "Thread %s: goodbye." % (self.name)

@@ -33,43 +33,49 @@ class LogSubject(Subject):
     A Subject that generates events for each line appended
     """
 
-    def __init__(self, path, wait=False):
+    def __init__(self, path):
         self._path = path
         self._handle = None
-        self._wait = wait
         Subject.__init__(self)
 
-    def operate(self):
-        LOG.debug("Now watching %s for input" % (self._path))
-        previous = None
+        self._previous = None
         self._handle = self._open()
+        LOG.info("__init__ called for LogSubject")
 
-        while (1):
-            lines = []
-            now = os.stat(self._path)
-            if previous and now.st_ino != previous.st_ino:
-                # make sure there is nothing else to read
-                lines = self._read()
+    def operate(self):
+        LOG.debug("Now watching %s for input (previous: %s)" % (self._path, self._previous))
 
-                LOG.debug("---- RESET ----")
-                self._handle.close()
-                self._handle = self._open()
-                previous = now
-            elif not previous or now.st_mtime > previous.st_mtime:
-                # process lines
-                lines = self._read()
-                previous = now
-            elif self._wait:
-                time.sleep(1)
+        lines = []
+        now = os.stat(self._path)
+
+        if self._previous is not None and now.st_ino != self._previous.st_ino:
+            # make sure there is nothing else to read
+            lines = self._read()
+
+            LOG.debug("---- RESET ----")
+            self._handle.close()
+            self._handle = self._open()
+            self._previous = now
+        elif self._previous is None or now.st_mtime > self._previous.st_mtime:
+            if not self._previous:
+                LOG.debug("self._previous is False")
             else:
-                LOG.info("end of file reached")
-                break
+                LOG.debug("now mtime[%s] _previous mtime[%s]" % (now.st_mtime, self._previous.st_mtime))
 
-            for line in lines:
-                event = self.event(line)
-                self.notifyObservers(event)
+            # process lines
+            lines = self._read()
+            self._previous = now
+            LOG.debug("OK done with the read, previous: %s" % (self._previous))
+        else:
+            LOG.info("end of file reached")
+
+        for line in lines:
+            print "GOT ", line
+            event = self.event(line)
+            self.notifyObservers(event)
 
     def _open(self):
+        LOG.info("_open called for %s" % (self._path))
         return open(self._path, 'r')
 
     def _read(self):
@@ -99,13 +105,32 @@ class DiscreetAppSubject(Subject):
 
     Arguments:
         logpath: the path of the logfile
-        wait: if True, then don't exit when EOF reached and wait for more lines
     """
 
-    def __init__(self, logpath, wait=False):
+    def __init__(self, logpath):
         Subject.__init__(self)
+
         self._logpath = logpath
-        self._wait = wait
+        self.log = DiscreetLogSubject(self._logpath)
+
+        # app state events
+        self.log.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
+        self.log.registerObserver(DiscreetSpecifyProject(self.cbSpecifyProject))
+        self.log.registerObserver(DiscreetSpecifyVolume(self.cbSpecifyVolume))
+        self.log.registerObserver(DiscreetSpecifyUser(self.cbSpecifyUser))
+
+        # setup events
+        self.log.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
+        self.log.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
+
+        # batch processing events
+        self.log.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
+        self.log.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
+
+        # flushing events
+        self.log.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
+        self.log.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
+        self.log.registerObserver(DiscreetAppExit(self.cbAppExit))
 
         self.resetAppState()
         self.resetBatchState()
@@ -146,28 +171,7 @@ class DiscreetAppSubject(Subject):
         return os.path.basename(setup)
 
     def operate(self):
-        subject = DiscreetLogSubject(self._logpath, wait = self._wait)
-
-        # app state events
-        subject.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
-        subject.registerObserver(DiscreetSpecifyProject(self.cbSpecifyProject))
-        subject.registerObserver(DiscreetSpecifyVolume(self.cbSpecifyVolume))
-        subject.registerObserver(DiscreetSpecifyUser(self.cbSpecifyUser))
-
-        # setup events
-        subject.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
-        subject.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
-
-        # batch processing events
-        subject.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
-        subject.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
-
-        # flushing events
-        subject.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
-        subject.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
-        subject.registerObserver(DiscreetAppExit(self.cbAppExit))
-
-        subject.operate()
+        self.log.operate()
 
     def cbSpecifyHostname(self, hostname, **kwargs):
         """
