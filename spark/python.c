@@ -6,17 +6,12 @@
 void initxyzzy(void); /* Forward */
 
 void* PyModule;
-
-int gUnloadPython = 0;
 PyThreadState *tstate = NULL;
 
 void PythonInitialize(void)
 {
     int argc = 1;
     char *argv[1];
-
-    PyThreadState *mainThreadState = NULL;
-    PyInterpreterState *mainInterpreterState = NULL;
 
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
     if (!PyModule) {
@@ -29,90 +24,76 @@ void PythonInitialize(void)
 
     printf("********** NOW GOING TO INIT PYTHON *****************\n");
 
-    if (Py_IsInitialized()) {
-        printf("************ Python was already loaded ************\n");
-        gUnloadPython = 0;
-    } else {
-        printf("************ never before initialized! ************\n");
-        gUnloadPython = 1;
+    // Initialize the Python interpreter.  Required.
+    printf("Py_Initialize...\n");
+    Py_Initialize();
 
-        // Initialize the Python interpreter.  Required.
-        printf("Py_Initialize...\n");
-        Py_Initialize();
+    // Create (and acquire) the interpreter lock
+    printf("PyEval_InitThreads...\n");
+    PyEval_InitThreads();
 
-        // Initialize thread support
-        printf("PyEval_InitThreads...\n");
-        PyEval_InitThreads();
+    // create a brand spankin new interpreter
+    // XXX the current PyThreadState* is returned
+    // tstate = Py_NewInterpreter();
+    // if (NULL == tstate) {
+    //     gUnloadPython = 0;
+    //     Py_FatalError("Unable to initialize Python interpreter.");
+    //     return;
+    // }
 
-        // save a pointer to the main PyThreadState object
-        // mainThreadState = PyThreadState_Get();
+    // save a pointer to the main PyThreadState object
+    // mainThreadState = PyThreadState_Get();
 
-        // get a reference to the PyInterpreterState
-        // mainInterpreterState = mainThreadState->interp;
+    // get a reference to the PyInterpreterState
+    // mainInterpreterState = mainThreadState->interp;
 
-        // create a thread state object for this thread
-        // PyThreadState_New(mainInterpreterState);
+    // create a thread state object for this thread
+    // PyThreadState_New(mainInterpreterState);
 
-        // XXX Do I care about
-        // PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
+    // XXX Do I care about
+    // PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
 
-        printf("Hello, brave new world\n\n");
+    printf("Hello, brave new world\n\n");
 
-        printf("----------- what is sys ------------\n");
-        PyRun_SimpleString("print 'sys is:', sys\n");
-        printf("----------- going to import sys ------------\n");
-        PyRun_SimpleString("import sys\n");
-        printf("----------- going to append ------------\n");
-        PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
-        PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
-        PyRun_SimpleString("print 'after:', sys.path\n");
+    printf("----------- what is sys ------------\n");
+    PyRun_SimpleString("print 'sys is:', sys\n");
+    printf("----------- going to import sys ------------\n");
+    PyRun_SimpleString("import sys\n");
+    printf("----------- going to append ------------\n");
+    PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
+    PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
+    PyRun_SimpleString("print 'after:', sys.path\n");
 
-        PyRun_SimpleString("import threading\n");
-        PyRun_SimpleString("import sitecustomize\n");
+    PyRun_SimpleString("import threading\n");
+    PyRun_SimpleString("import sitecustomize\n");
 
-        PyRun_SimpleString("import instinctual\n");
-        PyRun_SimpleString("import instinctual.informer\n");
-        PyRun_SimpleString("from instinctual.informer.spark import Spark\n");
-        PyRun_SimpleString("SPARK = Spark()\n");
-        PyRun_SimpleString("SPARK.start()\n");
+    PyRun_SimpleString("import instinctual\n");
+    PyRun_SimpleString("import instinctual.informer\n");
+    PyRun_SimpleString("from instinctual.informer.spark import Spark\n");
+    PyRun_SimpleString("SPARK = Spark()\n");
+    PyRun_SimpleString("SPARK.start()\n");
 
-        PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
+    PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
 
-        tstate = PyEval_SaveThread();
-    }
+    tstate = PyEval_SaveThread();
 }
 
 void PythonExit(void)
 {
-    PyThreadState *tempState = NULL;
-
     printf("********** NOW GOING TO EXIT PYTHON *****************\n");
 
-    if (gUnloadPython == 1) {
-        printf("(((( i loaded it. now unloading python ))))\n");
+    PyEval_RestoreThread(tstate);
 
-        PyEval_RestoreThread(tstate);
+    PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
+    PyRun_SimpleString("SPARK.stop()\n");
+    PyRun_SimpleString("del SPARK\n");
 
-        PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
-        PyRun_SimpleString("SPARK.stop()\n");
+    printf("Now finalizing python...\n");
+    // Py_Finalize();
+    printf("python was finalized\n");
 
-        // swap my thread state out of the interpreter
-        // PyThreadState_Swap(NULL);
-
-        // clear out any cruft from thread state object
-        // PyThreadState_Clear(tstate);
-
-        // delete my thread state object
-        // PyThreadState_Delete(tstate);
-
-        Py_Finalize();
-        printf("python was finalized\n");
-
-        dlclose(PyModule);
-        printf("dlclose was called\n");
-    } else {
-        printf("---> gUnloadPython was false -- not doing shit\n");
-    }
+    // dlclose(PyModule);
+    printf("dlclose was called\n");
 
     printf("\nGoodbye, cruel world\n");
 }

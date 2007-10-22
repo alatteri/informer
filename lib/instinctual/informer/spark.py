@@ -5,6 +5,7 @@ import Queue
 import commands
 import threading
 
+threading._VERBOSE = True
 
 import instinctual
 import instinctual.informer
@@ -30,11 +31,11 @@ class Spark(object):
         # self.threads['events'] = None
         # self.threads['osd'] = None
         # self.threads['gui'] = None
-
+        #
         self.scheduler.register(SparkThread('A'), 5)
         self.scheduler.register(SparkThread('B'), 13)
         self.scheduler.register(SparkThread('C'), 17)
-        self.scheduler.register(LogfileThread('logfile'), 1)
+        # self.scheduler.register(LogfileThread('logfile'), 1)
 
     def start(self):
         self.scheduler.queue.put('process')
@@ -42,6 +43,15 @@ class Spark(object):
 
     def stop(self):
         self.scheduler.queue.put('stop')
+        if self.scheduler.isAlive():
+            print "STOPPING INTERPRETER..."
+            self.scheduler.join()
+        else:
+            print "scheduler was dead."
+
+        for t in self.scheduler.threads.values():
+            print "Thread [%s] is alive %s" % (t.name, t.isAlive())
+        print "the scheduler is alive %s" % (self.scheduler.isAlive())
 
 class SparkThread(threading.Thread):
     def __init__(self, name):
