@@ -32,14 +32,13 @@ void PythonInitialize(void)
     printf("PyEval_InitThreads...\n");
     PyEval_InitThreads();
 
-    // create a brand spankin new interpreter
     // XXX the current PyThreadState* is returned
-    // tstate = Py_NewInterpreter();
-    // if (NULL == tstate) {
-    //     gUnloadPython = 0;
-    //     Py_FatalError("Unable to initialize Python interpreter.");
-    //     return;
-    // }
+    // create a brand spankin new interpreter
+    tstate = Py_NewInterpreter();
+    if (NULL == tstate) {
+        Py_FatalError("Unable to initialize Python interpreter.");
+        return;
+    }
 
     // save a pointer to the main PyThreadState object
     // mainThreadState = PyThreadState_Get();
@@ -88,9 +87,42 @@ void PythonExit(void)
     PyRun_SimpleString("SPARK.stop()\n");
     PyRun_SimpleString("del SPARK\n");
 
-    printf("Now finalizing python...\n");
+    // This crashes with:
+    // Ending the interpreter...
+    // Fatal Python error: Py_EndInterpreter: not the last thread
+    // Application: flame 2008 x86_64
+    // Error: abnormal termination, signal = 6
+    // SIGABRT - Abort
+    // Unknown user initiated signa
+    // Killed
+    //
+    // printf("Ending the interpreter...\n");
+    // Py_EndInterpreter(tstate);
+
+
+    // This crashes with
+    // flame_LINUX_2.6_x86_64: Python/ceval.c:765: eval_frame:
+    //      Assertion `(stack_pointer - f->f_valuestack) <= f->f_stacksize' failed.
+    //
+    // #0  0x00000032f7f2e37d in raise () from /lib64/tls/libc.so.6
+    // #1  0x00000032f7f2faae in abort () from /lib64/tls/libc.so.6
+    // #2  0x00000032f7f27c31 in __assert_fail () from /lib64/tls/libc.so.6
+    // #3  0x0000002a9f5e7952 in _PyEval_SliceIndex () from /usr/lib64/libpython2.3.so.1.0
+    // #4  0x0000002a9f5e8ba1 in _PyEval_SliceIndex () from /usr/lib64/libpython2.3.so.1.0
+    // #5  0x0000002a9f5ea250 in PyEval_EvalCodeEx () from /usr/lib64/libpython2.3.so.1.0
+    // #6  0x0000002a9f5a6d8d in PyFunction_SetClosure () from /usr/lib64/libpython2.3.so.1.0
+    // #7  0x0000002a9f594380 in PyObject_Call () from /usr/lib64/libpython2.3.so.1.0
+    // #8  0x0000002a9f59b9ab in PyMethod_New () from /usr/lib64/libpython2.3.so.1.0
+    // #9  0x0000002a9f594380 in PyObject_Call () from /usr/lib64/libpython2.3.so.1.0
+    // #10 0x0000002a9f5e3b29 in PyEval_CallObjectWithKeywords () from /usr/lib64/libpython2.3.so.1.0
+    // #11 0x0000002a9f60aebd in _PyObject_GC_Del () from /usr/lib64/libpython2.3.so.1.0
+    // #12 0x0000002a97ba20aa in start_thread () from /lib64/tls/libpthread.so.0
+    // #13 0x00000032f7fc5b43 in clone () from /lib64/tls/libc.so.6
+    // #14 0x0000000000000000 in ?? ()
+
+    // printf("Now finalizing python...\n");
     // Py_Finalize();
-    printf("python was finalized\n");
+    // printf("python was finalized\n");
 
     // dlclose(PyModule);
     printf("dlclose was called\n");
