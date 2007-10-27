@@ -203,16 +203,20 @@ rgb.o : rgb.c rgb.h
 	@echo "MAKING RGB..."
 	cc $(CFLAGS) -c rgb.c
 
+gateway.o : gateway.c gateway.h
+	@echo "MAKING GATEWAY..."
+	cc $(CFLAGS) -I$(PYINC) -c gateway.c
+
 python.o : python.c python.h
 	@echo "MAKING PYTHON..."
-	cc $(CFLAGS) -I$(PYINC) -c -o python.o python.c
+	cc $(CFLAGS) -I$(PYINC) -c python.c
 
 $(SFILES) : $(OFILES)
-$(OFILES) : %.o : %.c spark.h rgb.o python.o
+$(OFILES) : %.o : %.c spark.h rgb.o python.o gateway.o
 	@echo ""
 	@echo "MAKING SPARK ..."
-	cc $(CFLAGS) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
-	ld -export-dynamic python.o /usr/lib64/libpython2.3.so  -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+	cc $(CFLAGS) -I$(PYINC) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
+	ld -export-dynamic python.o /usr/lib64/libpython2.3.so  -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o gateway.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 	ln -f $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION) ../../$(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 # $(SFILES_C++) : $(OFILES_C++)

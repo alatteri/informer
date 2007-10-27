@@ -1,17 +1,20 @@
 /* Example of embedding Python in another program */
 
 #include <Python.h>
+#include <stdio.h>
 #include <dlfcn.h>
-
-void initxyzzy(void); /* Forward */
+#include "python.h"
 
 void* PyModule;
-PyThreadState *tstate = NULL;
+PyThreadState *TSTATE = NULL;
+PyObject *SPARK = NULL;
 
 void PythonInitialize(void)
 {
     int argc = 1;
     char *argv[1];
+
+    PyObject *pName, *pModule, *pFunc, *pResult;
 
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
     if (!PyModule) {
@@ -34,8 +37,8 @@ void PythonInitialize(void)
 
     // XXX the current PyThreadState* is returned
     // create a brand spankin new interpreter
-    tstate = Py_NewInterpreter();
-    if (NULL == tstate) {
+    TSTATE = Py_NewInterpreter();
+    if (NULL == TSTATE) {
         Py_FatalError("Unable to initialize Python interpreter.");
         return;
     }
@@ -63,29 +66,81 @@ void PythonInitialize(void)
     PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
     PyRun_SimpleString("print 'after:', sys.path\n");
 
-    PyRun_SimpleString("import threading\n");
     PyRun_SimpleString("import sitecustomize\n");
 
     PyRun_SimpleString("import instinctual\n");
     PyRun_SimpleString("import instinctual.informer\n");
-    PyRun_SimpleString("from instinctual.informer.spark import Spark\n");
-    PyRun_SimpleString("SPARK = Spark()\n");
-    PyRun_SimpleString("SPARK.start()\n");
+    // PyRun_SimpleString("import instinctual.informer.spark\n");
+
+
+    // Load the Spark module
+    printf("Now importing instinctual.informer.spark...\n");
+    pName = PyString_FromString("instinctual.informer.spark");
+    pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+
+    if (pModule == NULL) {
+        PyErr_Print();
+        fprintf(stderr, "Failed to load pModule\n");
+        return;
+    }
+
+    // Access the Spark's constructor
+    printf("pModule was not NULL\n");
+    pFunc = PyObject_GetAttrString(pModule, "Spark");
+
+    if (!pFunc || !PyCallable_Check(pFunc)) {
+        PyErr_Print();
+        fprintf(stderr, "Cannot find function Spark\n");
+
+        Py_XDECREF(pFunc);
+        Py_DECREF(pModule);
+        return;
+    }
+
+    // Instantiate the Spark object
+    SPARK = PyObject_CallObject(pFunc, NULL);
+    if (SPARK == NULL) {
+        PyErr_Print();
+        fprintf(stderr,"Could not create SPARK object\n");
+
+        Py_XDECREF(pFunc);
+        Py_DECREF(pModule);
+        return;
+    }
+
+    Py_XDECREF(pFunc);
+    Py_DECREF(pModule);
+
+    // Kick off the spark
+    SparkStart(SPARK);
 
     PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
+    PythonEndCall();
+}
 
-    tstate = PyEval_SaveThread();
+void PythonBeginCall(void)
+{
+    PyEval_RestoreThread(TSTATE);
+}
+
+void PythonEndCall(void)
+{
+    TSTATE = PyEval_SaveThread();
 }
 
 void PythonExit(void)
 {
+    PyObject *spark;
+
     printf("********** NOW GOING TO EXIT PYTHON *****************\n");
 
-    PyEval_RestoreThread(tstate);
+    PythonBeginCall();
 
     PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
-    PyRun_SimpleString("SPARK.stop()\n");
-    PyRun_SimpleString("del SPARK\n");
+    spark = SparkGetSpark();
+    SparkStop(spark);
+    Py_DECREF(spark);
 
     // This crashes with:
     // Ending the interpreter...
@@ -97,7 +152,7 @@ void PythonExit(void)
     // Killed
     //
     // printf("Ending the interpreter...\n");
-    // Py_EndInterpreter(tstate);
+    // Py_EndInterpreter(TSTATE);
 
 
     // This crashes with
@@ -130,25 +185,34 @@ void PythonExit(void)
     printf("\nGoodbye, cruel world\n");
 }
 
-/* A static module */
-
-/* 'self' is not used */
-static PyObject *
-xyzzy_foo(PyObject *self, PyObject* args)
+int
+SparkStart(PyObject *spark)
 {
-    return PyInt_FromLong(42L);
+    PyObject *pResult;
+    pResult = PyObject_CallMethod(spark, "start", NULL);
+
+    if (NULL == pResult)
+        return FALSE;
+
+    Py_XDECREF(pResult);
+    return TRUE;
 }
 
-static PyMethodDef xyzzy_methods[] = {
-    {"foo",     xyzzy_foo,  METH_NOARGS,
-     "Return the meaning of everything."},
-    {NULL,      NULL}       /* sentinel */
-};
-
-void
-initxyzzy(void)
+int
+SparkStop(PyObject *spark)
 {
-    PyImport_AddModule("xyzzy");
-    Py_InitModule("xyzzy", xyzzy_methods);
+    PyObject *pResult;
+    pResult = PyObject_CallMethod(spark, "stop", NULL);
+
+    if (NULL == pResult)
+        return FALSE;
+
+    Py_XDECREF(pResult);
+    return TRUE;
 }
 
+PyObject *
+SparkGetSpark(void)
+{
+    return SPARK;
+}
