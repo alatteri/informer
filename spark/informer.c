@@ -404,7 +404,7 @@ SparkEvent(SparkModuleEvent spark_event)
         InformerSetAppMode(app, INFORMER_APP_MODE_ELEMS);
 
         if (FALSE == app->elems_data_been_read) {
-            InformerGatewayGetElems();
+            InformerGetElems();
         }
     }
 }
@@ -560,21 +560,63 @@ InformerGetNotes(void)
     setup = InformerGetSetupPath();
     result = GatewayGetNotes(setup, app->notes_data);
 
+    InformerTableHideAllRows();
+
     if (result < 0) {
         // TODO: What should happen here?
         InformerERROR("Unable to get notes from the database\n");
+        app->notes_data_count = 0;
+        app->notes_data_been_read = FALSE;
+        app->notes_ui_table.cur_page = 1;
         return FALSE;
     }
 
     InformerDEBUG("All notes read ok. Word up.\n");
-
-    InformerTableHideAllRows();
 
     app->notes_data_count = result;
     app->notes_data_been_read = TRUE;
     app->notes_ui_table.cur_page = 1;
 
     InformerNoteDataSort();
+    InformerTableRefreshUI();
+
+    return TRUE;
+}
+
+int
+InformerGetElems(void)
+{
+    int result;
+    const char *setup;
+    InformerAppStruct *app = InformerGetApp();
+
+    if (INFORMER_APP_STATE_OK != app->app_state) {
+        InformerDEBUG("Not calling GetElems: app state is not OK\n");
+        return FALSE;
+    }
+
+    sparkMessage(GET_ELEMS_WAIT);
+    setup = InformerGetSetupPath();
+    result = GatewayGetElems(setup, app->elems_data);
+
+    InformerTableHideAllRows();
+
+    if (result < 0) {
+        // TODO: What should happen here?
+        InformerERROR("Unable to get elements from the database\n");
+        app->elems_data_count = 0;
+        app->elems_data_been_read = FALSE;
+        app->elems_ui_table.cur_page = 1;
+        return FALSE;
+    }
+
+    InformerDEBUG("All elements read ok. Word up.\n");
+
+    app->elems_data_count = result;
+    app->elems_data_been_read = TRUE;
+    app->elems_ui_table.cur_page = 1;
+
+    InformerElemDataSort();
     InformerTableRefreshUI();
 
     return TRUE;
@@ -620,7 +662,7 @@ InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 
     if (INFORMER_ELEM_MODE_REFRESH == mode) {
         app->app_state = INFORMER_APP_STATE_OK;
-        InformerGatewayGetElems();
+        InformerGetElems();
     }
 
     return NULL;

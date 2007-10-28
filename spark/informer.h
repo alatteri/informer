@@ -190,6 +190,7 @@ InformerNoteModeChoice InformerGetNoteUIMode(void);
 void InformerTableButtonEvent(InformerTableButtonChoice button);
 
 int InformerGetNotes(void);
+int InformerGetElems(void);
 
 int InformerNoteDataExport(InformerNoteData *note, char *filepath);
 int InformerElemDataExport(InformerElemData *note, char *filepath);

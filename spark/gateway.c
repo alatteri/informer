@@ -3,31 +3,6 @@
 #include <stdlib.h>
 
 int
-InformerGatewayGetElems(void)
-{
-    return FALSE;
-//    InformerAppStruct *app = InformerGetApp();
-//    sparkMessage(GET_ELEMS_WAIT);
-//    InformerTableHideAllRows();
-//
-//    if (INFORMER_APP_STATE_OK == app->app_state) {
-//        if (TRUE == InformerGatewayCall("get_elements", NULL, "/tmp/trinity20")) {
-//            if (TRUE == InformerGatewayImportElems("/tmp/trinity20", 0, TRUE)) {
-//                app->elems_data_been_read = TRUE;
-//                InformerTableRefreshUI();
-//                return TRUE;
-//            } else {
-//                // TODO: What should happen here?
-//                InformerERROR("Unable to get elements from the database\n");
-//                return FALSE;
-//            }
-//        }
-//    } else {
-//        InformerDEBUG("Not calling GetElems: app state is not OK\n");
-//    }
-}
-
-int
 InformerGatewayUpdateNote(int index, int note_id, int is_checked)
 {
 //    InformerNoteData data = InformerCreateNoteData();
@@ -250,11 +225,29 @@ InformerGatewayCall(char *action, char *infile, char *outfile)
 //    }
 }
 
+void
+GatewayPyStringToInt(PyObject *obj, int *data)
+{
+    *data = atoi(PyString_AsString(obj));
+}
+
+void
+GatewayPyStringToLong(PyObject *obj, long int *data)
+{
+    *data = atol(PyString_AsString(obj));
+}
+
+void
+GatewayPyStringToString(PyObject *obj, char *data, int max_length)
+{
+    strncpy(data, PyString_AsString(obj), max_length);
+}
+
 int
 GatewayGetNotes(const char *setup, InformerNoteData *data)
 {
     int i, count;
-    PyObject *spark, *pNotes, *pItem;
+    PyObject *spark, *pNotes, *pItem, *pAttr;
 
     printf("---------__>>>.> CALLING GATEWAY GET NOTES M<<<,--_________b\n");
 
@@ -268,23 +261,46 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
     if (pNotes && PyList_Check(pNotes)) {
         count = PyList_Size(pNotes);
         printf("There were %d notes!\n", count);
+
         for (i=0; i<count; i++) {
             // pItem is a borrowed ref.
             pItem = PyList_GetItem(pNotes, i);
+
             printf("going to set id\n");
-            data[i].id = atoi(PyString_AsString(PyObject_GetAttrString(pItem, "id")));
+            pAttr = PyObject_GetAttrString(pItem, "id");
+            GatewayPyStringToInt(pAttr, &(data[i].id));
+            Py_XDECREF(pAttr);
+
             printf("going to set text\n");
-            strncpy(data[i].text, PyString_AsString(PyObject_GetAttrString(pItem, "text")), 4096);
-            printf("going to set is_checked with [%s]\n", PyString_AsString(PyObject_GetAttrString(pItem, "is_checked")));
-            data[i].is_checked = atoi(PyString_AsString(PyObject_GetAttrString(pItem, "is_checked")));
+            pAttr = PyObject_GetAttrString(pItem, "text");
+            GatewayPyStringToString(pAttr, data[i].text, 4096);
+            Py_XDECREF(pAttr);
+
+            printf("going to set is_checked\n");
+            pAttr = PyObject_GetAttrString(pItem, "is_checked");
+            GatewayPyStringToInt(pAttr, &(data[i].is_checked));
+            Py_XDECREF(pAttr);
+
             printf("going to set created_by\n");
-            strncpy(data[i].created_by, PyString_AsString(PyObject_GetAttrString(pItem, "created_by")), 32);
+            pAttr = PyObject_GetAttrString(pItem, "created_by");
+            GatewayPyStringToString(pAttr, data[i].created_by, 32);
+            Py_XDECREF(pAttr);
+
             printf("going to set created_on\n");
-            data[i].created_on = atol(PyString_AsString(PyObject_GetAttrString(pItem, "created_on")));
-            printf("going to set modified_on\n");
-            strncpy(data[i].modified_by, PyString_AsString(PyObject_GetAttrString(pItem, "modified_by")), 32);
+            pAttr = PyObject_GetAttrString(pItem, "created_on");
+            GatewayPyStringToLong(pAttr, &(data[i].created_on));
+            Py_XDECREF(pAttr);
+
             printf("going to set modified_by\n");
-            data[i].modified_on = atol(PyString_AsString(PyObject_GetAttrString(pItem, "modified_on")));
+            pAttr = PyObject_GetAttrString(pItem, "modified_by");
+            GatewayPyStringToString(pAttr, data[i].modified_by, 32);
+            Py_XDECREF(pAttr);
+
+            printf("going to set modified_on\n");
+            pAttr = PyObject_GetAttrString(pItem, "modified_on");
+            GatewayPyStringToLong(pAttr, &(data[i].modified_on));
+            Py_XDECREF(pAttr);
+
             printf("... read note [%d] ok!\n", i);
         }
     } else {
@@ -295,113 +311,70 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
     PythonEndCall();
 
     return count;
-
-//    FILE *fp;
-//    int i = 0;
-//    int count = 0;
-//    int result = 1;
-//    InformerAppStruct *app = InformerGetApp();
-//
-//    InformerDEBUG("ImportNotes: here we go. reading datafile [%s], index [%d], update? [%d]\n",
-//                  filepath, index, update_count);
-//
-//    if ((fp=fopen(filepath, "r")) == NULL) {
-//        InformerERROR("%s: can't open datafile [%s]: %s",
-//                      GATEWAY_STATUS_ERR, filepath, strerror(errno));
-//        return FALSE;
-//    }
-//
-//    /*
-//        read the data file:
-//        - first line is number of note objects (not lines...)
-//        - entries are of form
-//            key: value
-//    */
-//    result = fscanf(fp, "%d%*1[\n]", &count);
-//    if (1 != result) {
-//        InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-//        return FALSE;
-//    }
-//
-//    InformerDEBUG("OK there are %d entries\n", count);
-//
-//    for (i=0; i<count; i++) {
-//        /* skip the "key:" read the value */
-//        if (TRUE == InformerFileReadValAsInt(fp,    &(app->notes_data[index+i].id)) &&
-//            TRUE == InformerFileReadValAsString(fp, app->notes_data[index+i].text) &&
-//            TRUE == InformerFileReadValAsInt(fp,    &(app->notes_data[index+i].is_checked)) &&
-//            TRUE == InformerFileReadValAsString(fp, app->notes_data[index+i].created_by) &&
-//            TRUE == InformerFileReadValAsLong(fp,   &(app->notes_data[index+i].created_on)) &&
-//            TRUE == InformerFileReadValAsString(fp, app->notes_data[index+i].modified_by) &&
-//            TRUE == InformerFileReadValAsLong(fp,   &(app->notes_data[index+i].modified_on))) {
-//            /* looking good -- keep going */
-//            InformerDEBUG("... read note [%d] ok!\n", i);
-//        } else {
-//            InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-//            return FALSE;
-//        }
-//    }
-//
-//    return TRUE;
 }
 
 int
-InformerGatewayImportElems(char *filepath, int index, int update_count)
+GatewayGetElems(const char *setup, InformerElemData *data)
 {
-    return FALSE;
-//    FILE *fp;
-//    int i = 0;
-//    int count = 0;
-//    int result = 1;
-//    InformerAppStruct *app = InformerGetApp();
-//
-//    InformerDEBUG("ImportElems: here we go. reading datafile [%s], index [%d], update? [%d]\n",
-//                  filepath, index, update_count);
-//
-//    if ((fp=fopen(filepath, "r")) == NULL) {
-//        InformerERROR("%s: can't open datafile [%s]: %s",
-//                      GATEWAY_STATUS_ERR, filepath, strerror(errno));
-//        return FALSE;
-//    }
-//
-//    /*
-//        read the data file:
-//        - first line is number of note objects (not lines...)
-//        - entries are of form
-//            key: value
-//    */
-//    result = fscanf(fp, "%d%*1[\n]", &count);
-//    if (1 != result) {
-//        InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-//        return FALSE;
-//    }
-//
-//    InformerDEBUG("OK there are %d entries\n", count);
-//
-//    for (i=0; i<count; i++) {
-//        /* skip the "key:" read the value */
-//        if (TRUE == InformerFileReadValAsInt(fp,    &(app->elems_data[index+i].id)) &&
-//            TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].kind) &&
-//            TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].text) &&
-//            TRUE == InformerFileReadValAsInt(fp,    &(app->elems_data[index+i].is_checked)) &&
-//            TRUE == InformerFileReadValAsString(fp, app->elems_data[index+i].created_by) &&
-//            TRUE == InformerFileReadValAsLong(fp,   &(app->elems_data[index+i].created_on))) {
-//            /* looking good -- keep going */
-//            InformerDEBUG("... read elemens [%d] ok!\n", i);
-//        } else {
-//            InformerERROR("%s: can't parse datafile [%s]", GATEWAY_STATUS_ERR, filepath);
-//            return FALSE;
-//        }
-//    }
-//
-//    if (TRUE == update_count) {
-//        app->elems_ui_table.cur_page = 1;
-//        app->elems_data_count = count;
-//    }
-//
-//    InformerElemDataSort();
-//    InformerDEBUG("All elements read ok. Word up.\n");
-//
-//    return TRUE;
+    int i, count;
+    PyObject *spark, *pElems, *pItem, *pAttr;
+
+    printf("--------- CALLING GATEAY GET ELEMS -------------\n");
+
+    count = -1;
+    PythonBeginCall();
+    spark = SparkGetSpark();
+
+    printf("About to make the call for getElements [%s]\n", setup);
+    pElems = PyObject_CallMethod(spark, "getElements", "s", setup);
+
+    if (pElems && PyList_Check(pElems)) {
+        count = PyList_Size(pElems);
+        printf("There were %d elements!\n", count);
+
+        for (i=0; i<count; i++) {
+            // pItem is a borrowed ref.
+            pItem = PyList_GetItem(pElems, i);
+
+            printf("going to set id\n");
+            pAttr = PyObject_GetAttrString(pItem, "id");
+            GatewayPyStringToInt(pAttr, &(data[i].id));
+            Py_XDECREF(pAttr);
+
+            printf("going to set kind\n");
+            pAttr = PyObject_GetAttrString(pItem, "kind");
+            GatewayPyStringToString(pAttr, data[i].kind, 4096);
+            Py_XDECREF(pAttr);
+
+            printf("going to set text\n");
+            pAttr = PyObject_GetAttrString(pItem, "text");
+            GatewayPyStringToString(pAttr, data[i].text, 4096);
+            Py_XDECREF(pAttr);
+
+            printf("going to set is_checked\n");
+            pAttr = PyObject_GetAttrString(pItem, "is_checked");
+            GatewayPyStringToInt(pAttr, &(data[i].is_checked));
+            Py_XDECREF(pAttr);
+
+            printf("going to set created_by\n");
+            pAttr = PyObject_GetAttrString(pItem, "created_by");
+            GatewayPyStringToString(pAttr, data[i].created_by, 32);
+            Py_XDECREF(pAttr);
+
+            printf("going to set created_on\n");
+            pAttr = PyObject_GetAttrString(pItem, "created_on");
+            GatewayPyStringToLong(pAttr, &(data[i].created_on));
+            Py_XDECREF(pAttr);
+
+            printf("... read element [%d] ok!\n", i);
+        }
+    } else {
+        printf("------- ERROR MAKING CALL TODO XXX ---------\n");
+    }
+
+    Py_XDECREF(pElems);
+    PythonEndCall();
+
+    return count;
 }
 
