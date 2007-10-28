@@ -3,7 +3,7 @@ from datetime import datetime
 from xml.dom import pulldom
 
 # This code is mirrored from django/core/serializers/xml_serializer.py
-# this was done to remove a dependency on the djanog code on the client
+# this was done to remove a dependency on the Django code on the client
 
 
 class DeserializedObject(object):
@@ -50,15 +50,16 @@ class Deserializer(object):
                 pass
             elif 'BooleanField' == field_type:
                 if 'True' == field_val or '1' == field_val:
-                    field_val = True
+                    field_val = '1'
                 elif 'False' == field_val or '0' == field_val:
-                    field_val = False
+                    field_val = '0'
                 else:
                     err = "BooleanField (%s) was not 'True' or 'False': %s"
                     raise ValueError(err % (field_name, field_val))
             elif 'DateTimeField' == field_type:
                 fmt = '%Y-%m-%d %H:%M:%S'
                 field_val = datetime(*time.strptime(field_val, fmt)[:6])
+                field_val = str(time.mktime(field_val.timetuple()))
             else:
                 # TODO: add support as new fields come up
                 raise ValueError("Unspecified field_type: %s" % (field_type))

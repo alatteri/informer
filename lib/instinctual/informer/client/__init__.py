@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # The following line is needed to eval(data) from python requests
+import time
 import datetime
 
 import instinctual
@@ -85,7 +86,7 @@ class Client(object):
         notes = self._getObjects(deserializer)
         return notes
 
-    def newNote(self, setup, data):
+    def createNote(self, setup, data):
         if 'id' in data:
             del data['id']
 

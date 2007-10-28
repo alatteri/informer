@@ -622,6 +622,54 @@ InformerGetElems(void)
     return TRUE;
 }
 
+int
+InformerUpdateNote(int index, int id, int is_checked)
+{
+    const char *setup;
+    char username[USERNAME_MAX];
+    InformerNoteData *data;
+    InformerAppStruct *app = InformerGetApp();
+
+    if (TRUE != InformerGetCurrentUser(username, USERNAME_MAX)) {
+        InformerERROR("Unable to determine the current user");
+        return FALSE;
+    }
+
+    data = &(app->notes_data[index]);
+    setup = InformerGetSetupPath();
+    sparkMessage(UPDATE_NOTE_WAIT);
+
+    if (TRUE == GatewayUpdateNote(setup, data, id, is_checked, username)) {
+        InformerTableRefreshUI();
+        return TRUE;
+    } else {
+        // TODO: what to do here exactly?
+        InformerERROR("Unable to update note\n");
+        return FALSE;
+    }
+}
+
+int
+InformerUpdateElem(int index, int id, int is_checked)
+{
+    const char *setup;
+    InformerElemData *data;
+    InformerAppStruct *app = InformerGetApp();
+
+    data = &(app->elems_data[index]);
+    setup = InformerGetSetupPath();
+    sparkMessage(UPDATE_ELEM_WAIT);
+
+    if (TRUE == GatewayUpdateElem(setup, data, id, is_checked)) {
+        InformerTableRefreshUI();
+        return TRUE;
+    } else {
+        // TODO: what to do here exactly?
+        InformerERROR("Unable to update element\n");
+        return FALSE;
+    }
+}
+
 InformerNoteModeChoice
 InformerGetNoteUIMode(void)
 {
@@ -743,32 +791,42 @@ static unsigned long *
 InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     char *input;
+    const char *setup;
+    char username[USERNAME_MAX];
     InformerAppStruct *app = InformerGetApp();
-    InformerNoteData note_data = InformerCreateNoteData();
 
     input = app->notes_ui_create.ui->Value;
+
+    ///////////////////////////////////////////////////////////////
+    // XXX THIS CAN NOT CALL ERROR OR YOU WILL NEVER
+    // XXX EXIT THE KEYBOARD!  THIS MUST RETURN
+    ///////////////////////////////////////////////////////////////
+    // XXX InformerERROR Can not be used!
+    ///////////////////////////////////////////////////////////////
 
     if (strncmp("", input, SPARK_MAX_STRING_LENGTH) == 0) {
         // ignore -- nothing was entered
         InformerDEBUG("Ignoring empty input\n");
     } else {
-        sparkMessage(CREATE_NOTE_WAIT);
         InformerDEBUG("New note text was entered\n");
         InformerDEBUG("The text value is: [%s]\n", input);
 
-        if (TRUE != InformerGetCurrentUser(note_data.created_by, USERNAME_MAX)) {
-            InformerERROR("Unable to determine the current user\n");
-            return FALSE;
+        if (TRUE != InformerGetCurrentUser(username, USERNAME_MAX)) {
+            app->app_state = INFORMER_APP_STATE_ERR;
+            sparkMessageDelay(5000, "Unable to determine the current user");
+            return NULL;
         }
 
-        note_data.is_checked = 0;
-        sprintf(note_data.text, "%s", input);
-        sprintf(note_data.modified_by, "%s", note_data.created_by);
+        setup = InformerGetSetupPath();
+        sparkMessage(CREATE_NOTE_WAIT);
 
-        if (TRUE == InformerNoteDataExport(&note_data, "/tmp/trinity8")) {
-            if (TRUE == InformerGatewayCall("new_note", "/tmp/trinity8", NULL)) {
-                InformerGetNotes();
-            }
+        if (TRUE == GatewayCreateNote(setup, 0, input, username)) {
+            InformerGetNotes();
+        } else {
+            // TODO: What should happen here?
+            // InformerERROR("Unable to create your note\n");
+            app->app_state = INFORMER_APP_STATE_ERR;
+            sparkMessageDelay(5000, "Unable to create your note");
         }
     }
 
@@ -1262,7 +1320,7 @@ InformerTableToggleRow(int row_num)
 
             /* set the checkbox to the opposite in case the db fails */
             app->notes_ui_table.row[row_num-1].status.ui->Value = !is_checked;
-            InformerGatewayUpdateNote(index, id, is_checked);
+            InformerUpdateNote(index, id, is_checked);
         } else if (INFORMER_APP_MODE_ELEMS == mode &&
                    INFORMER_ELEM_MODE_REFRESH == InformerGetElemUIMode()) {
             InformerDEBUG("--------> TODO: UpdateElement\n");
@@ -1271,7 +1329,7 @@ InformerTableToggleRow(int row_num)
 
             /* set the checkbox to the opposite in case the db fails */
             app->elems_ui_table.row[row_num-1].status.ui->Value = !is_checked;
-            InformerGatewayUpdateElem(index, id, is_checked);
+            InformerUpdateElem(index, id, is_checked);
         }
 
         InformerDEBUG("Status was [%d]\n", status);

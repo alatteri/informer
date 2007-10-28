@@ -191,9 +191,8 @@ void InformerTableButtonEvent(InformerTableButtonChoice button);
 
 int InformerGetNotes(void);
 int InformerGetElems(void);
-
-int InformerNoteDataExport(InformerNoteData *note, char *filepath);
-int InformerElemDataExport(InformerElemData *note, char *filepath);
+int InformerUpdateNote(int index, int id, int is_checked);
+int InformerUpdateElem(int index, int id, int is_checked);
 
 int InformerTableRowToIndex(int row_num);
 void InformerTableRowShow(InformerTableRowUI *row);
