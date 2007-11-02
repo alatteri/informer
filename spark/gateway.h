@@ -10,6 +10,8 @@ void GatewayPyStringToString(PyObject *pObj, char *data, int max_length);
 void GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data);
 void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
+int GatewayIsBatchProcessing(void);
+
 int GatewayGetElems(const char *setup, InformerElemData *data);
 int GatewayGetNotes(const char *setup, InformerNoteData *data);
 

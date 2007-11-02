@@ -172,7 +172,7 @@ SparkInitialise(SparkInfoStruct spark_info)
         env++;
     }
 
-    app->app_state = INFORMER_APP_STATE_OK;
+    InformerSetAppState(app, INFORMER_APP_STATE_OK);
 
     /* ------ SETUP ------ */
     app->setup_ui_setup_path = InformerCreateStringUI(15, &SparkSetupString15, "");
@@ -294,7 +294,7 @@ SparkProcessStart(SparkInfoStruct spark_info)
     if (FALSE == app->notes_data_been_read) {
             InformerGetNotes();
     } else {
-        InformerDEBUG("Not getting notes. app_state not OK\n");
+        InformerDEBUG("Not getting notes. notes have been read.\n");
     }
 
     return 1;
@@ -319,6 +319,7 @@ SparkProcess(SparkInfoStruct spark_info)
     int col;
     int rgb;
     int index;
+    int isProcessing;
     unsigned char *ptr;
     unsigned char buf[1049760];
 
@@ -330,16 +331,19 @@ SparkProcess(SparkInfoStruct spark_info)
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
 
-
     InformerDEBUG("-----> SparkProcess called <------\n");
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
+    isProcessing = GatewayIsBatchProcessing();
+    InformerDEBUG("------ gateway said are we processing? (%d)\n", isProcessing);
+
     sprintf(path, "/tmp/frame%04d.rgb", spark_info.FrameNo);
+
     // InformerDEBUG("-----> PATH: %s\n", path);
 
     // InformerDEBUG("          (SparkInfo)\n");
-    // InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
+    InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
     // InformerDEBUG("*** width: %d, height: %d, depth: %d\n",
     //               spark_info.FrameWidth, spark_info.FrameHeight, spark_info.FrameDepth);
     // InformerDEBUG("*** TotalClips: %d, FramePixels: %d, FrameBytes: %d\n",
@@ -362,10 +366,12 @@ SparkProcess(SparkInfoStruct spark_info)
         return FALSE;
     }
 
+    // rgb files are: header, red, green, blue
     RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
 
     ptr = (unsigned char *) SparkResult.Buffer;
 
+    // memory is [rgb], [rgb], [rgb]
     for (index = 0; index < spark_info.FramePixels; index++) {
         buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
         buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
@@ -471,7 +477,7 @@ InformerERROR(const char *format, ...)
     va_end(args);
 
     fprintf(stderr, "ERROR: %s", str);
-    app->app_state = INFORMER_APP_STATE_ERR;
+    InformerSetAppState(app, INFORMER_APP_STATE_ERR);
     sparkError(str);
 }
 
@@ -540,6 +546,35 @@ InformerCreateBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text)
     return result;
 }
 
+void
+InformerSetAppState(InformerAppStruct *app, InformerAppStateChoice state)
+{
+    char *msg;
+
+    printf("+++ about to set the app state\n");
+
+    if (INFORMER_APP_STATE_OK == state)
+        msg = "INFORMER_APP_STATE_OK";
+    else if (INFORMER_APP_STATE_ERR == state)
+        msg = "INFORMER_APP_STATE_ERR";
+    else
+        msg = "UNKNOWN APP STATE";
+
+    InformerDEBUG("(((( now setting app state to: %s ))))\n", msg);
+    app->app_state = state;
+
+    printf("+++ done\n");
+}
+
+int
+InformerIsAppStateOK(InformerAppStruct *app)
+{
+    if (INFORMER_APP_STATE_OK == app->app_state)
+        return TRUE;
+    else
+        return FALSE;
+}
+
 /****************************************************************************
  *                      Informer UI Function Calls                          *
  ****************************************************************************/
@@ -551,7 +586,7 @@ InformerGetNotes(void)
     const char *setup;
     InformerAppStruct *app = InformerGetApp();
 
-    if (INFORMER_APP_STATE_OK != app->app_state) {
+    if (TRUE != InformerIsAppStateOK(app)) {
         InformerDEBUG("Not calling GetNotes: app state is not OK\n");
         return FALSE;
     }
@@ -590,7 +625,7 @@ InformerGetElems(void)
     const char *setup;
     InformerAppStruct *app = InformerGetApp();
 
-    if (INFORMER_APP_STATE_OK != app->app_state) {
+    if (TRUE != InformerIsAppStateOK(app)) {
         InformerDEBUG("Not calling GetElems: app state is not OK\n");
         return FALSE;
     }
@@ -693,7 +728,7 @@ InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     InformerDEBUG("Hey! The notes mode change got called with: value: %d\n", mode);
 
     if (INFORMER_NOTE_MODE_REFRESH == mode) {
-        app->app_state = INFORMER_APP_STATE_OK;
+        InformerSetAppState(app, INFORMER_APP_STATE_OK);
         InformerGetNotes();
     }
 
@@ -709,7 +744,7 @@ InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     InformerDEBUG("Hey! The elements mode change got called with: value: %d\n", mode);
 
     if (INFORMER_ELEM_MODE_REFRESH == mode) {
-        app->app_state = INFORMER_APP_STATE_OK;
+        InformerSetAppState(app, INFORMER_APP_STATE_OK);
         InformerGetElems();
     }
 
@@ -812,7 +847,7 @@ InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
         InformerDEBUG("The text value is: [%s]\n", input);
 
         if (TRUE != InformerGetCurrentUser(username, USERNAME_MAX)) {
-            app->app_state = INFORMER_APP_STATE_ERR;
+            InformerSetAppState(app, INFORMER_APP_STATE_ERR);
             sparkMessageDelay(5000, "Unable to determine the current user");
             return NULL;
         }
@@ -825,7 +860,7 @@ InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
         } else {
             // TODO: What should happen here?
             // InformerERROR("Unable to create your note\n");
-            app->app_state = INFORMER_APP_STATE_ERR;
+            InformerSetAppState(app, INFORMER_APP_STATE_ERR);
             sparkMessageDelay(5000, "Unable to create your note");
         }
     }

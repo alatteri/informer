@@ -160,6 +160,8 @@ int InformerGetDataCount(InformerAppStruct *app);
 int InformerTableGetCurPage(InformerTableUI *table);
 void InformerTableSetCurPage(InformerTableUI *table, int cur_page);
 int InformerTableGetPageOfIndex(InformerTableUI *table, int data_index);
+int InformerIsAppStateOK(InformerAppStruct *app);
+void InformerSetAppState(InformerAppStruct *app, InformerAppStateChoice state);
 
 int InformerNoteDataSort(void);
 int InformerNoteDataCompareByDateCreated(const void *a, const void *b);

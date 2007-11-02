@@ -23,7 +23,7 @@ LOG = instinctual.getLogger(__name__)
 class Spark(object):
     def __init__(self):
 
-        self.scheduler = SchedulerThread('scheduler', interval=4.0)
+        self.scheduler = SchedulerThread('scheduler', interval=0.1)
 
         # --------------------
         # THREADS
@@ -32,10 +32,12 @@ class Spark(object):
         # self.threads['osd'] = None
         # self.threads['gui'] = None
         #
-        self.scheduler.register(SparkThread('A'), 5)
-        self.scheduler.register(SparkThread('B'), 13)
-        self.scheduler.register(SparkThread('C'), 17)
-        # self.scheduler.register(LogfileThread('logfile'), 1)
+        #self.scheduler.register(SparkThread('A'), 5)
+        #self.scheduler.register(SparkThread('B'), 13)
+        #self.scheduler.register(SparkThread('C'), 17)
+
+        self.logfile = LogfileThread('logfile')
+        self.scheduler.register(self.logfile, 0.1)
 
     def start(self):
         self.scheduler.queue.put('process')
@@ -50,7 +52,10 @@ class Spark(object):
             print "scheduler was dead."
 
         for t in self.scheduler.threads.values():
+            if t.isAlive():
+                t.queue.put('stop')
             print "Thread [%s] is alive %s" % (t.name, t.isAlive())
+
         print "the scheduler is alive %s" % (self.scheduler.isAlive())
 
     def getNotes(self, setup):
@@ -115,6 +120,20 @@ class Spark(object):
         LOG.info("Running updateElement()")
         return client.updateElement(setup, data)
 
+    def isBatchProcessing(self):
+        print "Now calling isBatchProcessing from the spark"
+        self.suspendThread(self.logfile)
+        result = str(int(self.logfile.app.isBatchProcessing()))
+        self.resumeThread(self.logfile)
+
+        print "now going to return the result (%s)" % (result)
+        return result
+
+    def suspendThread(self, thread):
+        thread.queue.put('suspend')
+
+    def resumeThread(self, thread):
+        thread.queue.put('resume')
 
 class SparkThread(threading.Thread):
     def __init__(self, name):
@@ -122,6 +141,7 @@ class SparkThread(threading.Thread):
 
         self.name = self.getName()
         self.isProcessing = False
+        self.isSuspended = False
         self.lastProcess = 0
         self.queue = Queue.Queue(100)
 
@@ -132,15 +152,25 @@ class SparkThread(threading.Thread):
         shouldRun = True
         while shouldRun:
             cmd = self.getNextCommand()
-            print "Thread [%s] got: %s" % (self.name, cmd)
+            # print "Thread [%s] got: %s" % (self.name, cmd)
             if cmd == 'process':
-                self.isProcessing = True
-                self.process()
-                self.lastProcess = time.time()
-                self.isProcessing = False
+                if self.isSuspended:
+                    print ("Ignoring 'process' thread [%s] is suspended" % (self.name))
+                else:
+                    self.isProcessing = True
+                    self.process()
+                    self.lastProcess = time.time()
+                    self.isProcessing = False
             elif cmd == 'stop':
+                LOG.info("Stopping thread [%s]" % (self.name))
                 self.stop()
                 shouldRun = False
+            elif cmd == 'suspend':
+                print ("Got call to suspend thread (%s)" % (self.name))
+                self.isSuspended = True
+            elif cmd == 'resume':
+                print ("Got call to resume thread (%s)" % (self.name))
+                self.isSuspended = False
             else:
                 LOG.warn("unknown command passed to thread [%s]: %s" % (self.name, cmd))
 

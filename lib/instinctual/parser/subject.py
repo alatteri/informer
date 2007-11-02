@@ -110,6 +110,8 @@ class DiscreetAppSubject(Subject):
     def __init__(self, logpath):
         Subject.__init__(self)
 
+        self._isBatchProcessing = False
+
         self._logpath = logpath
         self.log = DiscreetLogSubject(self._logpath)
 
@@ -145,6 +147,10 @@ class DiscreetAppSubject(Subject):
         appEvent.hostname = self.hostname
         return appEvent
 
+    def isBatchProcessing(self):
+        print "DiscreetAppSubject -- isProcessing (%s)" % (self.isBatchProcessing)
+        return self._isBatchProcessing
+
     def resetAppState(self):
         self.user = None
         self.volume = None
@@ -159,6 +165,8 @@ class DiscreetAppSubject(Subject):
 
     def flushBatchQueue(self):
         LOG.info("(((( flushing batch queue ))))")
+        self._isBatchProcessing = False
+
         while self.queue:
             appEvent = self.queue.pop(0)
             if isinstance(appEvent, DiscreetAppBatchProcessEvent):
@@ -252,6 +260,7 @@ class DiscreetAppSubject(Subject):
         """
         LOG.info("BATCH PROCESS EVENT")
 
+        self._isBatchProcessing = True
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         self.queue.append(appEvent)
 

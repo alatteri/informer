@@ -259,3 +259,21 @@ GatewayGetElems(const char *setup, InformerElemData *data)
 
     return count;
 }
+
+int
+GatewayIsBatchProcessing(void)
+{
+    int status;
+    PyObject *spark, *pResult;
+
+    PythonBeginCall();
+    spark = SparkGetSpark();
+
+    pResult = PyObject_CallMethod(spark, "isBatchProcessing", NULL);
+    GatewayPyStringToInt(pResult, &status);
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+
+    return status;
+}
