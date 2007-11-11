@@ -123,6 +123,7 @@ typedef struct {
 
     /* SETUP UI */
     InformerStringUI            setup_ui_setup_path;    /* the path of the batch setup file */
+    InformerStringUI            setup_ui_spark_name;    /* the name of the spark */
 
     /* NOTES DATA */
     InformerNoteData            notes_data[100];        /* All of the note data */
@@ -186,6 +187,8 @@ InformerBooleanUI InformerCreateBooleanUI(unsigned int id, SparkBooleanStruct *u
 
 const char *InformerGetSetupPath(void);
 void InformerSetSetupPath(char *path);
+const char *InformerGetSparkName(void);
+void InformerSetSparkName(char *name);
 int InformerGetCurrentUser(char *user, int max_length);
 
 InformerNoteModeChoice InformerGetNoteUIMode(void);

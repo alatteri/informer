@@ -2,6 +2,7 @@
 #define _GATEWAY_H
 
 #include "informer.h"
+#include "spark.h"
 
 void GatewayPyStringToInt(PyObject *pObj, int *data);
 void GatewayPyStringToLong(PyObject *pObj, long int *data);
@@ -11,6 +12,8 @@ void GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data);
 void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
 int GatewayIsBatchProcessing(void);
+char *GatewayProcess(const char *setup, SparkInfoStruct spark_info);
+
 
 int GatewayGetElems(const char *setup, InformerElemData *data);
 int GatewayGetNotes(const char *setup, InformerNoteData *data);

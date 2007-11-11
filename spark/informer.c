@@ -115,6 +115,7 @@ SparkStringStruct SparkString62 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
  * Setup UI
  *************************************/
 SparkStringStruct SparkSetupString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkSetupString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 
 /*************************************
@@ -176,6 +177,7 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     /* ------ SETUP ------ */
     app->setup_ui_setup_path = InformerCreateStringUI(15, &SparkSetupString15, "");
+    app->setup_ui_spark_name = InformerCreateStringUI(16, &SparkSetupString16, "");
 
     /* ------ NOTES DATA ------ */
     app->notes_data_count = 0;
@@ -319,12 +321,12 @@ SparkProcess(SparkInfoStruct spark_info)
     int col;
     int rgb;
     int index;
-    int isProcessing;
     unsigned char *ptr;
     unsigned char buf[1049760];
 
     FILE *fp;
-    char path[256];
+    char *path;
+    const char *setup;
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
@@ -335,15 +337,15 @@ SparkProcess(SparkInfoStruct spark_info)
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
-    isProcessing = GatewayIsBatchProcessing();
-    InformerDEBUG("------ gateway said are we processing? (%d)\n", isProcessing);
-
-    sprintf(path, "/tmp/frame%04d.rgb", spark_info.FrameNo);
+    setup = InformerGetSetupPath();
+    path = GatewayProcess(setup, spark_info);
 
     // InformerDEBUG("-----> PATH: %s\n", path);
-
     // InformerDEBUG("          (SparkInfo)\n");
+
+    InformerDEBUG("------ THE NAME IS: %s ---------\n", spark_info.Name);
     InformerDEBUG("*** frame %u/%u ***\n", spark_info.FrameNo + 1, spark_info.TotalFrameNo);
+
     // InformerDEBUG("*** width: %d, height: %d, depth: %d\n",
     //               spark_info.FrameWidth, spark_info.FrameHeight, spark_info.FrameDepth);
     // InformerDEBUG("*** TotalClips: %d, FramePixels: %d, FrameBytes: %d\n",
@@ -361,31 +363,41 @@ SparkProcess(SparkInfoStruct spark_info)
     // InformerDEBUG("*** buffer stride (%d) ***\n", SparkSource.Stride);
     // InformerDEBUG("*** buffer inc (%d) ***\n", SparkSource.Inc);
 
-    if ((fp=fopen(path, "w")) == NULL) {
-        InformerERROR("can't write datafile [%s]", path);
-        return FALSE;
+    if (NULL == path) {
+        InformerDEBUG("------> GatewayProcess said not to save this\n");
+    } else {
+        if ((fp=fopen(path, "w")) == NULL) {
+            InformerERROR("can't write datafile [%s]", path);
+            return FALSE;
+        }
+
+        // rgb files are: header, red, green, blue
+        RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
+
+        ptr = (unsigned char *) SparkResult.Buffer;
+
+        // memory is [rgb], [rgb], [rgb]
+        for (index = 0; index < spark_info.FramePixels; index++) {
+            buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
+            buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
+            buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
+        }
+
+        fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
+        fclose(fp);
+
+        // printf("The size of a ptr is p[%d]\n", sizeof(ulong));
+        // printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
+        // printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
     }
-
-    // rgb files are: header, red, green, blue
-    RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
-
-    ptr = (unsigned char *) SparkResult.Buffer;
-
-    // memory is [rgb], [rgb], [rgb]
-    for (index = 0; index < spark_info.FramePixels; index++) {
-        buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
-        buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
-        buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
-    }
-
-    fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
-    fclose(fp);
-
-    // printf("The size of a ptr is p[%d]\n", sizeof(ulong));
-    // printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
-    // printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
 
     return SparkResult.Buffer;
+}
+
+void
+SparkProcessEnd(SparkInfoStruct spark_info)
+{
+    InformerDEBUG("---------------> SparkProcessEnd called <-------------\n");
 }
 
 /*--------------------------------------------------------------------------*/
@@ -419,18 +431,19 @@ SparkEvent(SparkModuleEvent spark_event)
 /* Callback for setup saving and loading                                    */
 /*--------------------------------------------------------------------------*/
 void
-SparkSetupIOEvent(SparkModuleEvent event, char *path, char *file)
+SparkSetupIOEvent(SparkModuleEvent event, char *path, char *name)
 {
     InformerAppStruct *app = InformerGetApp();
 
-    InformerDEBUG("SparkSetupIOEvent called with [%d] path [%s] file [%s]\n",
-                  event, path, file);
+    InformerDEBUG("SparkSetupIOEvent called with [%d] path [%s] name [%s]\n",
+                  event, path, name);
 
     if (SPARK_EVENT_LOADSETUP == event || SPARK_EVENT_SAVESETUP == event) {
         if (NULL == strstr(path, "/_session")) {
             /* ignore auto load/saves */
             InformerDEBUG("LOADING/SAVING SETUP: %s\n", path);
             InformerSetSetupPath(path);
+            InformerSetSparkName(name);
         }
     }
 }
@@ -1194,6 +1207,28 @@ InformerSetSetupPath(char *path)
 {
     InformerAppStruct *app = InformerGetApp();
     strncpy(app->setup_ui_setup_path.ui->Value, path, SPARK_MAX_STRING_LENGTH);
+}
+
+/*--------------------------------------------------------------------------*/
+/* Stores the name of the spark                                             */
+/*--------------------------------------------------------------------------*/
+void
+InformerSetSparkName(char *name)
+{
+    InformerAppStruct *app = InformerGetApp();
+    strncpy(app->setup_ui_spark_name.ui->Value, name, SPARK_MAX_STRING_LENGTH);
+}
+
+/*--------------------------------------------------------------------------*/
+/* Get the name of the spark                                                */
+/*--------------------------------------------------------------------------*/
+const char *
+InformerGetSparkName(void)
+{
+    const char *name;
+    InformerAppStruct *app = InformerGetApp();
+    name = app->setup_ui_spark_name.ui->Value;
+    return name;
 }
 
 /*--------------------------------------------------------------------------*/

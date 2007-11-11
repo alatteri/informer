@@ -9,6 +9,7 @@ threading._VERBOSE = True
 
 import instinctual
 import instinctual.informer
+from instinctual.informer.clip import Clip
 from instinctual.informer.client import Client, AppEvent
 from instinctual.parser.observer import Observer
 from instinctual.parser.subject import DiscreetAppSubject
@@ -28,13 +29,16 @@ class Spark(object):
         # --------------------
         # THREADS
         #
-        # self.threads['events'] = None
-        # self.threads['osd'] = None
         # self.threads['gui'] = None
+        # self.threads['osd'] = None
+        # self.threads['events'] = None
         #
         #self.scheduler.register(SparkThread('A'), 5)
         #self.scheduler.register(SparkThread('B'), 13)
         #self.scheduler.register(SparkThread('C'), 17)
+
+        self.clip = Clip()
+        self.clip.save()
 
         self.logfile = LogfileThread('logfile')
         self.scheduler.register(self.logfile, 0.1)
@@ -57,6 +61,12 @@ class Spark(object):
             print "Thread [%s] is alive %s" % (t.name, t.isAlive())
 
         print "the scheduler is alive %s" % (self.scheduler.isAlive())
+
+    def suspendThread(self, thread):
+        thread.queue.put('suspend')
+
+    def resumeThread(self, thread):
+        thread.queue.put('resume')
 
     def getNotes(self, setup):
         """
@@ -129,11 +139,20 @@ class Spark(object):
         print "now going to return the result (%s)" % (result)
         return result
 
-    def suspendThread(self, thread):
-        thread.queue.put('suspend')
+    def processFrame(self, width, height, depth, frameNo):
+        f = self.clip.newFrame()
+        f.width = width
+        f.height = height
+        f.depth = depth
+        f.frameNo = frameNo
 
-    def resumeThread(self, thread):
-        thread.queue.put('resume')
+        print "width:", f.width
+        print "height:", f.height
+        print "depth:", f.depth
+        print "frameNo:", f.frameNo
+
+        f.save()
+        return f.rgbPath
 
 class SparkThread(threading.Thread):
     def __init__(self, name):
@@ -214,9 +233,6 @@ class SchedulerThread(SparkThread):
                 delta = now - thread.lastProcess
                 if delta > wait:
                     thread.queue.put('process')
-                else:
-                    print("Thread [%s] needs [%s] more seconds time" %
-                          (thread.name, wait - delta))
 
     def stop(self):
         for thread in self.threads.values():

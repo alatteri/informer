@@ -1,4 +1,5 @@
 #include "python.h"
+#include "spark.h"
 #include "gateway.h"
 #include <stdlib.h>
 
@@ -103,6 +104,10 @@ GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_b
     int status;
     PyObject *spark, *pResult;
 
+    #if defined __XPY__
+    return 0;
+    #endif
+
     printf("-------------> CALLING GATEWAY CREATE NOTE ---------\n");
 
     PythonBeginCall();
@@ -131,6 +136,11 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
 {
     int status = FALSE;
     PyObject *spark, *pNotes, *pItem;
+
+    #if defined __XPY__
+    return 0;
+    #endif
+
     printf("-------------> CALLING GATEWAY UPDATE NOTE ---------\n");
 
     PythonBeginCall();
@@ -162,6 +172,11 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
 {
     int status = FALSE;
     PyObject *spark, *pElems, *pItem;
+
+    #if defined __XPY__
+    return 0;
+    #endif
+
     printf("-------------> CALLING GATEWAY UPDATE ELEM ---------\n");
 
     PythonBeginCall();
@@ -192,6 +207,10 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
 {
     int i, count;
     PyObject *spark, *pNotes, *pItem, *pAttr;
+
+    #if defined __XPY__
+    return 0;
+    #endif
 
     printf("---------__>>>.> CALLING GATEWAY GET NOTES M<<<,--_________b\n");
 
@@ -228,6 +247,10 @@ GatewayGetElems(const char *setup, InformerElemData *data)
 {
     int i, count;
     PyObject *spark, *pElems, *pItem, *pAttr;
+
+    #if defined __XPY__
+    return 0;
+    #endif
 
     printf("--------- CALLING GATEAY GET ELEMS -------------\n");
 
@@ -276,4 +299,38 @@ GatewayIsBatchProcessing(void)
     PythonEndCall();
 
     return status;
+}
+
+char *
+GatewayProcess(const char *setup, SparkInfoStruct spark_info)
+{
+    int depth;
+    char *str;
+    PyObject *spark, *pResult;
+
+    #if defined __XPY__
+    return NULL;
+    #endif
+
+    if (SPARKBUF_RGB_24_3x8 == spark_info.FrameDepth) {
+        depth = 8;
+    } else {
+        printf("++++++++++ SOME OTHER DEPTH: %d ++++++++++\n", spark_info.FrameDepth);
+        depth = spark_info.FrameDepth;
+    }
+
+    PythonBeginCall();
+    spark = SparkGetSpark();
+
+    pResult = PyObject_CallMethod(spark, "processFrame", "iiii",
+                                  spark_info.FrameWidth,
+                                  spark_info.FrameHeight,
+                                  depth,
+                                  spark_info.FrameNo + 1);
+    str = PyString_AsString(pResult);
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+
+    return str;
 }

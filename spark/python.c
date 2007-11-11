@@ -14,6 +14,10 @@ void PythonInitialize(void)
     int argc = 1;
     char *argv[1];
 
+    #if defined __XPY__
+    return;
+    #endif
+
     PyObject *pName, *pModule, *pFunc, *pResult;
 
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
@@ -121,17 +125,26 @@ void PythonInitialize(void)
 
 void PythonBeginCall(void)
 {
+    #if defined __XPY__
+    return;
+    #endif
+
     PyEval_RestoreThread(TSTATE);
 }
 
 void PythonEndCall(void)
 {
+    return;
     TSTATE = PyEval_SaveThread();
 }
 
 void PythonExit(void)
 {
     PyObject *spark;
+
+    #if defined __XPY__
+    return;
+    #endif
 
     printf("********** NOW GOING TO EXIT PYTHON *****************\n");
 

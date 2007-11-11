@@ -70,7 +70,7 @@ class LogSubject(Subject):
             LOG.info("end of file reached")
 
         for line in lines:
-            print "GOT ", line
+            print "LOG --> ", line
             event = self.event(line)
             self.notifyObservers(event)
 
