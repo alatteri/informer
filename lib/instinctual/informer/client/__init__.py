@@ -22,7 +22,13 @@ class ClientConnectionError(Exception):
 class Client(object):
     def newAppEvent(self, appEvent):
         appEventUrl = instinctual.informer.getAppEventsUrl()
-        data = appEvent.asDict()
+        data = AppEvent(appEvent).asDict()
+
+        LOG.warn(''.join(['-'*20, 'App Event', '-'*20]))
+        for (key, val) in data.items():
+            LOG.warn("%s: %s" % (key, val))
+        LOG.warn(''.join(['-'*20, '---------', '-'*20]))
+
         result = self.POST(appEventUrl, data)
 
     def getElements(self, setup):
