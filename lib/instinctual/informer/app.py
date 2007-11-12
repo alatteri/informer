@@ -17,10 +17,8 @@ class App(Subject):
         # --------------------
         # APP STATE
         #
-        self.user = None
-        self.volume = None
-        self.project = None
-        self.hostname = None
+        self.resetAppState()
+        self.resetBatchState()
 
         # --------------------
         # SPARKS
@@ -30,10 +28,6 @@ class App(Subject):
         # --------------------
         # THREADS
         #
-        #self.scheduler.register(AppThread('A'), 5)
-        #self.scheduler.register(AppThread('B'), 13)
-        #self.scheduler.register(AppThread('C'), 17)
-
         self.logfile = LogfileThread('logfile')
         self.scheduler = SchedulerThread('scheduler', interval=0.1)
 
@@ -56,6 +50,21 @@ class App(Subject):
         self.logfile.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
         self.logfile.registerObserver(DiscreetAppExit(self.cbAppExit))
 
+    def resetAppState(self):
+        self.user = None
+        self.volume = None
+        self.project = None
+        self.hostname = None
+
+    def resetBatchState(self):
+        self.shot = None
+        self.setup = None
+        self.queue = []
+        self.outputs = {}
+
+    # ----------------------------------------------------------------------
+    # App Control
+    # ----------------------------------------------------------------------
     def start(self):
         self.resetAppState()
         self.resetBatchState()
@@ -87,21 +96,45 @@ class App(Subject):
         # resume threads that alter the app state
         self.logfile.resume()
 
-    def isBatchProcessing(self):
-        self._suspend()
-        print "Now calling isBatchProcessing from the spark"
-        result = str(int(self.logfile.app.isBatchProcessing()))
-        self._resume()
-
-        print "now going to return the result (%s)" % (result)
-        return result
-
-    def registerSpark(self, name):
-        self.sparks[name] = Spark(name)
-
 
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
+    def _sparkCleanName(self, name):
+        if name and name[-1] == '\n':
+            name = name[0:-1]
+        return name
+
+    def sparkRegister(self, name):
+        name = self._sparkCleanName(name)
+        print "Hey this is cool. registering spark", name
+        spark = Spark(name)
+        self.sparks[spark.name] = spark
+        print "Now returning", spark.name
+        return spark.name
+
+    def sparkGetByName(self, name):
+        name = self._sparkCleanName(name)
+        print "In the app trying to get the spark named", name
+        if name in self.sparks:
+            print "ok found it"
+            return self.sparks[name]
+        else:
+            print "nope."
+            return None
+
+    def sparkRename(self, oldName, newName):
+        print "rename called with [%s] and [%s]" % (oldName, newName)
+        oldName = self._sparkCleanName(oldName)
+        newName = self._sparkCleanName(newName)
+        if oldName == newName:
+            print "old and new were the same:", newName
+        if oldName in self.sparks:
+            print "Ok. renamed %s to %s" % (oldName, newName)
+            self.sparks[newName] = self.sparks[oldName]
+            del self.sparks[oldName]
+        else:
+            print "Could not rename! [%s] was not found" % (oldName)
+
     def flushBatchQueue(self):
         LOG.info("(((( flushing batch queue ))))")
         self._isBatchProcessing = False
@@ -125,17 +158,71 @@ class App(Subject):
         appEvent.hostname = self.hostname
         return appEvent
 
-    def resetAppState(self):
-        self.user = None
-        self.volume = None
-        self.project = None
-        self.hostname = None
 
-    def resetBatchState(self):
-        self.queue = []
-        self.outputs = {}
-        self.shot = None
-        self.setup = None
+    # ----------------------------------------------------------------------
+    # App/Server interaction
+    # ----------------------------------------------------------------------
+    def getNotes(self, setup):
+        """
+        Returns an array of note objects
+        """
+        client = Client()
+
+        LOG.info("Running getNotes()")
+        notes = client.getNotes(setup)
+
+        LOG.info("Lookup found: %s notes" % (len(notes)))
+        LOG.info("Found this: %s", (notes))
+
+        return notes
+
+    def getElements(self, setup):
+        """
+        Returns an array of element objects
+        """
+        client = Client()
+
+        LOG.info("Running getElements()")
+        elements = client.getElements(setup)
+
+        LOG.info("Lookup found: %s elements" % (len(elements)))
+        LOG.info("Found this: %s", (elements))
+
+        return elements
+
+    def createNote(self, setup, isChecked, text, createdBy):
+        data = {}
+        data['text'] = text
+        data['created_by'] = createdBy
+        data['is_checked'] = isChecked
+
+        client = Client()
+
+        LOG.info("Running createNote()")
+        client.createNote(setup, data)
+
+        return True
+
+    def updateNote(self, setup, id, isChecked, modifiedBy):
+        data = {}
+        data['id'] = id
+        data['is_checked'] = isChecked
+        data['modified_by'] = modifiedBy
+
+        client = Client()
+
+        LOG.info("Running updateNote()")
+        return client.updateNote(setup, data)
+
+    def updateElement(self, setup, id, isChecked):
+        data = {}
+        data['id'] = id
+        data['is_checked'] = isChecked
+
+        client = Client()
+
+        LOG.info("Running updateElement()")
+        return client.updateElement(setup, data)
 
 
     # ----------------------------------------------------------------------

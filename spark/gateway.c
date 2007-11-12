@@ -102,7 +102,7 @@ int
 GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_by)
 {
     int status;
-    PyObject *spark, *pResult;
+    PyObject *app, *pResult;
 
     #if defined __XPY__
     return 0;
@@ -111,9 +111,9 @@ GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_b
     printf("-------------> CALLING GATEWAY CREATE NOTE ---------\n");
 
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
 
-    pResult = PyObject_CallMethod(spark, "createNote", "siss",
+    pResult = PyObject_CallMethod(app, "createNote", "siss",
                                   setup, is_checked, text, created_by);
 
     if (pResult && PyBool_Check(pResult)) {
@@ -135,7 +135,7 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
                   int is_checked, char *modified_by)
 {
     int status = FALSE;
-    PyObject *spark, *pNotes, *pItem;
+    PyObject *app, *pNotes, *pItem;
 
     #if defined __XPY__
     return 0;
@@ -144,9 +144,9 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
     printf("-------------> CALLING GATEWAY UPDATE NOTE ---------\n");
 
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
 
-    pNotes = PyObject_CallMethod(spark, "updateNote", "siis",
+    pNotes = PyObject_CallMethod(app, "updateNote", "siis",
                                  setup, id, is_checked, modified_by);
 
     if (pNotes && PyList_Check(pNotes) && 1 == PyList_Size(pNotes)) {
@@ -171,7 +171,7 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
                   int is_checked)
 {
     int status = FALSE;
-    PyObject *spark, *pElems, *pItem;
+    PyObject *app, *pElems, *pItem;
 
     #if defined __XPY__
     return 0;
@@ -180,9 +180,9 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
     printf("-------------> CALLING GATEWAY UPDATE ELEM ---------\n");
 
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
 
-    pElems = PyObject_CallMethod(spark, "updateElement", "sii",
+    pElems = PyObject_CallMethod(app, "updateElement", "sii",
                                  setup, id, is_checked);
 
     if (pElems && PyList_Check(pElems) && 1 == PyList_Size(pElems)) {
@@ -206,7 +206,7 @@ int
 GatewayGetNotes(const char *setup, InformerNoteData *data)
 {
     int i, count;
-    PyObject *spark, *pNotes, *pItem, *pAttr;
+    PyObject *app, *pNotes, *pItem, *pAttr;
 
     #if defined __XPY__
     return 0;
@@ -216,10 +216,10 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
 
     count = -1;
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
 
     printf("About to make the call for getNotes [%s]\n", setup);
-    pNotes = PyObject_CallMethod(spark, "getNotes", "s", setup);
+    pNotes = PyObject_CallMethod(app, "getNotes", "s", setup);
 
     if (pNotes && PyList_Check(pNotes)) {
         count = PyList_Size(pNotes);
@@ -246,7 +246,7 @@ int
 GatewayGetElems(const char *setup, InformerElemData *data)
 {
     int i, count;
-    PyObject *spark, *pElems, *pItem, *pAttr;
+    PyObject *app, *pElems, *pItem, *pAttr;
 
     #if defined __XPY__
     return 0;
@@ -256,10 +256,10 @@ GatewayGetElems(const char *setup, InformerElemData *data)
 
     count = -1;
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
 
     printf("About to make the call for getElements [%s]\n", setup);
-    pElems = PyObject_CallMethod(spark, "getElements", "s", setup);
+    pElems = PyObject_CallMethod(app, "getElements", "s", setup);
 
     if (pElems && PyList_Check(pElems)) {
         count = PyList_Size(pElems);
@@ -283,30 +283,12 @@ GatewayGetElems(const char *setup, InformerElemData *data)
     return count;
 }
 
-int
-GatewayIsBatchProcessing(void)
-{
-    int status;
-    PyObject *spark, *pResult;
-
-    PythonBeginCall();
-    spark = SparkGetSpark();
-
-    pResult = PyObject_CallMethod(spark, "isBatchProcessing", NULL);
-    GatewayPyStringToInt(pResult, &status);
-
-    Py_XDECREF(pResult);
-    PythonEndCall();
-
-    return status;
-}
-
 char *
-GatewayProcess(const char *setup, SparkInfoStruct spark_info)
+GatewaySparkProcessFrame(const char *spark_name, SparkInfoStruct spark_info)
 {
     int depth;
-    char *str;
-    PyObject *spark, *pResult;
+    char *str = NULL;
+    PyObject *app, *spark, *pResult = NULL;
 
     #if defined __XPY__
     return NULL;
@@ -320,17 +302,61 @@ GatewayProcess(const char *setup, SparkInfoStruct spark_info)
     }
 
     PythonBeginCall();
-    spark = SparkGetSpark();
+    app = PythonGetApp();
+    spark = PythonAppGetSpark(app, spark_name);
 
-    pResult = PyObject_CallMethod(spark, "processFrame", "iiii",
-                                  spark_info.FrameWidth,
-                                  spark_info.FrameHeight,
-                                  depth,
-                                  spark_info.FrameNo + 1);
-    str = PyString_AsString(pResult);
+    if (NULL != spark) {
+        pResult = PyObject_CallMethod(spark, "processFrame", "iiii",
+                                      spark_info.FrameWidth,
+                                      spark_info.FrameHeight,
+                                      depth,
+                                      spark_info.FrameNo + 1);
+        str = PyString_AsString(pResult);
+    }
 
+    Py_XDECREF(spark);
     Py_XDECREF(pResult);
     PythonEndCall();
 
     return str;
 }
+
+char *
+GatewaySparkRegister(const char *spark_name)
+{
+    char *name;
+    PyObject *app, *pResult;
+
+    printf("|||||||||||| GatewaySparkRegister called ||||||||||||||\n");
+    PythonBeginCall();
+    app = PythonGetApp();
+
+    pResult = PyObject_CallMethod(app, "sparkRegister", "s", spark_name);
+    name = PyString_AsString(pResult);
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+
+    printf("|||||||||||| GatewaySparkRegister done ||||||||||||||\n");
+    return name;
+}
+
+int
+GatewaySparkRename(const char *old_name, const char *new_name)
+{
+    char *name;
+    PyObject *app, *pResult;
+
+    printf("|||||||||||| GatewaySparkRename called ||||||||||||||\n");
+    PythonBeginCall();
+    app = PythonGetApp();
+
+    pResult = PyObject_CallMethod(app, "sparkRename", "ss", old_name, new_name);
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+    printf("|||||||||||| GatewaySparkRename done ||||||||||||||\n");
+
+    return 1;
+}
+

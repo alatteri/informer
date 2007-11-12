@@ -96,22 +96,3 @@ class DiscreetLogSubject(LogSubject):
 
     def event(self, line):
         return DiscreetLogEvent(line)
-
-# ------------------------------------------------------------------------------
-#class DiscreetAppSubject(Subject):
-#    """
-#    A high-level subject, generates DiscreetAppEvents based on accumulation
-#    of lower-level DiscreetLogEvents
-#
-#    Arguments:
-#        logpath: the path of the logfile
-#    """
-#
-#    def __init__(self, logpath):
-#        self._logpath = logpath
-#        self.log = DiscreetLogSubject(self._logpath)
-#
-#    def parseShot(self, setup):
-#        # TODO: Add shot parsing of the setup file path
-#        return os.path.basename(setup)
-

@@ -7,7 +7,7 @@
 
 void* PyModule;
 PyThreadState *TSTATE = NULL;
-PyObject *SPARK = NULL;
+PyObject *APP = NULL;
 
 void PythonInitialize(void)
 {
@@ -74,39 +74,40 @@ void PythonInitialize(void)
 
     PyRun_SimpleString("import instinctual\n");
     PyRun_SimpleString("import instinctual.informer\n");
-    // PyRun_SimpleString("import instinctual.informer.spark\n");
 
 
-    // Load the Spark module
-    printf("Now importing instinctual.informer.spark...\n");
-    pName = PyString_FromString("instinctual.informer.spark");
+    // Load the App module
+    printf("Now importing instinctual.informer.app...\n");
+    pName = PyString_FromString("instinctual.informer.app");
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
     if (pModule == NULL) {
         PyErr_Print();
         fprintf(stderr, "Failed to load pModule\n");
+        // TODO: this can hang the flame on load
+        // need to find out what to call/do here
         return;
     }
 
-    // Access the Spark's constructor
+    // Access the App's constructor
     printf("pModule was not NULL\n");
-    pFunc = PyObject_GetAttrString(pModule, "Spark");
+    pFunc = PyObject_GetAttrString(pModule, "App");
 
     if (!pFunc || !PyCallable_Check(pFunc)) {
         PyErr_Print();
-        fprintf(stderr, "Cannot find function Spark\n");
+        fprintf(stderr, "Cannot find function App\n");
 
         Py_XDECREF(pFunc);
         Py_DECREF(pModule);
         return;
     }
 
-    // Instantiate the Spark object
-    SPARK = PyObject_CallObject(pFunc, NULL);
-    if (SPARK == NULL) {
+    // Instantiate the App object
+    APP = PyObject_CallObject(pFunc, NULL);
+    if (APP == NULL) {
         PyErr_Print();
-        fprintf(stderr,"Could not create SPARK object\n");
+        fprintf(stderr,"Could not create APP object\n");
 
         Py_XDECREF(pFunc);
         Py_DECREF(pModule);
@@ -116,8 +117,9 @@ void PythonInitialize(void)
     Py_XDECREF(pFunc);
     Py_DECREF(pModule);
 
-    // Kick off the spark
-    SparkStart(SPARK);
+    // Kick off the APP
+    pResult = PyObject_CallMethod(APP, "start", NULL);
+    Py_XDECREF(pResult);
 
     PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
     PythonEndCall();
@@ -134,13 +136,16 @@ void PythonBeginCall(void)
 
 void PythonEndCall(void)
 {
+    #if defined __XPY__
     return;
+    #endif
+
     TSTATE = PyEval_SaveThread();
 }
 
 void PythonExit(void)
 {
-    PyObject *spark;
+    PyObject *app, *pResult;
 
     #if defined __XPY__
     return;
@@ -150,10 +155,13 @@ void PythonExit(void)
 
     PythonBeginCall();
 
-    PyRun_SimpleString("print 'NOW STOPPING THE SPARK'\n");
-    spark = SparkGetSpark();
-    SparkStop(spark);
-    Py_DECREF(spark);
+    PyRun_SimpleString("print 'NOW STOPPING THE APP'\n");
+
+    app = PythonGetApp();
+    pResult = PyObject_CallMethod(app, "stop", NULL);
+
+    Py_DECREF(pResult);
+    Py_DECREF(app);
 
     // This crashes with:
     // Ending the interpreter...
@@ -198,34 +206,22 @@ void PythonExit(void)
     printf("\nGoodbye, cruel world\n");
 }
 
-int
-SparkStart(PyObject *spark)
+PyObject *
+PythonGetApp(void)
 {
-    PyObject *pResult;
-    pResult = PyObject_CallMethod(spark, "start", NULL);
-
-    if (NULL == pResult)
-        return FALSE;
-
-    Py_XDECREF(pResult);
-    return TRUE;
-}
-
-int
-SparkStop(PyObject *spark)
-{
-    PyObject *pResult;
-    pResult = PyObject_CallMethod(spark, "stop", NULL);
-
-    if (NULL == pResult)
-        return FALSE;
-
-    Py_XDECREF(pResult);
-    return TRUE;
+    return APP;
 }
 
 PyObject *
-SparkGetSpark(void)
+PythonAppGetSpark(PyObject *app, const char *spark_name)
 {
-    return SPARK;
+    PyObject *spark;
+    spark = PyObject_CallMethod(app, "sparkGetByName", "s", spark_name);
+
+    if (NULL == spark || Py_None == spark) {
+        printf("CRAP. could not get spark named (%s)\n", spark_name);
+        spark = NULL;
+    }
+
+    return spark;
 }

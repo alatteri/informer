@@ -16,8 +16,7 @@ void PythonExit(void);
 void PythonBeginCall(void);
 void PythonEndCall(void);
 
-int SparkStart(PyObject *spark);
-int SparkStop(PyObject *spark);
-PyObject *SparkGetSpark(void);
+PyObject *PythonGetApp(void);
+PyObject *PythonAppGetSpark(PyObject *app, const char *spark_name);
 
 #endif

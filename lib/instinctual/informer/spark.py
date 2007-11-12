@@ -6,72 +6,18 @@ from instinctual.informer.client import Client, AppEvent
 LOG = instinctual.getLogger(__name__)
 
 class Spark(object):
+    count = 0
+
     def __init__(self, name):
+        print "||||||| spark __init__ got called with [%s]" % (name)
+        if not name:
+            self.count += 1
+            name = "TEMP%d.Informer" % self.count
+            print "name was not specified -- made", name
+
         self.name = name
         self.clip = Clip()
         self.clip.save()
-
-    def getNotes(self, setup):
-        """
-        Returns an array of note objects
-        """
-        client = Client()
-
-        LOG.info("Running getNotes()")
-        notes = client.getNotes(setup)
-
-        LOG.info("Lookup found: %s notes" % (len(notes)))
-        LOG.info("Found this: %s", (notes))
-
-        return notes
-
-    def getElements(self, setup):
-        """
-        Returns an array of element objects
-        """
-        client = Client()
-
-        LOG.info("Running getElements()")
-        elements = client.getElements(setup)
-
-        LOG.info("Lookup found: %s elements" % (len(elements)))
-        LOG.info("Found this: %s", (elements))
-
-        return elements
-
-    def createNote(self, setup, isChecked, text, createdBy):
-        data = {}
-        data['text'] = text
-        data['created_by'] = createdBy
-        data['is_checked'] = isChecked
-
-        client = Client()
-
-        LOG.info("Running createNote()")
-        client.createNote(setup, data)
-
-        return True
-
-    def updateNote(self, setup, id, isChecked, modifiedBy):
-        data = {}
-        data['id'] = id
-        data['is_checked'] = isChecked
-        data['modified_by'] = modifiedBy
-
-        client = Client()
-
-        LOG.info("Running updateNote()")
-        return client.updateNote(setup, data)
-
-    def updateElement(self, setup, id, isChecked):
-        data = {}
-        data['id'] = id
-        data['is_checked'] = isChecked
-
-        client = Client()
-
-        LOG.info("Running updateElement()")
-        return client.updateElement(setup, data)
 
     def processFrame(self, width, height, depth, frameNo):
         f = self.clip.newFrame()

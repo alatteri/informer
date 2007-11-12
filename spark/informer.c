@@ -158,7 +158,7 @@ SparkMemoryTempBuffers(void)
 unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
-    const char *setup;
+    char *spark_name;
     char **env = environ;
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
@@ -254,7 +254,13 @@ SparkInitialise(SparkInfoStruct spark_info)
     InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
     InformerTableHideAllRows();
 
+    printf("OK before python, the spark is %s\n", InformerGetSparkName());
+
     PythonInitialize();
+    spark_name = GatewaySparkRegister(InformerGetSparkName());
+    strncpy(app->spark_last_name, spark_name, 256);
+
+    printf("OK after python, the spark is %s\n", InformerGetSparkName());
 
     return SPARK_MODULE;
 }
@@ -326,19 +332,19 @@ SparkProcess(SparkInfoStruct spark_info)
 
     FILE *fp;
     char *path;
-    const char *setup;
+    const char *spark_name;
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
 
-    InformerDEBUG("-----> SparkProcess called <------\n");
+    spark_name = InformerGetSparkName();
+    InformerDEBUG("-----> SparkProcess (%s) called <------\n", spark_name);
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
-    setup = InformerGetSetupPath();
-    path = GatewayProcess(setup, spark_info);
+    path = GatewaySparkProcessFrame(spark_name, spark_info);
 
     // InformerDEBUG("-----> PATH: %s\n", path);
     // InformerDEBUG("          (SparkInfo)\n");
@@ -397,7 +403,7 @@ SparkProcess(SparkInfoStruct spark_info)
 void
 SparkProcessEnd(SparkInfoStruct spark_info)
 {
-    InformerDEBUG("---------------> SparkProcessEnd called <-------------\n");
+    InformerDEBUG("\n\n$$$$$$$$$$$$$$$> SparkProcessEnd called <$$$$$$$$$$$$$\n");
 }
 
 /*--------------------------------------------------------------------------*/
@@ -410,8 +416,7 @@ SparkEvent(SparkModuleEvent spark_event)
 
     InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
 
-    if (SPARK_EVENT_SETUP == spark_event) {
-        InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
+    if (SPARK_EVENT_SETUP == spark_event) { InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
     } else if (SPARK_EVENT_CONTROL1 == spark_event) {
         InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
 
@@ -442,8 +447,10 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *name)
         if (NULL == strstr(path, "/_session")) {
             /* ignore auto load/saves */
             InformerDEBUG("LOADING/SAVING SETUP: %s\n", path);
+            GatewaySparkRename(app->spark_last_name, name);
             InformerSetSetupPath(path);
             InformerSetSparkName(name);
+            strncpy(app->spark_last_name, name, 256);
         }
     }
 }

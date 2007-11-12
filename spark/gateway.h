@@ -11,10 +11,6 @@ void GatewayPyStringToString(PyObject *pObj, char *data, int max_length);
 void GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data);
 void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
-int GatewayIsBatchProcessing(void);
-char *GatewayProcess(const char *setup, SparkInfoStruct spark_info);
-
-
 int GatewayGetElems(const char *setup, InformerElemData *data);
 int GatewayGetNotes(const char *setup, InformerNoteData *data);
 
@@ -22,5 +18,9 @@ int GatewayCreateNote(const char *setup, int is_checked, char *text, char *creat
 
 int GatewayUpdateElem(const char *setup, InformerElemData *data, int id, int is_checked);
 int GatewayUpdateNote(const char *setup, InformerNoteData *data, int id, int is_checked, char *modified_by);
+
+char *GatewaySparkProcessFrame(const char *setup, SparkInfoStruct spark_info);
+char *GatewaySparkRegister(const char *spark_name);
+int GatewaySparkRename(const char *old_name, const char *new_name);
 
 #endif

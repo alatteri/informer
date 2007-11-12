@@ -120,6 +120,7 @@ typedef struct {
 typedef struct {
     int                         app_state;              /* the app state: OK or ERR */
     InformerAppModeChoice       app_current_mode;       /* The current mode: setup, notes, elem */
+    char                        spark_last_name[256];   /* the last name of the spark */
 
     /* SETUP UI */
     InformerStringUI            setup_ui_setup_path;    /* the path of the batch setup file */
