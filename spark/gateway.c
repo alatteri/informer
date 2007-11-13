@@ -290,6 +290,7 @@ GatewaySparkProcessFrame(const char *spark_name, SparkInfoStruct spark_info)
     char *str = NULL;
     PyObject *app, *spark, *pResult = NULL;
 
+    printf("------ process frame called from %s -------\n", spark_name);
     #if defined __XPY__
     return NULL;
     #endif
@@ -306,18 +307,21 @@ GatewaySparkProcessFrame(const char *spark_name, SparkInfoStruct spark_info)
     spark = PythonAppGetSpark(app, spark_name);
 
     if (NULL != spark) {
+        printf("OK. the spark was not null -- now calling processFrame\n");
         pResult = PyObject_CallMethod(spark, "processFrame", "iiii",
                                       spark_info.FrameWidth,
                                       spark_info.FrameHeight,
                                       depth,
                                       spark_info.FrameNo + 1);
         str = PyString_AsString(pResult);
+        printf("Done. returning %s\n", str);
     }
 
     Py_XDECREF(spark);
     Py_XDECREF(pResult);
     PythonEndCall();
 
+    printf("--- exiting processframe for %s ---\n", spark_name);
     return str;
 }
 

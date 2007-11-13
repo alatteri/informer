@@ -444,14 +444,16 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *name)
                   event, path, name);
 
     if (SPARK_EVENT_LOADSETUP == event || SPARK_EVENT_SAVESETUP == event) {
+        GatewaySparkRename(app->spark_last_name, name);
+
         if (NULL == strstr(path, "/_session")) {
             /* ignore auto load/saves */
             InformerDEBUG("LOADING/SAVING SETUP: %s\n", path);
-            GatewaySparkRename(app->spark_last_name, name);
             InformerSetSetupPath(path);
-            InformerSetSparkName(name);
-            strncpy(app->spark_last_name, name, 256);
         }
+
+        InformerSetSparkName(name);
+        strncpy(app->spark_last_name, name, 256);
     }
 }
 

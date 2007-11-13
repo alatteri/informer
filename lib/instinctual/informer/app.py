@@ -6,9 +6,23 @@ from instinctual.parser.observer import *
 
 from instinctual.informer.spark import Spark
 from instinctual.informer.client import Client, AppEvent
-from instinctual.informer.threads import LogfileThread, SchedulerThread
+from instinctual.informer.threads import LogfileThread, SchedulerThread, InformerThread
 
 LOG = instinctual.getLogger(__name__)
+
+class _appinfo(InformerThread):
+    def __init__(self, name, app):
+        InformerThread.__init__(self, name)
+        self.app = app
+
+    def threadProcess(self):
+        print "\n[[[[[ APP ]]]]]"
+        print "* user:", self.app.user
+        print "* setup:", self.app.setup
+        print "* project:", self.app.project
+        print "---- sparks ----"
+        for (name, spark) in self.app.sparks.items():
+            print "\t* [%s]: %s" % (name, spark)
 
 class App(Subject):
     def __init__(self):
@@ -28,6 +42,7 @@ class App(Subject):
         # --------------------
         # THREADS
         #
+        self._appinfo = _appinfo('appinfo', self)
         self.logfile = LogfileThread('logfile')
         self.scheduler = SchedulerThread('scheduler', interval=0.1)
 
@@ -69,6 +84,7 @@ class App(Subject):
         self.resetAppState()
         self.resetBatchState()
 
+        self.scheduler.register(self._appinfo, 3)
         self.scheduler.register(self.logfile, 0.1)
         self.scheduler.process()
         self.scheduler.start()
@@ -100,8 +116,10 @@ class App(Subject):
     # ----------------------------------------------------------------------
     # ----------------------------------------------------------------------
     def _sparkCleanName(self, name):
+        print "clean IN[%s]" % (name)
         if name and name[-1] == '\n':
             name = name[0:-1]
+        print "clean OUT[%s]" % (name)
         return name
 
     def sparkRegister(self, name):
@@ -128,7 +146,7 @@ class App(Subject):
         newName = self._sparkCleanName(newName)
         if oldName == newName:
             print "old and new were the same:", newName
-        if oldName in self.sparks:
+        elif oldName in self.sparks:
             print "Ok. renamed %s to %s" % (oldName, newName)
             self.sparks[newName] = self.sparks[oldName]
             del self.sparks[oldName]
