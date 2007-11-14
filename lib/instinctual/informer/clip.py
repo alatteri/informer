@@ -9,6 +9,7 @@ class Clip(Serializable):
             parent = conf.get('informer', 'clip_dir')
         Serializable.__init__(self, parent, 'clip.pkl')
 
+        self.isFinished = False
         self.frames = []
         self.startFrame = None
         self.endFrame = None
@@ -38,3 +39,6 @@ class Clip(Serializable):
         for frame in self.frames:
             frame.delete()
         Serializable.delete(self)
+
+    def finish(self):
+        self.isFinished = True

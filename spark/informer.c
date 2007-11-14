@@ -298,6 +298,7 @@ SparkProcessStart(SparkInfoStruct spark_info)
     InformerAppStruct *app = InformerGetApp();
 
     InformerDEBUG("----> SparkProcessStart called <----\n");
+    GatewaySparkProcessStart();
 
     if (FALSE == app->notes_data_been_read) {
             InformerGetNotes();
@@ -344,7 +345,7 @@ SparkProcess(SparkInfoStruct spark_info)
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
-    path = GatewaySparkProcessFrame(spark_name, spark_info);
+    path = GatewaySparkProcess(spark_name, spark_info);
 
     // InformerDEBUG("-----> PATH: %s\n", path);
     // InformerDEBUG("          (SparkInfo)\n");
@@ -404,6 +405,7 @@ void
 SparkProcessEnd(SparkInfoStruct spark_info)
 {
     InformerDEBUG("\n\n$$$$$$$$$$$$$$$> SparkProcessEnd called <$$$$$$$$$$$$$\n");
+    GatewaySparkProcessEnd();
 }
 
 /*--------------------------------------------------------------------------*/

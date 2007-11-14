@@ -20,6 +20,7 @@ class _appinfo(InformerThread):
         print "* user:", self.app.user
         print "* setup:", self.app.setup
         print "* project:", self.app.project
+        print "* shouldProcess: %s" % (self.app.shouldProcess)
         print "---- sparks ----"
         for (name, spark) in self.app.sparks.items():
             print "\t* [%s]: %s" % (name, spark)
@@ -65,11 +66,22 @@ class App(Subject):
         self.logfile.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
         self.logfile.registerObserver(DiscreetAppExit(self.cbAppExit))
 
+    def _getShouldProcess(self):
+        print "_getShouldProcess returning: %s" % (self._shouldProcess)
+        return self._shouldProcess
+
+    def _setShouldProcess(self, val):
+        print "_setShouldProcess setting to: %s" % (val)
+        self._shouldProcess = val
+
+    shouldProcess = property(_getShouldProcess, _setShouldProcess)
+
     def resetAppState(self):
         self.user = None
         self.volume = None
         self.project = None
         self.hostname = None
+        self.shouldProcess = True
 
     def resetBatchState(self):
         self.shot = None
@@ -84,7 +96,7 @@ class App(Subject):
         self.resetAppState()
         self.resetBatchState()
 
-        self.scheduler.register(self._appinfo, 3)
+        self.scheduler.register(self._appinfo, 5)
         self.scheduler.register(self.logfile, 0.1)
         self.scheduler.process()
         self.scheduler.start()
@@ -149,6 +161,7 @@ class App(Subject):
         elif oldName in self.sparks:
             print "Ok. renamed %s to %s" % (oldName, newName)
             self.sparks[newName] = self.sparks[oldName]
+            self.sparks[newName].name = newName
             del self.sparks[oldName]
         else:
             print "Could not rename! [%s] was not found" % (oldName)
@@ -176,6 +189,40 @@ class App(Subject):
         appEvent.hostname = self.hostname
         return appEvent
 
+    def processStart(self):
+        print "+" * 80
+        print "processStart called."
+        print "+" * 80
+
+        # processStart is called only when entering the spark
+        self.shouldProcess = False
+
+        # there are two possiblities...
+        #   a) the spark has just been entered then the order is:
+        #       1) process()
+        #       2) processStart()
+        #       3) processEnd()
+        #   b) the spark has already been entered (a) then the order is:
+        #       1) processStart()
+        #       2) process()
+        #       3) processEnd()
+
+        # unfortunately step (a1) appears to be the same as when we are
+        # doing a batch process -- so we must save the clip. (a2) means
+        # delete any existing clip and set a flag that we should avoid
+        # processing
+        for (name, spark) in self.sparks.items():
+            print "processStart - deleting clip for spark: [%s]" % (name)
+            spark.deleteClip()
+        return True
+
+    def processEnd(self):
+        print "+" * 80
+        print "processEnd called."
+        print "+" * 80
+
+        self.shouldProcess = True
+        return True
 
     # ----------------------------------------------------------------------
     # App/Server interaction

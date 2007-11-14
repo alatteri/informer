@@ -29,6 +29,7 @@ class Serializable(object):
             if errno.ENOENT != e.errno:
                 raise e
 
+        print "[[[[[[[[ delete called for %s ]]]]]]]]]]]]" % (self.container)
         os.rmdir(self.container)
 
     def _getPath(self):

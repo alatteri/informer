@@ -16,10 +16,17 @@ class Spark(object):
             print "name was not specified -- made", name
 
         self.name = name
-        self.clip = Clip()
-        self.clip.save()
+        self.clip = None
 
     def processFrame(self, width, height, depth, frameNo):
+        print "+" * 80
+        print "process frame called on teh spark"
+        print "+" * 80
+        if not self.clip:
+            print "self.clip was none -- making new clip"
+            self.clip = Clip()
+            self.clip.save()
+
         f = self.clip.newFrame()
         f.width = width
         f.height = height
@@ -33,3 +40,14 @@ class Spark(object):
 
         f.save()
         return f.rgbPath
+
+    def finishClip(self):
+        if self.clip:
+            self.clip.finish()
+            self.clip.save()
+
+    def deleteClip(self):
+        if self.clip:
+            print "now going to delete the clip of", self.name
+            self.clip.delete()
+            self.clip = None
