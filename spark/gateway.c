@@ -290,7 +290,11 @@ GatewaySparkProcess(const char *spark_name, SparkInfoStruct spark_info)
     char *str = NULL;
     PyObject *app, *spark, *pResult = NULL;
 
+    printf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     printf("------ process frame called from %s -------\n", spark_name);
+    printf("* current frame: %d\n", spark_info.FrameNo + 1);
+    printf("* max frame: %d\n", spark_info.TotalFrameNo);
+    printf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     #if defined __XPY__
     return NULL;
     #endif

@@ -96,7 +96,7 @@ class App(Subject):
         self.resetAppState()
         self.resetBatchState()
 
-        self.scheduler.register(self._appinfo, 5)
+        # self.scheduler.register(self._appinfo, 5)
         self.scheduler.register(self.logfile, 0.1)
         self.scheduler.process()
         self.scheduler.start()
@@ -212,8 +212,9 @@ class App(Subject):
         # delete any existing clip and set a flag that we should avoid
         # processing
         for (name, spark) in self.sparks.items():
-            print "processStart - deleting clip for spark: [%s]" % (name)
-            spark.deleteClip()
+            print "processStart - finishing clip for spark: [%s]" % (name)
+            spark.finishClip()
+
         return True
 
     def processEnd(self):

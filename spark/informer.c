@@ -286,6 +286,15 @@ SparkClips(void)
     return 1;
 }
 
+void _DumpSparkInfo(SparkInfoStruct spark_info)
+{
+    InformerDEBUG("&&&&&&&&&& _DumpSparkInfo &&&&&&&&&&&&\n");
+    InformerDEBUG("Name: %s\n", spark_info.Name);
+    InformerDEBUG("Mode: %d\n", spark_info.Mode);
+    InformerDEBUG("Context: %d\n", spark_info.Context);
+    InformerDEBUG("&&&&&&&&&& _DumpSparkInfo &&&&&&&&&&&&\n");
+}
+
 /*--------------------------------------------------------------------------*/
 /* This function is used to trigger the initial database query for the      */
 /* current spark state.                                                     */
@@ -297,7 +306,10 @@ SparkProcessStart(SparkInfoStruct spark_info)
 {
     InformerAppStruct *app = InformerGetApp();
 
-    InformerDEBUG("----> SparkProcessStart called <----\n");
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+    InformerDEBUG("------------------------> SparkProcessStart called <----------------------------\n");
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+
     GatewaySparkProcessStart();
 
     if (FALSE == app->notes_data_been_read) {
@@ -339,9 +351,12 @@ SparkProcess(SparkInfoStruct spark_info)
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
-
     spark_name = InformerGetSparkName();
-    InformerDEBUG("-----> SparkProcess (%s) called <------\n", spark_name);
+
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+    InformerDEBUG("---------------------------> SparkProcess called <------------------------------\n");
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
@@ -404,7 +419,10 @@ SparkProcess(SparkInfoStruct spark_info)
 void
 SparkProcessEnd(SparkInfoStruct spark_info)
 {
-    InformerDEBUG("\n\n$$$$$$$$$$$$$$$> SparkProcessEnd called <$$$$$$$$$$$$$\n");
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+    InformerDEBUG("-------------------------> SparkProcessEnd called <-----------------------------\n");
+    InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+
     GatewaySparkProcessEnd();
 }
 
@@ -416,9 +434,12 @@ SparkEvent(SparkModuleEvent spark_event)
 {
     InformerAppStruct *app = InformerGetApp();
 
+    InformerDEBUG("################################################################################\n");
     InformerDEBUG("-----> SparkEvent (%d) <-----\n", spark_event);
+    InformerDEBUG("################################################################################\n");
 
-    if (SPARK_EVENT_SETUP == spark_event) { InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
+    if (SPARK_EVENT_SETUP == spark_event) {
+        InformerSetAppMode(app, INFORMER_APP_MODE_SETUP);
     } else if (SPARK_EVENT_CONTROL1 == spark_event) {
         InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
 
@@ -434,6 +455,20 @@ SparkEvent(SparkModuleEvent spark_event)
     }
 }
 
+// void SparkIdle(void)
+// {
+//     InformerDEBUG("################################################################################\n");
+//     InformerDEBUG("    [[[[[[[[[   SparkIdle called    ]]]]]]]]]\n");
+//     InformerDEBUG("################################################################################\n");
+// }
+
+void SparkFrameChange(SparkInfoStruct SparkInfo)
+{
+    InformerDEBUG("################################################################################\n");
+    InformerDEBUG("    [[[[[[[[[   SparkFrameChange called    ]]]]]]]]]\n");
+    InformerDEBUG("################################################################################\n");
+}
+
 /*--------------------------------------------------------------------------*/
 /* Callback for setup saving and loading                                    */
 /*--------------------------------------------------------------------------*/
@@ -442,8 +477,10 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *name)
 {
     InformerAppStruct *app = InformerGetApp();
 
+    InformerDEBUG("################################################################################\n");
     InformerDEBUG("SparkSetupIOEvent called with [%d] path [%s] name [%s]\n",
                   event, path, name);
+    InformerDEBUG("################################################################################\n");
 
     if (SPARK_EVENT_LOADSETUP == event || SPARK_EVENT_SAVESETUP == event) {
         GatewaySparkRename(app->spark_last_name, name);
