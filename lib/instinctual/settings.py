@@ -3,6 +3,8 @@ import os
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
 sqlitePath = os.sep.join([root, 'data', 'informer.db'])
 templatePath = os.sep.join([root, 'templates', 'admin'])
+templatePath2 = os.sep.join([root, 'templates', 'html'])
+media_path = os.sep.join([root, 'media'])
 
 # Django settings for instinctual project.
 DEBUG = True
@@ -15,10 +17,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = sqlitePath     # Or path to database file if using sqlite3.
-DATABASE_USER = 'instinctual'  # Not used with sqlite3.
-DATABASE_PASSWORD = 'x'        # Not used with sqlite3.
+DATABASE_ENGINE = 'postgresql' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_NAME = 'informer'     # Or path to database file if using sqlite3.
+DATABASE_USER = 'informer'  # Not used with sqlite3.
+DATABASE_PASSWORD = 'informer'        # Not used with sqlite3.
 DATABASE_HOST = 'localhost'    # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
@@ -42,11 +44,11 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = media_path
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = ''
+MEDIA_URL = '/site_media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -78,6 +80,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     templatePath,
+    templatePath2,
 )
 
 INSTALLED_APPS = (

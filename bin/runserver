@@ -16,6 +16,7 @@ except ImportError, e:
 # ------------------------------------------------------------------------------
 
 import os
+import sys
 import instinctual
 from instinctual import settings
 from django.core.management import execute_manager
@@ -31,4 +32,7 @@ if 'sqlite3' == settings.DATABASE_ENGINE:
             execute_manager(settings, [None, 'syncdb'])
 
 if __name__ == '__main__':
-    execute_manager(settings, [None, 'runserver', server])
+    if len(sys.argv)==2:
+        execute_manager(settings, [None, sys.argv[1]])
+    else:
+        execute_manager(settings, [None, 'runserver', server])

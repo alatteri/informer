@@ -1,0 +1,115 @@
+{% extends "informer/base.html" %}
+{% block content %}
+<h2>{{ project.name }}</h2>
+<h3>{{ shot.name }}</h3>
+
+<ul>
+<li onclick="get_info(notes_div, notes_table, notes_url);">Notes</li>
+<li onclick="get_info(elements_div);">Elements</li>
+<li onclick="get_info(log_div);">Historical Log</li>
+<li onclick="get_info(specs_div);">Specifications</li>
+</ul>
+
+<div id="notes" style="display:none">
+<h4>Notes</h4>
+<form onsubmit="add_note(); return false;">
+<textarea id="frm_notes"></textarea><br />
+<input type="submit">
+</form>
+
+<table id="notes_table"></table>
+
+</div><!-- notes -->
+
+<div id="elements" style="display:none">
+<h4>Elements</h4>
+
+<table id="element_table"></table>
+</div><!-- elements -->
+
+<div id="log" style="display:none">
+<h4>Historical Log</h4>
+</div><!-- log -->
+
+<div id="specs" style="display:none">
+<h4>Speficications</h4>
+</div><!-- specs -->
+
+<script type="text/javascript">
+    var notes_div = $('notes');
+    var elements_div = $('elements');
+    var log_div = $('log');
+    var specs_div = $('specs');
+    var notes_table = $('notes_table');
+    var elements_table;
+    var notes_url = '{{ shot.get_json_note_url }}';
+
+    function add_note() {
+        var txt = $F('frm_notes');
+        if (!txt) return;
+
+        var data = {created_by_id:1, modified_by_id:1, text:txt};
+        new Ajax.Request(notes_url, {
+           method: 'POST',
+           parameters: data,
+           onSuccess: function(r) { 
+               var d = eval(r.responseText);
+               add_data(d[0], notes_table);
+               }
+           });
+    }
+
+    function get_info(div, table, url) {
+        // if already showing, forget it
+        if (div.style.display == 'block')
+            return;
+
+        hide_all(div);
+
+        if (!table) return;
+
+        new Ajax.Request(url, {
+            method: 'GET',
+            onSuccess: function(resp) { show_results(resp, table)}});
+    }
+
+    function hide_all(skip) {
+        $A([notes_div, elements_div, log_div, specs_div]).each (function(each) {
+            if (each) 
+                each.style.display = each==skip ? 'block' : 'none';
+        });
+    }
+
+    function show_results(response, table) {
+        while (table.hasChildNodes()) { table.removeChild(table.firstChild); }
+        var data = eval(response.responseText);
+        data.each(function(x) { add_data(x, table); });
+    }
+
+    function add_data(data, table) {
+        table.appendChild(createRow('pk', data.pk));
+        for (f in data.fields) {
+            table.appendChild(createRow(f, data.fields[f]));
+        }
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.colspan=2;
+        td.appendChild(document.createElement('hr'));
+        tr.appendChild(td);
+        table.appendChild(tr);
+
+    }
+
+    function createRow(x, y) {
+        var tr = document.createElement('tr');
+        var th = document.createElement('th');
+        th.appendChild(document.createTextNode(x));
+        tr.appendChild(th);
+        var td = document.createElement('td');
+        td.appendChild(document.createTextNode(y));
+        tr.appendChild(td);
+        return tr;
+    }
+</script>
+
+{% endblock %}
