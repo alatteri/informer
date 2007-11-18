@@ -2,9 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 import instinctual
+from instinctual import informer
 
-conf = instinctual.getConf()
-BASE = conf.get('informer', 'url_base')
+def getOrCreateUser(username):
+    try:
+        return User.objects.get(username=username)
+    except User.DoesNotExist:
+        print "no. did not find the user."
+        user = User(username=username, password='x')
+        user.save()
+        print "ok! just created user %s" % (username)
+        return user
 
 # ------------------------------------------------------------------------------
 class Project(models.Model):
@@ -12,7 +20,7 @@ class Project(models.Model):
     description = models.CharField(maxlength=4096, null=True, blank=True)
 
     def get_absolute_url(self):
-        return "/%s/%s" % (BASE, conf.get('informer', 'url_project_shots') % ('html', self.name))
+        return informer.getProjectShotsUrl(self.name, format='html')
 
     class Admin:
         list_display = ('name', 'description')
@@ -31,10 +39,12 @@ class Shot(models.Model):
     setup       = models.CharField(maxlength=4096)
 
     def get_absolute_url(self):
-        return "/%s/%s" % (BASE, conf.get('informer', 'url_project_shot') % ('html', self.project.name, self.name))
+        project = self.project.name
+        return informer.getProjectShotUrl(project, self.name, format='html')
 
     def get_json_note_url(self):
-        return '/informer/1.0/' + conf.get('informer', 'url_project_shot_notes') % ('json', self.project.name, self.name)
+        project = self.project.name
+        return informer.getProjectShotNotesUrl(project, self.name, format='json')
 
     class Meta:
         unique_together = (('project', 'name'),)
@@ -58,6 +68,11 @@ class Note(models.Model):
     modified_on = models.DateTimeField('date modified', auto_now=True)
     modified_by = models.ForeignKey(User, related_name='modified_note_set')
 
+    def __setattr__(self, key, val):
+        if key in ('created_by', 'modified_by'):
+            val = getOrCreateUser(val)
+        return models.Model.__setattr__(self, key, val)
+
     class Admin:
         list_display = ('shot', 'is_checked', 'text', 'created_by',
                         'created_on', 'modified_by', 'modified_on')
@@ -74,6 +89,11 @@ class Element(models.Model):
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
 
+    def __setattr__(self, key, val):
+        if key in ('created_by'):
+            val = getOrCreateUser(val)
+        return models.Model.__setattr__(self, key, val)
+
     class Admin:
         list_display = ('shot', 'kind', 'is_checked', 'text', 'created_by', 'created_on')
 
@@ -88,6 +108,11 @@ class Event(models.Model):
     user        = models.ForeignKey(User)
     # date_added  = models.DateTimeField('date added', auto_now_add=True)
     date_added  = models.DateTimeField('date')
+
+    def __setattr__(self, key, val):
+        if key in ('user'):
+            val = getOrCreateUser(val)
+        return models.Model.__setattr__(self, key, val)
 
     class Meta:
         unique_together = (('shot', 'type', 'date_added'),)

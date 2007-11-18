@@ -143,7 +143,6 @@ json_url_elements        = conf.get('informer', 'url_project_shot_elements') % (
 
 pat_project = "(?P<project_name>%s)" % pat_project
 pat_shot    = "(?P<shot_name>%s)" % pat_shot
-print pat_project
 
 html_url_projects        = conf.get('informer', 'url_projects') % 'html'
 html_url_project_shots   = conf.get('informer', 'url_project_shots') % ('html', pat_project)
@@ -158,7 +157,7 @@ urlpatterns = patterns('',
     ('^' + xml_url_elements + '$',          xml_elements,       {'is_entry':False}),
     ('^' + xml_url_app_events + '$',        xml_app_events),
     ('^' + xml_url_project_shots + '$',     xml_project_shots,  {'is_entry':False}),
-    
+
     ('^' + json_url_note + '$',              json_note),
     ('^' + json_url_notes + '$',             json_notes,          {'is_entry':False}),
     ('^' + json_url_shots + '$',             json_shots),
