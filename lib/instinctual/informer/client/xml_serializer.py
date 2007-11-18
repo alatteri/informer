@@ -35,15 +35,17 @@ class Deserializer(object):
             if not field_name:
                 raise ValueError("<field> node is missing the 'name' attribute")
 
-            # for now, ignore the relationship key fields
+            field_type = None
             field_rel = field_node.getAttribute("rel")
-            if field_rel:
-                # print "skipping %s, it is rel=%s" % (field_name, field_rel)
-                continue
 
-            field_type = field_node.getAttribute("type")
-            if not field_type:
-                raise ValueError("<field> node is missing the 'type' attribute")
+            if field_rel:
+                # treat relationship fields as normal text fields
+                field_type = 'CharField'
+            else:
+                # for other fields the type must be specified
+                field_type = field_node.getAttribute("type")
+                if not field_type:
+                    raise ValueError("<field> node is missing the 'type' attribute")
 
             field_val = getInnerText(field_node)
             if 'CharField' == field_type:

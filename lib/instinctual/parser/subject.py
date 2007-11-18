@@ -43,7 +43,7 @@ class LogSubject(Subject):
         LOG.info("__init__ called for LogSubject")
 
     def operate(self):
-        LOG.debug("Now watching %s for input (previous: %s)" % (self._path, self._previous))
+        # LOG.debug("Now watching %s for input (previous: %s)" % (self._path, self._previous))
 
         lines = []
         now = os.stat(self._path)
@@ -67,7 +67,8 @@ class LogSubject(Subject):
             self._previous = now
             LOG.debug("OK done with the read, previous: %s" % (self._previous))
         else:
-            LOG.info("end of file reached")
+            # LOG.debug("end of file reached")
+            pass
 
         for line in lines:
             print "LOG --> ", line

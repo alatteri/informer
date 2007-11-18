@@ -260,6 +260,7 @@ class App(Subject):
         data = {}
         data['text'] = text
         data['created_by'] = createdBy
+        data['modified_by'] = createdBy
         data['is_checked'] = isChecked
 
         client = Client()
