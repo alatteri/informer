@@ -16,24 +16,33 @@ def _getUrlComponent(component):
     root = getServerRoot()
     return "%s/%s" % (root, conf.get('informer', component))
 
-def getAppEventsUrl():
-    return _getUrlComponent('url_app_events')
+def getAppEventsUrl(format='xml'):
+    template = _getUrlComponent('url_app_events')
+    return template % (format)
 
-def getProjectShotNoteUrl(project, shot, pk):
+def getProjectShotsUrl(project, format='xml'):
+    template = _getUrlComponent('url_project_shots')
+    return template % (format, project)
+
+def getProjectShotUrl(project, shot, format='xml'):
+    template = _getUrlComponent('url_project_shot')
+    return template % (format, project, shot)
+
+def getProjectShotNoteUrl(project, shot, pk, format='xml'):
     template = _getUrlComponent('url_project_shot_note')
-    return template % (project, shot, pk)
+    return template % (format, project, shot, pk)
 
-def getProjectShotNotesUrl(project, shot):
+def getProjectShotNotesUrl(project, shot, format='xml'):
     template = _getUrlComponent('url_project_shot_notes')
-    return template % (project, shot)
+    return template % (format, project, shot)
 
-def getProjectShotElementUrl(project, shot, pk):
+def getProjectShotElementUrl(project, shot, pk, format='xml'):
     template = _getUrlComponent('url_project_shot_element')
-    return template % (project, shot, pk)
+    return template % (format, project, shot, pk)
 
-def getProjectShotElementsUrl(project, shot):
+def getProjectShotElementsUrl(project, shot, format='xml'):
     template = _getUrlComponent('url_project_shot_elements')
-    return template % (project, shot)
+    return template % (format, project, shot)
 
 """
 /x1/j_lo/batch/001_100/0001_comp-01.batch
