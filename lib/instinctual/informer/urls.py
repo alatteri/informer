@@ -1,7 +1,8 @@
 from django.conf.urls.defaults import patterns
+from django.contrib.auth.models import User
 
 import instinctual
-from instinctual.informer.responder import CustomXMLResponder, JSONResponder
+from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver, PkEntry
 
@@ -62,28 +63,34 @@ xml_app_events = AppEvent(
     permitted_methods = ['POST'],
 )
 
+xml_users = Collection(
+    queryset = User.objects.all(),
+    permitted_methods = ['GET', 'POST'],
+    responder = CustomXMLResponder()
+)
+
 json_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
-    responder = JSONResponder()
+    responder = CustomJSONResponder()
 )
 
 json_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = JSONResponder()
+    responder = CustomJSONResponder()
 )
 
 json_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = JSONResponder()
+    responder = CustomJSONResponder()
 )
 
 json_note = Collection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'PUT'],
-    responder = JSONResponder(),
+    responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = fields_note,
 )
@@ -91,14 +98,14 @@ json_note = Collection(
 json_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = JSONResponder(),
+    responder = CustomJSONResponder(),
     expose_fields = fields_note,
 )
 
 json_element = Collection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'PUT'],
-    responder = JSONResponder(),
+    responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = fields_element,
 )
@@ -106,11 +113,17 @@ json_element = Collection(
 json_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET'],
-    responder = JSONResponder()
+    responder = CustomJSONResponder()
 )
 
 json_app_events = AppEvent(
     permitted_methods = ['POST'],
+)
+
+json_users = Collection(
+    queryset = User.objects.all(),
+    permitted_methods = ['GET', 'POST'],
+    responder = CustomJSONResponder()
 )
 
 # --------------------
@@ -131,6 +144,7 @@ xml_url_note            = conf.get('informer', 'url_project_shot_note') % ('xml'
 xml_url_notes           = conf.get('informer', 'url_project_shot_notes') % ('xml', pat_project, pat_shot)
 xml_url_element         = conf.get('informer', 'url_project_shot_element') % ('xml', pat_project, pat_shot, pat_element)
 xml_url_elements        = conf.get('informer', 'url_project_shot_elements') % ('xml', pat_project, pat_shot)
+xml_url_users          = conf.get('informer', 'url_users') % 'xml'
 
 json_url_shots           = conf.get('informer', 'url_shots') % 'json'
 json_url_projects        = conf.get('informer', 'url_projects') % 'json'
@@ -140,6 +154,7 @@ json_url_note            = conf.get('informer', 'url_project_shot_note') % ('jso
 json_url_notes           = conf.get('informer', 'url_project_shot_notes') % ('json', pat_project, pat_shot)
 json_url_element         = conf.get('informer', 'url_project_shot_element') % ('json', pat_project, pat_shot, pat_element)
 json_url_elements        = conf.get('informer', 'url_project_shot_elements') % ('json', pat_project, pat_shot)
+json_url_users           = conf.get('informer', 'url_users') % 'json'
 
 pat_project = "(?P<project_name>%s)" % pat_project
 pat_shot    = "(?P<shot_name>%s)" % pat_shot
@@ -157,6 +172,7 @@ urlpatterns = patterns('',
     ('^' + xml_url_elements + '$',          xml_elements,       {'is_entry':False}),
     ('^' + xml_url_app_events + '$',        xml_app_events),
     ('^' + xml_url_project_shots + '$',     xml_project_shots,  {'is_entry':False}),
+    ('^' + xml_url_users + '$',           xml_users,          {'is_entry':False}),
 
     ('^' + json_url_note + '$',              json_note),
     ('^' + json_url_notes + '$',             json_notes,          {'is_entry':False}),
@@ -166,6 +182,7 @@ urlpatterns = patterns('',
     ('^' + json_url_elements + '$',          json_elements,       {'is_entry':False}),
     ('^' + json_url_app_events + '$',        json_app_events),
     ('^' + json_url_project_shots + '$',     json_project_shots,  {'is_entry':False}),
+    ('^' + json_url_users + '$',           json_users,          {'is_entry':False}),
 
     ('^' + html_url_projects + '$', 'django.views.generic.list_detail.object_list', {'queryset':Project.objects.all()}),
     ('^' + html_url_project_shots + '$', 'instinctual.informer.views.project_detail'),
