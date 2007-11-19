@@ -5,6 +5,9 @@ import instinctual
 from instinctual import informer
 
 def getOrCreateUser(username):
+    # if it's a User, all is well
+    if isinstance(username, User):
+        return username
     try:
         return User.objects.get(username=username)
     except User.DoesNotExist:
