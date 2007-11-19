@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns
 
 import instinctual
-from instinctual.informer.responder import XMLResponder, JSONResponder
+from instinctual.informer.responder import CustomXMLResponder, JSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, AppEvent, XMLReceiver, PkEntry
 
@@ -14,25 +14,25 @@ fields_element = ['text', 'kind', 'is_checked', 'created_by', 'created_on']
 xml_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
-    responder = XMLResponder()
+    responder = CustomXMLResponder()
 )
 
 xml_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = XMLResponder()
+    responder = CustomXMLResponder()
 )
 
 xml_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = XMLResponder()
+    responder = CustomXMLResponder()
 )
 
 xml_note = Collection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'PUT'],
-    responder = XMLResponder(),
+    responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = fields_note,
 )
@@ -40,14 +40,14 @@ xml_note = Collection(
 xml_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = XMLResponder(),
+    responder = CustomXMLResponder(),
     expose_fields = fields_note,
 )
 
 xml_element = Collection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'PUT'],
-    responder = XMLResponder(),
+    responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = fields_element,
 )
@@ -55,7 +55,7 @@ xml_element = Collection(
 xml_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET'],
-    responder = XMLResponder()
+    responder = CustomXMLResponder()
 )
 
 xml_app_events = AppEvent(

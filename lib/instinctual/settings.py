@@ -91,3 +91,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'instinctual.informer',
 )
+
+SERIALIZATION_MODULES = {
+    'custom_xml' : 'instinctual.serializers.custom_xml',
+    'custom_json' : 'instinctual.serializers.custom_json',
+}
