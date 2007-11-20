@@ -4,7 +4,7 @@
 <h3>{{ shot.name }}</h3>
 
 <ul>
-<li onclick="get_info(notes_div, notes_table, notes_url);">Notes</li>
+<li onclick="get_notes();">Notes</li>
 <li onclick="get_info(elements_div);">Elements</li>
 <li onclick="get_info(log_div);">Historical Log</li>
 <li onclick="get_info(specs_div);">Specifications</li>
@@ -59,18 +59,21 @@
            });
     }
 
-    function get_info(div, table, url) {
+    function get_notes() {
+        get_info(notes_div, notes_url, show_notes);
+    }
+    function get_info(div, url, func) {
         // if already showing, forget it
         if (div.style.display == 'block')
             return;
 
         hide_all(div);
 
-        if (!table) return;
+        if (!url) return;
 
         new Ajax.Request(url, {
             method: 'GET',
-            onSuccess: function(resp) { show_results(resp, table)}});
+            onSuccess: func});
     }
 
     function hide_all(skip) {
@@ -78,6 +81,42 @@
             if (each) 
                 each.style.display = each==skip ? 'block' : 'none';
         });
+    }
+
+    function show_note(note) {
+        var fields = note.fields;
+        var row1 = document.createElement('tr');
+        var td1 = document.createElement('td');
+        var txt = 'Todo';
+        if (fields.checked) {
+            txt = fields.modified_by.username + ' @ ' + fields.modified_on;
+        }
+        td1.appendChild(document.createTextNode(txt));
+        var td2 = document.createElement('td');
+        td2.rowSpan = 2;
+        td2.appendChild(document.createTextNode(fields.text));
+        row1.appendChild(td1);
+        row1.appendChild(td2);
+        notes_table.appendChild(row1);
+
+        var row2 = document.createElement('tr');
+        var td3 = document.createElement('td');
+        td3.appendChild(document.createTextNode(fields.created_by.username + ' @ ' + fields.created_on));
+        row2.appendChild(td3);
+        notes_table.appendChild(row2);
+
+        var row3 = document.createElement('tr');
+        var td4 = document.createElement('td');
+        td4.colSpan = 2;
+        td4.appendChild(document.createElement('hr'));
+        row3.appendChild(td4);
+        notes_table.appendChild(row3);
+    }
+
+    function show_notes(response) {
+        while (notes_table.hasChildNodes()) { notes_table.removeChild(notes_table.firstChild); }
+        var data = eval(response.responseText);
+        data.each(function(x) { show_note(x); });
     }
 
     function show_results(response, table) {
