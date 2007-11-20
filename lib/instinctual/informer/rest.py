@@ -150,11 +150,7 @@ class AppEvent(Resource):
             e = Event.objects.get(shot=s, type=event, date_added=date)
             print "--- event already existed ---"
         except Event.DoesNotExist:
-            e = Event(shot=s, type=event, host=host, date_added=date)
-            # work around an issue trying to promote the string 'user'
-            # to a user object. currently only works with __setattr__
-            # __init__ throws an exception.
-            e.user = user
+            e = Event(shot=s, type=event, user=user, host=host, date_added=date)
             e.save()
             print "--- saved e ---"
 

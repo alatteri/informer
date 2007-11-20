@@ -6,19 +6,16 @@ from instinctual import informer
 
 class UserMixIn:
     user_fields = ['created_by', 'modified_by', 'user']
-    
+
     def __init__(self, *args, **kwargs):
         for f in self.user_fields:
-            if kwargs.has_key(f):
-                u = kwargs[f]
-                if u:
-                    u = self.getOrCreateUser(u)
-                    kwargs[f] = u
+            if f in kwargs and kwargs[f]:
+                kwargs[f] = self.getOrCreateUser(kwargs[f])
         models.Model.__init__(self, *args, **kwargs)
 
     def __setattr__(self, key, val):
         if key in self.user_fields:
-            val = getOrCreateUser(val)
+            val = self.getOrCreateUser(val)
         return models.Model.__setattr__(self, key, val)
 
     def getOrCreateUser(self, username):
