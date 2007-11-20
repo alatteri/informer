@@ -24,13 +24,6 @@ def getShotNameFromRequest(request):
     shot_name = parts[7]
     return shot_name
 
-def _setUsernameAsPkForUserFields(model):
-    for field in model._meta.fields:
-        if (field.rel and field.rel.to and field.rel.to._meta and
-           'auth.user' == str(field.rel.to._meta)):
-            user = getattr(model, field.name)
-            user._get_pk_val = lambda: user.username
-
 class ProjectShots(Collection):
     def read(self, request):
         project_name = getProjectNameFromRequest(request)
@@ -50,9 +43,6 @@ class ProjectShotCollection(Collection):
 
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(shot=shot)
-
-        for obj in filtered_set:
-            _setUsernameAsPkForUserFields(obj)
 
         return self.responder.list(request, filtered_set)
 
@@ -86,7 +76,6 @@ class ProjectShotCollection(Collection):
         # URI in the location header and a representation
         # of the model in the response body.
         new_model.save()
-        _setUsernameAsPkForUserFields(new_model)
 
         model_entry = self.entry_class(self, new_model)
         response = model_entry.read(request)
@@ -108,7 +97,6 @@ class PkEntry(Entry):
             self.model.__setattr__(key, val)
 
         self.model.save()
-        _setUsernameAsPkForUserFields(self.model)
 
         response = self.read(request)
         response.status_code = 200
@@ -162,7 +150,11 @@ class AppEvent(Resource):
             e = Event.objects.get(shot=s, type=event, date_added=date)
             print "--- event already existed ---"
         except Event.DoesNotExist:
-            e = Event(shot=s, type=event, host=host, user=user, date_added=date)
+            e = Event(shot=s, type=event, host=host, date_added=date)
+            # work around an issue trying to promote the string 'user'
+            # to a user object. currently only works with __setattr__
+            # __init__ throws an exception.
+            e.user = user
             e.save()
             print "--- saved e ---"
 
