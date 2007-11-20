@@ -4,18 +4,35 @@ from django.contrib.auth.models import User
 import instinctual
 from instinctual import informer
 
-def getOrCreateUser(username):
-    # if it's a User, all is well
-    if isinstance(username, User):
-        return username
-    try:
-        return User.objects.get(username=username)
-    except User.DoesNotExist:
-        print "no. did not find the user."
-        user = User(username=username, password='x')
-        user.save()
-        print "ok! just created user %s" % (username)
-        return user
+class UserMixIn:
+    user_fields = ['created_by', 'modified_by', 'user']
+    
+    def __init__(self, *args, **kwargs):
+        for f in self.user_fields:
+            if kwargs.has_key(f):
+                u = kwargs[f]
+                if u:
+                    u = self.getOrCreateUser(u)
+                    kwargs[f] = u
+        models.Model.__init__(self, *args, **kwargs)
+
+    def __setattr__(self, key, val):
+        if key in self.user_fields:
+            val = getOrCreateUser(val)
+        return models.Model.__setattr__(self, key, val)
+
+    def getOrCreateUser(self, username):
+        # if it's a User, all is well
+        if isinstance(username, User):
+            return username
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            print "no. did not find the user."
+            user = User(username=username, password='x')
+            user.save()
+            print "ok! just created user %s" % (username)
+            return user
 
 # ------------------------------------------------------------------------------
 class Project(models.Model):
@@ -62,7 +79,7 @@ class Shot(models.Model):
             return self.name
 
 # ------------------------------------------------------------------------------
-class Note(models.Model):
+class Note(UserMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField('text', maxlength=4096)
     is_checked  = models.BooleanField('completed', default=False)
@@ -70,11 +87,6 @@ class Note(models.Model):
     created_by  = models.ForeignKey(User)
     modified_on = models.DateTimeField('date modified', auto_now=True)
     modified_by = models.ForeignKey(User, related_name='modified_note_set')
-
-    def __setattr__(self, key, val):
-        if key in ('created_by', 'modified_by'):
-            val = getOrCreateUser(val)
-        return models.Model.__setattr__(self, key, val)
 
     class Admin:
         list_display = ('shot', 'is_checked', 'text', 'created_by',
@@ -84,18 +96,13 @@ class Note(models.Model):
         return self.text
 
 # ------------------------------------------------------------------------------
-class Element(models.Model):
+class Element(UserMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     kind        = models.CharField(maxlength=32)
     text        = models.CharField(maxlength=4096)
     is_checked  = models.BooleanField('is checked', default=False)
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
-
-    def __setattr__(self, key, val):
-        if key in ('created_by'):
-            val = getOrCreateUser(val)
-        return models.Model.__setattr__(self, key, val)
 
     class Admin:
         list_display = ('shot', 'kind', 'is_checked', 'text', 'created_by', 'created_on')
@@ -104,18 +111,13 @@ class Element(models.Model):
             return self.text
 
 # ------------------------------------------------------------------------------
-class Event(models.Model):
+class Event(UserMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     type        = models.CharField(maxlength=255)
     host        = models.CharField(maxlength=255)
     user        = models.ForeignKey(User)
     # date_added  = models.DateTimeField('date added', auto_now_add=True)
     date_added  = models.DateTimeField('date')
-
-    def __setattr__(self, key, val):
-        if key in ('user'):
-            val = getOrCreateUser(val)
-        return models.Model.__setattr__(self, key, val)
 
     class Meta:
         unique_together = (('shot', 'type', 'date_added'),)
