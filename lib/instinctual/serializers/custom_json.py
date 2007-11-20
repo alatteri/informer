@@ -14,12 +14,6 @@ class Serializer(JSONSerializer):
                 # Related to remote object via other field
                 related = getattr(related, field.rel.field_name)
         self._current[field.name] = related
-    
-    def handle_m2m_field(self, obj, field):
-        self._current[field.name] = [related._get_pk_val() for related in getattr(obj, field.name).iterator()]
-    
-    def getvalue(self):
-        return self.objects
 
 def Deserializer(object_list, **options):
     JSONDeserializer(object_list)
