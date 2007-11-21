@@ -158,13 +158,11 @@ SparkMemoryTempBuffers(void)
 unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
+    double rate;
     char *spark_name;
     char **env = environ;
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
-
-    double rate = sparkFrameRate();
-    InformerDEBUG("This is the frame rate [%f]\n", rate);
 
     InformerDEBUG("^^^^^^ The program is: %s ^^^^^^^^^^^\n", sparkProgramGetName());
 
@@ -257,6 +255,11 @@ SparkInitialise(SparkInfoStruct spark_info)
     printf("OK before python, the spark is %s\n", InformerGetSparkName());
 
     PythonInitialize();
+
+    rate = sparkFrameRate();
+    InformerDEBUG("This is the frame rate [%f]\n", rate);
+    GatewaySetFrameRate(rate);
+
     spark_name = GatewaySparkRegister(InformerGetSparkName());
     strncpy(app->spark_last_name, spark_name, 256);
 
@@ -360,7 +363,7 @@ SparkProcess(SparkInfoStruct spark_info)
     InformerDEBUG("   mode is [%d]\n", spark_info.Mode);
     InformerDEBUG("   context is [%d]\n", spark_info.Context);
 
-    path = GatewaySparkProcess(spark_name, spark_info);
+    path = GatewaySparkProcessFrameStart(spark_name, spark_info);
 
     // InformerDEBUG("-----> PATH: %s\n", path);
     // InformerDEBUG("          (SparkInfo)\n");
@@ -411,6 +414,8 @@ SparkProcess(SparkInfoStruct spark_info)
         // printf("The size of a ptr is p[%d]\n", sizeof(ulong));
         // printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);
         // printf("The number of pixels in the buffer: %d\n", SparkResult.BufSize);
+
+        GatewaySparkProcessFrameEnd(spark_name);
     }
 
     return SparkResult.Buffer;

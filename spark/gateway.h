@@ -11,6 +11,7 @@ void GatewayPyStringToString(PyObject *pObj, char *data, int max_length);
 void GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data);
 void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
+void GatewaySetFrameRate(double frameRate);
 int GatewayGetElems(const char *setup, InformerElemData *data);
 int GatewayGetNotes(const char *setup, InformerNoteData *data);
 
@@ -20,7 +21,8 @@ int GatewayUpdateElem(const char *setup, InformerElemData *data, int id, int is_
 int GatewayUpdateNote(const char *setup, InformerNoteData *data, int id, int is_checked, char *modified_by);
 
 void GatewaySparkProcessStart(void);
-char *GatewaySparkProcess(const char *setup, SparkInfoStruct spark_info);
+char *GatewaySparkProcessFrameStart(const char *setup, SparkInfoStruct spark_info);
+void GatewaySparkProcessFrameEnd(const char *setup);
 void GatewaySparkProcessEnd(void);
 
 char *GatewaySparkRegister(const char *spark_name);

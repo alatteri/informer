@@ -6,12 +6,29 @@ from instinctual.serializable import Serializable
 class Frame(Serializable):
     def __init__(self, parent):
         Serializable.__init__(self, parent, 'frame.pkl')
-        self._rgbPath = os.path.join(self.container, 'frame.rgb')
+        self.rgbPath = os.path.join(self.container, 'frame.rgb')
 
-        self.width = None
+        self.isBusy = False
+
+        self.width  = None
         self.height = None
         self.depth = None
-        self.frameNo = None
+
+        # self.depthResized  = None
+        # self.widthResized  = None
+        # self.heightResized = None
+
+        self.start  = None
+        self.number = None
+        self.end    = None
+        self.rate   = None
+
+        self.host = None
+        self.createdBy = None
+        self.createdOn = None
+
+        self.setup = None
+        self.spark = None
 
     def delete(self):
         try:
@@ -21,8 +38,3 @@ class Frame(Serializable):
                 raise e
 
         Serializable.delete(self)
-
-    def _getRgbPath(self):
-        return self._rgbPath
-
-    rgbPath = property(_getRgbPath)
