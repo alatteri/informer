@@ -63,6 +63,10 @@ class Shot(models.Model):
         project = self.project.name
         return informer.getProjectShotNotesUrl(project, self.name, format='json')
 
+    def get_json_element_url(self):
+        project = self.project.name
+        return informer.getProjectShotElementsUrl(project, self.name, format='json')
+
     class Meta:
         unique_together = (('project', 'name'),)
 

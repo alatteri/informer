@@ -5,7 +5,7 @@
 
 <ul>
 <li onclick="get_notes();">Notes</li>
-<li onclick="get_info(elements_div);">Elements</li>
+<li onclick="get_elements();">Elements</li>
 <li onclick="get_info(log_div);">Historical Log</li>
 <li onclick="get_info(specs_div);">Specifications</li>
 </ul>
@@ -24,7 +24,7 @@
 <div id="elements" style="display:none">
 <h4>Elements</h4>
 
-<table id="element_table"></table>
+<table id="elements_table"></table>
 </div><!-- elements -->
 
 <div id="log" style="display:none">
@@ -41,8 +41,11 @@
     var log_div = $('log');
     var specs_div = $('specs');
     var notes_table = $('notes_table');
-    var elements_table;
+    var elements_table = $('elements_table');
     var notes_url = '{{ shot.get_json_note_url }}';
+    var elements_url = '{{ shot.get_json_element_url }}';
+
+    var CACHE = {};
 
     function add_note() {
         var txt = $F('frm_notes');
@@ -62,6 +65,11 @@
     function get_notes() {
         get_info(notes_div, notes_url, show_notes);
     }
+
+    function get_elements() {
+        get_info(elements_div, elements_url, show_elements);
+    }
+
     function get_info(div, url, func) {
         // if already showing, forget it
         if (div.style.display == 'block')
@@ -83,42 +91,72 @@
         });
     }
 
+    function parseDate(strDate) {
+        var nums = strDate.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+        var d = new Date();
+        d.setFullYear(nums[1], nums[2]-1, nums[3]);
+        d.setHours(nums[4]);
+        d.setMinutes(nums[5]);
+        d.setSeconds(nums[6]);
+        return d;
+    }
+
+    var noteTemplate = new Template(
+        '<tr>' + 
+        '<td><input type="checkbox" id="chk_note_#{pk}"#{checked}>'+
+        '<label id="lbl_note_#{pk}" for="chk_note_#{pk}">#{msg}</label></td>'+
+        '<td rowspan="2">#{text}</td></tr><tr><td>#{by}</td></tr>'+
+        '<tr><td colspan="2"><hr></td></tr>');
+
     function show_note(note) {
         var fields = note.fields;
-        var row1 = document.createElement('tr');
-        var td1 = document.createElement('td');
-        var txt = 'Todo';
-        if (fields.checked) {
-            txt = fields.modified_by.username + ' @ ' + fields.modified_on;
-        }
-        td1.appendChild(document.createTextNode(txt));
-        var td2 = document.createElement('td');
-        td2.rowSpan = 2;
-        td2.appendChild(document.createTextNode(fields.text));
-        row1.appendChild(td1);
-        row1.appendChild(td2);
-        notes_table.appendChild(row1);
+        var created = parseDate(fields.created_on);
+        var modified = parseDate(fields.modified_on);
+        
+        var info = {pk: note.pk,
+                    text: fields.text,
+                    msg: (fields.is_checked ? fields.modified_by.username + ' @ ' + (modified.getMonth()+1) + '-' + modified.getDate() : 'Todo'),
+                    by: fields.created_by.username + ' @ ' + (created.getMonth()+1) + '-' + created.getDate(),
+                    checked: (fields.is_checked ? ' checked' : '')};
 
-        var row2 = document.createElement('tr');
-        var td3 = document.createElement('td');
-        td3.appendChild(document.createTextNode(fields.created_by.username + ' @ ' + fields.created_on));
-        row2.appendChild(td3);
-        notes_table.appendChild(row2);
+        notes_table.innerHTML = noteTemplate.evaluate(info) + notes_table.innerHTML;
 
-        var row3 = document.createElement('tr');
-        var td4 = document.createElement('td');
-        td4.colSpan = 2;
-        td4.appendChild(document.createElement('hr'));
-        row3.appendChild(td4);
-        notes_table.appendChild(row3);
     }
 
     function show_notes(response) {
         while (notes_table.hasChildNodes()) { notes_table.removeChild(notes_table.firstChild); }
+        CACHE = {};
         var data = eval(response.responseText);
-        data.each(function(x) { show_note(x); });
+        data.each(function(x) { CACHE[x.pk]=x; show_note(x); });
     }
 
+    var elementTemplate = new Template(
+        '<tr>' +
+        '<td><input type="checkbox" id="chk_elm_#{pk}"#{checked}>'+
+        '<label id="lbl_elm_#{pk}" for="chk_elm_#{pk}">#{kind}</label></td>'+
+        '<td rowspan="2">#{text}</td></tr><tr><td>#{by}</td></tr>'+
+        '<tr><td colspan="2"><hr></td></tr>');
+
+    function show_element(element) {
+        var fields = element.fields;
+        var created = parseDate(fields.created_on);
+        var created_by = fields.created_by.username + ' @ ' + (created.getMonth()+1) + '-' + created.getDate();
+        
+        var info = {pk: element.pk,
+                    text: fields.text,
+                    kind: fields.kind,
+                    by: created_by,
+                    checked: (fields.is_checked ? ' checked' : '')};
+
+        elements_table.innerHTML = elementTemplate.evaluate(info) + elements_table.innerHTML;
+    }
+
+    function show_elements(response) {
+        while (elements_table.hasChildNodes()) { elements_table.removeChild(elements_table.firstChild); }
+        CACHE = {};
+        var data = eval(response.responseText);
+        data.each(function(x) { CACHE[x.pk]=x; show_element(x); });
+    }
     function show_results(response, table) {
         while (table.hasChildNodes()) { table.removeChild(table.firstChild); }
         var data = eval(response.responseText);
