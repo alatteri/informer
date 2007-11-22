@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import os
+import time
+from glob import glob
+import instinctual
+from instinctual import settings
+from instinctual.informer.frame import Frame
+
+conf = instinctual.getConf()
+frameDir = conf.get('informer', 'dir_frames')
+frameGlob = os.path.join(frameDir, '*', 'frame.pkl')
+
+maxHeight = 100
+maxWidth  = 200
+
+while True:
+    for framePath in glob(frameGlob):
+        print "Found ->", framePath
+        frame = Frame.load(framePath)
+
+        if not frame.isBusy:
+            print "I can work on", frame.rgbPath
+            frame.isBusy = True
+            frame.save()
+
+            frame.resizedPath = os.path.join(frame.container, 'frame.png')
+            cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
+            print "CMD:", cmd
+            if 0 == os.system(cmd):
+                print "done!"
+                frame.delete()
+            else:
+                print "FAILURE running convert"
+        else:
+            print "Frame was busy..."
+
+        time.sleep(0.5)
+
+    print "now sleeping..."
+    time.sleep(3.0)

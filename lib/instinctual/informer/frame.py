@@ -14,10 +14,6 @@ class Frame(Serializable):
         self.height = None
         self.depth = None
 
-        # self.depthResized  = None
-        # self.widthResized  = None
-        # self.heightResized = None
-
         self.start  = None
         self.number = None
         self.end    = None
@@ -30,9 +26,22 @@ class Frame(Serializable):
         self.setup = None
         self.spark = None
 
+        self.resizedDepth  = None
+        self.resizedWidth  = None
+        self.resizedHeight = None
+        self.resizedPath   = None
+
     def delete(self):
         try:
-            os.unlink(self.rgbPath)
+            if self.rgbPath:
+                os.unlink(self.rgbPath)
+        except OSError, e:
+            if errno.ENOENT != e.errno:
+                raise e
+
+        try:
+            if self.resizedPath:
+                os.unlink(self.resizedPath)
         except OSError, e:
             if errno.ENOENT != e.errno:
                 raise e
