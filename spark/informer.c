@@ -57,11 +57,11 @@ SparkStringStruct SparkString32 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkString33 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 /* Informer Note Controls */
-SparkPupStruct SparkPup7 = {0, 5, InformerNotesSortChanged, {"Sort by date created",
-                                                             "Sort by date modified",
-                                                             "Sort by status",
-                                                             "Sort by artist",
-                                                             "Sort by author"}};
+SparkPupStruct SparkPup7 = {0, 5, InformerNotesSortChanged, {"Sort by Date Created",
+                                                             "Sort by Date Modified",
+                                                             "Sort by Status",
+                                                             "Sort by Artist",
+                                                             "Sort by Author"}};
 
 SparkStringStruct SparkString28 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPushStruct SparkPush14 = { "<< Previous Page", InformerTableButtonA };
@@ -78,10 +78,10 @@ SparkStringStruct SparkString13 = { "", CREATE_NOTE_UI, SPARK_FLAG_NONE,
  *************************************/
 SparkCanvasStruct SparkCanvas2 = { InformerTableCanvasDraw, InformerTableCanvasInteract };
 
-SparkPupStruct SparkPup36 = {0, 4, InformerElemsSortChanged, {"Sort by date",
-                                                              "Sort by status",
-                                                              "Sort by kind",
-                                                              "Sort by author"}};
+SparkPupStruct SparkPup36 = {0, 4, InformerElemsSortChanged, {"Sort by Date",
+                                                              "Sort by Status",
+                                                              "Sort by Kind",
+                                                              "Sort by Author"}};
 
 SparkStringStruct SparkString57 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkPushStruct SparkPush43 = { "<< Previous Page", InformerTableButtonA };
