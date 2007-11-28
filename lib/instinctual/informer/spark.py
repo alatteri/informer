@@ -3,7 +3,7 @@ from datetime import datetime
 import instinctual
 import instinctual.informer
 from instinctual.informer.frame import Frame
-from instinctual.informer.client import Client, AppEvent
+from instinctual.informer.client import Client
 
 LOG = instinctual.getLogger(__name__)
 
@@ -28,6 +28,8 @@ class Spark(object):
 
         self.f = Frame(self.frameDir)
         f = self.f
+
+        print "ok just made frame"
 
         f.isBusy = True
         f.spark  = self.name

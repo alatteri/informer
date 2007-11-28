@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render_to_response, get_object_or_404
 
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
+from instinctual.informer.models import Project, Shot, Note, Element, Event
 
 def project_detail(request, project_name):
     p = get_object_or_404(Project, name=project_name)

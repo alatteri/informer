@@ -32,11 +32,15 @@ class Serializable(object):
         print "[[[[[[[[ delete called for %s ]]]]]]]]]]]]" % (self.container)
         os.rmdir(self.container)
 
+    def _getId(self):
+        return self._id
+
     def _getPath(self):
         return self._path
 
     def _getContainer(self):
         return self._container
 
+    uuid = property(_getId)
     path = property(_getPath)
     container = property(_getContainer)

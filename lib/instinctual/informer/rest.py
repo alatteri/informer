@@ -8,26 +8,12 @@ from django_restapi.resource import Resource
 from django_restapi.receiver import FormReceiver, XMLReceiver
 from django_restapi.model_resource import Collection, Entry, reverse, InvalidModelData
 
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Output
-
-def strToDatetime(s):
-    s = s[0:s.rindex('.')]
-    return datetime(*strptime(s, "%m/%d/%y:%H:%M:%S")[0:6])
-
-def getProjectNameFromRequest(request):
-    parts = request.path.split("/")
-    project_name = parts[5]
-    return project_name
-
-def getShotNameFromRequest(request):
-    parts = request.path.split("/")
-    shot_name = parts[7]
-    return shot_name
+from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame
 
 class ProjectShots(Collection):
     def read(self, request):
-        project_name = getProjectNameFromRequest(request)
-        project = Project.objects.get(name=project_name)
+        project_name = Project.getNameFromRequest(request)
+        project = Project.getProject(project_name)
 
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(project=project)
@@ -35,11 +21,11 @@ class ProjectShots(Collection):
 
 class ProjectShotCollection(Collection):
     def read(self, request):
-        project_name = getProjectNameFromRequest(request)
-        project = Project.objects.get(name=project_name)
+        project_name = Project.getNameFromRequest(request)
+        project = Project.getProject(project_name)
 
-        shot_name = getShotNameFromRequest(request)
-        shot = Shot.objects.get(name=shot_name, project=project)
+        shot_name = Shot.getNameFromRequest(request)
+        shot = Shot.getShot(shot_name, project)
 
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(shot=shot)
@@ -55,22 +41,40 @@ class ProjectShotCollection(Collection):
         since field to be specified.
         """
         # TODO: specifiy form_class in urls.py to verify data
-        project_name = getProjectNameFromRequest(request)
-        project = Project.objects.get(name=project_name)
+        project_name = Project.getNameFromRequest(request)
+        project = Project.getProject(project_name, create=True)
 
-        shot_name = getShotNameFromRequest(request)
-        shot = Shot.objects.get(name=shot_name, project=project)
+        shot_name = Shot.getNameFromRequest(request)
+        shot = Shot.getShot(shot_name, project, create=True)
+
+        new_model = self.queryset.model()
+        print "ok just made new_model %s" % (new_model.__class__.__name__)
 
         data = self.receiver.get_post_data(request)
-        new_model = self.queryset.model()
+        print "ok here's the data: %s" % (data)
+
+        # calculate the time difference between client and server
+        if 'now' in data:
+            clientNow = new_model.getDateTime(data['now'])
+            new_model.calculateDelta(clientNow)
+            del data['now']
 
         # associate with the shot
         new_model.shot = shot
 
         # seed with POST data
         for (key, val) in data.items():
+            print "going to set [%s] with [%s]" % (key, val)
             new_model.__setattr__(key, val)
 
+        # handle file uploads
+        if 'Frame' == new_model.__class__.__name__:
+            if 'image' in request.FILES:
+                content = request.FILES['image']['content']
+                filename = request.FILES['image']['filename']
+                new_model.save_image_file(filename, content, True)
+
+        print "now going to save"
         # If the data contains no errors, save the model,
         # return a "201 Created" response with the model's
         # URI in the location header and a representation
@@ -93,6 +97,12 @@ class PkEntry(Entry):
         # TODO: data validation/checking
         data = self.collection.receiver.get_put_data(request)
 
+        # calculate the time difference between client and server
+        if 'now' in data:
+            clientNow = self.model.getDateTime(data['now'])
+            self.model.calculateDelta(clientNow)
+            del data['now']
+
         for (key, val) in data.items():
             self.model.__setattr__(key, val)
 
@@ -102,69 +112,3 @@ class PkEntry(Entry):
         response.status_code = 200
         response.headers['Location'] = self.get_url()
         return response
-
-class AppEvent(Resource):
-    def create(self, request):
-        nowServer = datetime.now()
-        print "Server says now is: ", nowServer
-
-        receiver = FormReceiver()
-        data = receiver.get_post_data(request)
-        print "I got this data:", data
-
-        p = None
-        project = data['project']
-        try:
-            p = Project.objects.get(name=project)
-            print "--- project already existed ---"
-        except Project.DoesNotExist:
-            p = Project(name=project)
-            p.save()
-            print "--- saved p ---"
-
-        s = None
-        shot = data['shot']
-        setup = data['setup']
-        try:
-            s = Shot.objects.get(name=shot, project=p)
-            print "--- shot already existed ---"
-        except Shot.DoesNotExist:
-            s = Shot(name=shot, setup=setup, project=p)
-            s.save()
-            print "--- saved s ---"
-
-        e = None
-        user = data['user']
-        host = data['hostname']
-        event = data['event']
-
-        date = strToDatetime(data['date'])
-        print "Unadjusted date is: ", date
-
-        nowClient = strToDatetime(data['now'])
-        print "Client says now is: ", nowClient
-
-        date = date + (nowServer - nowClient)
-        print "Adjusted date is: ", date
-        try:
-            e = Event.objects.get(shot=s, type=event, date_added=date)
-            print "--- event already existed ---"
-        except Event.DoesNotExist:
-            e = Event(shot=s, type=event, user=user, host=host, date_added=date)
-            e.save()
-            print "--- saved e ---"
-
-        if 'outputs' in data:
-            print "((((( outputs exist... ))))))"
-            for output in data['outputs'].split('|'):
-                print "((((((((( working on %s ))))))))" % output
-                try:
-                    o = Output.objects.get(location=output, event=e)
-                    print "--- output already existed ---"
-                except Output.DoesNotExist:
-                    o = Output(location=output, event=e)
-                    o.save()
-                    print "--- saved o ---"
-
-        return HttpResponse('')
-

@@ -2,7 +2,7 @@
 
 # The following line is needed to eval(data) from python requests
 import time
-import datetime
+from datetime import datetime
 
 import instinctual
 from instinctual import settings
@@ -10,7 +10,6 @@ from instinctual import settings
 import restclient
 
 from instinctual import informer
-from instinctual.informer.client.appevent import AppEvent
 from instinctual.informer.client.xml_serializer import Deserializer
 
 LOG = instinctual.getLogger(__name__)
@@ -20,16 +19,65 @@ class ClientConnectionError(Exception):
 
 # ------------------------------------------------------------------------------
 class Client(object):
-    def newAppEvent(self, appEvent):
-        appEventUrl = instinctual.informer.getAppEventsUrl()
-        data = AppEvent(appEvent).asDict()
+    def newEvent(self, event):
+        parsed = informer.parseSetup(event.setup)
+        project = parsed['project']
+        shot = parsed['shot']
+        eventsUrl = instinctual.informer.getProjectShotEventsUrl(project, shot)
 
-        LOG.warn(''.join(['-'*20, 'App Event', '-'*20]))
+        data = {}
+        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
+        data['created_on'] = event.date
+        data['created_by'] = event.user
+        data['type'] = event.event
+        data['setup'] = event.setup
+        data['volume'] = event.volume
+        data['host'] = event.hostname
+
+        if event.__class__.__name__ == 'DiscreetAppBatchProcessEvent':
+            data['outputs'] = ','.join(event.outputs)
+
+        LOG.warn(''.join(['-'*20, 'Event', '-'*20]))
         for (key, val) in data.items():
             LOG.warn("%s: %s" % (key, val))
         LOG.warn(''.join(['-'*20, '---------', '-'*20]))
 
-        result = self.POST(appEventUrl, data)
+        result = self.POST(eventsUrl, data)
+
+    def newFrame(self, frame):
+        parsed = informer.parseSetup(frame.setup)
+        project = parsed['project']
+        shot = parsed['shot']
+        framesUrl = instinctual.informer.getProjectShotFramesUrl(project, shot)
+        print "Time to upload", frame.rgbPath, "to", framesUrl
+
+        data = {}
+        data['width'] = frame.width
+        data['height'] = frame.height
+        data['depth'] = frame.depth
+
+        data['start'] = frame.start
+        data['number'] = frame.number
+        data['end'] = frame.end
+        data['rate'] = frame.rate
+
+        data['spark'] = frame.spark
+        data['host'] = frame.host
+
+        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
+        data['created_by'] = frame.createdBy
+        data['created_on'] = frame.createdOn
+
+        data['resized_width'] = 100
+        data['resized_height'] = 100
+        data['resized_depth'] = 100
+
+        image = open(frame.resizedPath).read()
+        print "About to get the frames uuid..."
+        filename = "%s.png" % (frame.uuid)
+        print "the file would be:", filename
+        files = {'image': {'file': image, 'filename': filename}}
+        result = self.POST(framesUrl, data, files=files)
 
     def getElements(self, setup):
         parsed = informer.parseSetup(setup)
@@ -135,5 +183,4 @@ class Client(object):
 
     GET  = wrapRestClient(restclient.GET,  [200])
     PUT  = wrapRestClient(restclient.PUT,  [200])
-    # TODO: remove 200 this is just for AppEvents...
-    POST = wrapRestClient(restclient.POST, [200, 201])
+    POST = wrapRestClient(restclient.POST, [201])

@@ -12,7 +12,7 @@ class Frame(Serializable):
 
         self.width  = None
         self.height = None
-        self.depth = None
+        self.depth  = None
 
         self.start  = None
         self.number = None

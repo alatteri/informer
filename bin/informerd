@@ -20,6 +20,7 @@ import time
 from glob import glob
 import instinctual
 from instinctual import settings
+from instinctual.informer.client import Client
 from instinctual.informer.frame import Frame
 
 conf = instinctual.getConf()
@@ -29,7 +30,8 @@ frameGlob = os.path.join(frameDir, '*', 'frame.pkl')
 maxHeight = 100
 maxWidth  = 200
 
-while True:
+run = True
+while run:
     for framePath in glob(frameGlob):
         print "Found ->", framePath
         frame = Frame.load(framePath)
@@ -37,12 +39,14 @@ while True:
         if not frame.isBusy:
             print "I can work on", frame.rgbPath
             frame.isBusy = True
-            frame.save()
+            # frame.save()
 
             frame.resizedPath = os.path.join(frame.container, 'frame.png')
             cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
             print "CMD:", cmd
             if 0 == os.system(cmd):
+                client = Client()
+                client.newFrame(frame)
                 print "done!"
                 frame.delete()
             else:

@@ -16,10 +16,6 @@ def _getUrlComponent(component):
     root = getServerRoot()
     return "%s/%s" % (root, conf.get('informer', component))
 
-def getAppEventsUrl(format='xml'):
-    template = _getUrlComponent('url_app_events')
-    return template % (format)
-
 def getProjectShotsUrl(project, format='xml'):
     template = _getUrlComponent('url_project_shots')
     return template % (format, project)
@@ -42,6 +38,14 @@ def getProjectShotElementUrl(project, shot, pk, format='xml'):
 
 def getProjectShotElementsUrl(project, shot, format='xml'):
     template = _getUrlComponent('url_project_shot_elements')
+    return template % (format, project, shot)
+
+def getProjectShotEventsUrl(project, shot, format='xml'):
+    template = _getUrlComponent('url_project_shot_events')
+    return template % (format, project, shot)
+
+def getProjectShotFramesUrl(project, shot, format='xml'):
+    template = _getUrlComponent('url_project_shot_frames')
     return template % (format, project, shot)
 
 """

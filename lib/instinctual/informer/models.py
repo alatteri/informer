@@ -1,35 +1,13 @@
+from datetime import datetime
+from time import strptime, mktime
+
 from django.db import models
 from django.contrib.auth.models import User
 
 import instinctual
 from instinctual import informer
-
-class UserMixIn:
-    user_fields = ['created_by', 'modified_by', 'user']
-
-    def __init__(self, *args, **kwargs):
-        for f in self.user_fields:
-            if f in kwargs and kwargs[f]:
-                kwargs[f] = self.getOrCreateUser(kwargs[f])
-        models.Model.__init__(self, *args, **kwargs)
-
-    def __setattr__(self, key, val):
-        if key in self.user_fields:
-            val = self.getOrCreateUser(val)
-        return models.Model.__setattr__(self, key, val)
-
-    def getOrCreateUser(self, username):
-        # if it's a User, all is well
-        if isinstance(username, User):
-            return username
-        try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
-            print "no. did not find the user."
-            user = User(username=username, password='x')
-            user.save()
-            print "ok! just created user %s" % (username)
-            return user
+from instinctual.informer.mixins import InformerMixIn
+from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetEvent
 
 # ------------------------------------------------------------------------------
 class Project(models.Model):
@@ -47,6 +25,10 @@ class Project(models.Model):
             return "%s: %s" % (self.name, self.description)
         else:
             return self.name
+
+    def getNameFromRequest(cls, request):
+        return request.path.split("/")[5]
+    getNameFromRequest = classmethod(getNameFromRequest)
 
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
@@ -79,8 +61,12 @@ class Shot(models.Model):
         else:
             return self.name
 
+    def getNameFromRequest(cls, request):
+        return request.path.split("/")[7]
+    getNameFromRequest = classmethod(getNameFromRequest)
+
 # ------------------------------------------------------------------------------
-class Note(UserMixIn, models.Model):
+class Note(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField('text', maxlength=4096)
     is_checked  = models.BooleanField('completed', default=False)
@@ -97,7 +83,7 @@ class Note(UserMixIn, models.Model):
         return self.text
 
 # ------------------------------------------------------------------------------
-class Element(UserMixIn, models.Model):
+class Element(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     kind        = models.CharField(maxlength=32)
     text        = models.CharField(maxlength=4096)
@@ -112,37 +98,59 @@ class Element(UserMixIn, models.Model):
             return self.text
 
 # ------------------------------------------------------------------------------
-class Event(UserMixIn, models.Model):
+class Event(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     type        = models.CharField(maxlength=255)
     host        = models.CharField(maxlength=255)
-    user        = models.ForeignKey(User)
-    # date_added  = models.DateTimeField('date added', auto_now_add=True)
-    date_added  = models.DateTimeField('date')
+    outputs     = models.CharField(maxlength=4096, null=True, blank=True)
+    created_by  = models.ForeignKey(User)
+    created_on  = models.DateTimeField('date created')
 
     class Meta:
-        unique_together = (('shot', 'type', 'date_added'),)
+        unique_together = (('shot', 'type', 'created_on'),)
 
     class Admin:
-        list_display = ('shot', 'type', 'user', 'host', 'date_added')
+        list_display = ('shot', 'type', 'outputs', 'host',
+                        'created_by', 'created_on')
 
     def __str__(self):
-        return "%s - %s - %s" % (self.type, self.user, self.shot.name)
+        return "%s - %s - %s" % (self.type, self.created_by, self.shot.name)
 
 # ------------------------------------------------------------------------------
-class Output(models.Model):
-    event       = models.ForeignKey(Event)
-    location    = models.CharField(maxlength=4096)
+class Frame(InformerMixIn, models.Model):
+    shot = models.ForeignKey(Shot)
+    spark = models.CharField(maxlength=255)
+    image = models.FileField(upload_to='frames')
 
-    class Meta:
-        unique_together = (('event', 'location'),)
+    host        = models.CharField(maxlength=255)
+    created_on  = models.DateTimeField('date created')
+    created_by  = models.ForeignKey(User)
+
+    width = models.IntegerField()
+    height = models.IntegerField()
+    depth = models.IntegerField()
+
+    resized_width = models.IntegerField()
+    resized_height = models.IntegerField()
+    resized_depth = models.IntegerField()
+
+    start = models.IntegerField()
+    number = models.IntegerField()
+    end = models.IntegerField()
+
+    # storing fps as text to avoid floating point precision issues
+    rate = models.CharField(maxlength=32)
 
     class Admin:
-        pass
+        list_display = ('spark', 'host', 'image', 'created_on', 'created_by',
+                        'width', 'height', 'depth',
+                        'resized_width', 'resized_height', 'resized_depth',
+                        'start', 'number', 'end', 'rate')
 
-    class Admin:
-        list_display = ('event', 'location')
-
-    def __str__(self):
-        return self.location
-
+# ------------------------------------------------------------------------------
+# monkey patched model methods
+# ------------------------------------------------------------------------------
+Shot.getShot = GetShot(Shot)
+User.getUser = GetUser(User)
+Event.getEvent = GetEvent(Event)
+Project.getProject = GetProject(Project)

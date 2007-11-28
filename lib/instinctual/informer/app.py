@@ -5,7 +5,7 @@ from instinctual.parser.event import *
 from instinctual.parser.observer import *
 
 from instinctual.informer.spark import Spark
-from instinctual.informer.client import Client, AppEvent
+from instinctual.informer.client import Client
 from instinctual.informer.threads import LogfileThread, SchedulerThread, InformerThread
 
 LOG = instinctual.getLogger(__name__)
@@ -178,7 +178,7 @@ class App(Subject):
                 appEvent.outputs = self.outputs.keys()
 
             client = Client()
-            client.newAppEvent(appEvent)
+            client.newEvent(appEvent)
 
     def _setAppEvent(self, appEvent, logEvent):
         appEvent.date = logEvent.date
