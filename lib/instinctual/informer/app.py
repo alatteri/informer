@@ -59,12 +59,12 @@ class App(Subject):
 
         # batch processing events
         self.logfile.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
-        self.logfile.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
+        # self.logfile.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
 
         # flushing events
-        self.logfile.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
-        self.logfile.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
-        self.logfile.registerObserver(DiscreetAppExit(self.cbAppExit))
+        # self.logfile.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
+        # self.logfile.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
+        # self.logfile.registerObserver(DiscreetAppExit(self.cbAppExit))
 
     def _getShouldProcess(self):
         print "_getShouldProcess returning: %s" % (self._shouldProcess)
@@ -365,6 +365,7 @@ class App(Subject):
         self._isBatchProcessing = True
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         self.queue.append(appEvent)
+        self.flushBatchQueue()
 
     def cbBatchProcessOutput(self, output, **kwargs):
         """

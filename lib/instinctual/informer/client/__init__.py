@@ -26,7 +26,7 @@ class Client(object):
         eventsUrl = instinctual.informer.getProjectShotEventsUrl(project, shot)
 
         data = {}
-        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
+        data['now'] = datetime.now()
         data['created_on'] = event.date
         data['created_by'] = event.user
         data['type'] = event.event
@@ -34,8 +34,8 @@ class Client(object):
         data['volume'] = event.volume
         data['host'] = event.hostname
 
-        if event.__class__.__name__ == 'DiscreetAppBatchProcessEvent':
-            data['outputs'] = ','.join(event.outputs)
+        # if event.__class__.__name__ == 'DiscreetAppBatchProcessEvent':
+        #    data['outputs'] = ','.join(event.outputs)
 
         LOG.warn(''.join(['-'*20, 'Event', '-'*20]))
         for (key, val) in data.items():
@@ -64,7 +64,7 @@ class Client(object):
         data['spark'] = frame.spark
         data['host'] = frame.host
 
-        data['now'] = datetime.now().strftime("%m/%d/%y:%H:%M:%S.000")
+        data['now'] = datetime.now()
         data['created_by'] = frame.createdBy
         data['created_on'] = frame.createdOn
 
