@@ -40,18 +40,11 @@ class ProjectShotCollection(Collection):
         Unlike the base Collection create() it does not require every
         since field to be specified.
         """
-        # TODO: specifiy form_class in urls.py to verify data
-        project_name = Project.getNameFromRequest(request)
-        project = Project.getProject(project_name, create=True)
-
-        shot_name = Shot.getNameFromRequest(request)
-        shot = Shot.getShot(shot_name, project, create=True)
+        data = self.receiver.get_post_data(request)
+        print "ok here's the data: %s" % (data)
 
         new_model = self.queryset.model()
         print "ok just made new_model %s" % (new_model.__class__.__name__)
-
-        data = self.receiver.get_post_data(request)
-        print "ok here's the data: %s" % (data)
 
         # calculate the time difference between client and server
         if 'now' in data:
@@ -59,8 +52,22 @@ class ProjectShotCollection(Collection):
             new_model.calculateDelta(clientNow)
             del data['now']
 
+        # TODO: specifiy form_class in urls.py to verify data
+        project_name = Project.getNameFromRequest(request)
+        project = Project.getProject(project_name, create=True)
+
+        shot_name = Shot.getNameFromRequest(request)
+        shot = Shot.getShot(shot_name, project, create=True)
+
         # associate with the shot
         new_model.shot = shot
+
+        # remove elements not in the actual frame model
+        if 'Frame' == new_model.__class__.__name__:
+            info = {}
+            for key in ('rate', 'start', 'end', 'spark'):
+                info[key] = data[key]
+                del data[key]
 
         # seed with POST data
         for (key, val) in data.items():
@@ -69,6 +76,9 @@ class ProjectShotCollection(Collection):
 
         # handle file uploads
         if 'Frame' == new_model.__class__.__name__:
+            c = new_model.getOrCreateParentClip(**info)
+            new_model.clip = c
+
             if 'image' in request.FILES:
                 content = request.FILES['image']['content']
                 filename = request.FILES['image']['filename']

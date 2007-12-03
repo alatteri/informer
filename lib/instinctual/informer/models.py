@@ -1,3 +1,4 @@
+from pprint import pprint
 from datetime import datetime
 from time import strptime, mktime
 
@@ -7,7 +8,7 @@ from django.contrib.auth.models import User
 import instinctual
 from instinctual import informer
 from instinctual.informer.mixins import InformerMixIn
-from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetEvent
+from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetClip, GetEvent
 
 # ------------------------------------------------------------------------------
 class Project(models.Model):
@@ -92,39 +93,62 @@ class Element(InformerMixIn, models.Model):
     created_by  = models.ForeignKey(User)
 
     class Admin:
-        list_display = ('shot', 'kind', 'is_checked', 'text', 'created_by', 'created_on')
+        list_display = ('shot', 'kind', 'is_checked', 'text',
+                        'created_by', 'created_on')
 
     def __str__(self):
             return self.text
 
 # ------------------------------------------------------------------------------
 class Event(InformerMixIn, models.Model):
-    shot        = models.ForeignKey(Shot)
-    type        = models.CharField(maxlength=255)
-    host        = models.CharField(maxlength=255)
-    outputs     = models.CharField(maxlength=4096, null=True, blank=True)
-    created_by  = models.ForeignKey(User)
-    created_on  = models.DateTimeField('date created')
+    shot           = models.ForeignKey(Shot)
+    type           = models.CharField(maxlength=255)
+    host           = models.CharField(maxlength=255)
+    created_by     = models.ForeignKey(User)
+    created_on     = models.DateTimeField('date created')
+    raw_created_on = models.DateTimeField('date created (unadjusted)')
 
     class Meta:
         unique_together = (('shot', 'type', 'created_on'),)
 
     class Admin:
-        list_display = ('shot', 'type', 'outputs', 'host',
-                        'created_by', 'created_on')
+        list_display = ('id', 'shot', 'type', 'host',
+                        'created_by', 'created_on', 'raw_created_on')
 
     def __str__(self):
-        return "%s - %s - %s" % (self.type, self.created_by, self.shot.name)
+        return "Event %s (%s, %s)" % (self.id, self.type, self.created_by)
+
+# ------------------------------------------------------------------------------
+class Clip(InformerMixIn, models.Model):
+    event = models.ForeignKey(Event)
+    spark = models.CharField(maxlength=255)
+    movie = models.FileField(upload_to='clips')
+
+    start = models.IntegerField()
+    end = models.IntegerField()
+
+    # storing fps as text to avoid floating point precision issues
+    rate = models.CharField(maxlength=32)
+
+    class Admin:
+        list_display = ('id', 'event', 'spark', 'movie', 'start', 'end', 'rate')
+
+    def __str__(self):
+        return "Clip %s" % (self.id)
 
 # ------------------------------------------------------------------------------
 class Frame(InformerMixIn, models.Model):
     shot = models.ForeignKey(Shot)
-    spark = models.CharField(maxlength=255)
+    clip = models.ForeignKey(Clip)
     image = models.FileField(upload_to='frames')
+    in_clip = models.BooleanField('in clip', default=False)
 
     host        = models.CharField(maxlength=255)
     created_on  = models.DateTimeField('date created')
     created_by  = models.ForeignKey(User)
+    raw_created_on = models.DateTimeField('date created (unadjusted)')
+
+    number = models.IntegerField()
 
     width = models.IntegerField()
     height = models.IntegerField()
@@ -134,22 +158,54 @@ class Frame(InformerMixIn, models.Model):
     resized_height = models.IntegerField()
     resized_depth = models.IntegerField()
 
-    start = models.IntegerField()
-    number = models.IntegerField()
-    end = models.IntegerField()
-
-    # storing fps as text to avoid floating point precision issues
-    rate = models.CharField(maxlength=32)
+    class Meta:
+        unique_together = (('clip', 'number'),)
 
     class Admin:
-        list_display = ('spark', 'host', 'image', 'created_on', 'created_by',
-                        'width', 'height', 'depth',
-                        'resized_width', 'resized_height', 'resized_depth',
-                        'start', 'number', 'end', 'rate')
+        list_display = ('id', 'host', 'image', 'clip', 'in_clip',
+                        'created_on', 'created_by', 'raw_created_on',
+                        'number', 'width', 'height', 'depth',
+                        'resized_width', 'resized_height', 'resized_depth')
+
+    def getOrCreateParentClip(self, start, end, rate, spark):
+        print "getOrCreateParentClip called for frame:"
+        pprint(self.__dict__)
+
+        print "Going to look for BATCH PROCESS < %s" % (self.created_on)
+        e = Event.objects.filter(type='BATCH PROCESS',
+                                 created_by=self.created_by,
+                                 raw_created_on__lte=self.raw_created_on,
+                                 host=self.host).order_by('-raw_created_on')[0]
+
+        print "Hey! Found e... it is: %s" % (e)
+        pprint(e.__dict__)
+
+        c = Clip.getClip(event=e,
+                         start=start,
+                         end=end,
+                         rate=rate,
+                         spark=spark,
+                         create=True)
+
+        if start < c.start:
+            print "+++ setting c.start to", c.start
+            c.start = start
+        if end > c.end:
+            print "+++ setting c.end to", c.end
+            c.end = end
+
+        c.save()
+
+        print "*" * 80
+        print "The clip id is:", c.id
+        print "*" * 80
+
+        return c
 
 # ------------------------------------------------------------------------------
 # monkey patched model methods
 # ------------------------------------------------------------------------------
+Clip.getClip = GetClip(Clip)
 Shot.getShot = GetShot(Shot)
 User.getUser = GetUser(User)
 Event.getEvent = GetEvent(Event)

@@ -14,14 +14,22 @@ class InformerMixIn(object):
         print "Server says now is: ", serverNow
         print "Client says now is: ", clientNow
         self._delta = (serverNow - clientNow)
+        print "The delta is: %s" % (self._delta)
 
     def strToDateTime(self, val):
-        val = val[0:val.rindex('.')]
+        dot = val.rindex('.')
+        t = val[0:dot]
+
         try:
             # would be nice to have only one format...
-            return datetime(*strptime(val, "%m/%d/%y:%H:%M:%S")[0:6])
+            time = strptime(t, "%m/%d/%y:%H:%M:%S")[0:6]
         except ValueError, e:
-            return datetime(*strptime(val, "%Y-%m-%d %H:%M:%S")[0:6])
+            time = strptime(t, "%Y-%m-%d %H:%M:%S")[0:6]
+
+        ms = int(float(val[dot:]) * 10**6)
+        time = list(time)
+        time.append(ms)
+        return datetime(*time)
 
     def getDateTime(self, val):
         if isinstance(val, datetime):
@@ -32,31 +40,41 @@ class InformerMixIn(object):
             # TODO: raise ValueError...
             return val
 
-    def getRelativeDateTime(self, val):
-        val = self.getDateTime(val)
+    def applyDelta(self, val):
         if self._delta:
-            return val + self._delta
+            print "Applying delta of %s" % (self._delta)
+            result = val + self._delta
+            print "Relative = %s" % (result)
+            return result
         else:
             return val
 
     def __init__(self, *args, **kwargs):
         self._delta = None
 
-        print "__init__ [%s]" % (kwargs)
         for f in self.user_fields:
             if f in kwargs and kwargs[f]:
                 kwargs[f] = User.getUser(kwargs[f], create=True)
         for f in self.date_fields:
             if f in kwargs and kwargs[f]:
-                kwargs[f] = self.getRelativeDateTime(kwargs[f])
+                # convert the time, save it as raw_<field> and apply the
+                # delta for <field>
+                raw = self.getDateTime(kwargs[f])
+                kwargs['raw_' + f] = raw
+                kwargs[f] = self.applyDelta(raw)
+
+        print "__init__ [%s]" % (kwargs)
         models.Model.__init__(self, *args, **kwargs)
 
     def __setattr__(self, key, val):
-        print "__setattr__ [%s] [%s] (%s)" % (key, val, type(val))
         if key in self.user_fields:
             val = User.getUser(val, create=True)
         elif key in self.date_fields:
-            val = self.getRelativeDateTime(val)
+            raw = self.getDateTime(val)
+            self.__setattr__('raw_' + key, raw)
+            val = self.applyDelta(raw)
+
+        print "__setattr__ [%s] [%s] (%s)" % (key, val, type(val))
         return models.Model.__setattr__(self, key, val)
 
 # ------------------------------------------------------------------------------
@@ -64,23 +82,23 @@ class GetOrCreateObject(object):
     def __init__(self, model):
         self.model = model
 
-    def __call__(self, obj, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         if 'create' in kwargs:
             create = kwargs['create']
             del kwargs['create']
         else:
             create = False
 
-        if isinstance(obj, self.model):
-            print "%s was of type %s" % (obj, self.model)
+        if args and isinstance(args[0], self.model):
+            print "%s was of type %s" % (args[0], self.model)
             return obj
         try:
-            print "looking up %s" % (obj)
-            return self.get(obj, *args, **kwargs)
+            print "looking up %s" % (self.model)
+            return self.get(*args, **kwargs)
         except self.model.DoesNotExist, e:
             if create:
-                print "creating %s" % (obj)
-                o = self.create(obj, *args, **kwargs)
+                print "creating %s" % (self.model)
+                o = self.create(*args, **kwargs)
                 o.save()
                 return o
             else:
@@ -99,6 +117,21 @@ class GetProject(GetOrCreateObject):
 
     def create(self, proj, *args, **kwargs):
         return self.model(name=proj)
+
+class GetClip(GetOrCreateObject):
+    def get(self, event, *args, **kwargs):
+        c = self.model.objects.get(event=event)
+        print "-" * 80
+        print "Found clip %s" % (c.id)
+        print "-" * 80
+        return c
+
+    def create(self, event, *args, **kwargs):
+        print "-" * 80
+        print "Now making new clip!"
+        print "-" * 80
+        kwargs['movie'] = 'pending'
+        return self.model(event=event, **kwargs)
 
 class GetShot(GetOrCreateObject):
     def get(self, shot, proj, *args, **kwargs):

@@ -17,7 +17,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'postgresql' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_ENGINE = 'postgresql_psycopg2' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
 DATABASE_NAME = 'informer'     # Or path to database file if using sqlite3.
 DATABASE_USER = 'informer'  # Not used with sqlite3.
 DATABASE_PASSWORD = 'informer'        # Not used with sqlite3.
