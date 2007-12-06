@@ -20,7 +20,7 @@ import time
 from glob import glob
 import instinctual
 from instinctual import settings
-from instinctual.informer.client import Client
+from instinctual.informer.client import Client, ClientConnectionError
 from instinctual.informer.frame import Frame
 
 conf = instinctual.getConf()
@@ -36,25 +36,30 @@ while run:
         print "Found ->", framePath
         frame = Frame.load(framePath)
 
-        if not frame.isBusy:
+        if frame.isBusy:
+            print "Frame was busy..."
+        else:
             print "I can work on", frame.rgbPath
             frame.isBusy = True
-            # frame.save()
+            frame.save()
 
             frame.resizedPath = os.path.join(frame.container, 'frame.png')
             cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
             print "CMD:", cmd
             if 0 == os.system(cmd):
-                client = Client()
-                client.newFrame(frame)
-                print "done!"
-                frame.delete()
+                try:
+                    client = Client()
+                    client.newFrame(frame)
+                    print "done!"
+                    frame.delete()
+                except ClientConnectionError, e:
+                    print "Client error encountered -- ignoring frame"
+                    frame.delete()
             else:
                 print "FAILURE running convert"
-        else:
-            print "Frame was busy..."
+                frame.delete()
 
-        time.sleep(0.5)
+        time.sleep(0.1)
 
     print "now sleeping..."
     time.sleep(3.0)
