@@ -171,7 +171,7 @@ class Client(object):
             LOG.info(data)
 
             if resp.status not in expected:
-                rest = open("/usr/discreet/instinctual/logs/rest.%s.html" % (time.time()), 'w')
+                rest = open("/usr/discreet/sparks/instinctual/informer/logs/rest.%s.html" % (time.time()), 'w')
                 rest.write(data)
                 rest.close()
                 err = "Request failed: status=%s" % (resp.status)
