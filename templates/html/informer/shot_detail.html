@@ -24,6 +24,20 @@
 <div id="elements" style="display:none">
 <h4>Elements</h4>
 
+<table>
+<tr>
+  <td><select id="e_dirs" size="10" ondblclick="update_file_list()"></select></td>
+  <td><select id="e_files" size="10" ondblclick="update_file()"></select></td>
+  <td><table>
+<tr><td>File:</td><td><span id="e_filename"></span></td></tr>
+<tr><td>Category:</td><td><input type="text" id="e_category" /></td></tr>
+<tr><td>Frames:</td><td><input type="text" size="5" id="e_sframe" /> - <input type="text" size="5" id="e_eframe" /></td></tr>
+<tr><td colspan="2"><input type="button" value="submit" onclick="add_element()" /></td></tr>
+  </table></td>
+</tr>
+
+</table>
+
 <table id="elements_table"></table>
 </div><!-- elements -->
 
@@ -47,6 +61,8 @@
 
     var CACHE = {};
 
+    var e_path = '';
+
     function add_note() {
         var txt = $F('frm_notes');
         if (!txt) return;
@@ -68,6 +84,8 @@
 
     function get_elements() {
         get_info(elements_div, elements_url, show_elements);
+        e_path = '';
+        get_file_list();
     }
 
     function get_info(div, url, func) {
@@ -186,6 +204,81 @@
         td.appendChild(document.createTextNode(y));
         tr.appendChild(td);
         return tr;
+    }
+
+    var e_dirs, e_files;
+
+    function get_file_list() {
+        if (!e_dirs) { e_dirs = $('e_dirs'); }
+        if (!e_files) { e_files = $('e_files'); }
+        clear_select(e_dirs);
+        clear_select(e_files);
+
+        var url = '/informer/1.0/listdir/'+e_path;
+        new Ajax.Request(url, {
+           method: 'GET',
+           onSuccess: process_files
+        });
+
+    }
+
+    function clear_select(which) {
+        while (which.options.length) { which.remove(which.options[0]); }
+    }
+    function process_files(r) {
+        var data = eval('('+r.responseText+')');
+        add_options(data.directories, e_dirs);
+        add_options(data.files, e_files);
+    }
+
+    function add_options(list, which) {
+        clear_select(which);
+        for (var i=0; i < list.length; i++) {
+            var o = document.createElement('option');
+            o.appendChild(document.createTextNode(list[i]));
+            which.options.add(o);
+        }
+    }
+
+    function update_file_list() {
+        var sel = e_dirs.options[e_dirs.selectedIndex].value;
+        if (sel == '..') {
+            var p = e_path.split('/');
+            e_path = p.slice(0, p.length-2).join('/')
+            if (e_path) { e_path += '/'; }
+        } else {
+            e_path += sel + '/';
+        }
+
+        get_file_list();
+    }
+
+    function update_file() {
+        var box = $('e_filename');
+        var file = e_files.options[e_files.selectedIndex].value;
+        box.innerHTML = e_path + file;
+    }
+
+    function add_element() {
+        var f = $('e_filename');
+        var c = $('e_category');
+        var sf = $('e_sframe');
+        var ef = $('e_eframe');
+        var txt = f.innerHTML;
+        var cat = c.value;
+        var sframe = sf.value;
+        var eframe = ef.value;
+        if (!txt || !cat) return;
+
+        var data = {created_by_id:1, text:txt, kind:cat, start_frame:sframe, end_frame:eframe};
+        new Ajax.Request(elements_url, {
+           method: 'POST',
+           parameters: data,
+           onSuccess: function(r) {
+               var d = eval(r.responseText);
+               add_data(d[0], elements_table);
+               }
+           });
     }
 </script>
 
