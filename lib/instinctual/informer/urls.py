@@ -1,7 +1,11 @@
 from django.conf.urls.defaults import patterns
 from django.contrib.auth.models import User
+# from instinctual.informer.rest_filelist import FileCollection
 
 import instinctual
+from instinctual.informer.rest_filelist import FileCollection
+
+
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, XMLReceiver, PkEntry
@@ -55,7 +59,7 @@ xml_element = Collection(
 
 xml_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
-    permitted_methods = ['GET'],
+    permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder()
 )
 
@@ -112,7 +116,7 @@ json_notes = ProjectShotCollection(
 
 json_element = Collection(
     queryset = Element.objects.all(),
-    permitted_methods = ['GET', 'PUT'],
+    permitted_methods = ['GET', 'PUT', 'POST'],
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = fields_element,
@@ -120,7 +124,7 @@ json_element = Collection(
 
 json_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
-    permitted_methods = ['GET'],
+    permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder()
 )
 
@@ -207,6 +211,7 @@ urlpatterns = patterns('',
     ('^' + html_url_projects + '$', 'django.views.generic.list_detail.object_list', {'queryset':Project.objects.all()}),
     ('^' + html_url_project_shots + '$', 'instinctual.informer.views.project_detail'),
     ('^' + html_url_project_shot + '$', 'instinctual.informer.views.shot_detail'),
+    ('^listdir/(?P<path>.*)$', FileCollection(type='json',permitted_methods = ['GET', 'POST'] )),
 
 
 )

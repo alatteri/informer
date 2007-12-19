@@ -89,6 +89,8 @@ class Element(InformerMixIn, models.Model):
     kind        = models.CharField(maxlength=32)
     text        = models.CharField(maxlength=4096)
     is_checked  = models.BooleanField('is checked', default=False)
+    start_frame = models.IntegerField()
+    end_frame   = models.IntegerField()
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
 
