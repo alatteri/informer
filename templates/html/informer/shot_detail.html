@@ -4,11 +4,17 @@
 <h3>{{ shot.name }}</h3>
 
 <ul>
+<li onclick="get_logs();">Recent Activity</li>
 <li onclick="get_notes();">Notes</li>
 <li onclick="get_elements();">Elements</li>
-<li onclick="get_info(log_div);">Historical Log</li>
-<li onclick="get_info(specs_div);">Specifications</li>
+<li onclick="get_renders();">Renders</li>
 </ul>
+
+<div id="logs" style="display:none">
+<h4>Recent Activity</h4>
+<table id="logs_table"></table>
+
+</div><!-- logs -->
 
 <div id="notes" style="display:none">
 <h4>Notes</h4>
@@ -41,23 +47,27 @@
 <table id="elements_table"></table>
 </div><!-- elements -->
 
-<div id="log" style="display:none">
-<h4>Historical Log</h4>
-</div><!-- log -->
+<div id="renders" style="display:none">
+<h4>Renders</h4>
+<table id="renders_table"></table>
 
-<div id="specs" style="display:none">
-<h4>Speficications</h4>
-</div><!-- specs -->
+</div><!-- renders -->
 
 <script type="text/javascript">
+    var logs_div = $('logs');
     var notes_div = $('notes');
     var elements_div = $('elements');
-    var log_div = $('log');
-    var specs_div = $('specs');
+    var renders_div = $('renders');
+
+    var logs_table = $('logs_table');
     var notes_table = $('notes_table');
     var elements_table = $('elements_table');
-    var notes_url = '{{ shot.get_json_note_url }}';
-    var elements_url = '{{ shot.get_json_element_url }}';
+    var renders_table = $('renders_table');
+
+    var logs_url = '{{ shot.get_json_logs_url }}';
+    var notes_url = '{{ shot.get_json_notes_url }}';
+    var elements_url = '{{ shot.get_json_elements_url }}';
+    var renders_url = '{{ shot.get_json_renders_url }}';
 
     var CACHE = {};
 
@@ -78,6 +88,10 @@
            });
     }
 
+    function get_logs() {
+        get_info(logs_div, logs_url, show_logs);
+    }
+
     function get_notes() {
         get_info(notes_div, notes_url, show_notes);
     }
@@ -86,6 +100,10 @@
         get_info(elements_div, elements_url, show_elements);
         e_path = '';
         get_file_list();
+    }
+
+    function get_renders() {
+        get_info(renders_div, renders_url, show_renders);
     }
 
     function get_info(div, url, func) {
@@ -103,7 +121,7 @@
     }
 
     function hide_all(skip) {
-        $A([notes_div, elements_div, log_div, specs_div]).each (function(each) {
+        $A([logs_div, notes_div, elements_div, renders_div]).each (function(each) {
             if (each) 
                 each.style.display = each==skip ? 'block' : 'none';
         });
@@ -117,6 +135,36 @@
         d.setMinutes(nums[5]);
         d.setSeconds(nums[6]);
         return d;
+    }
+
+    var logTemplate = new Template(
+        '<tr>' +
+        '<td>#{when}</td>' +
+        '<td>#{who}</td>' +
+        '<td>#{activity}</td>' +
+        '</tr>');
+
+    function show_log(log) {
+        var fields = log.fields;
+        var who = fields.who;
+        var when = parseDate(fields.when);
+        var activity = fields.msg_prefix;
+        if (fields.object_repr)
+            activity += ' <b>"' + fields.object_repr + '"</b>'
+        if (fields.msg_suffix)
+            activity += ' ' + fields.msg_suffix;
+
+        var info = {when: (when.getMonth()+1) + '-' + when.getDate(),
+                     who: who ? who : '(need to add user)',
+                     activity: activity};
+        logs_table.innerHTML = logTemplate.evaluate(info) + logs_table.innerHTML;
+    }
+
+    function show_logs(response) {
+        while (logs_table.hasChildNodes()) { logs_table.removeChild(logs_table.firstChild); }
+        CACHE = {};
+        var data = eval(response.responseText);
+        data.each(function(x) { CACHE[x.pk]=x; show_log(x); });
     }
 
     var noteTemplate = new Template(
@@ -179,6 +227,35 @@
         while (table.hasChildNodes()) { table.removeChild(table.firstChild); }
         var data = eval(response.responseText);
         data.each(function(x) { add_data(x, table); });
+    }
+
+
+    var renderTemplate = new Template(
+        '<tr>' +
+        '<td>#{created_on}</td>' +
+        '<td>#{host}</td>' +
+        '<td>#{artist}</td>' +
+        '<td><a href="#{movie}">#{movie}</a></td>' +
+        '</tr>');
+
+    function show_render(render) {
+        var fields = render.fields;
+        var created_on = parseDate(fields.created_on);
+        var host = fields.host;
+        var artist = fields.created_by;
+        var movie = fields.movie;
+        var info = {created_on: (created_on.getMonth()+1) + '-' + created_on.getDate(),
+                    host: host,
+                    artist: artist.username,
+                    movie: movie};
+        renders_table.innerHTML = renderTemplate.evaluate(info) + renders_table.innerHTML;
+    }
+
+    function show_renders(response) {
+        while (renders_table.hasChildNodes()) { renders_table.removeChild(renders_table.firstChild); }
+        CACHE = {};
+        var data = eval(response.responseText);
+        data.each(function(x) { CACHE[x.pk]=x; show_render(x); });
     }
 
     function add_data(data, table) {

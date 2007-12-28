@@ -5,10 +5,14 @@ from time import strptime, mktime
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db.models import signals
+from django.dispatch import dispatcher
+
 import instinctual
 from instinctual import informer
 from instinctual.informer.mixins import InformerMixIn
 from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetClip, GetEvent
+from instinctual.informer.signals import Handler, IgnoreSignalException
 
 # ------------------------------------------------------------------------------
 class Project(models.Model):
@@ -42,19 +46,39 @@ class Shot(models.Model):
         project = self.project.name
         return informer.getProjectShotUrl(project, self.name, format='html')
 
-    def get_json_note_url(self):
+    def get_json_logs_url(self):
+        project = self.project.name
+        return informer.getProjectShotLogsUrl(project, self.name, format='json')
+
+    def get_json_notes_url(self):
         project = self.project.name
         return informer.getProjectShotNotesUrl(project, self.name, format='json')
 
-    def get_json_element_url(self):
+    def get_json_elements_url(self):
         project = self.project.name
         return informer.getProjectShotElementsUrl(project, self.name, format='json')
+
+    def get_json_clips_url(self):
+        project = self.project.name
+        return informer.getProjectShotClipsUrl(project, self.name, format='json')
+
+    # need to settle on if these are "clips" or "renders"
+    get_json_renders_url = get_json_clips_url
 
     class Meta:
         unique_together = (('project', 'name'),)
 
     class Admin:
         list_display = ('project', 'name', 'setup', 'description')
+
+    class Logger:
+        def created(cls, instance, *args, **kwargs):
+            return ('Created this shot', '', '')
+        created = classmethod(created)
+
+        def updated(cls, instance, *args, **kwargs):
+            return ('Updated this shot', '', '')
+        updated = classmethod(updated)
 
     def __str__(self):
         if self.description:
@@ -79,6 +103,26 @@ class Note(InformerMixIn, models.Model):
     class Admin:
         list_display = ('shot', 'is_checked', 'text', 'created_by',
                         'created_on', 'modified_by', 'modified_on')
+    class Logger:
+        def created(cls, instance, *args, **kwargs):
+            return ('Commented', instance.text, '')
+        created = classmethod(created)
+
+        def updated(cls, instance, old, new, *args, **kwargs):
+            if 'is_checked' not in old:
+                raise IgnoreSignalException()
+
+            if new['is_checked']:
+                comment = 'as complete'
+            else:
+                comment = 'as not complete'
+
+            return ('Marked comment', instance.text, comment)
+        updated = classmethod(updated)
+
+        def deleted(cls, instance, *args, **kwargs):
+            return ('Deleted comment', instance.text, '')
+        deleted = classmethod(deleted)
 
     def __str__(self):
         return self.text
@@ -97,6 +141,11 @@ class Element(InformerMixIn, models.Model):
     class Admin:
         list_display = ('shot', 'kind', 'is_checked', 'text',
                         'created_by', 'created_on')
+
+    class Logger:
+        def created(cls, instance, *args, **kwargs):
+            return ('Checked in a new element', '', '')
+        created = classmethod(created)
 
     def __str__(self):
             return self.text
@@ -122,7 +171,12 @@ class Event(InformerMixIn, models.Model):
 
 # ------------------------------------------------------------------------------
 class Clip(InformerMixIn, models.Model):
+    shot  = models.ForeignKey(Shot)
     event = models.ForeignKey(Event)
+    host  = models.CharField(maxlength=255)
+    created_by = models.ForeignKey(User)
+    created_on = models.DateTimeField('date created', auto_now_add=True)
+
     spark = models.CharField(maxlength=255)
     movie = models.FileField(upload_to='clips')
 
@@ -133,7 +187,8 @@ class Clip(InformerMixIn, models.Model):
     rate = models.CharField(maxlength=32)
 
     class Admin:
-        list_display = ('id', 'event', 'spark', 'movie', 'start', 'end', 'rate')
+        list_display = ('id', 'shot', 'event', 'host', 'created_by',
+                        'spark', 'movie', 'start', 'end', 'rate', 'created_on')
 
     def __str__(self):
         return "Clip %s" % (self.id)
@@ -183,6 +238,8 @@ class Frame(InformerMixIn, models.Model):
         pprint(e.__dict__)
 
         c = Clip.getClip(event=e,
+                         host=self.host,
+                         created_by=self.created_by,
                          start=start,
                          end=end,
                          rate=rate,
@@ -205,6 +262,22 @@ class Frame(InformerMixIn, models.Model):
         return c
 
 # ------------------------------------------------------------------------------
+class Log(models.Model):
+    shot        = models.ForeignKey(Shot)
+    who         = models.ForeignKey(User, null=True, blank=True)
+    when        = models.DateTimeField('date occurred', auto_now_add=True)
+    action      = models.CharField(maxlength=32)
+    type        = models.CharField(maxlength=32)
+    object_id   = models.IntegerField()
+    msg_prefix  = models.CharField(maxlength=4096)
+    object_repr = models.CharField(maxlength=4096)
+    msg_suffix  = models.CharField(maxlength=4096)
+
+    class Admin:
+        list_display = ('shot', 'who', 'when', 'action', 'type', 'object_id',
+                        'msg_prefix', 'object_repr', 'msg_suffix')
+
+# ------------------------------------------------------------------------------
 # monkey patched model methods
 # ------------------------------------------------------------------------------
 Clip.getClip = GetClip(Clip)
@@ -212,3 +285,11 @@ Shot.getShot = GetShot(Shot)
 User.getUser = GetUser(User)
 Event.getEvent = GetEvent(Event)
 Project.getProject = GetProject(Project)
+
+# ------------------------------------------------------------------------------
+# signal handler processing
+# ------------------------------------------------------------------------------
+h = Handler()
+dispatcher.connect(h.handle_pre_save,   signal=signals.pre_save)
+dispatcher.connect(h.handle_post_save,  signal=signals.post_save)
+dispatcher.connect(h.handle_pre_delete, signal=signals.pre_delete)

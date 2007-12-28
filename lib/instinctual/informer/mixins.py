@@ -51,16 +51,20 @@ class InformerMixIn(object):
 
     def __init__(self, *args, **kwargs):
         self._delta = None
+        fields = [x.name for x in self._meta.fields]
 
         for f in self.user_fields:
             if f in kwargs and kwargs[f]:
                 kwargs[f] = User.getUser(kwargs[f], create=True)
+
         for f in self.date_fields:
             if f in kwargs and kwargs[f]:
                 # convert the time, save it as raw_<field> and apply the
                 # delta for <field>
                 raw = self.getDateTime(kwargs[f])
-                kwargs['raw_' + f] = raw
+                if 'raw_' + f in fields:
+                    # make sure raw_ + f is in fields
+                    kwargs['raw_' + f] = raw
                 kwargs[f] = self.applyDelta(raw)
 
         print "__init__ [%s]" % (kwargs)
@@ -74,7 +78,7 @@ class InformerMixIn(object):
             self.__setattr__('raw_' + key, raw)
             val = self.applyDelta(raw)
 
-        print "__setattr__ [%s] [%s] (%s)" % (key, val, type(val))
+        # print "__setattr__ [%s] [%s] (%s)" % (key, val, type(val))
         return models.Model.__setattr__(self, key, val)
 
 # ------------------------------------------------------------------------------
@@ -93,7 +97,7 @@ class GetOrCreateObject(object):
             print "%s was of type %s" % (args[0], self.model)
             return obj
         try:
-            print "looking up %s" % (self.model)
+            # print "looking up %s" % (self.model)
             return self.get(*args, **kwargs)
         except self.model.DoesNotExist, e:
             if create:

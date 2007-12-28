@@ -7,7 +7,7 @@ from xml.dom.minidom import getDOMImplementation
 
 import instinctual
 conf = instinctual.getConf()
-BASE = conf.get('informer', 'dir_frames')
+BASE = conf.get('informer', 'dir_filelist_base')
 
 class FileCollection(Resource):
 	def __init__(self, *args, **kwargs):

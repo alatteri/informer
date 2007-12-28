@@ -7,7 +7,7 @@ from instinctual.informer.rest_filelist import FileCollection
 
 
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame
+from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
 from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, XMLReceiver, PkEntry
 
 fields_note = ['text', 'is_checked', 'created_by', 'created_on', 'modified_by', 'modified_on']
@@ -81,6 +81,19 @@ xml_frames = ProjectShotCollection(
     responder = CustomXMLResponder(),
 )
 
+xml_clips = ProjectShotCollection(
+    queryset = Clip.objects.all(),
+    permitted_methods = ['GET', 'POST'],
+    responder = CustomXMLResponder(),
+)
+
+xml_logs = ProjectShotCollection(
+    queryset = Log.objects.all(),
+    permitted_methods = ['GET'],
+    responder = CustomXMLResponder(),
+)
+
+
 json_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
@@ -146,6 +159,18 @@ json_frames = ProjectShotCollection(
     responder = CustomJSONResponder(),
 )
 
+json_clips = ProjectShotCollection(
+    queryset = Clip.objects.all(),
+    permitted_methods = ['GET', 'POST'],
+    responder = CustomJSONResponder(),
+)
+
+json_logs = ProjectShotCollection(
+    queryset = Log.objects.all(),
+    permitted_methods = ['GET'],
+    responder = CustomJSONResponder(),
+)
+
 # --------------------
 # informer urls:
 #
@@ -166,6 +191,8 @@ xml_url_elements        = conf.get('informer', 'url_project_shot_elements') % ('
 xml_url_users           = conf.get('informer', 'url_users') % 'xml'
 xml_url_events          = conf.get('informer', 'url_project_shot_events') % ('xml', pat_project, pat_shot)
 xml_url_frames          = conf.get('informer', 'url_project_shot_frames') % ('xml', pat_project, pat_shot)
+xml_url_clips           = conf.get('informer', 'url_project_shot_clips') % ('xml', pat_project, pat_shot)
+xml_url_logs            = conf.get('informer', 'url_project_shot_logs') % ('xml', pat_project, pat_shot)
 
 json_url_shots           = conf.get('informer', 'url_shots') % 'json'
 json_url_projects        = conf.get('informer', 'url_projects') % 'json'
@@ -177,6 +204,8 @@ json_url_elements        = conf.get('informer', 'url_project_shot_elements') % (
 json_url_users           = conf.get('informer', 'url_users') % 'json'
 json_url_events          = conf.get('informer', 'url_project_shot_events') % ('json', pat_project, pat_shot)
 json_url_frames          = conf.get('informer', 'url_project_shot_frames') % ('json', pat_project, pat_shot)
+json_url_clips           = conf.get('informer', 'url_project_shot_clips') % ('json', pat_project, pat_shot)
+json_url_logs            = conf.get('informer', 'url_project_shot_logs') % ('json', pat_project, pat_shot)
 
 pat_project = "(?P<project_name>%s)" % pat_project
 pat_shot    = "(?P<shot_name>%s)" % pat_shot
@@ -196,6 +225,8 @@ urlpatterns = patterns('',
     ('^' + xml_url_project_shots + '$',     xml_project_shots,  {'is_entry':False}),
     ('^' + xml_url_users + '$',             xml_users,          {'is_entry':False}),
     ('^' + xml_url_frames + '$',            xml_frames,         {'is_entry':False}),
+    ('^' + xml_url_clips + '$',             xml_clips,          {'is_entry':False}),
+    ('^' + xml_url_logs + '$',              xml_logs,           {'is_entry':False}),
 
     ('^' + json_url_note + '$',              json_note),
     ('^' + json_url_notes + '$',             json_notes,          {'is_entry':False}),
@@ -206,7 +237,9 @@ urlpatterns = patterns('',
     ('^' + json_url_events + '$',            json_events),
     ('^' + json_url_project_shots + '$',     json_project_shots,  {'is_entry':False}),
     ('^' + json_url_users + '$',             json_users,          {'is_entry':False}),
-    ('^' + json_url_frames + '$',            json_frames,          {'is_entry':False}),
+    ('^' + json_url_frames + '$',            json_frames,         {'is_entry':False}),
+    ('^' + json_url_clips + '$',             json_clips,          {'is_entry':False}),
+    ('^' + json_url_logs + '$',              json_logs,           {'is_entry':False}),
 
     ('^' + html_url_projects + '$', 'django.views.generic.list_detail.object_list', {'queryset':Project.objects.all()}),
     ('^' + html_url_project_shots + '$', 'instinctual.informer.views.project_detail'),

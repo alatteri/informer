@@ -48,6 +48,14 @@ def getProjectShotFramesUrl(project, shot, format='xml'):
     template = _getUrlComponent('url_project_shot_frames')
     return template % (format, project, shot)
 
+def getProjectShotLogsUrl(project, shot, format='xml'):
+    template = _getUrlComponent('url_project_shot_logs')
+    return template % (format, project, shot)
+
+def getProjectShotClipsUrl(project, shot, format='xml'):
+    template = _getUrlComponent('url_project_shot_clips')
+    return template % (format, project, shot)
+
 """
 /x1/j_lo/batch/001_100/0001_comp-01.batch
     project: j_lo
