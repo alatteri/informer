@@ -40,7 +40,6 @@ class Shot(models.Model):
     project     = models.ForeignKey(Project)
     name        = models.CharField('shot', maxlength=255)
     description = models.CharField(maxlength=4096, null=True, blank=True)
-    setup       = models.CharField(maxlength=4096)
 
     def get_absolute_url(self):
         project = self.project.name
@@ -69,7 +68,7 @@ class Shot(models.Model):
         unique_together = (('project', 'name'),)
 
     class Admin:
-        list_display = ('project', 'name', 'setup', 'description')
+        list_display = ('project', 'name', 'description')
 
     class Logger:
         def created(cls, instance, *args, **kwargs):
@@ -124,6 +123,10 @@ class Note(InformerMixIn, models.Model):
             return ('Deleted comment', instance.text, '')
         deleted = classmethod(deleted)
 
+    class Rest:
+        expose_fields = ['text', 'is_checked', 'created_by', 'created_on',
+                         'modified_by', 'modified_on']
+
     def __str__(self):
         return self.text
 
@@ -147,6 +150,9 @@ class Element(InformerMixIn, models.Model):
             return ('Checked in a new element', '', '')
         created = classmethod(created)
 
+    class Rest:
+        expose_fields = ['text', 'kind', 'is_checked', 'created_by', 'created_on']
+
     def __str__(self):
             return self.text
 
@@ -155,6 +161,7 @@ class Event(InformerMixIn, models.Model):
     shot           = models.ForeignKey(Shot)
     type           = models.CharField(maxlength=255)
     host           = models.CharField(maxlength=255)
+    setup          = models.CharField(maxlength=4096)
     created_by     = models.ForeignKey(User)
     created_on     = models.DateTimeField('date created')
     raw_created_on = models.DateTimeField('date created (unadjusted)')
@@ -163,7 +170,7 @@ class Event(InformerMixIn, models.Model):
         unique_together = (('shot', 'type', 'created_on'),)
 
     class Admin:
-        list_display = ('id', 'shot', 'type', 'host',
+        list_display = ('id', 'shot', 'type', 'host', 'setup',
                         'created_by', 'created_on', 'raw_created_on')
 
     def __str__(self):
@@ -173,9 +180,8 @@ class Event(InformerMixIn, models.Model):
 class Clip(InformerMixIn, models.Model):
     shot  = models.ForeignKey(Shot)
     event = models.ForeignKey(Event)
-    host  = models.CharField(maxlength=255)
-    created_by = models.ForeignKey(User)
     created_on = models.DateTimeField('date created', auto_now_add=True)
+    modified_on = models.DateTimeField('date modified', auto_now=True)
 
     spark = models.CharField(maxlength=255)
     movie = models.FileField(upload_to='clips')
@@ -187,8 +193,11 @@ class Clip(InformerMixIn, models.Model):
     rate = models.CharField(maxlength=32)
 
     class Admin:
-        list_display = ('id', 'shot', 'event', 'host', 'created_by',
-                        'spark', 'movie', 'start', 'end', 'rate', 'created_on')
+        list_display = ('id', 'shot', 'event', 'spark', 'movie',
+                        'start', 'end', 'rate', 'created_on')
+    class Rest:
+        expose_fields = ['created_on', 'modified_on', 'movie', 'start', 'end', 'rate',
+                         'event__created_by', 'event__host', 'event__setup']
 
     def __str__(self):
         return "Clip %s" % (self.id)
@@ -238,8 +247,6 @@ class Frame(InformerMixIn, models.Model):
         pprint(e.__dict__)
 
         c = Clip.getClip(event=e,
-                         host=self.host,
-                         created_by=self.created_by,
                          start=start,
                          end=end,
                          rate=rate,

@@ -95,7 +95,7 @@ class GetOrCreateObject(object):
 
         if args and isinstance(args[0], self.model):
             print "%s was of type %s" % (args[0], self.model)
-            return obj
+            return args[0]
         try:
             # print "looking up %s" % (self.model)
             return self.get(*args, **kwargs)

@@ -1,17 +1,4 @@
-from pprint import pprint
-from datetime import datetime
-from time import strptime, mktime
-
-from django.http import HttpResponse
-from django.db.models import Q
-from django.shortcuts import render_to_response
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-
-from django_restapi.resource import Resource
-from django_restapi.receiver import FormReceiver, XMLReceiver
-from django_restapi.model_resource import Collection, Entry, reverse, InvalidModelData
-
+from django_restapi.model_resource import Collection, Entry
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip
 
 class ProjectShots(Collection):

@@ -1,17 +1,11 @@
 from django.conf.urls.defaults import patterns
 from django.contrib.auth.models import User
-# from instinctual.informer.rest_filelist import FileCollection
 
 import instinctual
 from instinctual.informer.rest_filelist import FileCollection
-
-
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
-from instinctual.informer.rest import Collection, ProjectShots, ProjectShotCollection, XMLReceiver, PkEntry
-
-fields_note = ['text', 'is_checked', 'created_by', 'created_on', 'modified_by', 'modified_on']
-fields_element = ['text', 'kind', 'is_checked', 'created_by', 'created_on']
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection
 
 # --------------------
 # RESTful patterns:
@@ -39,14 +33,14 @@ xml_note = Collection(
     permitted_methods = ['GET', 'PUT'],
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
-    expose_fields = fields_note,
+    expose_fields = Note.Rest.expose_fields,
 )
 
 xml_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    expose_fields = fields_note,
+    expose_fields = Note.Rest.expose_fields,
 )
 
 xml_element = Collection(
@@ -54,7 +48,7 @@ xml_element = Collection(
     permitted_methods = ['GET', 'PUT'],
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
-    expose_fields = fields_element,
+    expose_fields = Element.Rest.expose_fields,
 )
 
 xml_elements = ProjectShotCollection(
@@ -85,6 +79,7 @@ xml_clips = ProjectShotCollection(
     queryset = Clip.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
+    expose_fields = Clip.Rest.expose_fields,
 )
 
 xml_logs = ProjectShotCollection(
@@ -117,14 +112,14 @@ json_note = Collection(
     permitted_methods = ['GET', 'PUT'],
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
-    expose_fields = fields_note,
+    expose_fields = Note.Rest.expose_fields,
 )
 
 json_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
-    expose_fields = fields_note,
+    expose_fields = Note.Rest.expose_fields,
 )
 
 json_element = Collection(
@@ -132,7 +127,7 @@ json_element = Collection(
     permitted_methods = ['GET', 'PUT', 'POST'],
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
-    expose_fields = fields_element,
+    expose_fields = Element.Rest.expose_fields,
 )
 
 json_elements = ProjectShotCollection(
@@ -163,6 +158,7 @@ json_clips = ProjectShotCollection(
     queryset = Clip.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
+    expose_fields = Clip.Rest.expose_fields,
 )
 
 json_logs = ProjectShotCollection(

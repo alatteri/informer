@@ -155,7 +155,7 @@
             activity += ' ' + fields.msg_suffix;
 
         var info = {when: (when.getMonth()+1) + '-' + when.getDate(),
-                     who: who ? who : '(need to add user)',
+                     who: who ? who : '(TODO: need to add user)',
                      activity: activity};
         logs_table.innerHTML = logTemplate.evaluate(info) + logs_table.innerHTML;
     }
@@ -235,19 +235,18 @@
         '<td>#{created_on}</td>' +
         '<td>#{host}</td>' +
         '<td>#{artist}</td>' +
+        '<td>#{setup}</td>' +
         '<td><a href="#{movie}">#{movie}</a></td>' +
         '</tr>');
 
     function show_render(render) {
         var fields = render.fields;
         var created_on = parseDate(fields.created_on);
-        var host = fields.host;
-        var artist = fields.created_by;
-        var movie = fields.movie;
         var info = {created_on: (created_on.getMonth()+1) + '-' + created_on.getDate(),
-                    host: host,
-                    artist: artist.username,
-                    movie: movie};
+                    host: fields.host,
+                    artist: fields.created_by.username,
+                    setup: fields.setup,
+                    movie: fields.movie};
         renders_table.innerHTML = renderTemplate.evaluate(info) + renders_table.innerHTML;
     }
 
