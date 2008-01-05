@@ -269,7 +269,7 @@ class Frame(InformerMixIn, models.Model):
         return c
 
 # ------------------------------------------------------------------------------
-class Log(models.Model):
+class Log(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     who         = models.ForeignKey(User, null=True, blank=True)
     when        = models.DateTimeField('date occurred', auto_now_add=True)
@@ -297,6 +297,10 @@ Project.getProject = GetProject(Project)
 # signal handler processing
 # ------------------------------------------------------------------------------
 h = Handler()
+dispatcher.connect(h.handle_post_init,  signal=signals.post_init)
 dispatcher.connect(h.handle_pre_save,   signal=signals.pre_save)
 dispatcher.connect(h.handle_post_save,  signal=signals.post_save)
 dispatcher.connect(h.handle_pre_delete, signal=signals.pre_delete)
+
+def getHandler():
+    return h

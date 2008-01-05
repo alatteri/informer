@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 # ------------------------------------------------------------------------------
 class InformerMixIn(object):
-    user_fields = ['created_by', 'modified_by']
+    user_fields = ['created_by', 'modified_by', 'who']
     date_fields = ['created_on', 'modified_on']
 
     def calculateDelta(self, clientNow):

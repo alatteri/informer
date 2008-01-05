@@ -1,5 +1,24 @@
 from django_restapi.model_resource import Collection, Entry
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip
+from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, getHandler
+
+
+def LogHandlerWrapper(func, method):
+    def wrapper(obj, request):
+        try:
+            handler = getHandler()
+            data = getattr(request, method)
+
+            if 'modified_by' in data:
+                handler.setUser(data['modified_by'])
+            elif 'created_by' in data:
+                handler.setUser(data['created_by'])
+            else:
+                handler.setUser(request.user)
+
+            return func(obj, request)
+        finally:
+            handler.setUser(None)
+    return wrapper
 
 class ProjectShots(Collection):
     def read(self, request):
@@ -87,6 +106,7 @@ class ProjectShotCollection(Collection):
         response.status_code = 201
         response.headers['Location'] = model_entry.get_url()
         return response
+    create = LogHandlerWrapper(create, 'POST')
 
 
 class PkEntry(Entry):
@@ -113,3 +133,4 @@ class PkEntry(Entry):
         response.status_code = 200
         response.headers['Location'] = self.get_url()
         return response
+    update = LogHandlerWrapper(update, 'PUT')

@@ -9,6 +9,34 @@ class IgnoreSignalException(Exception):
     pass
 
 class Handler(object):
+    user = None
+
+    def setUser(self, user):
+        print "((((((((((( setting user to %s ))))))))))))" % (user)
+        self.user = user
+
+    def handle_class_prepared(self, signal, sender, instance, *args, **kwargs):
+        # print "-" * 80
+        # print "class prepared: sender (%s) instance (%s)" % (sender, instance)
+        pass
+
+    def handle_pre_init(self, signal, sender, *args, **kwargs):
+        # print "-" * 80
+        # print "pre init: sender (%s) args (%s) kwargs (%s)" % (sender, args, kwargs)
+        pass
+
+    def handle_post_init(self, signal, sender, instance, *args, **kwargs):
+        # print "-" * 80
+        # print "post init: sender (%s) instance (%s)" % (sender, instance)
+
+        if 'Session' == instance.__class__.__name__:
+            # init the user on a new session
+            self.setUser(None)
+        elif 'User' == instance.__class__.__name__ and self.user is None:
+            # This is a hack to capture the currently logged in user
+            # without a request object. This is fragile.
+            self.setUser(instance)
+
     def handle_pre_save(self, signal, sender, instance, *args, **kwargs):
         pk = instance._get_pk_val()
 
@@ -55,13 +83,17 @@ class Handler(object):
 
     def log(self, instance, action, old={}, new={}):
         print "*" * 80
-        print "now going to register", action
+        print "now going to register", action, "for", type(instance)
         print "*" * 80
 
         from instinctual.informer.models import Log
         l = Log()
 
-        # TODO: who <--- Not sure how to get this for all cases.
+        if self.user:
+            l.who = self.user
+        else:
+            l.who = 'UNKNOWN'
+
         l.action = action
         l.object_id = instance._get_pk_val()
         l.type = instance.__class__.__name__
