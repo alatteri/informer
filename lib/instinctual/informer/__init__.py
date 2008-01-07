@@ -9,7 +9,11 @@ def getServerRoot():
     server = conf.get('informer', 'server')
     port = conf.get('informer', 'port')
     base = conf.get('informer', 'url_base')
-    return "%s://%s:%s/%s" % (proto, server, port, base)
+
+    if port:
+    	return "%s://%s:%s/%s" % (proto, server, port, base)
+    else:
+    	return "%s://%s/%s" % (proto, server, base)
 
 def _getUrlComponent(component):
     conf = instinctual.getConf()
