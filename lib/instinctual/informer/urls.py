@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import patterns
 from django.contrib.auth.models import User
+from django_restapi.authentication import HttpBasicAuthentication
 
 import instinctual
 from instinctual.informer.rest_filelist import FileCollection
@@ -13,19 +14,22 @@ from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEnt
 xml_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_note = Collection(
@@ -34,6 +38,7 @@ xml_note = Collection(
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_notes = ProjectShotCollection(
@@ -41,6 +46,7 @@ xml_notes = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
     expose_fields = Note.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_element = Collection(
@@ -49,30 +55,35 @@ xml_element = Collection(
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_events = ProjectShotCollection(
     queryset = Event.objects.all(),
     permitted_methods = ['POST'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_users = Collection(
     queryset = User.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = CustomXMLResponder()
+    responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_frames = ProjectShotCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_clips = ProjectShotCollection(
@@ -80,31 +91,36 @@ xml_clips = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
     expose_fields = Clip.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 xml_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 
 json_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_note = Collection(
@@ -113,6 +129,7 @@ json_note = Collection(
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 json_notes = ProjectShotCollection(
@@ -120,6 +137,7 @@ json_notes = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
     expose_fields = Note.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 json_element = Collection(
@@ -128,30 +146,35 @@ json_element = Collection(
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 json_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_events = ProjectShotCollection(
     queryset = Event.objects.all(),
     permitted_methods = ['POST'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_users = Collection(
     queryset = User.objects.all(),
     permitted_methods = ['GET', 'POST'],
-    responder = CustomJSONResponder()
+    responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_frames = ProjectShotCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 json_clips = ProjectShotCollection(
@@ -159,12 +182,14 @@ json_clips = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
     expose_fields = Clip.Rest.expose_fields,
+    authentication = HttpBasicAuthentication(),
 )
 
 json_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
+    authentication = HttpBasicAuthentication(),
 )
 
 # --------------------

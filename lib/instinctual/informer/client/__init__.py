@@ -11,9 +11,14 @@ import restclient
 
 from instinctual import informer
 from instinctual.informer.client.xml_serializer import Deserializer
+from instinctual.informer.client import httplib2auth
 
 LOG = instinctual.getLogger(__name__)
 
+# Force the restclient to use the authenticating httplib...
+restclient.__dict__['httplib2'] = httplib2auth
+
+# ------------------------------------------------------------------------------
 class ClientConnectionError(Exception):
     pass
 
