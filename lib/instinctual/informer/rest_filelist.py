@@ -25,7 +25,6 @@ class FileCollection(Resource):
 			path = BASE
 		
 		dirs = []
-                if path != BASE: dirs.append('..')
 		files = []
 		
 		for f in os.listdir(path):
