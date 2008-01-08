@@ -32,8 +32,10 @@
 
 <table>
 <tr>
-  <td><select id="e_dirs" size="10" ondblclick="update_file_list()"></select></td>
-  <td><select id="e_files" size="10" ondblclick="update_file()"></select></td>
+  <td>
+    <select id="e_dirs"></select><br />
+    <ul id="e_files" style="height:250px; overflow:auto;"></ul>
+  </td>
   <td><table>
 <tr><td>File:</td><td><span id="e_filename"></span></td></tr>
 <tr><td>Category:</td><td><input type="text" id="e_category" /></td></tr>
@@ -282,13 +284,12 @@
         return tr;
     }
 
-    var e_dirs, e_files;
+    var e_dirs,e_files;
 
     function get_file_list() {
-        if (!e_dirs) { e_dirs = $('e_dirs'); }
+        if (!e_dirs) { e_dirs = $('e_dirs');
+          e_dirs.observe('change', update_file_list); }
         if (!e_files) { e_files = $('e_files'); }
-        clear_select(e_dirs);
-        clear_select(e_files);
 
         var url = '/informer/1.0/listdir/'+e_path;
         new Ajax.Request(url, {
@@ -298,41 +299,68 @@
 
     }
 
-    function clear_select(which) {
-        while (which.options.length) { which.remove(which.options[0]); }
-    }
     function process_files(r) {
         var data = eval('('+r.responseText+')');
-        add_options(data.directories, e_dirs);
-        add_options(data.files, e_files);
+        // clear out files
+        while (e_files.hasChildNodes())
+        {
+          e_files.removeChild(e_files.firstChild);
+        }
+        // clear out directories and add in the right ones
+        while (e_dirs.hasChildNodes())
+        {
+          e_dirs.removeChild(e_dirs.firstChild);
+        }
+        // do directories
+        var o = document.createElement('OPTION');
+        o.appendChild(document.createTextNode('/'));
+        o.value = '';
+        e_dirs.options.add(o);
+        var dirs = e_path.split('/');
+        var current = '/';
+        for (var i=0; i<dirs.length; i++)
+        {
+          if (!dirs[i]) continue;
+          var o2 = document.createElement('OPTION');
+          current = current + dirs[i];
+          o2.appendChild(document.createTextNode(current));
+          o2.value = current;
+          e_dirs.options.add(o2);
+          
+        }
+        e_dirs.selectedIndex = e_dirs.options.length-1;
+        // add other info
+        add_items(data.directories, 'dir', update_file_list);
+        add_items(data.files, 'file', update_file);
+        if (!e_files.hasChildNodes())
+          add_items(["no files"], 'no_files');
     }
 
-    function add_options(list, which) {
-        clear_select(which);
+    function add_items(list, className, callback) {
         for (var i=0; i < list.length; i++) {
-            var o = document.createElement('option');
-            o.appendChild(document.createTextNode(list[i]));
-            which.options.add(o);
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(list[i]));
+            li.className = className
+            if (callback)
+              li.observe('click', callback);
+            e_files.insert(li);
         }
     }
 
-    function update_file_list() {
-        var sel = e_dirs.options[e_dirs.selectedIndex].value;
-        if (sel == '..') {
-            var p = e_path.split('/');
-            e_path = p.slice(0, p.length-2).join('/')
-            if (e_path) { e_path += '/'; }
-        } else {
-            e_path += sel + '/';
-        }
+    function update_file_list(e) {
+        var src = e.element();
+        e_path = src.id == 'e_dirs' ?
+          e_path = e_dirs.options[e_dirs.selectedIndex].value : 
+          e_path + src.innerHTML;
 
         get_file_list();
     }
 
-    function update_file() {
+    function update_file(e) {
+        var src = e.element();
         var box = $('e_filename');
-        var file = e_files.options[e_files.selectedIndex].value;
-        box.innerHTML = e_path + file;
+        var file = src.firstChild.data;
+        box.innerHTML = e_path + '/' + file;
     }
 
     function add_element() {
