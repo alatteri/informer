@@ -262,7 +262,7 @@ urlpatterns = patterns('',
     ('^' + json_url_clips + '$',             json_clips,          {'is_entry':False}),
     ('^' + json_url_logs + '$',              json_logs,           {'is_entry':False}),
 
-    ('^' + html_url_projects + '$', 'django.views.generic.list_detail.object_list', {'queryset':Project.objects.all()}),
+    ('^' + html_url_projects + '$', 'instinctual.informer.views.limited_object_list', {'queryset':Project.objects.all()}),
     ('^' + html_url_project_shots + '$', 'instinctual.informer.views.project_detail'),
     ('^' + html_url_project_shot + '$', 'instinctual.informer.views.shot_detail'),
     ('^listdir/(?P<path>.*)$', FileCollection(type='json',permitted_methods = ['GET', 'POST'] )),

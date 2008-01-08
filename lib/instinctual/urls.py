@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     (r'^informer/html/', include('instinctual.informer.html_urls')),
 
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': media_path}),
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
 
