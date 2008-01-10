@@ -76,6 +76,28 @@
       this.data = undefined;
       this.url = url;
     },
+
+    load_data: function()
+    {
+      if (this.data) return;
+
+      var a = new Ajax.Request(this.url, {
+        method: 'GET',
+        onSuccess: function(r) { 
+          this.data=eval(r.responseText);
+          this.pre_process();
+          this.populate_table()
+        }.bind(this)
+      });
+
+    },
+
+    setup_data: function(resp)
+    {
+      this.data = eval(resp.responseText);
+      this.pre_process(); 
+      this.populate_table();
+    },
     
     pre_process: function()
     {
@@ -83,6 +105,12 @@
     
     populate_table: function()
     {
+      if (!this.data)
+      {
+        this.load_data();
+        return;
+      }
+
       if (!this.table)
         this.table = $(this.table_name);
       // clear rows
@@ -139,22 +167,35 @@
       tmp = filter(tmp);
     return tmp;
   }
-  
+  function parseDate(strDate) {
+      if (strDate.getMonth)
+        return strDate;
+      var nums = strDate.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+      var d = new Date();
+      d.setFullYear(nums[1], nums[2]-1, nums[3]);
+      d.setHours(nums[4]);
+      d.setMinutes(nums[5]);
+      d.setSeconds(nums[6]);
+      return d;
+  }
   var NOTE_FILTERS = new Informer.FilterList();
   NOTE_FILTERS.add('status', new Informer.Filter('fields.is_checked'));
   NOTE_FILTERS.add('author', new Informer.Filter('fields.created_by.pk'));
   
-  var Notes = new Informer.Data('notes', 
-    ['fields.created_on', 'fields.created_by.username', 
+  var Notes = new Informer.Data('notes_table', 
+    [['fields.created_on', function(x) { return (x.getMonth()+1)+'/'+x.getDate()+'/'+x.getFullYear(); }],
+      'fields.created_by.username', 
       ['fields.is_checked', function(x) { return x ? 'Completed' : 'Pending'}]],
       'fields.text', '', NOTE_FILTERS);
-  Notes.data = NOTES;
   Notes.pre_process = function()
   {
     var authors = [];
     var a_data = {}
-    this.data.each(function(note)
+    var a_filter = $('notes_author_filter');
+
+    for (var i=0; i<this.data.length; i++)
     {
+      var note = this.data[i];
       var name = note.fields.created_by.username;
       if (!a_data[name])
       {
@@ -162,10 +203,30 @@
         authors.push(name);
       }
       a_data[name].count++;
+
+      this.data[i].fields.created_on = parseDate(this.data[i].fields.created_on);
+      this.data[i].fields.modified_on = parseDate(this.data[i].fields.modified_on);
+    }
+
+    while(a_filter.hasChildNodes())
+      a_filter.removeChild(a_filter.firstChild);
+
+    a_filter.appendChild(create_li('All', function(x) { Notes.filters.turn_off('author'); return false; }));
+    authors.sort();
+    authors.each(function(each){
+      var txt = each + ' (' + a_data[each].count + ')';
+      var func = function(x) { Notes.filters.set_value('author', a_data[each].id); return false; };
+      a_filter.appendChild(create_li(txt, func));
     });
-    return authors.sort();
   }
 
-
-  </body>
-</html>
+function create_li(text, func)
+{
+  var li = document.createElement('li');
+  var a = document.createElement('a');
+  a.href = '#';
+  a.appendChild(document.createTextNode(text));
+  Event.observe(a, 'click', func);
+  li.appendChild(a);
+  return li;
+}

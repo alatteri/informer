@@ -5,7 +5,7 @@
 
 <ul>
 <li onclick="get_logs();">Recent Activity</li>
-<li onclick="get_notes();">Notes</li>
+<li onclick="hide_all('notes') && Notes.populate_table()">Notes</li>
 <li onclick="get_elements();">Elements</li>
 <li onclick="get_renders();">Renders</li>
 </ul>
@@ -18,13 +18,24 @@
 
 <div id="notes" style="display:none">
 <h4>Notes</h4>
-<form onsubmit="add_note(); return false;">
+<table>
+<tr>
+<td valign="top">
+<form id="notes_form" onsubmit="add_note(); return false;">
 <textarea id="frm_notes"></textarea><br />
 <input type="submit">
 </form>
 
-<table id="notes_table"></table>
-
+<table id="notes_table">
+  <thead>
+    <tr><th>Date</th><th>Author</th><th>Status</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</td><td valign="top">
+<ul id="notes_author_filter"></ul>
+</td>
+</tr></table>
 </div><!-- notes -->
 
 <div id="elements" style="display:none">
@@ -56,6 +67,14 @@
 </div><!-- renders -->
 
 <script type="text/javascript">
+
+function do_onload()
+{
+  Notes.url = '{{ shot.get_json_notes_url }}';
+}
+
+Event.observe(window, 'load', do_onload);
+
     var logs_div = $('logs');
     var notes_div = $('notes');
     var elements_div = $('elements');
@@ -79,13 +98,16 @@
         var txt = $F('frm_notes');
         if (!txt) return;
 
-        var data = {created_by_id:1, modified_by_id:1, text:txt};
+        var data = {text:txt};
         new Ajax.Request(notes_url, {
            method: 'POST',
            parameters: data,
            onSuccess: function(r) { 
                var d = eval(r.responseText);
-               add_data(d[0], notes_table);
+               Notes.data.push(d[0]);
+               Notes.pre_process();
+               Notes.populate_table();
+               $('notes_form').reset();
                }
            });
     }
@@ -123,20 +145,14 @@
     }
 
     function hide_all(skip) {
-        $A([logs_div, notes_div, elements_div, renders_div]).each (function(each) {
-            if (each) 
-                each.style.display = each==skip ? 'block' : 'none';
+      var obj = $(skip);
+      if (obj.style.display == 'block')
+        return false;
+      $A([logs_div, notes_div, elements_div, renders_div]).each (function(each) {
+        if (each) 
+          each.style.display = each==obj ? 'block' : 'none';
         });
-    }
-
-    function parseDate(strDate) {
-        var nums = strDate.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-        var d = new Date();
-        d.setFullYear(nums[1], nums[2]-1, nums[3]);
-        d.setHours(nums[4]);
-        d.setMinutes(nums[5]);
-        d.setSeconds(nums[6]);
-        return d;
+      return true;
     }
 
     var logTemplate = new Template(
