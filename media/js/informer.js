@@ -6,7 +6,20 @@
       this.field = field
       this.value = '';
       this.use = false;
+
+			this.label_field;
+			this.label_field_filter;
     },
+
+		run_for_list: function(obj)
+		{
+			return [get_value(this.field, obj), get_value(this.label_field, obj)];
+		},
+
+		get_label: function(label_value)
+		{
+			return this.label_field_filter ? this.label_field_filter(label_value) : label_value;
+		},
     
     execute: function(objects)
     {
@@ -33,12 +46,14 @@
     initialize: function()
     {
       this._to_run = [];
-      this._filters = {};
+      this._filters = $H();
+
+			this._list_data;
     },
     
     add: function(name, filter)
     {
-      this._filters[name] = filter;
+      this._filters.set(name, filter);
       this._to_run.push(name);
     },
     
@@ -47,21 +62,63 @@
       var tr = objects;
       for (var i=0; i<this._to_run.length; i++)
       {
-        tr = this._filters[this._to_run[i]].execute(tr);
+        tr = this._filters.get(this._to_run[i]).execute(tr);
       }
       return tr;
     },
     
-    turn_off: function(which)
-    {
-      this._filters[which].use = false;
-    },
-    
-    set_value: function(which, value)
-    {
-      this._filters[which].use = true;
-      this._filters[which].value = value;
-    }
+		reset_list_data: function()
+		{
+			this._list_data = $H();
+			this._filters.keys().each(function(x){
+				this._list_data.set(x, $H());
+			}.bind(this));
+		},
+
+		process_list_data: function(obj)
+		{
+		  var names = this._filters.keys();
+			for (var i=0; i<names.length; i++)
+			{
+				var f = this._filters.get(names[i]);
+				var data = this._list_data.get(names[i]);
+				var info = f.run_for_list(obj);
+				var tmp = data.get(info[1]);
+				if (tmp)
+				{
+					tmp.count++;
+				}
+				else
+				{
+					tmp = {'count':1, 'value':info[0]};
+				}
+				data.set(info[1], tmp);
+				this._list_data.set(names[i], data);
+			}
+		},
+
+		get_list_data: function()
+		{
+			var tmp = $H();
+			var keys = this._list_data.keys();
+			for (var i=0; i<keys.length; i++)
+			{
+				var key = keys[i];
+				var filter = this._filters.get(key);
+				var sub = this._list_data.get(key);
+				var sub_keys = sub.keys();
+				var tmp2 = $H();
+				for (var j=0; j<sub_keys.length; j++)
+				{
+					var sub_key = sub_keys[j];
+					var label = filter.get_label(sub_key);
+					tmp2.set(label, sub.get(sub_key));
+				}
+				tmp.set(key, tmp2);
+			}
+			return tmp;
+		}
+
   }
   
   Informer.Data = Class.create();
@@ -142,7 +199,22 @@
         tbody.appendChild(tr2);
       
       }.bind(this));
-    }
+    },
+
+		turn_off: function(which)
+		{
+			this.filters._filters.get(which).use = false;
+			this.populate_table();
+		},
+
+		set_value: function(which, value)
+		{
+			var f = this.filters._filters.get(which);
+			f.use = true;
+			f.value = value;
+			this.populate_table();
+		}
+
   };
   
   function get_value(field, object)
@@ -157,12 +229,7 @@
     {
       f = field;
     }
-    var f = f.split('.');
-    var tmp = object
-    for (var i=0; i<f.length; i++)
-    {
-      tmp = tmp[f[i]];
-    }
+		var tmp = object.eval(f);
     if (filter)
       tmp = filter(tmp);
     return tmp;
@@ -179,8 +246,13 @@
       return d;
   }
   var NOTE_FILTERS = new Informer.FilterList();
-  NOTE_FILTERS.add('status', new Informer.Filter('fields.is_checked'));
-  NOTE_FILTERS.add('author', new Informer.Filter('fields.created_by.pk'));
+	var _NF1 = new Informer.Filter('fields.is_checked');
+	_NF1.label_field = 'fields.is_checked';
+	_NF1.label_field_filter = function(x) { return x=='true' ? 'Completed' : 'Pending'};
+  NOTE_FILTERS.add('status', _NF1);
+	var _NF2 = new Informer.Filter('fields.created_by.pk');
+	_NF2.label_field = 'fields.created_by.username';
+  NOTE_FILTERS.add('author', _NF2);
   
   var Notes = new Informer.Data('notes_table', 
     [['fields.created_on', function(x) { return (x.getMonth()+1)+'/'+x.getDate()+'/'+x.getFullYear(); }],
@@ -189,44 +261,43 @@
       'fields.text', '', NOTE_FILTERS);
   Notes.pre_process = function()
   {
-    var authors = [];
-    var a_data = {}
-    var a_filter = $('notes_author_filter');
+		this.filters.reset_list_data();
 
     for (var i=0; i<this.data.length; i++)
     {
-      var note = this.data[i];
-      var name = note.fields.created_by.username;
-      if (!a_data[name])
-      {
-        a_data[name] = {id: note.fields.created_by.pk, count: 0};
-        authors.push(name);
-      }
-      a_data[name].count++;
+		  var note = this.data[i];
+			this.filters.process_list_data(note);
 
       this.data[i].fields.created_on = parseDate(this.data[i].fields.created_on);
       this.data[i].fields.modified_on = parseDate(this.data[i].fields.modified_on);
     }
+		var ld = this.filters.get_list_data();
 
-    while(a_filter.hasChildNodes())
-      a_filter.removeChild(a_filter.firstChild);
-
-    a_filter.appendChild(create_li('All', function(x) { Notes.filters.turn_off('author'); return false; }));
-    authors.sort();
-    authors.each(function(each){
-      var txt = each + ' (' + a_data[each].count + ')';
-      var func = function(x) { Notes.filters.set_value('author', a_data[each].id); return false; };
-      a_filter.appendChild(create_li(txt, func));
-    });
+    create_filter_ul(ld.get('author'), Notes, 'author', $('notes_author_filter'));
+		create_filter_ul(ld.get('status'), Notes, 'status', $('notes_status_filter'));
   }
+
+function create_filter_ul(values, data_obj, which, ul_element)
+{
+  while (ul_element.hasChildNodes())
+		ul_element.removeChild(ul_element.firstChild);
+
+	var names = values.keys();
+	names.sort();
+	ul_element.appendChild(create_li(
+		'All', function(x) { data_obj.turn_off(which); return false; }));
+	names.each(function(each) {
+		var txt = each + ' (' + values.get(each).count + ')';
+		var val = values.get(each).value;
+		var func = function(x) { data_obj.set_value(which, val); return false; };
+		ul_element.appendChild(create_li(txt, func));
+	});
+}
 
 function create_li(text, func)
 {
   var li = document.createElement('li');
-  var a = document.createElement('a');
-  a.href = '#';
-  a.appendChild(document.createTextNode(text));
-  Event.observe(a, 'click', func);
-  li.appendChild(a);
+  li.appendChild(document.createTextNode(text));
+  Event.observe(li, 'click', func);
   return li;
 }
