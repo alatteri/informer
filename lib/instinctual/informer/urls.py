@@ -6,7 +6,7 @@ import instinctual
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
-from instinctual.informer.rest import ProjectShots, ProjectShotCollection, ShotNotes, PkEntry, Collection
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection
 
 # --------------------
 # RESTful patterns:
@@ -41,7 +41,7 @@ xml_note = Collection(
     authentication = HttpBasicAuthentication(),
 )
 
-xml_notes = ShotNotes(
+xml_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
@@ -132,7 +132,7 @@ json_note = Collection(
     authentication = HttpBasicAuthentication(),
 )
 
-json_notes = ShotNotes(
+json_notes = ProjectShotCollection(
     queryset = Note.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
