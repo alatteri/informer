@@ -1,14 +1,15 @@
   var Informer = {};
   Informer.Filter = Class.create();
   Informer.Filter.prototype = {
-    initialize: function(field)
+    initialize: function(name, field, label, filter)
     {
+      this.name = name
       this.field = field
       this.value = '';
       this.use = false;
 
-			this.label_field;
-			this.label_field_filter;
+			this.label_field = label;
+			this.label_field_filter = filter;
     },
 
 		run_for_list: function(obj)
@@ -45,24 +46,23 @@
   Informer.FilterList.prototype = {
     initialize: function()
     {
-      this._to_run = [];
       this._filters = $H();
 
 			this._list_data;
     },
     
-    add: function(name, filter)
+    add: function(filter)
     {
-      this._filters.set(name, filter);
-      this._to_run.push(name);
+      this._filters.set(filter.name, filter);
     },
     
     execute: function(objects)
     {
       var tr = objects;
-      for (var i=0; i<this._to_run.length; i++)
+      var names = this._filters.keys();
+      for (var i=0; i<names.length; i++)
       {
-        tr = this._filters.get(this._to_run[i]).execute(tr);
+        tr = this._filters.get(names[i]).execute(tr);
       }
       return tr;
     },
@@ -123,15 +123,22 @@
   
   Informer.Data = Class.create();
   Informer.Data.prototype = {
-    initialize: function(table_name, row_1, row_2, url, filters)
+    initialize: function(name, row_1, row_2, url, filter_list)
     {
-      this.table_name = table_name;
+      this.name = name;
       this.row_1 = row_1;
       this.row_2 = row_2;
       this.table = undefined;
-      this.filters = filters;
+      this.filters = new Informer.FilterList();;
       this.data = undefined;
       this.url = url;
+      
+      if (filter_list)
+      {
+        filter_list.each(function(x) {
+          this.filters.add(x);
+        }.bind(this)); 
+      }
     },
 
     load_data: function()
@@ -158,6 +165,35 @@
     
     pre_process: function()
     {
+		  this.filters.reset_list_data();
+
+      for (var i=0; i<this.data.length; i++)
+      {
+		    var obj = this.data[i];
+			  this.filters.process_list_data(obj);
+			  
+			  for (var j=0; j<this.row_1.length; j++)
+			  {
+			    var f = this.row_1[j];
+			    if (f.pop && f.length==3)
+			    {
+			      val = get_value(f[0], obj);
+			      val = f[2](val);
+			      set_value(f[0], obj, val);
+			    }
+			  }
+      }
+		  
+      var ld = this.filters.get_list_data();
+		  var f_names = ld.keys();
+		  
+		  for (var i=0; i<f_names.length; i++)
+		  {
+		    var name = f_names[i];
+		    var ul_element = $(this.name + '_' + name + '_filter');
+		    if (ul_element)
+		      create_filter_ul(ld.get(name), this, name, ul_element);
+		  }
     },
     
     populate_table: function()
@@ -169,7 +205,7 @@
       }
 
       if (!this.table)
-        this.table = $(this.table_name);
+        this.table = $(this.name + '_table');
       // clear rows
       var tbody = this.table.tBodies[0];
       while (tbody.hasChildNodes())
@@ -214,13 +250,10 @@
 			f.value = value;
 			this.populate_table();
 		}
-
   };
   
   function get_value(field, object)
   {
-		console.log("field: " + field);
-		console.log("object: " + object);
     var filter, f;
     if (field.pop)
     {
@@ -241,8 +274,33 @@
       tmp = filter(tmp);
     return tmp;
   }
-  function parseDate(strDate) {
-      if (strDate.getMonth)
+  
+  function set_value(field, object, value)
+  {
+    var fields = field.split('.');
+    fields.reverse();
+    return _set_value(fields, object, value);
+  }
+  
+  function _set_value(fields, object, value)
+  {
+    var f = fields.pop();
+    tmp = object[f];
+    
+    if (!fields.length)
+    {
+      object[f] = value;
+    }
+    else
+    {
+      
+      object[f] = _set_value(fields, tmp, value);
+    }
+    return object;
+  }
+  
+  function parse_date(strDate) {
+      if (!strDate || strDate.getMonth)
         return strDate;
       var nums = strDate.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
       var d = new Date();
@@ -252,38 +310,7 @@
       d.setSeconds(nums[6]);
       return d;
   }
-  var NOTE_FILTERS = new Informer.FilterList();
-	var _NF1 = new Informer.Filter('fields.is_checked');
-	_NF1.label_field = 'fields.is_checked';
-	_NF1.label_field_filter = function(x) { return x=='true' ? 'Completed' : 'Pending'};
-  NOTE_FILTERS.add('status', _NF1);
-	var _NF2 = new Informer.Filter('fields.created_by.pk');
-	_NF2.label_field = 'fields.created_by.username';
-  NOTE_FILTERS.add('author', _NF2);
   
-  var Notes = new Informer.Data('notes_table', 
-    [['fields.created_on', function(x) { return (x.getMonth()+1)+'/'+x.getDate()+'/'+x.getFullYear(); }],
-      'fields.created_by.username', 
-      ['fields.is_checked', function(x) { return x ? 'Completed' : 'Pending'}]],
-      'fields.text', '', NOTE_FILTERS);
-  Notes.pre_process = function()
-  {
-		this.filters.reset_list_data();
-
-    for (var i=0; i<this.data.length; i++)
-    {
-		  var note = this.data[i];
-			this.filters.process_list_data(note);
-
-      this.data[i].fields.created_on = parseDate(this.data[i].fields.created_on);
-      this.data[i].fields.modified_on = parseDate(this.data[i].fields.modified_on);
-    }
-		var ld = this.filters.get_list_data();
-
-    create_filter_ul(ld.get('author'), Notes, 'author', $('notes_author_filter'));
-		create_filter_ul(ld.get('status'), Notes, 'status', $('notes_status_filter'));
-  }
-
 function create_filter_ul(values, data_obj, which, ul_element)
 {
   while (ul_element.hasChildNodes())
@@ -308,3 +335,21 @@ function create_li(text, func)
   Event.observe(li, 'click', func);
   return li;
 }
+
+function format_date(d)
+{
+  return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
+}
+
+function format_pending(p)
+{
+  return p ? 'Completed' : 'Pending';
+}
+  
+  var Notes = new Informer.Data('notes', 
+    [['fields.created_on', format_date, parse_date],
+      'fields.created_by.username', 
+      ['fields.is_checked', format_pending]],
+      'fields.text', '', [
+        new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
+        new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')]);
