@@ -219,6 +219,8 @@
   
   function get_value(field, object)
   {
+		console.log("field: " + field);
+		console.log("object: " + object);
     var filter, f;
     if (field.pop)
     {
@@ -229,7 +231,12 @@
     {
       f = field;
     }
-		var tmp = object.eval(f);
+		var tmp = object;
+		var fields = f.split('.');
+		for (var i=0; i<fields.length; i++)
+		{
+			tmp = tmp[fields[i]];
+		}
     if (filter)
       tmp = filter(tmp);
     return tmp;
