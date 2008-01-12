@@ -5,7 +5,7 @@ import instinctual
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
-from instinctual.informer.rest import ProjectShots, ProjectShotCollection, ShotNotes, PkEntry, Collection, InformerAuthentication
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection, InformerAuthentication
 
 # --------------------
 # RESTful patterns:

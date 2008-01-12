@@ -116,52 +116,6 @@ class ProjectShotCollection(Collection):
         return response
     create = LogHandlerWrapper(create, 'POST')
 
-class ShotNotes(Collection):
-    def create(self, request):
-        """
-        Creates a resource with attributes given by POST, then
-        redirects to the resource URI.
-
-        Unlike the base Collection create() it does not require every
-        since field to be specified.
-        """
-        data = self.receiver.get_post_data(request)
-        print "ok here's the data: %s" % (data)
-
-        new_model = self.queryset.model()
-        print "ok just made new_model %s" % (new_model.__class__.__name__)
-
-        project_name = Project.getNameFromRequest(request)
-        project = Project.getProject(project_name, create=True)
-
-        shot_name = Shot.getNameFromRequest(request)
-        shot = Shot.getShot(shot_name, project, create=True)
-
-        # associate with the shot
-        new_model.shot = shot
-
-        # seed with POST data
-        for (key, val) in data.items():
-            print "going to set [%s] with [%s]" % (key, val)
-            new_model.__setattr__(key, val)
-
-        # set created|modified by 
-        print "setting user"
-        new_model.created_by = request.user
-        new_model.modified_by = request.user
-
-        print "now going to save"
-        # If the data contains no errors, save the model,
-        # return a "201 Created" response with the model's
-        # URI in the location header and a representation
-        # of the model in the response body.
-        new_model.save()
-
-        model_entry = self.entry_class(self, new_model)
-        return self.responder.element(request, new_model)
-
-    create = LogHandlerWrapper(create, 'POST')
-
 class PkEntry(Entry):
     """
     Creates the Entry from the primary key and only updates
@@ -199,7 +153,7 @@ class PkEntry(Entry):
 class InformerAuthentication(HttpBasicAuthentication):
     def is_authenticated(self, request):
         if request.user.is_authenticated():
-				    return True
+            return True
         if not request.META.has_key('HTTP_AUTHORIZATION'):
             return False
         (authmeth, auth) = request.META['HTTP_AUTHORIZATION'].split(' ', 1)
