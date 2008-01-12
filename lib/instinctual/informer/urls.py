@@ -1,12 +1,11 @@
 from django.conf.urls.defaults import patterns
 from django.contrib.auth.models import User
-from django_restapi.authentication import HttpBasicAuthentication
 
 import instinctual
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
-from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, ShotNotes, PkEntry, Collection, InformerAuthentication
 
 # --------------------
 # RESTful patterns:
@@ -15,21 +14,21 @@ xml_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_note = Collection(
@@ -38,7 +37,7 @@ xml_note = Collection(
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_notes = ProjectShotCollection(
@@ -46,7 +45,7 @@ xml_notes = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
     expose_fields = Note.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_element = Collection(
@@ -55,35 +54,35 @@ xml_element = Collection(
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_events = ProjectShotCollection(
     queryset = Event.objects.all(),
     permitted_methods = ['POST'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_users = Collection(
     queryset = User.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_frames = ProjectShotCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_clips = ProjectShotCollection(
@@ -91,14 +90,14 @@ xml_clips = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
     expose_fields = Clip.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 xml_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 
@@ -106,21 +105,21 @@ json_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_shots = Collection(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_project_shots = ProjectShots(
     queryset = Shot.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_note = Collection(
@@ -129,7 +128,7 @@ json_note = Collection(
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_notes = ProjectShotCollection(
@@ -137,7 +136,7 @@ json_notes = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
     expose_fields = Note.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_element = Collection(
@@ -146,35 +145,35 @@ json_element = Collection(
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_elements = ProjectShotCollection(
     queryset = Element.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_events = ProjectShotCollection(
     queryset = Event.objects.all(),
     permitted_methods = ['POST'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_users = Collection(
     queryset = User.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_frames = ProjectShotCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_clips = ProjectShotCollection(
@@ -182,14 +181,14 @@ json_clips = ProjectShotCollection(
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
     expose_fields = Clip.Rest.expose_fields,
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 json_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
-    authentication = HttpBasicAuthentication(),
+    authentication = InformerAuthentication(),
 )
 
 # --------------------
