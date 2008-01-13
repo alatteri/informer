@@ -708,8 +708,12 @@ class HTTPConnection:
             self.sock.sendall(str)
         except socket.error, v:
             if v[0] == 32:      # Broken pipe
-                self.close()
-            raise
+                # Don't close the socket or we can't retrieve the 401
+                # See: http://mail.python.org/pipermail/web-sig/2007-April/002660.html
+                # self.close()
+                pass
+            else:
+                raise
 
     def _output(self, s):
         """Add a line of output to the current request buffer.
