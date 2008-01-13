@@ -67,7 +67,6 @@ class InformerMixIn(object):
                     kwargs['raw_' + f] = raw
                 kwargs[f] = self.applyDelta(raw)
 
-        print "__init__ [%s]" % (kwargs)
         models.Model.__init__(self, *args, **kwargs)
 
     def __setattr__(self, key, val):
