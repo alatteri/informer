@@ -1,0 +1,6 @@
+/* TODO
+ * -------------------------------------------- */
+ 
+- [ALL]		Style drop-down menus (http://old.easy-designs.net/articles/replaceSelect/)
+- [IE6/7] 	Fix bug where hovering over second-to-last overview list item toggles the bottom margin on list
+- [FF]		Fix bug where first box entry floats right when browser text is increased
