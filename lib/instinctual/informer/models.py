@@ -184,7 +184,7 @@ class Clip(InformerMixIn, models.Model):
     modified_on = models.DateTimeField('date modified', auto_now=True)
 
     spark = models.CharField(maxlength=255)
-    movie = models.FileField(upload_to='clips')
+    movie = models.FileField(upload_to='clips/%Y/%m/%d')
 
     start = models.IntegerField()
     end = models.IntegerField()
@@ -206,7 +206,7 @@ class Clip(InformerMixIn, models.Model):
 class Frame(InformerMixIn, models.Model):
     shot = models.ForeignKey(Shot)
     clip = models.ForeignKey(Clip)
-    image = models.FileField(upload_to='frames')
+    image = models.FileField(upload_to='frames/%Y/%m/%d')
     in_clip = models.BooleanField('in clip', default=False)
 
     host        = models.CharField(maxlength=255)
@@ -247,6 +247,7 @@ class Frame(InformerMixIn, models.Model):
         pprint(e.__dict__)
 
         c = Clip.getClip(event=e,
+                         shot=e.shot,
                          start=start,
                          end=end,
                          rate=rate,

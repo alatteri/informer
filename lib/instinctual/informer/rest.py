@@ -1,3 +1,4 @@
+import os
 from django_restapi.model_resource import Collection, Entry
 from django_restapi.authentication import HttpBasicAuthentication
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, getHandler
@@ -98,8 +99,7 @@ class ProjectShotCollection(Collection):
 
             if 'image' in request.FILES:
                 content = request.FILES['image']['content']
-                filename = request.FILES['image']['filename']
-                print "Filename is:", filename
+                filename = "%06d-%06d.png" % (int(c.id), int(new_model.number))
                 new_model.save_image_file(filename, content, True)
 
         print "now going to save"
