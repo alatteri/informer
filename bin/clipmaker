@@ -17,48 +17,136 @@ except ImportError, e:
 
 import os
 import sys
-import time
+import errno
+import tempfile
+from pprint import pprint
+from datetime import datetime
+
 import instinctual
 from instinctual import settings
 from instinctual.informer.models import *
-from pprint import pprint
 
-shouldRun = True
-pending = '/Users/jrichards/dev/instinctual/src/pending.png'
-qt_catmovie = '/Users/jrichards/dev/instinctual/src/third_party/bin/catmovie'
+LOG = instinctual.getLogger(__file__)
 
-while shouldRun:
-    # get the clips that need updating
-    clip_ids = Frame.objects.filter(in_clip=False).values('clip').distinct()
+root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
+tmpdir  = root + '/tmp'
+pending = root + '/pending.png'
+ffmpeg  = root + '/third_party/bin/ffmpeg'
+qt_fast = root + '/third_party/bin/qt-faststart'
 
-    for clip_id in clip_ids:
-        clip = Clip.objects.get(id=clip_id['clip'])
-        print "*" * 80
-        print "+ working on clip", clip.id
+def main():
+    # get the lock
+    lockfile = tmpdir + '/lockfile'
 
-        max = None
-        frames = {}
-        for frame in Frame.objects.filter(clip=clip):
-            frame.in_clip = True
-            frames[frame.number] = frame
-            if not max or frame.number > max: max = frame.number
+    try:
+        flag = os.O_CREAT | os.O_EXCL | os.O_EXLOCK | os.O_WRONLY
+        fd = os.open(lockfile, flag, 0600)
+        os.write(fd, str(os.getpid()))
+        os.close(fd)
+    except OSError, e:
+        LOG.info("Unable to acquire lock.")
+        sys.exit(1)
+    except Exception, e:
+        LOG.fatal("Unable to acquire lock: unknown error: %s" % e)
+        sys.exit(1)
 
-        output = 'democlip_%s.mov' % (clip.id)
-        cmd = '%s -self-contained -names-from-stdin -o %s' % (qt_catmovie, output)
-        (child_stdin, child_stdout) = os.popen2(cmd)
-        for number in range(clip.start, max + 1):
-            if number in frames:
-                print "Frame [%s] %s" % (number, frames[number].get_image_filename())
-                child_stdin.write(frames[number].get_image_filename())
-            else:
-                print "WARN: frame %s is missing" % (number)
-                child_stdin.write(pending)
-            child_stdin.write("\n")
+    try:
+        # get the clips that need updating
+        clip_ids = Frame.objects.filter(in_clip=False).values('clip').distinct()
+        LOG.info("Lock acquired: %s clips to process..." % len(clip_ids))
 
-        child_stdin.close()
+        for clip_id in clip_ids:
+            makeclip(clip_id)
+    except Exception, e:
+        LOG.fatal(str(e))
+        sys.exit(1)
+    finally:
+        LOG.info("removing lockfile")
+        os.unlink(lockfile)
 
-        for frame in frames.values():
-            frame.save()
+def makeclip(clip_id):
+    clip = Clip.objects.get(id=clip_id['clip'])
+    LOG.info("+ working on clip id %s" % clip.id)
 
-    print "sleeping..."
-    time.sleep(10)
+    # grab info about the frames that need processing
+    max = None
+    frames = {}
+    for frame in Frame.objects.filter(clip=clip):
+        frame.in_clip = True
+        frames[frame.number] = frame
+        if not max or frame.number > max:
+            max = frame.number
+
+    # create the temp workspace
+    MKDIR(tmpdir)
+    prefix = "%s-%s-%s-" % ('clipmaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), clip.id)
+    workspace = tempfile.mkdtemp('', prefix, tmpdir)
+
+    to_delete = []
+    pattern = workspace + '/' + '%06d.png'
+    for number in range(clip.start, max + 1):
+        if number in frames:
+            print "Frame [%s] %s" % (number, frames[number].get_image_filename())
+            source = frames[number].get_image_filename()
+        else:
+            print "WARN: frame %s is missing" % (number)
+            source = pending
+        dest = pattern % (number)
+        os.symlink(source, dest)
+        to_delete.append(dest)
+
+    # create the clip
+    slow = workspace + '/' + 'slow.mp4'
+    cmd = "%s -r %s -i %s -vcodec libx264 -threads 4 %s" % (ffmpeg, clip.rate, pattern, slow)
+    SYSTEM(cmd)
+
+    # qt-faststart it
+    fast = workspace + '/' + 'fast.mp4'
+    cmd = "%s %s %s" % (qt_fast, slow, fast)
+    SYSTEM(cmd)
+
+    # copy the movie...
+    UNLINK(clip.get_movie_filename())
+
+    f = open(fast, 'rb')
+    clip.save_movie_file('%s.mp4' % clip.id, f.read(), True)
+
+    # save it
+    for frame in frames.values():
+        frame.in_clip = True
+        frame.save()
+
+    # cleanup
+    UNLINK(slow)
+    UNLINK(fast)
+
+    for delete_me in to_delete:
+        UNLINK(delete_me)
+
+    os.rmdir(workspace)
+
+# ------------------------------------------------------------------------------
+# utility functions
+# ------------------------------------------------------------------------------
+def UNLINK(path):
+    try:
+        os.unlink(path)
+    except OSError, e:
+        if errno.ENOENT != e.errno:
+            raise e
+
+def SYSTEM(cmd):
+    result = os.system(cmd)
+    if 0 != result:
+        raise ValueError("Non-Zero (%s) status returned from: %s" % (result, cmd))
+
+def MKDIR(dir):
+    try:
+        os.mkdir(dir)
+    except OSError, e:
+        if errno.EEXIST != e.errno:
+            raise e
+
+# ------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main()
