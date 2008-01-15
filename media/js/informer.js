@@ -123,7 +123,7 @@
   
   Informer.Data = Class.create();
   Informer.Data.prototype = {
-    initialize: function(name, row_1, row_2, url, filter_list)
+    initialize: function(name, row_1, row_2, filter_list)
     {
       this.name = name;
       this.row_1 = row_1;
@@ -131,7 +131,9 @@
       this.table = undefined;
       this.filters = new Informer.FilterList();;
       this.data = undefined;
-      this.url = url;
+      this.url = undefined;
+      this._sorter = undefined;
+      this._reversed = false;
       
       if (filter_list)
       {
@@ -139,6 +141,20 @@
           this.filters.add(x);
         }.bind(this)); 
       }
+    },
+    
+    set_sorter: function(which)
+    {
+      if (this._sorter == which)
+      {
+        this._reversed = !this._reversed;
+      }
+      else
+      {
+        this._sorter = which;
+        this._reversed = false;
+      }
+      this.populate_table();
     },
 
     load_data: function()
@@ -166,6 +182,18 @@
     pre_process: function()
     {
 		  this.filters.reset_list_data();
+		  
+		  if (!this.table)
+		  {
+		    this.table = $(this.name + "_table");
+		  }
+		  var headers = this.table.tHead.rows[0].cells;
+		  
+			for (var j=0; j<this.row_1.length; j++)
+			{
+			  var col = this.row_1[j];			  
+			  set_sorter(headers[j], col.name, this);
+			}
 
       for (var i=0; i<this.data.length; i++)
       {
@@ -174,12 +202,13 @@
 			  
 			  for (var j=0; j<this.row_1.length; j++)
 			  {
-			    var f = this.row_1[j];
-			    if (f.pop && f.length==3)
+			    var col = this.row_1[j];
+			    
+			    if (col.parser)
 			    {
-			      val = get_value(f[0], obj);
-			      val = f[2](val);
-			      set_value(f[0], obj, val);
+			      val = get_value(col.field, obj);
+			      val = col.parser(val);
+			      set_value(col.field, obj, val);
 			    }
 			  }
       }
@@ -214,6 +243,25 @@
       var data_copy = this.data;
       if (this.filters)
         data_copy = this.filters.execute(this.data);
+        
+      // sort what remains
+      var sorter = this.row_1.find(function(x) { return x.name==this._sorter; }.bind(this));
+      if (sorter)
+      {
+        if (sorter.sorter)
+        {
+          data_copy.sortBy(function (x) {
+            return sorter.sorter(get_value(sorter.field, x));
+          });
+        }
+        else
+        {
+         data_copy.sortBy(function (x) { get_value(sorter.field, x); });
+        }
+      }
+      
+      if (this._reversed)
+        data_copy.reverse();
       
       data_copy.each(function (item) {
         var tr1 = document.createElement('TR');
@@ -252,6 +300,16 @@
 		}
   };
   
+  function sort_by_date(d)
+  {
+    return d.getTime();
+  }
+  
+  function sort_by_string(s)
+  {
+    return s.toLowerCase();
+  }
+  
   function get_value(field, object)
   {
     var filter, f;
@@ -259,6 +317,11 @@
     {
       f = field[0];
       filter = field[1];
+    }
+    else if (field.field)
+    {
+      f = field.field;
+      filter = field.formatter;
     }
     else
     {
@@ -345,11 +408,32 @@ function format_pending(p)
 {
   return p ? 'Completed' : 'Pending';
 }
+
+function set_sorter(th, which, data_obj)
+{
+  Event.observe(th, 'click', function(x) { data_obj.set_sorter(which); });
+}
   
-  var Notes = new Informer.Data('notes', 
-    [['fields.created_on', format_date, parse_date],
-      'fields.created_by.username', 
-      ['fields.is_checked', format_pending]],
-      'fields.text', '', [
-        new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
-        new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')]);
+  var Notes = new Informer.Data(
+    'notes', // name
+    [ // row_1
+      {name: 'Date',
+       field: 'fields.created_on',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+      {name: 'Author',
+       field:'fields.created_by.username',
+       sorter: sort_by_string},
+      {name: 'Status',
+       field: 'fields.is_checked',
+       formatter: format_pending}
+    ],
+    { //row_2
+     field: 'fields.text'
+    }, 
+    [ // filter_list
+      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
+      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+    ]);
