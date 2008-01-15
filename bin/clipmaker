@@ -39,7 +39,8 @@ def main():
     lockfile = tmpdir + '/lockfile'
 
     try:
-        flag = os.O_CREAT | os.O_EXCL | os.O_EXLOCK | os.O_WRONLY
+    	MKDIR(tmpdir)
+        flag = os.O_CREAT | os.O_EXCL | os.O_WRONLY
         fd = os.open(lockfile, flag, 0600)
         os.write(fd, str(os.getpid()))
         os.close(fd)
@@ -51,15 +52,16 @@ def main():
         sys.exit(1)
 
     try:
-        # get the clips that need updating
-        clip_ids = Frame.objects.filter(in_clip=False).values('clip').distinct()
-        LOG.info("Lock acquired: %s clips to process..." % len(clip_ids))
+        try:
+            # get the clips that need updating
+            clip_ids = Frame.objects.filter(in_clip=False).values('clip').distinct()
+            LOG.info("Lock acquired: %s clips to process..." % len(clip_ids))
 
-        for clip_id in clip_ids:
-            makeclip(clip_id)
-    except Exception, e:
-        LOG.fatal(str(e))
-        sys.exit(1)
+            for clip_id in clip_ids:
+                makeclip(clip_id)
+        except Exception, e:
+            LOG.fatal(str(e))
+            sys.exit(1)
     finally:
         LOG.info("removing lockfile")
         os.unlink(lockfile)
@@ -96,12 +98,12 @@ def makeclip(clip_id):
         to_delete.append(dest)
 
     # create the clip
-    slow = workspace + '/' + 'slow.mp4'
-    cmd = "%s -r %s -i %s -vcodec libx264 -threads 4 %s" % (ffmpeg, clip.rate, pattern, slow)
+    slow = workspace + '/' + 'slow.mov'
+    cmd = "%s -r %s -i %s -vcodec libx264 -f mov -threads 4 %s" % (ffmpeg, clip.rate, pattern, slow)
     SYSTEM(cmd)
 
     # qt-faststart it
-    fast = workspace + '/' + 'fast.mp4'
+    fast = workspace + '/' + 'fast.mov'
     cmd = "%s %s %s" % (qt_fast, slow, fast)
     SYSTEM(cmd)
 
@@ -109,7 +111,7 @@ def makeclip(clip_id):
     UNLINK(clip.get_movie_filename())
 
     f = open(fast, 'rb')
-    clip.save_movie_file('%s.mp4' % clip.id, f.read(), True)
+    clip.save_movie_file('%s.mov' % clip.id, f.read(), True)
 
     # save it
     for frame in frames.values():
