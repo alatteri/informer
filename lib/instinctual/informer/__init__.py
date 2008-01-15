@@ -8,17 +8,17 @@ def getServerRoot():
     proto = conf.get('informer', 'proto')
     server = conf.get('informer', 'server')
     port = conf.get('informer', 'port')
-    base = conf.get('informer', 'url_base')
 
     if port:
-    	return "%s://%s:%s/%s" % (proto, server, port, base)
+        return "%s://%s:%s" % (proto, server, port)
     else:
-    	return "%s://%s/%s" % (proto, server, base)
+        return "%s://%s" % (proto, server)
 
 def _getUrlComponent(component):
     conf = instinctual.getConf()
     root = getServerRoot()
-    return "%s/%s" % (root, conf.get('informer', component))
+    base = conf.get('informer', 'url_base')
+    return "%s/%s/%s" % (root, base, conf.get('informer', component))
 
 def getProjectShotsUrl(project, format='xml'):
     template = _getUrlComponent('url_project_shots')

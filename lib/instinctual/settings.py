@@ -1,4 +1,5 @@
 import os
+from instinctual.informer import getServerRoot
 
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
 sqlitePath = os.sep.join([root, 'data', 'informer.db'])
@@ -48,7 +49,7 @@ MEDIA_ROOT = media_path
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = '/site_media/'
+MEDIA_URL = getServerRoot() + '/site_media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
