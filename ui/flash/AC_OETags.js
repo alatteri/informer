@@ -141,11 +141,13 @@ function DetectFlashVer(reqMajorVer, reqMinorVer, reqRevision)
 		if (versionMajor > parseFloat(reqMajorVer)) {
 			return true;
 		} else if (versionMajor == parseFloat(reqMajorVer)) {
-			if (versionMinor > parseFloat(reqMinorVer))
+			if (versionMinor > parseFloat(reqMinorVer)) {
 				return true;
+			}
 			else if (versionMinor == parseFloat(reqMinorVer)) {
-				if (versionRevision >= parseFloat(reqRevision))
+				if (versionRevision >= parseFloat(reqRevision)) {
 					return true;
+				}
 			}
 		}
 		return false;
