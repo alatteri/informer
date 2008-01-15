@@ -23,3 +23,9 @@ ffmpeg (Notes: x264 must be built and installed first)
 
 % make
 % make install
+
+--------------------------------------------------------------------------------
+qt-faststart optional post-processing for quicktime streaming
+--------------------------------------------------------------------------------
+% make tools/qt-faststart
+% cp tools/qt-faststart ../../bin
