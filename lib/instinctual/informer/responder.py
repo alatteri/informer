@@ -50,7 +50,8 @@ class CustomBaseResponder(SerializeResponder):
 
                 # add the new field to _meta so will be identified for serialization
                 item.serialize = True
-                obj._meta.fields.append(item)
+                if field_name not in [f.name for f in obj._meta.fields]:
+                    obj._meta.fields.append(item)
 
         response = serializers.serialize(self.format, object_list)
 
