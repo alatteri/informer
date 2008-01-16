@@ -19,6 +19,7 @@ import os
 import sys
 import errno
 import tempfile
+import commands
 from pprint import pprint
 from datetime import datetime
 
@@ -35,6 +36,7 @@ ffmpeg  = root + '/third_party/bin/ffmpeg'
 qt_fast = root + '/third_party/bin/qt-faststart'
 
 def main():
+    SYSTEM("cal")
     # get the lock
     lockfile = tmpdir + '/lockfile'
 
@@ -138,9 +140,11 @@ def UNLINK(path):
             raise e
 
 def SYSTEM(cmd):
-    result = os.system(cmd)
+    (result, output) = commands.getstatusoutput(cmd + 'x')
+
     if 0 != result:
-        raise ValueError("Non-Zero (%s) status returned from: %s" % (result, cmd))
+        msg = "Non-Zero (%s) status returned from %s:" % (result, cmd)
+        raise ValueError(msg + "\n---- BEGIN ----\n%s\n---- END ----" % output)
 
 def MKDIR(dir):
     try:
