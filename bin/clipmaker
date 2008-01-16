@@ -36,7 +36,6 @@ ffmpeg  = root + '/third_party/bin/ffmpeg'
 qt_fast = root + '/third_party/bin/qt-faststart'
 
 def main():
-    SYSTEM("cal")
     # get the lock
     lockfile = tmpdir + '/lockfile'
 
