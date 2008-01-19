@@ -6,6 +6,6 @@
   }
   
   function renderQuickTimeLauncher(clip) {
-	  document.writeln('<embed src="button.mov" autohref="true" target="quicktimeplayer" controller="false" width="114" height="27" autoplay="true" href="' + clip + '"></embed>');
+	  document.writeln('<embed src="placeholder.mov" autohref="true" target="quicktimeplayer" controller="false" width="114" height="27" autoplay="true" href="' + clip + '"></embed>');
   }
   
