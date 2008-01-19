@@ -5,18 +5,17 @@ from django.views.generic.list_detail import object_list
 
 from instinctual.informer.models import Project, Shot, Note, Element, Event
 
-@login_required
 def project_detail(request, project_name):
     p = get_object_or_404(Project, name=project_name)
     return render_to_response('informer/project_detail.html', {'project':p})
+project_detail = login_required(project_detail)
 
-@login_required
 def shot_detail(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     shot = get_object_or_404(Shot, project=p, name=shot_name)
     return render_to_response('informer/shot_detail.html', {'project':p,'shot':shot})
+shot_detail = login_required(shot_detail)
 
-@login_required
 def limited_object_list(*args, **kwargs):
     return object_list(*args, **kwargs)
-
+limited_object_list = login_required(limited_object_list)
