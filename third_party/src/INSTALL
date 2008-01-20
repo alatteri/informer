@@ -16,10 +16,10 @@ ffmpeg (Notes: x264 must be built and installed first)
 % cd ffmpeg
 
 # USE THE FOLLOWING FOR LINUX
-% ./configure --prefix=`pwd`/../.. --enable-gpl --enable-swscaler --enable-pthreads --enable-libx264 --extra-cflags=-I`pwd`/../../include --extra-ldflags=-L`pwd`/../../lib
+% ./configure --prefix=`pwd`/../.. --enable-gpl --enable-pp --enable-swscaler --enable-pthreads --enable-libx264 --extra-cflags=-I`pwd`/../../include --extra-ldflags=-L`pwd`/../../lib
 
 # USE THE FOLLOWING FOR MAC OS X
-./configure --prefix=`pwd`/../.. --enable-gpl --enable-swscaler --enable-pthreads --enable-libx264 --extra-cflags=-I`pwd`/../../include --extra-ldflags=-L`pwd`/../../lib --disable-vhook --disable-mmx
+./configure --prefix=`pwd`/../.. --enable-gpl --enable-pp --enable-swscaler --enable-pthreads --enable-libx264 --extra-cflags=-I`pwd`/../../include --extra-ldflags=-L`pwd`/../../lib --disable-vhook --disable-mmx
 
 % make
 % make install
