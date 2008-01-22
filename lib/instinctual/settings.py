@@ -7,6 +7,9 @@ templatePath = os.sep.join([root, 'templates', 'admin'])
 templatePath2 = os.sep.join([root, 'templates', 'html'])
 media_path = os.sep.join([root, 'media'])
 
+# set the umask
+os.umask(0002)
+
 # Django settings for instinctual project.
 DEBUG = True
 #DEBUG = False
