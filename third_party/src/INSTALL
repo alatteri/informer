@@ -29,3 +29,21 @@ qt-faststart optional post-processing for quicktime streaming
 --------------------------------------------------------------------------------
 % make tools/qt-faststart
 % cp tools/qt-faststart ../../bin
+
+--------------------------------------------------------------------------------
+psycopg2
+--------------------------------------------------------------------------------
+% tar zxvf psycopg2-2.0.6.tar.gz
+% python setup.py build
+% python setup.py install --prefix=./tmp
+% /bin/rm ./tmp/lib/python2.3/site-packages/psycopg2/*.pyc
+% mv tmp/lib/python2.3/site-packages/psycopg2 ../../python
+
+--------------------------------------------------------------------------------
+creating postgres user and database
+--------------------------------------------------------------------------------
+% createuser informer_dev
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create more new roles? (y/n) y
+CREATE ROLE
+% createdb --owner=informer_dev informer_dev
