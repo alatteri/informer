@@ -10,7 +10,7 @@ LOG = instinctual.getLogger(__name__)
 class Spark(object):
     count = 0
     conf = instinctual.getConf()
-    frameDir = conf.get('informer', 'dir_frames')
+    frameDir = conf.get('informer', 'dir_uploads')
 
     def __init__(self, name):
         print "||||||| spark __init__ got called with [%s]" % (name)

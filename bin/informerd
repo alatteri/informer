@@ -24,7 +24,7 @@ from instinctual.informer.client import Client, ClientConnectionError
 from instinctual.informer.frame import Frame
 
 conf = instinctual.getConf()
-frameDir = conf.get('informer', 'dir_frames')
+frameDir = conf.get('informer', 'dir_uploads')
 frameGlob = os.path.join(frameDir, '*', 'frame.pkl')
 
 maxHeight = 100
