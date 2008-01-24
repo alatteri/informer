@@ -30,6 +30,16 @@ qt-faststart optional post-processing for quicktime streaming
 % make tools/qt-faststart
 % cp tools/qt-faststart ../../bin
 
+-------------------------------------------------------------------------------
+Jasper (do this before ImageMagick)
+-------------------------------------------------------------------------------
+./configure --prefix=`pwd`/../.. --with-pic --enable-static
+
+---------------------------------------------------------------------------------
+ImageMagick with Jasper Support
+---------------------------------------------------------------------------------
+./configure  --prefix=`pwd`/../.. LDFLAGS=-L`pwd`/../../lib CFLAGS=-I`pwd`/../../include --with-pic --enable-static
+
 --------------------------------------------------------------------------------
 psycopg2
 --------------------------------------------------------------------------------
