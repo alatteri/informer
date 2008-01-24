@@ -7,3 +7,5 @@ Need to determine the proper value to give to the PNGs coming out of informer.
 something like this:  -resize 1024x768>
 this should scale only images larger than 1024x768.  also it should keep the images in the proper aspect ratio
 
+3)  compressing to JPEG 2000
+convert -quality 90

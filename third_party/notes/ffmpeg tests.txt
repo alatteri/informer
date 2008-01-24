@@ -1,12 +1,47 @@
 Frame sizes divisible by 16 is better.
-for flash, 544x304
-for view larger, 1248x704, 1024x576
+
+for flash: 544x304
+for view larger: 1024x768
+
+make sure to add the rate flag (-r)  before the input flag when encoding image sequences. 
+_________________________________________________________
+
+Use these fractional equations for rate to respresent these NTSC framerates.
+
+24000/1001 = 23.987
+30000/1001 = 29.98
+60000/1001 = 59.94
+_________________________________________________________
 
 Picks:
-High Rez- 15B
+High Rez- 15B  (crf values of between 20 & 23.  Can be float values too, e.g. 22.5.  Lower value is better quality)
 Low Rez- 
+_________________________________________________________
+
+Encoding from a pipe.
+Convert loads all images into memory first.  This gets up to several hundreds megs.
+
+./convert /data/converted/*.jp2 jpg: | ./ffmpeg -vcodec mjpeg -f image2pipe -i - /data/out.mp4
+
+This is better as ppm is not compressed.
+
+./convert /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2_JP2/03_VL2.*.jp2 ppm: | ./ffmpeg -f image2pipe -vcodec ppm -i - ~/Desktop/out.mp4
+
+_________________________________________________________
+  
+Using a filelist instead of image sequence wildcards.
+
+* "-i @somefile" would signal an image list (and also imply/require image2). "-i @-" would mean 'playlist on stdin'.
+
+* The image list would be 1 file per line.
+
+* Wildcards would *not* be supported natively; to use wildcard, one 
+would use the shell to produce an imagelist file.
 
 
+________________________________________________________
+________________________________________________________
+________________________________________________________
 ________________________________________________________
 
 1) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 1 -psnr  ~/Desktop/03_1.mp4
@@ -132,4 +167,11 @@ _____________________________________________________________________________
 __________________________________________________________________________________
 
 20) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_PREVIEW.mov -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 25 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .5 -s 544x304 ~/Desktop/03_PREVIEW.mp4
+---------------------------------------------------------------------------------
+
+21) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 2 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
+
+22) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 2 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
+
+23) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 5 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
 
