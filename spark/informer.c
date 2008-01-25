@@ -17,6 +17,8 @@
 #include <math.h>
 #include <time.h>
 #include <stdarg.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 extern int errno;
 extern char **environ;
@@ -158,9 +160,15 @@ SparkMemoryTempBuffers(void)
 unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
+    int retval;
+    char *cmd[100];
+    struct passwd *ef;
+
     double rate;
     char *spark_name;
     char **env = environ;
+    char *daemon = "/usr/discreet/sparks/instinctual/informer/bin/informerd";
+
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
 
@@ -264,6 +272,14 @@ SparkInitialise(SparkInfoStruct spark_info)
     strncpy(app->spark_last_name, spark_name, 256);
 
     printf("OK after python, the spark is %s\n", InformerGetSparkName());
+
+    printf("---- TRYING TO KICK OFF THE FOOBAR! -------\n");
+    ef = getpwuid(geteuid());
+    printf("------ the effective user is: %s\n", ef->pw_name);
+    sprintf(cmd, "%s start %s", daemon, ef->pw_name);
+    InformerDEBUG("Going to run: %s\n", cmd);
+    retval = sparkSystemSh(TRUE, cmd);
+    printf("----- FOOBAR IS RUNNING retval(%d) ------\n", retval);
 
     return SPARK_MODULE;
 }

@@ -16,50 +16,101 @@ except ImportError, e:
 # ------------------------------------------------------------------------------
 
 import os
+import sys
 import time
+import errno
 from glob import glob
 import instinctual
 from instinctual import settings
 from instinctual.informer.client import Client, ClientConnectionError
 from instinctual.informer.frame import Frame
 
-conf = instinctual.getConf()
-frameDir = conf.get('informer', 'dir_uploads')
-frameGlob = os.path.join(frameDir, '*', 'frame.pkl')
+LOG = instinctual.getLogger('uploader')
 
+conf = instinctual.getConf()
+uploadDir = conf.get('informer', 'dir_uploads')
+frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
+
+if len(sys.argv) > 1 and '-D' == sys.argv[1]:
+    LOG.debug("running in daemon mode.")
+    if os.fork():
+        sys.exit(0)
+
+# ------------------------------------------------------------------------------
+# check for running process
+# ------------------------------------------------------------------------------
+pidfile = os.path.join(uploadDir, 'uploader.pid')
+
+try:
+    fd = open(pidfile, 'r')
+    oldpid = fd.readline()[:-1]
+    cmdline = open('/proc/%s/cmdline' % oldpid, 'r').readline()
+
+    if cmdline.find('python') != -1 and cmdline.find('uploader') != -1:
+        LOG.info("Uploader already running with pid: %s" % (oldpid))
+        sys.exit(0)
+except IOError, e:
+    if errno.ENOENT != e.errno:
+        LOG.fatal("Unable to determine if uploader running: %s" % (e))
+        raise e
+
+# --------------------
+# create the pid
+#
+try:
+    os.makedirs(uploadDir)
+    LOG.info("ok. made" + uploadDir)
+except OSError, e:
+    if errno.EEXIST != e.errno:
+        LOG.fatal("Unable to create %s: %s" % (uploadDir, e))
+        raise e
+
+fd = open(pidfile, 'w')
+fd.write("%s\n" % os.getpid())
+fd.close()
+
+LOG.info("Uploader started with pid: %s" % os.getpid())
+
+# ------------------------------------------------------------------------------
+# do the work
+# ------------------------------------------------------------------------------
 maxHeight = 100
 maxWidth  = 200
 
-run = True
-while run:
-    for framePath in glob(frameGlob):
-        print "Found ->", framePath
-        frame = Frame.load(framePath)
+try:
+    run = True
+    while run:
+        for framePath in glob(frameGlob):
+            LOG.debug("Found ->" + framePath)
+            frame = Frame.load(framePath)
 
-        if frame.isBusy:
-            print "Frame was busy..."
-        else:
-            print "I can work on", frame.rgbPath
-            frame.isBusy = True
-            frame.save()
-
-            frame.resizedPath = os.path.join(frame.container, 'frame.png')
-            cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
-            print "CMD:", cmd
-            if 0 == os.system(cmd):
-                try:
-                    client = Client()
-                    client.newFrame(frame)
-                    print "done!"
-                    frame.delete()
-                except ClientConnectionError, e:
-                    print "Client error encountered -- ignoring frame"
-                    frame.delete()
+            if frame.isBusy:
+                LOG.debug("Frame was busy...")
             else:
-                print "FAILURE running convert"
-                frame.delete()
+                LOG.debug("I can work on:" + frame.rgbPath)
+                #frame.isBusy = True
+                #frame.save()
 
-        time.sleep(0.1)
+                frame.resizedPath = os.path.join(frame.container, 'frame.png')
+                cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
+                LOG.debug("CMD:" + cmd)
+                if 0 == os.system(cmd):
+                    try:
+                        client = Client()
+                        client.newFrame(frame)
+                        LOG.debug("done!")
+                        frame.delete()
+                    except ClientConnectionError, e:
+                        LOG.debug("Client error encountered -- ignoring frame")
+                        #frame.delete()
+                else:
+                    LOG.warn("FAILURE running convert")
+                    #frame.delete()
 
-    print "now sleeping..."
-    time.sleep(3.0)
+            time.sleep(0.1)
+
+        LOG.debug("now sleeping...")
+        time.sleep(3.0)
+except e:
+    LOG.fatal("uploader died: %s" % (e))
+    sys.exit(1)
