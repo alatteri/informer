@@ -94,7 +94,7 @@ class Note(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField('text', maxlength=4096)
     is_checked  = models.BooleanField('completed', default=False)
-		assigned_to = models.ForeignKey(User, null=True, blank=True)
+    assigned_to = models.ForeignKey(User, null=True, blank=True, related_name='assigned')
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
     modified_on = models.DateTimeField('date modified', auto_now=True)
@@ -126,7 +126,7 @@ class Note(InformerMixIn, models.Model):
 
     class Rest:
         expose_fields = ['text', 'is_checked', 'created_by', 'created_on',
-                         'modified_by', 'modified_on']
+                         'modified_by', 'modified_on', 'assigned_to']
 
     def __str__(self):
         return self.text
