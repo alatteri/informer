@@ -94,6 +94,7 @@ class Note(InformerMixIn, models.Model):
     shot        = models.ForeignKey(Shot)
     text        = models.CharField('text', maxlength=4096)
     is_checked  = models.BooleanField('completed', default=False)
+		assigned_to = models.ForeignKey(User, null=True, blank=True)
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
     modified_on = models.DateTimeField('date modified', auto_now=True)
