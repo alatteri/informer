@@ -40,6 +40,9 @@ class Shot(models.Model):
     project     = models.ForeignKey(Project)
     name        = models.CharField('shot', maxlength=255)
     description = models.CharField(maxlength=4096, null=True, blank=True)
+    status      = models.CharField(maxlength=64, null=True, blank=True)
+    handles     = models.CharField(maxlength=32, null=True, blank=True)
+    frames      = models.IntegerField(default=0)
 
     def get_absolute_url(self):
         project = self.project.name
@@ -63,6 +66,30 @@ class Shot(models.Model):
 
     # need to settle on if these are "clips" or "renders"
     get_json_renders_url = get_json_clips_url
+
+    def _get_last_render_event(self):
+        if hasattr(self, '_last_render_event'):
+            return self._last_render_event
+
+        e = Event.objects.filter(type='BATCH PROCESS', shot=self).order_by('-created_on')
+        self._last_render_event = len(e) and e[0] or None
+        return self._last_render_event
+
+    def get_last_render_artist(self):
+        e = self._get_last_render_event()
+        return e and e.created_by or 'None'
+
+    def get_last_render_time(self):
+        e = self._get_last_render_event()
+        return e and e.created_on or 'None'
+
+    def get_last_render_machine(self):
+        e = self._get_last_render_event()
+        return e and e.host or 'None'
+
+    def get_last_render_path(self):
+        e = self._get_last_render_event()
+        return e and e.setup or 'None'
 
     class Meta:
         unique_together = (('project', 'name'),)
