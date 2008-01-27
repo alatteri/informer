@@ -1,3 +1,5 @@
+import os
+import time
 import instinctual
 import instinctual.informer
 from instinctual.parser.subject import Subject
@@ -171,14 +173,28 @@ class App(Subject):
         LOG.info("(((( flushing batch queue ))))")
         self._isBatchProcessing = False
 
+        key = '_LAST_EVENT_'
+
         while self.queue:
             appEvent = self.queue.pop(0)
             if isinstance(appEvent, DiscreetAppBatchProcessEvent):
                 # wait until we flush the queue to determine the batch outputs
                 appEvent.outputs = self.outputs.keys()
 
-            client = Client()
-            client.newEvent(appEvent)
+            if key in os.environ:
+                print "<<<<<<<<< _LAST_EVENT_ %s >>>>>>>>>>" % (os.environ[key])
+
+            eSeconds = time.mktime(appEvent.date.timetuple())
+            print "<<<<<<<<< eSeconds     %s >>>>>>>>>>" % (eSeconds)
+
+            if key not in os.environ or float(os.environ[key]) < eSeconds:
+                LOG.debug("SENDING EVENT... LOOKS GOOD")
+                print ("SENDING EVENT... LOOKS GOOD")
+                client = Client()
+                client.newEvent(appEvent)
+                os.environ[key] = str(eSeconds)
+            else:
+                print ("SKIPPING EVENT! LAST EVENT WAS MORE RECENT...")
 
     def _setAppEvent(self, appEvent, logEvent):
         appEvent.date = logEvent.date

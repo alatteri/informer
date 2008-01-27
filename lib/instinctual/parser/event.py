@@ -1,4 +1,7 @@
 import re
+from datetime import datetime
+from time import strptime, mktime
+
 import instinctual
 
 LOG = instinctual.getLogger(__name__)
@@ -24,18 +27,25 @@ class DiscreetLogEvent(Event):
         self.message = ''
 
         self._parse()
-        LOG.debug(self)
+        # LOG.debug(self)
 
     def _parse(self):
         match = self._reLog.search(self.event)
         if match != None:
             # print "PARSED!"
-            self.level  = match.group(1)
-            self.pid    = match.group(2)
-            self.file   = match.group(3)
-            self.line   = match.group(4)
-            self.date   = match.group(5)
-            # (self.level, self.pid, self.file, self.line) = match.group(1,2,3,4)
+            self.level = match.group(1)
+            self.pid   = match.group(2)
+            self.file  = match.group(3)
+            self.line  = match.group(4)
+            raw_date   = match.group(5)
+
+            dot = raw_date.rindex('.')
+            t = raw_date[0:dot]
+            time = strptime(t, "%m/%d/%y:%H:%M:%S")[0:6]
+            ms = int(float(raw_date[dot:]) * 10**6)
+            time = list(time)
+            time.append(ms)
+            self.date = datetime(*time)
 
             extra = match.group(6)
             match = self._reExtra.search(extra)

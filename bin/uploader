@@ -80,7 +80,10 @@ maxWidth  = 200
 try:
     run = True
     while run:
-        for framePath in glob(frameGlob):
+        matches = glob(frameGlob)
+        matches.sort()
+
+        for framePath in matches:
             LOG.debug("Found ->" + framePath)
             frame = Frame.load(framePath)
 

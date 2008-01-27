@@ -19,13 +19,7 @@ class InformerMixIn(object):
     def strToDateTime(self, val):
         dot = val.rindex('.')
         t = val[0:dot]
-
-        try:
-            # would be nice to have only one format...
-            time = strptime(t, "%m/%d/%y:%H:%M:%S")[0:6]
-        except ValueError, e:
-            time = strptime(t, "%Y-%m-%d %H:%M:%S")[0:6]
-
+        time = strptime(t, "%Y-%m-%d %H:%M:%S")[0:6]
         ms = int(float(val[dot:]) * 10**6)
         time = list(time)
         time.append(ms)
