@@ -1,12 +1,16 @@
 import os
+import time
 import uuid
 import errno
 import pickle
+import random
 
 class Serializable(object):
     def __init__(self, parent, name):
         self._id = str(uuid.uuid1())
-        self._container = os.path.join(parent, self._id)
+        rand = str(random.randint(0,999999))
+        now = str(time.time())
+        self._container = os.path.join(parent, now + '-' + rand)
         os.mkdir(self._container)
         self._path = os.path.join(self._container, name)
 

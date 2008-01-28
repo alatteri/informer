@@ -23,12 +23,20 @@ unset TMPDIR
 
 
 USER="$2"
+FLAME_PID="$3"
+
 RETVAL=0
 
 UPLOADER="/usr/discreet/sparks/instinctual/informer/bin/uploader"
 UPLOADER_FLAGS="-D"
 
 start() {
+    if [ ! -z "$FLAME_PID" ]; then
+        echo "---> flame pid specified as $FLAME_PID"
+        UPLOADER_FLAGS="$UPLOADER_FLAGS -P $FLAME_PID"
+        echo "FLAGS are: $UPLOADER_FLAGS"
+    fi
+
     echo -n $"Starting informer uploader: "
     if [ -z "$USER" ]; then
         echo "Running with default user"

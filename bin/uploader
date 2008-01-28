@@ -31,7 +31,16 @@ conf = instinctual.getConf()
 uploadDir = conf.get('informer', 'dir_uploads')
 frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
 
-if len(sys.argv) > 1 and '-D' == sys.argv[1]:
+daemon = False
+flamePid = None
+
+for i in range(len(sys.argv)):
+    if sys.argv[i] == '-P':
+        flamePid = sys.argv[i+1]
+    elif sys.argv[i] == '-D':
+        daemon = True
+
+if daemon == True:
     LOG.debug("running in daemon mode.")
     if os.fork():
         sys.exit(0)
@@ -74,6 +83,7 @@ LOG.info("Uploader started with pid: %s" % os.getpid())
 # ------------------------------------------------------------------------------
 # do the work
 # ------------------------------------------------------------------------------
+tries = 0
 maxHeight = 100
 maxWidth  = 200
 
@@ -84,6 +94,7 @@ try:
         matches.sort()
 
         for framePath in matches:
+            tries = 0
             LOG.debug("Found ->" + framePath)
             frame = Frame.load(framePath)
 
@@ -112,8 +123,27 @@ try:
 
             time.sleep(0.1)
 
-        LOG.debug("now sleeping...")
-        time.sleep(3.0)
+        if len(matches) == 0:
+            try:
+                os.stat('/proc/%s' % flamePid)
+                LOG.debug("Flame process (%s) still running..." % flamePid)
+            except OSError, e:
+                if e.errno == errno.ENOENT:
+                    LOG.debug("Flame process (%s) NOT running." % flamePid)
+                    tries += 1
+                else:
+                    raise e
+
+        if tries < 5:
+            LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
+            time.sleep(3.0)
+        else:
+            LOG.info("Flame appears to have exited and no work to do. Quitting.")
+            run = False
+
 except e:
     LOG.fatal("uploader died: %s" % (e))
+    os.unlink(pidfile)
     sys.exit(1)
+
+os.unlink(pidfile)

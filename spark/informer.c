@@ -161,8 +161,9 @@ unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
     int retval;
-    char *cmd[100];
+    char cmd[100];
     struct passwd *ef;
+    pid_t pid;
 
     double rate;
     char *spark_name;
@@ -274,9 +275,13 @@ SparkInitialise(SparkInfoStruct spark_info)
     printf("OK after python, the spark is %s\n", InformerGetSparkName());
 
     printf("---- TRYING TO KICK OFF THE FOOBAR! -------\n");
+    pid = getpid();
+    printf("------ the current pid is: %d\n", pid);
+
     ef = getpwuid(geteuid());
     printf("------ the effective user is: %s\n", ef->pw_name);
-    sprintf(cmd, "%s start %s", daemon, ef->pw_name);
+
+    sprintf(cmd, "%s start %s %d", daemon, ef->pw_name, pid);
     InformerDEBUG("Going to run: %s\n", cmd);
     retval = sparkSystemSh(TRUE, cmd);
     printf("----- FOOBAR IS RUNNING retval(%d) ------\n", retval);
