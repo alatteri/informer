@@ -526,11 +526,53 @@ div.left form p {
 div.left form p input {
 	position: absolute;
 	right: 0px;
-	}	
-div.left form select {
-	background: #aeb0b2;
-	border: none;
+	top: 0px;
 	}	
 div.left form #form-element-checkIn-file {
 	margin: 5px 0 10px 0;
+	}	
+#content div.left div.box.medium form select {
+	}
+#content div.left div.box.medium form select.replaced {
+	display: none;
+	}
+#content div.left div.box.medium form ul.selectReplacement {
+	position: absolute;
+	z-index: 100;
+	left: 65px;
+	top: 0px;
+	width: 137px;
+	background: url(../images/background-select-top.gif) top left no-repeat;	
+	}
+#notes #content div.left div.box.medium form ul.selectReplacement {
+	left: 120px;
+	}
+#content div.left div.box.medium form ul.selectReplacement.selectOpen {
+	border-bottom: 1px solid #333;	
+	}	
+#content div.left div.box.medium form ul.selectReplacement li {
+	display: none;	
+	width: 127px;	
+	height: 22px;
+	line-height: 22px;
+	padding: 0 0 0 10px;
+	cursor: pointer;
+	}
+#content div.left div.box.medium form ul.selectOpen li {
+	display: block;
+	}
+#content div.left div.box.medium form ul.selectReplacement li.selected {
+	background: url(../images/background-select-highlight.gif) bottom left no-repeat;
+	display: block;
+	}
+#content div.left div.box.medium form ul.selectOpen li.selected {
+	background: #333;
+	color: #fff;
+	display: block;
+	}
+#content div.left div.box.medium form ul.selectOpen li:hover,
+#content div.left div.box.medium form ul.selectOpen li.hover,
+#content div.left div.box.medium form ul.selectOpen li.selected:hover {
+	background: #333;
+	color: #fff;
 	}	
