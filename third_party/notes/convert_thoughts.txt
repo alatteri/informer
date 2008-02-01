@@ -4,8 +4,8 @@ Need to determine the proper value to give to the PNGs coming out of informer.
 
 2) -resize  :   Use > to change the dimensions of the image only if its width or height exceeds the geometry specification. < resizes the image only if both of its dimensions are less than the geometry specification. For example, if you specify 640x480> and the image size is 256x256, the image size does not change. However, if the image is 512x512 or 1024x1024, it is resized to 480x480. Enclose the geometry specification in quotation marks to prevent the < or > from being interpreted by your shell as a file redirection.
 
-something like this:  -resize 1024x768>
+something like this:  -resize "1024x768>"
 this should scale only images larger than 1024x768.  also it should keep the images in the proper aspect ratio
 
 3)  compressing to JPEG 2000
-convert -quality 90
+convert -quality 90 INPUT -resize "1024x768>" OUT.jp2
