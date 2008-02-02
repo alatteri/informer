@@ -3,6 +3,8 @@ x264
 --------------------------------------------------------------------------------
 % cd third_party/src
 % tar zxvf x264.tar.gz
+% cd x264
+% svn update
 % ./configure  --prefix=`pwd`/../.. --enable-pthread
 % make
 % make install
@@ -14,6 +16,7 @@ ffmpeg (Notes: x264 must be built and installed first)
 % cd third_party/src
 % tar zxvf ffmpeg.tar.gz
 % cd ffmpeg
+% svn update
 
 # USE THE FOLLOWING FOR LINUX
 % ./configure --prefix=`pwd`/../.. --enable-gpl --enable-pp --enable-swscaler --enable-pthreads --enable-libx264 --extra-cflags=-I`pwd`/../../include --extra-ldflags=-L`pwd`/../../lib
