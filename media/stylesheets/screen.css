@@ -1,0 +1,13 @@
+/* 
+* Informer Stylesheet
+*
+* Author: 	Luke Seeley
+* Email:	luke@lukees.com
+* URL: 		http://www.lukees.com
+*
+* Last updated: June 26, 2007
+------------------------------------ */
+
+@import url("reset.css"); 
+@import url("master.css");
+@import url("ie.css");

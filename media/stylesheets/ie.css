@@ -1,0 +1,98 @@
+/* IE Fixes
+------------------------------------------------------------- */
+
+* html body {
+	padding: 0 0 20px 0;
+	}
+*:first-child+html body {
+	padding: 0 0 20px 0;
+	}	
+* html #header #breadcrumb li h1 #logo {
+	margin: 0;
+	}	
+* html #dashboard {
+	padding: 10px 0;
+	}
+* html #dashboard #video {
+	float: left;
+	margin: 0 0 0 8px;
+	}
+* html #content div.header p {	
+	right: 25px;
+	}		
+* html div.box.small {
+	overflow: hidden;
+	}	
+* html div.left form p {
+	margin: 0
+}
+* html div.left form p input {
+	right: 12px;
+	}
+* html div.left form textarea {
+	margin: 0 0 5px 0;
+	}	
+* html #content div.box.large ul.entries {
+	position: relative;
+	top: 3px;
+	}
+*:first-child+html #content div.box.large ul.entries {
+	position: relative;
+	top: 3px;
+	}
+* html #content div.box.large ul.entries li span.author {
+	background: none;
+	}
+*:first-child+html #content div.box.large ul.entries li span.author {
+	background: none;
+	}		
+	
+		
+/* Overview hover styles for JS*/
+	
+#content div.box.large ul.entries li.hover {
+	background-color: #33363b;
+	color: #fff;
+	}
+#content div.box.large ul.entries li.hover span {
+	background-color: #33363b;
+	color: #fff;
+	}	
+#content div.box.large ul.entries li.lastHover {
+	margin: 0 5px 0 0;
+	padding: 0 1px 2px 1px;	
+	border: none;
+	background: url(../images/background-box-wide-bottom-highlight.gif) no-repeat left bottom;
+	color: #fff;
+	}
+#content div.box.large ul.entries li.lastHover span {
+	background: none;
+	}
+#content div.box.large ul.entries li.hover span.activity a {
+	background: url(../images/icon-arrow-hover.gif) no-repeat;	
+	}
+#content div.box.large ul.entries li.lastHover span.activity a {
+	background: url(../images/icon-arrow-hover.gif) no-repeat;	
+	}		
+#content div.box.large ul.entries li.hover span.activity {
+	background-position: 8px -24px;
+	background-repeat: no-repeat;
+	}	
+#content div.box.large ul.entries li.lastHover span.activity.shot-update {
+	background: url(../images/icon-shot-update.gif) no-repeat 8px -24px;
+	}
+#content div.box.large ul.entries li.lastHover span.activity.shot-create {
+	background: url(../images/icon-shot-create.gif) no-repeat 8px -24px;
+	}	
+#content div.box.large ul.entries li.lastHover span.activity.comment-create {
+	background: url(../images/icon-comment-create.gif) no-repeat 8px -24px;
+	}
+#content div.box.large ul.entries li.lastHover span.activity.comment-mark {
+	background: url(../images/icon-comment-mark.gif) no-repeat 8px -24px;
+	}
+#content div.box.large ul.entries li.lastHover span.activity.comment-delete {
+	background: url(../images/icon-comment-delete.gif) no-repeat 8px -24px;
+	}
+#content div.box.large ul.entries li.lastHover span.activity.element-create {
+	background: url(../images/icon-element-create.gif) no-repeat 8px -24px;
+	}
