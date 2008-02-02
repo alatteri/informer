@@ -1,0 +1,25 @@
+1) set up the vhost files:
+% cd conf
+% cp ~/TEMPLATE_vhost.conf vhost.conf
+% ln vhost.conf vhost_ssl.conf
+
+2) run MT reconfig:
+% /usr/local/psa/admin/sbin/websrvmng --reconfigure-vhost --vhost-name=<HOST>
+
+3) create media symlinks:
+% cd httpdocs
+% ln -s ../informer/third_party/python/django/contrib/admin/media/
+% ln -s ../informer/media site_media
+
+% cd httpsdocs
+% ln -s ../informer/third_party/python/django/contrib/admin/media/
+% ln -s ../informer/media site_media
+
+4) give apache write permissions to upload
+% chmod g+w media
+
+5) Add informer to apache, psaserv groups
+% vi /etc/group
+
+6) create the database
+% createdb -U <username> <dbname>
