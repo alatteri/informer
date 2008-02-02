@@ -67,30 +67,54 @@ class Shot(models.Model):
     # need to settle on if these are "clips" or "renders"
     get_json_renders_url = get_json_clips_url
 
-    def _get_last_render_event(self):
-        if hasattr(self, '_last_render_event'):
-            return self._last_render_event
+    # --------------------------------------------------------------------------
+    def _get_render_event(self):
+        if hasattr(self, '_render_event'):
+            return self._render_event
 
         e = Event.objects.filter(type='BATCH PROCESS', shot=self).order_by('-created_on')
-        self._last_render_event = len(e) and e[0] or None
-        return self._last_render_event
+        self._render_event = len(e) and e[0] or None
+        return self._render_event
 
-    def get_last_render_artist(self):
-        e = self._get_last_render_event()
+    def _get_render_clip(self):
+        if hasattr(self, '_render_clip'):
+            return self._render_clip
+
+        e = self._get_render_event()
+        if e:
+            c = Clip.objects.filter(event=e, shot=self)
+            self._render_clip = len(c) and c[0] or None
+        else:
+            self._render_clip = None
+        return self._render_event
+
+    def get_render_artist(self):
+        e = self._get_render_event()
         return e and e.created_by or 'None'
 
-    def get_last_render_time(self):
-        e = self._get_last_render_event()
+    def get_render_time(self):
+        e = self._get_render_event()
         return e and e.created_on or 'None'
 
-    def get_last_render_machine(self):
-        e = self._get_last_render_event()
+    def get_render_machine(self):
+        e = self._get_render_event()
         return e and e.host or 'None'
 
-    def get_last_render_path(self):
-        e = self._get_last_render_event()
+    def get_render_path(self):
+        e = self._get_render_event()
         return e and e.setup or 'None'
 
+    def get_render_hires(self):
+        c = self._get_render_clip()
+        # TODO: support hi/lo res and handle errors
+        return c and c.movie or 'pending.mov'
+
+    def get_render_lores(self):
+        c = self._get_render_clip()
+        # TODO: support hi/lo res and handle errors
+        return c and c.movie or 'pending.mov'
+
+    # --------------------------------------------------------------------------
     class Meta:
         unique_together = (('project', 'name'),)
 
