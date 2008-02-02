@@ -21,12 +21,18 @@ _________________________________________________________
 Encoding from a pipe.
 Convert loads all images into memory first.  This gets up to several hundreds megs.
 
+JP2K to JPG
 ./convert /data/converted/*.jp2 jpg: | ./ffmpeg -vcodec mjpeg -f image2pipe -i - /data/out.mp4
 
+JP2K to PPM
 This is better as ppm is not compressed.
 
 ./convert /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2_JP2/03_VL2.*.jp2 ppm: | ./ffmpeg -f image2pipe -vcodec ppm -i - ~/Desktop/out.mp4
+_________________________________________________________
 
+Encoding from TIFF
+
+./ffmpeg -f image2 -vcodec tiff -i /data/out.tif /data/out.mp4
 _________________________________________________________
   
 Using a filelist instead of image sequence wildcards.
