@@ -1,9 +1,16 @@
-<html>
-<head>
-<title>{% block title %}Informer{% endblock %}</title>
-<script type="text/javascript" src="/site_media/js/prototype.js"></script>
-<script type="text/javascript" src="/site_media/js/informer.js"></script>
-<body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>{% block title %}Informer{% endblock %}</title>
+		
+		<link rel="stylesheet" type="text/css" media="screen" href="/site_media/stylesheets/screen.css" />
+		
+		<script type="text/javascript" src="/site_media/js/prototype.js"></script>
+    <script type="text/javascript" src="/site_media/js/informer.js"></script>
+		<script type="text/javascript" src="/site_media/global.js"></script>
+{% block additional_script %}{% endblock %}
+	</head>
+	<body id="overview">
 {% block content %}{% endblock %}
-</body>
+	</body>
 </html>

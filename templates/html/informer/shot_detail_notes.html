@@ -1,0 +1,113 @@
+{% extends "informer/shot_detail_base.html" %}
+
+{% block title %}Notes{% endblock %}
+
+{% block body_id %}notes{% endblock %}
+
+{% block content %}
+        <div class="left">
+          <div class="box medium">
+            <h3>Add a note</h3>
+            <form id="form-note-create" action="#" method="post">
+              <input type="hidden" name="is_checked" value="false" />
+              <textarea name="text" id="form-note-create-message"></textarea>
+              <p>
+                <strong>Assign this task to:</strong>
+                <select name="assigned_to" id="form-note-create-assign"><option value="">Anyone</option>
+                {% for user in users %}
+                <option value="{{user.username}}">{{ user.username }}</option>
+                {% endfor %}
+                </select>
+                <input type="image" id="form-note-create-submit" src="/site_media/images/button-addNote.gif" onclick="add_note();return false;"/>
+              </p>
+            </form>
+            <div class="bottom">&nbsp;</div>
+          </div>
+          <div class="box medium">
+            <h3>All Notes</h3>
+            <ul class="heading" id="notes_heading">
+              <li class="date highlight">Date</li>
+              <li class="author">Author</li>
+              <li class="assignedTo">Assigned To</li>
+              <li class="status">Status</li>
+              <li class="last">&nbsp;</li>
+            </ul>
+            <ul class="entries" id="notes_entries"></ul>
+            <div class="bottom">&nbsp;</div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="box small">
+            <h3>Status</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+              <li><a href="#" title="#">Pending (1)</a></li>
+              <li class="last"><a href="#" title="#">Completed (3)</a></li>                            
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Author</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>                                                    
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Assigned to</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>                                        
+            </ul>
+          </div>
+        </div>
+        <div class="clear">&nbsp;</div>
+      </div>
+<!-- end NOTES -->
+    </div>
+<!-- end WRAP -->    
+
+<script type="text/javascript">
+  function setup()
+  {
+    Logs.url = '{{shot.get_json_logs_url}}';
+    Notes.url = '{{shot.get_json_notes_url}}';
+    Logs.populate_table();
+  }
+
+  var divs = [$('notes_div'), $('overview_div')];
+  function show(which)
+  {
+    for (var i=0; i<divs.length; i++)
+    {
+      divs[i].style.display = divs[i].id == which+'_div' ? 'block' : 'none';
+    }
+    document.body.id = which;
+  }
+
+	function add_note()
+	{
+	  if (!$F('form-note-create-message'))
+		{
+		  alert('Please enter a note first');
+			return;
+		}
+		new Ajax.Request(Notes.url, {
+		  parameters: $('form-note-create').serialize(),
+			evalJSON: true,
+			onSuccess: function(r){
+        Notes.add_data(r.responseJSON[0]);
+        $('form-note-create').reset();
+			}});
+	}
+
+  function new_note(r)
+	{
+    var n = eval(r.responseText)[0];
+		Notes.data.push(n);
+		Notes.populate_table();
+		$('form-note-create').reset();
+	}
+
+  //Event.observe(window, 'load', setup);
+</script>
+<iframe src="about:blank" name="qtFrame" width="0" height="0" style="border: none; background-color: transparent;" id="qtFrame"></iframe>
+  </body>
+</html>

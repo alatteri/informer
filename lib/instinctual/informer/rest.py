@@ -1,6 +1,7 @@
 import os
 from django_restapi.model_resource import Collection, Entry
 from django_restapi.authentication import HttpBasicAuthentication
+from django.contrib.auth.models import User
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, getHandler
 
 def LogHandlerWrapper(func, method):
@@ -82,6 +83,8 @@ class ProjectShotCollection(Collection):
 
         # seed with POST data
         for (key, val) in data.items():
+            if new_model.__class__.__name__=='Note' and key=='assigned_to' and val:
+                val = User.getUser(val) 
             print "going to set [%s] with [%s]" % (key, val)
             new_model.__setattr__(key, val)
 

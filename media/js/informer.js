@@ -128,7 +128,7 @@
       this.name = name;
       this.row_1 = row_1;
       this.row_2 = row_2;
-      this.table = undefined;
+      this.entries = undefined;
       this.filters = new Informer.FilterList();;
       this.data = undefined;
       this.url = undefined;
@@ -183,18 +183,10 @@
     {
 		  this.filters.reset_list_data();
 		  
-		  if (!this.table)
+		  if (!this.entries)
 		  {
-		    this.table = $(this.name + "_table");
+		    this.entries = $(this.name + "_entries");
 		  }
-		  var headers = this.table.tHead.rows[0].cells;
-		  
-			for (var j=0; j<this.row_1.length; j++)
-			{
-			  var col = this.row_1[j];			  
-			  set_sorter(headers[j], col.name, this);
-			}
-
       for (var i=0; i<this.data.length; i++)
       {
 		    var obj = this.data[i];
@@ -213,16 +205,6 @@
 			  }
       }
 		  
-      var ld = this.filters.get_list_data();
-		  var f_names = ld.keys();
-		  
-		  for (var i=0; i<f_names.length; i++)
-		  {
-		    var name = f_names[i];
-		    var ul_element = $(this.name + '_' + name + '_filter');
-		    if (ul_element)
-		      create_filter_ul(ld.get(name), this, name, ul_element);
-		  }
     },
     
     populate_table: function()
@@ -233,14 +215,13 @@
         return;
       }
 
-      if (!this.table)
-        this.table = $(this.name + '_table');
+      if (!this.entries)
+        this.entries = $(this.name + '_entries');
       // clear rows
-      var tbody = this.table.tBodies[0];
-      while (tbody.hasChildNodes())
-        tbody.removeChild(tbody.firstChild);
+      while (this.entries.hasChildNodes())
+        this.entries.removeChild(this.entries.firstChild);
       
-      var data_copy = this.data;
+      var data_copy = this.data.clone();
       if (this.filters)
         data_copy = this.filters.execute(this.data);
         
@@ -264,25 +245,72 @@
         data_copy.reverse();
       
       data_copy.each(function (item) {
-        var tr1 = document.createElement('TR');
-        for (var i=0; i<this.row_1.length; i++)
+        if (this.row_2)
         {
-          var value = get_value(this.row_1[i], item);
-          var td = document.createElement('TD');
-          td.appendChild(document.createTextNode(value));
-          tr1.appendChild(td);
+          this.handle_two_rows(item);
         }
-        tbody.appendChild(tr1);
-      
-        var tr2 = document.createElement('TR');
-        var td = document.createElement('TD');
-        td.colSpan = this.row_1.length;
-        var value = get_value(this.row_2, item);
-        td.appendChild(document.createTextNode(value));
-        tr2.appendChild(td);
-        tbody.appendChild(tr2);
-      
+        else
+        {
+          this.handle_single_row(item);
+        }
       }.bind(this));
+    },
+    
+    handle_two_rows: function(item)
+    {
+      var li = document.createElement('LI');
+      var entry = document.createElement('DIV');
+      entry.className = 'entry';
+      var ul = document.createElement('UL');
+      ul.className = 'heading';
+      this.create_entry_item(item, 'LI', ul);
+      entry.appendChild(ul);
+      
+      var content = document.createElement('DIV');
+      content.className = 'entry_content';
+			var val = get_value(this.row_2, item);
+			if (val.tagName)
+			{
+			  content.appendChild(val);
+		  }
+			else
+			{
+			  var p = document.createElement('P');
+        p.appendChild(document.createTextNode(val));
+        content.appendChild(p);
+			}
+      entry.appendChild(content);
+      
+      li.appendChild(entry);
+      this.entries.appendChild(li);
+    },
+    
+    handle_single_row: function(item)
+    {
+      var li = document.createElement('LI');
+      this.create_entry_item(item, 'SPAN', li);
+      this.entries.appendChild(li);
+    },
+    
+    create_entry_item: function(item, tag, parent)
+    {
+      for (var i=0; i<this.row_1.length; i++)
+      {
+        var info = this.row_1[i];
+        var elem;
+        if (info.create_func)
+        {
+          elem = info.create_func(item);
+        }
+        else
+        {
+          var value = get_value(info, item);
+          elem = document.createElement(tag);
+          elem.className = info.name;
+          elem.appendChild(document.createTextNode(value));
+        }
+        parent.appendChild(elem);
+      }
     },
 
 		turn_off: function(which)
@@ -296,6 +324,13 @@
 			var f = this.filters._filters.get(which);
 			f.use = true;
 			f.value = value;
+			this.populate_table();
+		},
+    
+		add_data: function(d)
+		{
+      this.data.push(d);
+			this.pre_process();
 			this.populate_table();
 		}
   };
@@ -409,6 +444,64 @@ function format_pending(p)
   return p ? 'Completed' : 'Pending';
 }
 
+function format_assigned(u)
+{
+	if (!u || !u.pk)
+		return 'Anyone';
+	else
+		return u.username;
+}
+
+function format_nl2br(txt)
+{
+  var lines = txt.strip().split('\n');
+	var p = document.createElement('p');
+  for (var i=0; i<lines.length; i++)
+	{
+    p.appendChild(document.createTextNode(lines[i]));
+		if (i>0)
+		  p.appendChild(document.createElement('br'));
+	}
+	return p;
+}
+
+function create_log(info)
+{
+  var span = document.createElement('span');
+  span.className = 'activity';
+  var obj = get_value('fields.object_repr', info);
+  var prefix = get_value('fields.msg_prefix', info);
+  var suffix = get_value('fields.msg_suffix', info);
+  var t = get_value('fields.type', info);
+  
+  if (t == 'Note')
+  {
+    var q = document.createElement('q');
+		var parts = obj.split(/\s/);
+		if (parts.length > 10)
+		{
+      parts = parts.slice(0,10);
+			parts.push('...');
+		}
+		obj = parts.join(' ');
+    q.appendChild(document.createTextNode(obj));
+    obj = q;
+  }
+  else
+  {
+    obj = document.createTextNode(obj);
+  }
+  
+  if (prefix)
+    span.appendChild(document.createTextNode(prefix + ' '));
+  if (obj)
+    span.appendChild(obj);
+  if (suffix && t!='Shot')
+    span.appendChild(document.createTextNode(' ' + suffix));
+    
+  return span;
+}
+
 function set_sorter(th, which, data_obj)
 {
   Event.observe(th, 'click', function(x) { data_obj.set_sorter(which); });
@@ -417,23 +510,50 @@ function set_sorter(th, which, data_obj)
   var Notes = new Informer.Data(
     'notes', // name
     [ // row_1
-      {name: 'Date',
+      {name: 'date',
        field: 'fields.created_on',
        sorter: sort_by_date,
        formatter: format_date,
        parser: parse_date,
        is_default: true},
-      {name: 'Author',
+      {name: 'author',
        field:'fields.created_by.username',
        sorter: sort_by_string},
-      {name: 'Status',
-       field: 'fields.is_checked',
+       {name: 'assignedTo',
+        field:'fields.assigned_to',
+        formatter: format_assigned},
+       {name: 'status',
+        field: 'fields.is_checked',
        formatter: format_pending}
     ],
     { //row_2
-     field: 'fields.text'
+     field: 'fields.text',
+		 formatter: format_nl2br
     }, 
     [ // filter_list
-      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
-      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked',
+                          format_pending),
+      new Informer.Filter('author', 'fields.created_by.pk', 
+			                    'fields.created_by.username')
+    ]);
+    
+  var Logs = new Informer.Data(
+    'overview', // name
+    [ // row_1
+      {name: 'date',
+       field: 'fields.when',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+      {name: 'author',
+       field:'fields.who.username',
+       sorter: sort_by_string},
+      {name: 'activity',
+       create_func: create_log}
+    ],
+    null, //row_2
+    [ // filter_list
+      new Informer.Filter('date', 'fields.when', 'fields.when', format_date),
+      new Informer.Filter('author', 'fields.who.pk', 'fields.who.username')
     ]);
