@@ -86,7 +86,7 @@ class Shot(models.Model):
             self._render_clip = len(c) and c[0] or None
         else:
             self._render_clip = None
-        return self._render_event
+        return self._render_clip
 
     def get_render_artist(self):
         e = self._get_render_event()
@@ -104,12 +104,12 @@ class Shot(models.Model):
         e = self._get_render_event()
         return e and e.setup or 'None'
 
-    def get_render_hires(self):
+    def get_render_clip_hi(self):
         c = self._get_render_clip()
         # TODO: support hi/lo res and handle errors
         return c and c.movie or 'pending.mov'
 
-    def get_render_lores(self):
+    def get_render_clip_lo(self):
         c = self._get_render_clip()
         # TODO: support hi/lo res and handle errors
         return c and c.movie or 'pending.mov'
