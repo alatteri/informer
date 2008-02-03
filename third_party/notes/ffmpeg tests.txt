@@ -1,3 +1,21 @@
+--HIGH REZ-  2 Pass VBR--
+=-=-=-=-=-=-=-=-=-=-=-=-=
+
+ffmpeg -r RATE -f image2 -vcodec tiff -i TIFF_SEQUENCE -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -psnr -pass 1 -y OUTPUT
+
+
+ffmpeg -r RATE -f image2 -vcodec tiff -i TIFF_SEQUENCE -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -psnr -pass 2 -y OUTPUT
+
+--LOW REZ- 2 Pass VBR--
+=-=-=-=-=-=-=-=-=-=-=-=
+
+ffmpeg -r 24000/1001 -f image2 -vcodec tiff -i TIFF_SEQUENCE -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -psnr -s 544x304 -pass 1 -y OUTPUT
+
+ffmpeg -r 24000/1001 -f image2 -vcodec tiff -i TIFF_SEQUENCE -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -psnr -s 544x304 -pass 2 -y OUTPUT
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 Frame sizes divisible by 16 is better.
 
 for flash: 544x304
@@ -11,11 +29,6 @@ Use these fractional equations for rate to respresent these NTSC framerates.
 24000/1001 = 23.987
 30000/1001 = 29.98
 60000/1001 = 59.94
-_________________________________________________________
-
-Picks:
-High Rez- 15B  (crf values of between 20 & 23.  Can be float values too, e.g. 22.5.  Lower value is better quality)
-Low Rez- 
 _________________________________________________________
 
 Encoding from a pipe.
@@ -32,7 +45,7 @@ _________________________________________________________
 
 Encoding from TIFF
 
-./ffmpeg -f image2 -vcodec tiff -i /data/out.tif /data/out.mp4
+./ffmpeg -f image2 -vcodec tiff -i name.%04d.tif /data/out.mp4
 _________________________________________________________
   
 Using a filelist instead of image sequence wildcards.
@@ -50,87 +63,6 @@ ________________________________________________________
 ________________________________________________________
 ________________________________________________________
 
-1) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 1 -psnr  ~/Desktop/03_1.mp4
-
-PSNR Mean Y:35.065 U:38.781 V:39.408 Avg:36.040 Global:36.036 kb/s:1778.37
-1.3mb
-________________________________________________________
-
-2) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 1 -psnr -crf 25 ~/Desktop/03_2.mp4
-
-PSNR Mean Y:35.693 U:39.245 V:39.887 Avg:36.640 Global:36.593 kb/s:2066.07
-1.5mb
-_________________________________________________________
-
-3) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -an -pass 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -coder 1 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 ~/Desktop/03_3.mp4
-
-./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -an -pass 2 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -flags2 +mixed_refs -me umh -subq 5 -trellis 1 -refs 5 -bf 3 -b_strategy 1 -coder 1 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4-psnr ~/Desktop/03_3.mp4
-
-PSNR Mean Y:24.237 U:34.897 V:35.172 Avg:25.821 Global:25.804 kb/s:206.63
-
-This was awful....
-_________________________________________________________
-
-4) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -an -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -cqp 25 -psnr ~/Desktop/03_4.mp4
-
-PSNR Mean Y:38.527 U:42.207 V:42.956 Avg:39.499 Global:39.423 kb/s:6466.58
-4.8mb
-
-__________________________________________________________
-
-5) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -an -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -sc_threshold 40 -i_qfactor 0.71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -crf 25 -psnr ~/Desktop/03_5.mp4
-
-PSNR Mean Y:37.214 U:41.056 V:41.753 Avg:38.210 Global:38.152 kb/s:4716.24
-3.5mb
-
-_____________________________________________________________
-
-6) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -coder 1 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor .71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -crf 20 ~/Desktop/03_6.mp4
-
-[libx264 @ 0x45f970]PSNR Mean Y:38.836 U:42.493 V:43.270 Avg:39.807 Global:39.738 kb/s:9766.10
-
-7.3meg
-
-______________________________________________________________
-
-7) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -threads 2 -vcodec libx264 -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 1 -crf 20 -psnr ~/Desktop/03_7.mp4
-
-4.6mb
-______________________________________________________________
-
-9) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads 2 -vcodec libx264 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -coder 1 -me_range 16 -sc_threshold 40 -i_qfactor .71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -crf 20 -psnr ~/Desktop/03_9.mp4
-
-______________________________________________________________
-
-10) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads 2 -vcodec libx264 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me epzs -subq 1 -trellis 0 -refs 1 -bf 3 -b_strategy 1 -coder 1 -me_range 100 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor .71 -rc_eq 'blurCplx^(1-qComp)' -qcomp 0.6 -qmin 10 -qmax 51 -qdiff 4 -crf 20 -psnr ~/Desktop/03_10.mp4
-
-_______________________________________________________________
-
-11) ./ffmpeg -i /Data/QUICKTIME_TESTS/informer/03.mov -vcodec libx264 -threads auto -s 1200x672 -sws_flags bilinear -coder 1 -flags +loop -cmp +chroma -partitions +parti4x4+partp8x8+partb8x8 -me hex -subq 5 -me_range 16 -g 250 -keyint_min 25 -sc_threshold 40 -i_qfactor 0.71 -b_strategy 1 -psnr -crf 15 ~/Desktop/03_11.mov 
-
-____________________________________________________________
-
-12) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads auto -vcodec libx264 -subq 7 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 150 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 20 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 51 -qdiff 4 ~/Desktop/03_12.mp4
-
-[libx264 @ 0x45f970]PSNR Mean Y:38.562 U:41.956 V:42.726 Avg:39.489 Global:39.439 kb/s:6277.11
-4.7 meg
-___________________________________________________________________
-
-13) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads auto -vcodec libx264 -subq 7 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 150 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 20 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 51 -qdiff 4 ~/Desktop/03_13.mp4
-
-[libx264 @ 0x45f970]PSNR Mean Y:38.739 U:41.937 V:42.702 Avg:39.630 Global:39.575 kb/s:6681.85
-5meg
-
-This is looking good.
-_________________________________________________________________
-
-14) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 150 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 20 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 30 -qmax 70 -qdiff 4 -qscale 1 ~/Desktop/03_13.mp4
-
-[libx264 @ 0x45f970]PSNR Mean Y:34.916 U:39.038 V:39.736 Avg:35.959 Global:35.950 kb/s:1782.94
-1.3meg
-
-Here the PSNR calc seems to be way off.  it doesnt look that good.
-__________________________________________________________________
 
 15) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_ffmpeg_input.mov -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 150 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 20 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 ~/Desktop/03_15.mp4
 
@@ -175,9 +107,5 @@ ________________________________________________________________________________
 20) ./ffmpeg -i /Data/QUICKTIME_TESTS/ffmpeg/03_PREVIEW.mov -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 25 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .5 -s 544x304 ~/Desktop/03_PREVIEW.mp4
 ---------------------------------------------------------------------------------
 
-21) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 2 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
 
-22) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 2 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
-
-23) ./ffmpeg -r 24000/1001 -i /Data/QUICKTIME_TESTS/ffmpeg/sequences/03_VL2/03_VL2.%03d.png -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 5 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 35 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale .25 -s 544x304 ~/Desktop/03_15.mp4 
 
