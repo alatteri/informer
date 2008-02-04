@@ -171,6 +171,7 @@ class Client(object):
             kwargs['resp'] = True
             kwargs['async'] = False
 
+            print "REST REQUEST URL -------->", args[0]
             resp, data = method(*args, **kwargs)
 
             LOG.info(data)

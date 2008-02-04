@@ -308,8 +308,7 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
 {
     int depth;
     char *str = NULL;
-    PyObject *app, *spark, *pResult = NULL;
-    PyObject *pSetup, *pUser, *pHost, *pRate;
+    PyObject *app, *pResult = NULL;
 
     printf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     printf("------ process frame called from %s -------\n", spark_name);
@@ -322,47 +321,38 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
 
     PythonBeginCall();
     app = PythonGetApp();
-    pResult = PyObject_GetAttrString(app, "shouldProcess");
 
-    if (pResult && PyObject_IsTrue(pResult)) {
-        Py_XDECREF(pResult);
-        spark = PythonAppGetSpark(app, spark_name);
+    if (SPARKBUF_RGB_24_3x8 == spark_info.FrameDepth) {
+        depth = 8;
+    } else {
+        printf("++++++++++ SOME OTHER DEPTH: %d ++++++++++\n", spark_info.FrameDepth);
+        depth = spark_info.FrameDepth;
+    }
 
-        if (NULL != spark) {
-            if (SPARKBUF_RGB_24_3x8 == spark_info.FrameDepth) {
-                depth = 8;
-            } else {
-                printf("++++++++++ SOME OTHER DEPTH: %d ++++++++++\n", spark_info.FrameDepth);
-                depth = spark_info.FrameDepth;
-            }
+    printf("OK. the spark was not null -- now calling processFrame\n");
+    printf("* spark_name: %s\n", spark_name);
+    printf("* spark_info.FrameWidth: %d\n", spark_info.FrameWidth);
+    printf("* spark_info.FrameHeight: %d\n", spark_info.FrameHeight);
+    printf("* depth: %d\n", depth);
+    printf("* 1: 1\n");
+    printf("* spark_info.FrameNo + 1: %d\n", spark_info.FrameNo + 1);
+    printf("* spark_info.TotalFrameNo: %d\n", spark_info.TotalFrameNo);
 
-            pSetup = PyObject_GetAttrString(app, "setup");
-            pUser  = PyObject_GetAttrString(app, "user");
-            pHost  = PyObject_GetAttrString(app, "hostname");
-            pRate  = PyObject_GetAttrString(app, "frameRate");
-
-            printf("OK. the spark was not null -- now calling processFrame\n");
-            pResult = PyObject_CallMethod(spark, "processFrameStart", "OOOiiiiiiO",
-                                          pSetup,
-                                          pUser,
-                                          pHost,
-                                          spark_info.FrameWidth,
-                                          spark_info.FrameHeight,
-                                          depth,
-                                          1,
-                                          spark_info.FrameNo + 1,
-                                          spark_info.TotalFrameNo,
-                                          pRate);
-            Py_XDECREF(pSetup);
-            Py_XDECREF(pUser);
-            Py_XDECREF(pHost);
-            Py_XDECREF(pRate);
-
-            str = PyString_AsString(pResult);
-            printf("Done. returning %s\n", str);
-        }
-
-        Py_XDECREF(spark);
+    pResult = PyObject_CallMethod(app, "frameProcessStart", "siiiiii",
+                                  spark_name,
+                                  spark_info.FrameWidth,
+                                  spark_info.FrameHeight,
+                                  depth,
+                                  1,
+                                  spark_info.FrameNo + 1,
+                                  spark_info.TotalFrameNo);
+    if (pResult == Py_None) {
+        printf("NULL! frameProcessStart said to ignore the frame...\n");
+        str = NULL;
+    } else {
+        printf("pResult was not None\n");
+        str = PyString_AsString(pResult);
+        printf("Done. returning %s\n", str);
     }
 
     Py_XDECREF(pResult);
@@ -375,7 +365,7 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
 void
 GatewaySparkProcessFrameEnd(const char *spark_name)
 {
-    PyObject *app, *spark, *pResult = NULL;
+    PyObject *app, *pResult = NULL;
 
     #if defined __XPY__
     return;
@@ -385,10 +375,8 @@ GatewaySparkProcessFrameEnd(const char *spark_name)
 
     PythonBeginCall();
     app = PythonGetApp();
-    spark = PythonAppGetSpark(app, spark_name);
-    pResult = PyObject_CallMethod(spark, "processFrameEnd", NULL);
+    pResult = PyObject_CallMethod(app, "frameProcessEnd", "s", spark_name);
 
-    Py_XDECREF(spark);
     Py_XDECREF(pResult);
     PythonEndCall();
 
@@ -396,30 +384,34 @@ GatewaySparkProcessFrameEnd(const char *spark_name)
 }
 
 void
-GatewaySparkProcessStart(void)
+GatewaySparkProcessStart(const char *spark_name)
 {
     PyObject *app, *pResult;
+    printf("|||||||||||| GatewaySparkProcessStart called with (%s) ||||||||||||||\n", spark_name);
+
     PythonBeginCall();
     app = PythonGetApp();
-    pResult = PyObject_CallMethod(app, "processStart", NULL);
-    if (!pResult || !PyObject_IsTrue(pResult))
-        PyErr_Print();
+    pResult = PyObject_CallMethod(app, "sparkProcessStart", "s", spark_name);
+    printf("----- returned from sparkProcessStart in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
+
+    printf("|||||||||||| GatewaySparkProcessStart returning ||||||||||||||\n");
 }
 
 void
-GatewaySparkProcessEnd(void)
+GatewaySparkProcessEnd(const char *spark_name)
 {
     PyObject *app, *pResult;
-    printf("|||||||||||| GatewaySparkProcessEnd called ||||||||||||||\n");
+    printf("|||||||||||| GatewaySparkProcessEnd called with (%s) ||||||||||||||\n", spark_name);
+
     PythonBeginCall();
     app = PythonGetApp();
-    pResult = PyObject_CallMethod(app, "processEnd", NULL);
-    if (!pResult || !PyObject_IsTrue(pResult))
-        PyErr_Print();
+    pResult = PyObject_CallMethod(app, "sparkProcessEnd", "s", spark_name);
+    printf("----- returned from sparkProcessEnd in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
+
     printf("|||||||||||| GatewaySparkProcessEnd returning ||||||||||||||\n");
 }
 

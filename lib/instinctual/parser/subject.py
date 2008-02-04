@@ -71,7 +71,7 @@ class LogSubject(Subject):
             pass
 
         for line in lines:
-            print "LOG --> ", line
+            # print "LOG --> ", line
             event = self.event(line)
             self.notifyObservers(event)
 

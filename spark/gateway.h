@@ -20,10 +20,10 @@ int GatewayCreateNote(const char *setup, int is_checked, char *text, char *creat
 int GatewayUpdateElem(const char *setup, InformerElemData *data, int id, int is_checked);
 int GatewayUpdateNote(const char *setup, InformerNoteData *data, int id, int is_checked, char *modified_by);
 
-void GatewaySparkProcessStart(void);
-char *GatewaySparkProcessFrameStart(const char *setup, SparkInfoStruct spark_info);
-void GatewaySparkProcessFrameEnd(const char *setup);
-void GatewaySparkProcessEnd(void);
+void GatewaySparkProcessStart(const char *spark_name);
+char *GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info);
+void GatewaySparkProcessFrameEnd(const char *spark_name);
+void GatewaySparkProcessEnd(const char *spark_name);
 
 char *GatewaySparkRegister(const char *spark_name);
 int GatewaySparkRename(const char *old_name, const char *new_name);

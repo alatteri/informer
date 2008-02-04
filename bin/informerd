@@ -27,36 +27,48 @@ FLAME_PID="$3"
 
 RETVAL=0
 
-UPLOADER="/usr/discreet/sparks/instinctual/informer/bin/uploader"
-UPLOADER_FLAGS="-D"
+INFORMER_ROOT="/usr/discreet/sparks/instinctual/informer"
+
+UPLOADER_APP="${INFORMER_ROOT}/bin/uploader"
+UPLOADER_APP_FLAGS="-D"
+UPLOADER_APP_PID="${INFORMER_ROOT}/uploads/.uploader.pid"
 
 start() {
     if [ ! -z "$FLAME_PID" ]; then
         echo "---> flame pid specified as $FLAME_PID"
-        UPLOADER_FLAGS="$UPLOADER_FLAGS -P $FLAME_PID"
-        echo "FLAGS are: $UPLOADER_FLAGS"
+        UPLOADER_APP_FLAGS="$UPLOADER_APP_FLAGS -P $FLAME_PID"
+        echo "FLAGS are: $UPLOADER_APP_FLAGS"
     fi
 
     echo -n $"Starting informer uploader: "
     if [ -z "$USER" ]; then
         echo "Running with default user"
-        daemon $UPLOADER $UPLOADER_FLAGS
+        daemon $UPLOADER_APP $UPLOADER_APP_FLAGS
     else
         echo "Running with user=$USER"
-        daemon --user=$USER $UPLOADER $UPLOADER_FLAGS
+        daemon --user=$USER $UPLOADER_APP $UPLOADER_APP_FLAGS
     fi
     RETVAL=$?
     echo
     return $RETVAL
 }
 
+status() {
+    echo "status was called ${UPLOADER_APP_PID}"
+    pid=`cat ${UPLOADER_APP_PID}`
+    echo "pid was ${pid}"
+}
+
 case "$1" in
   start)
-  	start
-	;;
+    start
+    ;;
+  status)
+    status
+    ;;
   *)
-	echo $"Usage: $0 {start} [user]"
-	exit 1
+    echo $"Usage: $0 {start} [user]"
+    exit 1
 esac
 
 exit $?

@@ -12,7 +12,7 @@ class Event(object):
 
 class DiscreetLogEvent(Event):
     _reLog = re.compile(r'^\[(\w+)\]\s+(\d+)\s+([\w\.]+):(\d+)\s+([^\s]+)\s+(.*)$')
-    _reExtra = re.compile(r'(\w+)\s*:\s*(.*)$')
+    _reExtra = re.compile(r'^(.+?)\s*:\s*(.*)$')
 
     def __init__(self, event):
         super(DiscreetLogEvent, self).__init__(event)
@@ -67,7 +67,7 @@ class DiscreetLogEvent(Event):
                          "PID:", self.pid,
                          "FILE:", self.file,
                          "LINE:", self.line,
-                         "DATE:", self.date,
+                         "DATE:", str(self.date),
                          "CATEGORY:", self.category,
                          "MESSAGE:", self.message))
 

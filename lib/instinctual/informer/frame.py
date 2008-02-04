@@ -8,6 +8,7 @@ class Frame(Serializable):
         Serializable.__init__(self, parent, 'frame.pkl')
         self.rgbPath = os.path.join(self.container, 'frame.rgb')
 
+        self.status = 'unknown'
         self.isBusy = False
 
         self.width  = None

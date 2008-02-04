@@ -328,13 +328,15 @@ void _DumpSparkInfo(SparkInfoStruct spark_info)
 int
 SparkProcessStart(SparkInfoStruct spark_info)
 {
+    const char *spark_name;
     InformerAppStruct *app = InformerGetApp();
 
     InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
     InformerDEBUG("------------------------> SparkProcessStart called <----------------------------\n");
     InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 
-    GatewaySparkProcessStart();
+    spark_name = InformerGetSparkName();
+    GatewaySparkProcessStart(spark_name);
 
     if (FALSE == app->notes_data_been_read) {
             InformerGetNotes();
@@ -445,11 +447,15 @@ SparkProcess(SparkInfoStruct spark_info)
 void
 SparkProcessEnd(SparkInfoStruct spark_info)
 {
+    const char *spark_name;
+
     InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
     InformerDEBUG("-------------------------> SparkProcessEnd called <-----------------------------\n");
     InformerDEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 
-    GatewaySparkProcessEnd();
+    spark_name = InformerGetSparkName();
+    InformerDEBUG("now calling GatewaySparkProcessEnd(%s)\n", spark_name);
+    GatewaySparkProcessEnd(spark_name);
 }
 
 /*--------------------------------------------------------------------------*/

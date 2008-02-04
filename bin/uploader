@@ -48,7 +48,7 @@ if daemon == True:
 # ------------------------------------------------------------------------------
 # check for running process
 # ------------------------------------------------------------------------------
-pidfile = os.path.join(uploadDir, 'uploader.pid')
+pidfile = os.path.join(uploadDir, '.uploader.pid')
 
 try:
     fd = open(pidfile, 'r')
@@ -93,27 +93,35 @@ try:
         matches = glob(frameGlob)
         matches.sort()
 
+        print "_" * 80
+        count = 0
         for framePath in matches:
             tries = 0
-            LOG.debug("Found ->" + framePath)
+            count += 1
+            LOG.debug("%s) Found -> %s" % (count, framePath))
             frame = Frame.load(framePath)
+
+            print "%s) Frame %s (%s)" % (count, framePath, frame.status)
 
             if frame.isBusy:
                 LOG.debug("Frame was busy...")
-            else:
+            elif 'upload' == frame.status:
                 LOG.debug("I can work on:" + frame.rgbPath)
                 #frame.isBusy = True
                 #frame.save()
 
-                frame.resizedPath = os.path.join(frame.container, 'frame.png')
-                cmd = "convert %s %s" % (frame.rgbPath, frame.resizedPath)
+                frame.resizedPath = os.path.join(frame.container, 'frame.tiff')
+                cmd = 'convert %s -resize "1024x768>" -channel RGB -depth 8 -compress RLE %s'
+                cmd = cmd % (frame.rgbPath, frame.resizedPath)
                 LOG.debug("CMD:" + cmd)
                 if 0 == os.system(cmd):
                     try:
+                        LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
                         client = Client()
                         client.newFrame(frame)
                         LOG.debug("done!")
                         frame.delete()
+                        pass
                     except ClientConnectionError, e:
                         LOG.debug("Client error encountered -- ignoring frame")
                         #frame.delete()
@@ -123,10 +131,10 @@ try:
 
             time.sleep(0.1)
 
-        if len(matches) == 0:
+        if flamePid and len(matches) == 0:
             try:
                 os.stat('/proc/%s' % flamePid)
-                LOG.debug("Flame process (%s) still running..." % flamePid)
+                # LOG.debug("Flame process (%s) still running..." % flamePid)
             except OSError, e:
                 if e.errno == errno.ENOENT:
                     LOG.debug("Flame process (%s) NOT running." % flamePid)
@@ -135,7 +143,7 @@ try:
                     raise e
 
         if tries < 5:
-            LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
+            # LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
             time.sleep(3.0)
         else:
             LOG.info("Flame appears to have exited and no work to do. Quitting.")

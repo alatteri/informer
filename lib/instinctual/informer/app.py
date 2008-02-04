@@ -1,31 +1,53 @@
 import os
 import time
+import datetime
+from pprint import pprint
+
 import instinctual
 import instinctual.informer
 from instinctual.parser.subject import Subject
 from instinctual.parser.event import *
 from instinctual.parser.observer import *
 
+from instinctual.informer.frame import Frame
 from instinctual.informer.spark import Spark
 from instinctual.informer.client import Client
 from instinctual.informer.threads import LogfileThread, SchedulerThread, InformerThread
 
 LOG = instinctual.getLogger(__name__)
+CONF = instinctual.getConf()
 
-class _appinfo(InformerThread):
+uploadsDir = CONF.get('informer', 'dir_uploads')
+
+def datetimeToSeconds(dt):
+    inSeconds = time.mktime(dt.timetuple())
+    return inSeconds + float(dt.microsecond) / (1 * 10**6)
+
+
+class UploadFlushThread(InformerThread):
     def __init__(self, name, app):
         InformerThread.__init__(self, name)
         self.app = app
 
     def threadProcess(self):
-        print "\n[[[[[ APP ]]]]]"
-        print "* user:", self.app.user
-        print "* setup:", self.app.setup
-        print "* project:", self.app.project
-        print "* shouldProcess: %s" % (self.app.shouldProcess)
-        print "---- sparks ----"
-        for (name, spark) in self.app.sparks.items():
-            print "\t* [%s]: %s" % (name, spark)
+        """
+        Called to flush pending frames
+        """
+        if self.app.frames:
+            now = datetimeToSeconds(datetime.now())
+
+            # flush any pending frames
+            for (sparkName, frame) in self.app.frames.items():
+                diff = now - frame.createdOnInSeconds
+                print "((((((((((( DIFF: %s ))))))))))))" % (diff)
+
+                if diff > 1.0:
+                    print "diff was greater than 1.0 -- marked for UPLOADING"
+                    print "sparkProcessStart: uploading waiting frame..."
+                    frame.status = 'upload'
+                    frame.save()
+
+                    del self.app.frames[sparkName]
 
 class App(Subject):
     def __init__(self):
@@ -43,11 +65,16 @@ class App(Subject):
         self.sparks = {}
 
         # --------------------
+        # FRAMES
+        #
+        self.frames = {}
+
+        # --------------------
         # THREADS
         #
-        self._appinfo = _appinfo('appinfo', self)
         self.logfile = LogfileThread('logfile')
         self.scheduler = SchedulerThread('scheduler', interval=0.1)
+        self.uploadFlush = UploadFlushThread('uploadFlush', self)
 
         # app state events
         self.logfile.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
@@ -61,12 +88,6 @@ class App(Subject):
 
         # batch processing events
         self.logfile.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
-        # self.logfile.registerObserver(DiscreetBatchProcessOutput(self.cbBatchProcessOutput))
-
-        # flushing events
-        # self.logfile.registerObserver(DiscreetBatchPlay(self.cbBatchPlay))
-        # self.logfile.registerObserver(DiscreetBatchEnd(self.cbBatchEnd))
-        # self.logfile.registerObserver(DiscreetAppExit(self.cbAppExit))
 
     def _getShouldProcess(self):
         print "_getShouldProcess returning: %s" % (self._shouldProcess)
@@ -84,12 +105,11 @@ class App(Subject):
         self.project = None
         self.hostname = None
         self.frameRate = None
-        self.shouldProcess = True
 
     def resetBatchState(self):
         self.shot = None
         self.setup = None
-        self.queue = []
+        self.events = []
         self.outputs = {}
 
     # ----------------------------------------------------------------------
@@ -99,8 +119,8 @@ class App(Subject):
         self.resetAppState()
         self.resetBatchState()
 
-        # self.scheduler.register(self._appinfo, 5)
         self.scheduler.register(self.logfile, 0.1)
+        self.scheduler.register(self.uploadFlush, 1.0)
         self.scheduler.process()
         self.scheduler.start()
 
@@ -129,6 +149,7 @@ class App(Subject):
 
 
     # ----------------------------------------------------------------------
+    # Sparks
     # ----------------------------------------------------------------------
     def _sparkCleanName(self, name):
         print "clean IN[%s]" % (name)
@@ -169,14 +190,43 @@ class App(Subject):
         else:
             print "Could not rename! [%s] was not found" % (oldName)
 
-    def flushBatchQueue(self):
-        LOG.info("(((( flushing batch queue ))))")
-        self._isBatchProcessing = False
+    def sparkProcessStart(self, name):
+        print "hello" * 20
+        print "w00t: sparkProcessStart called with: %s" % (name)
+        if name in self.frames:
+            frame = self.frames[name]
+            now = datetimeToSeconds(datetime.now())
+            diff = now - frame.createdOnInSeconds
+            print "((((((((((( DIFF: %s ))))))))))))" % (diff)
 
+            if diff < 1.0:
+                print "diff was less than 1.0 -- DELETING"
+                print "sparkProcessStart: deleting waiting frame..."
+                self.frames[name].delete()
+            else:
+                print "diff was greater than 1.0 -- UPLOADING"
+                print "sparkProcessStart: uploading waiting frame..."
+                frame.status = 'upload'
+                frame.save()
+
+        self.frames[name] = 'IGNORE'
+        print "hello" * 20
+
+    def sparkProcessEnd(self, name):
+        print "goodbye" * 20
+        print "w00t: sparkProcessEnd called with: %s" % (name)
+        del self.frames[name]
+        print "goodbye" * 20
+
+    # ----------------------------------------------------------------------
+    # Events
+    # ----------------------------------------------------------------------
+    def flushEventQueue(self):
+        LOG.info("(((( flushing event queue ))))")
         key = '_LAST_EVENT_'
 
-        while self.queue:
-            appEvent = self.queue.pop(0)
+        while self.events:
+            appEvent = self.events.pop(0)
             if isinstance(appEvent, DiscreetAppBatchProcessEvent):
                 # wait until we flush the queue to determine the batch outputs
                 appEvent.outputs = self.outputs.keys()
@@ -184,7 +234,7 @@ class App(Subject):
             if key in os.environ:
                 print "<<<<<<<<< _LAST_EVENT_ %s >>>>>>>>>>" % (os.environ[key])
 
-            eSeconds = time.mktime(appEvent.date.timetuple())
+            eSeconds = datetimeToSeconds(appEvent.date)
             print "<<<<<<<<< eSeconds     %s >>>>>>>>>>" % (eSeconds)
 
             if key not in os.environ or float(os.environ[key]) < eSeconds:
@@ -206,27 +256,74 @@ class App(Subject):
         appEvent.hostname = self.hostname
         return appEvent
 
+    # ----------------------------------------------------------------------
+    # Frames
+    # ----------------------------------------------------------------------
     def setFrameRate(self, frameRate):
         print "setFrameRate:", frameRate
         self.frameRate = frameRate
 
-    def processStart(self):
+    def frameProcessStart(self, sparkName, width, height, depth, start, number, end):
         print "+" * 80
-        print "processStart called."
-        print "+" * 80
-
-        # processStart is called only when entering the spark
-        self.shouldProcess = False
-
-        return True
-
-    def processEnd(self):
-        print "+" * 80
-        print "processEnd called."
+        print "APP: frameProcessStart called for (%s)" % (sparkName)
         print "+" * 80
 
-        self.shouldProcess = True
-        return True
+        if sparkName in self.frames:
+            frame = self.frames[sparkName]
+            if 'IGNORE' == frame:
+                print "----- IGNORING FRAME! -------"
+                return None
+            else:
+                print "frameProcessStart flushing frame..."
+                frame.status = 'upload'
+                frame.save()
+                del self.frames[sparkName]
+
+        f = Frame(uploadsDir)
+        self.frames[sparkName] = f
+
+        print "1"
+        f.isBusy = True
+        f.spark  = sparkName
+        f.setup  = self.setup
+
+        print "2"
+        f.host = self.hostname
+        print "2.1"
+        f.createdBy = self.user
+        print "2.2"
+        f.createdOn = datetime.now()
+        print "2.3"
+        f.createdOnInSeconds = datetimeToSeconds(f.createdOn)
+
+        print "3"
+        f.width  = width
+        f.height = height
+        f.depth  = depth
+
+        print "4"
+        f.start  = start
+        f.number = number
+        f.end    = end
+        f.rate   = self.frameRate
+
+        print "Created frame"
+        pprint(f.__dict__)
+
+        print "about to save"
+        f.save()
+        print "ok. save is done"
+
+        return f.rgbPath
+
+    def frameProcessEnd(self, sparkName):
+        print "+" * 80
+        print "APP: frameProcessEnd called"
+        print "+" * 80
+
+        f = self.frames[sparkName]
+        f.isBusy = False
+        f.save()
 
     # ----------------------------------------------------------------------
     # App/Server interaction
@@ -294,7 +391,6 @@ class App(Subject):
         LOG.info("Running updateElement()")
         return client.updateElement(setup, data)
 
-
     # ----------------------------------------------------------------------
     # Callbacks for modifying the App state
     # ----------------------------------------------------------------------
@@ -315,7 +411,7 @@ class App(Subject):
         """
         LOG.info("--- PROJECT: %s" % (project))
 
-        self.flushBatchQueue()
+        self.flushEventQueue()
         self.resetBatchState()
 
         self.project = project
@@ -335,7 +431,7 @@ class App(Subject):
         """
         LOG.info("--- USER: %s" % (user))
 
-        self.flushBatchQueue()
+        self.flushEventQueue()
         self.user = user
 
     def cbLoadSetup(self, event, setup, **kwargs):
@@ -348,7 +444,7 @@ class App(Subject):
         # Make sure to flush the event queue for any previous events
         # before reassigning the setup and shot
         #
-        self.flushBatchQueue()
+        self.flushEventQueue()
         self.resetBatchState()
 
         LOG.info("--- LOAD SETUP %s", (setup))
@@ -356,10 +452,6 @@ class App(Subject):
         self.setup = setup
         parsed = instinctual.informer.parseSetup(setup)
         self.shot = parsed['shot']
-
-        appEvent = self._setAppEvent(DiscreetAppLoadEvent(), event)
-        self.queue.append(appEvent)
-        self.flushBatchQueue()
 
     def cbSaveSetup(self, event, setup, **kwargs):
         """
@@ -369,8 +461,8 @@ class App(Subject):
         LOG.info("--- SAVE SETUP %s", (setup))
 
         appEvent = self._setAppEvent(DiscreetAppSaveEvent(), event)
-        self.queue.append(appEvent)
-        self.flushBatchQueue()
+        self.events.append(appEvent)
+        self.flushEventQueue()
 
     def cbBatchProcess(self, event, **kwargs):
         """
@@ -378,44 +470,9 @@ class App(Subject):
         """
         LOG.info("BATCH PROCESS EVENT")
 
-        self._isBatchProcessing = True
+        print "=" * 80
+        print "                     BATCH PROCESS EVENT"
+        print "=" * 80
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
-        self.queue.append(appEvent)
-        self.flushBatchQueue()
-
-    def cbBatchProcessOutput(self, output, **kwargs):
-        """
-        Called once per batch process output
-        - adds a new output entry to the batch state
-        """
-        LOG.info("--- BATCH OUTPUT %s" % (output))
-        self.outputs[output] = 1
-
-    def cbBatchPlay(self, **kwargs):
-        """
-        Called when the user plays the result of a batch process
-        Used to flush the batch event queue
-        """
-        LOG.info("--- BATCH PLAY")
-        self.flushBatchQueue()
-
-    def cbBatchEnd(self, **kwargs):
-        """
-        Called when the user exits batch mode. This actually does
-        not reset the batch state.
-        - flushes the batch queue
-        """
-        LOG.info("--- EXIT BATCH MODE")
-        self.flushBatchQueue()
-
-    def cbAppExit(self, **kwargs):
-        """
-        Called when the user exits the app.
-        - flushes the batch queue
-        - resets the batch state
-        """
-        LOG.info("--- APP EXIT")
-        self.flushBatchQueue()
-        self.resetBatchState()
-        self.resetAppState()
-
+        self.events.append(appEvent)
+        self.flushEventQueue()

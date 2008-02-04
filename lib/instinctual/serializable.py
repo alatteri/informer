@@ -27,13 +27,14 @@ class Serializable(object):
         output.close()
 
     def delete(self):
-        try:
-            os.unlink(self.path)
-        except OSError, e:
-            if errno.ENOENT != e.errno:
-                raise e
-
         print "[[[[[[[[ delete called for %s ]]]]]]]]]]]]" % (self.container)
+
+        for root, dirs, files in os.walk(self.container):
+            for f in files:
+                os.remove(os.path.join(root, f))
+            for d in dirs:
+                os.remove(os.path.join(root, d))
+
         os.rmdir(self.container)
 
     def _getId(self):

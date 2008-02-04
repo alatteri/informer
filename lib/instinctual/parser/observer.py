@@ -13,6 +13,7 @@ class Observer(object):
 
     def notify(self, event):
         name = self.__class__.__name__
+        # print "MESSAGE [%s] CATEGORY [%s]" % (event.message, event.category)
         data = self.process(event)
         if data != None:
             LOG.debug("[[[ %s event matched: %s ]]]" % (name, data))
@@ -25,7 +26,8 @@ class Observer(object):
                 LOG.warn("No callback defined for Observer %s" % (name))
 
 class DiscreetObserver(Observer):
-    pass
+    def process(self, event):
+        return {'event': event}
 
 class DiscreetSpecifyHostname(DiscreetObserver):
     _re = re.compile(r'#\s+Hostname\s+\-\s+(.+)')
@@ -79,6 +81,12 @@ class DiscreetBatchProcess(DiscreetObserver):
     def process(self, event):
         if event.category == 'BUTTON':
             if event.message == '[Process] BatchProcess':
+                return {}
+
+class DiscreetEnterSparkModule(DiscreetObserver):
+    def process(self, event):
+        if event.category == 'PUSH MENU':
+            if event.message == 'Batch to SparkModule':
                 return {}
 
 class DiscreetBatchProcessOutput(DiscreetObserver):
