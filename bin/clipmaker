@@ -31,7 +31,7 @@ LOG = instinctual.getLogger(__file__)
 
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
 tmpdir  = root + '/tmp'
-pending = root + '/pending.png'
+pending = root + '/media/pending.tiff'
 ffmpeg  = root + '/third_party/bin/ffmpeg'
 qt_fast = root + '/third_party/bin/qt-faststart'
 
@@ -40,7 +40,7 @@ def main():
     lockfile = tmpdir + '/lockfile'
 
     try:
-    	MKDIR(tmpdir)
+        MKDIR(tmpdir)
         flag = os.O_CREAT | os.O_EXCL | os.O_WRONLY
         fd = os.open(lockfile, flag, 0600)
         os.write(fd, str(os.getpid()))
@@ -82,11 +82,13 @@ def makeclip(clip_id):
 
     # create the temp workspace
     MKDIR(tmpdir)
+
     prefix = "%s-%s-%s-" % ('clipmaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), clip.id)
     workspace = tempfile.mkdtemp('', prefix, tmpdir)
+    os.chdir(workspace)
 
     to_delete = []
-    pattern = workspace + '/' + '%06d.png'
+    pattern = workspace + '/' + '%06d.tiff'
     for number in range(clip.start, max + 1):
         if number in frames:
             print "Frame [%s] %s" % (number, frames[number].get_image_filename())
@@ -98,30 +100,59 @@ def makeclip(clip_id):
         os.symlink(source, dest)
         to_delete.append(dest)
 
-    # create the clip
-    slow = workspace + '/' + 'slow.mov'
-    cmd = "%s -r %s -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 150 -keyint_min 25 -bf 3 -flags +loop+umv -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -benchmark -crf 20 -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -f mov %s" % (ffmpeg, clip.rate, pattern, slow)
+    # --------------------------------------------------
+    # create the hi rez clip
+    slow_hi = workspace + '/' + 'slow-hi.mov'
+    print "pass hi 1"
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 1 -y %s" % (ffmpeg, clip.rate, pattern, slow_hi)
+    SYSTEM(cmd)
+
+    print "pass hi 2"
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 2 -y %s" % (ffmpeg, clip.rate, pattern, slow_hi)
     SYSTEM(cmd)
 
     # qt-faststart it
-    fast = workspace + '/' + 'fast.mov'
-    cmd = "%s %s %s" % (qt_fast, slow, fast)
+    fast_hi = workspace + '/' + 'fast-hi.mov'
+    cmd = "%s %s %s" % (qt_fast, slow_hi, fast_hi)
     SYSTEM(cmd)
 
-    # copy the movie...
-    UNLINK(clip.get_movie_filename())
+    # --------------------------------------------------
+    # create the lo rez clip
+    slow_lo = workspace + '/' + 'slow-lo.mov'
+    print "pass lo 1"
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (ffmpeg, clip.rate, pattern, slow_lo)
+    SYSTEM(cmd)
 
-    f = open(fast, 'rb')
-    clip.save_movie_file('%s.mov' % clip.id, f.read(), True)
+    print "pass lo 2"
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (ffmpeg, clip.rate, pattern, slow_lo)
+    SYSTEM(cmd)
+
+    # qt-faststart it
+    fast_lo = workspace + '/' + 'fast-lo.mov'
+    cmd = "%s %s %s" % (qt_fast, slow_lo, fast_lo)
+    SYSTEM(cmd)
+
+    # --------------------------------------------------
+    # copy the movies...
+    UNLINK(clip.get_movie_hi_filename())
+
+    f = open(fast_hi, 'rb')
+    clip.save_movie_hi_file('%s_hi.mov' % clip.id, f.read(), True)
+
+    UNLINK(clip.get_movie_lo_filename())
+
+    f = open(fast_lo, 'rb')
+    clip.save_movie_lo_file('%s_lo.mov' % clip.id, f.read(), True)
 
     # save it
     for frame in frames.values():
-        frame.in_clip = True
-        frame.save()
+        # frame.in_clip = True
+        # frame.save()
+        pass
 
     # cleanup
-    UNLINK(slow)
-    UNLINK(fast)
+    # UNLINK(slow_hi)
+    # UNLINK(fast_hi)
 
     for delete_me in to_delete:
         UNLINK(delete_me)
@@ -139,10 +170,13 @@ def UNLINK(path):
             raise e
 
 def SYSTEM(cmd):
-    (result, output) = commands.getstatusoutput(cmd + 'x')
+    print cmd
+    (result, output) = commands.getstatusoutput(cmd)
+    print output
 
     if 0 != result:
         msg = "Non-Zero (%s) status returned from %s:" % (result, cmd)
+        print msg
         raise ValueError(msg + "\n---- BEGIN ----\n%s\n---- END ----" % output)
 
 def MKDIR(dir):

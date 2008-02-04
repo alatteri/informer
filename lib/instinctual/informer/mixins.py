@@ -127,7 +127,7 @@ class GetClip(GetOrCreateObject):
         print "-" * 80
         print "Now making new clip!"
         print "-" * 80
-        kwargs['movie'] = 'pending'
+        kwargs['movie_hi'] = kwargs['movie_lo'] = 'pending'
         return self.model(event=event, **kwargs)
 
 class GetShot(GetOrCreateObject):

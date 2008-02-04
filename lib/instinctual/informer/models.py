@@ -107,12 +107,12 @@ class Shot(models.Model):
     def get_render_clip_hi(self):
         c = self._get_render_clip()
         # TODO: support hi/lo res and handle errors
-        return c and c.movie or 'pending.mov'
+        return c and c.movie_hi or 'pending.mov'
 
     def get_render_clip_lo(self):
         c = self._get_render_clip()
         # TODO: support hi/lo res and handle errors
-        return c and c.movie or 'pending.mov'
+        return c and c.movie_lo or 'pending.mov'
 
     # --------------------------------------------------------------------------
     class Meta:
@@ -236,7 +236,8 @@ class Clip(InformerMixIn, models.Model):
     modified_on = models.DateTimeField('date modified', auto_now=True)
 
     spark = models.CharField(maxlength=255)
-    movie = models.FileField(upload_to='clips/%Y/%m/%d')
+    movie_hi = models.FileField(upload_to='clips/%Y/%m/%d')
+    movie_lo = models.FileField(upload_to='clips/%Y/%m/%d')
 
     start = models.IntegerField()
     end = models.IntegerField()
@@ -245,10 +246,11 @@ class Clip(InformerMixIn, models.Model):
     rate = models.CharField(maxlength=32)
 
     class Admin:
-        list_display = ('id', 'shot', 'event', 'spark', 'movie',
+        list_display = ('id', 'shot', 'event', 'spark', 'movie_hi', 'movie_lo',
                         'start', 'end', 'rate', 'created_on')
     class Rest:
-        expose_fields = ['created_on', 'modified_on', 'movie', 'start', 'end', 'rate',
+        expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
+                         'start', 'end', 'rate',
                          'event__created_by', 'event__host', 'event__setup']
 
     def __str__(self):

@@ -102,7 +102,7 @@ class ProjectShotCollection(Collection):
 
             if 'image' in request.FILES:
                 content = request.FILES['image']['content']
-                filename = "%06d-%06d.png" % (int(c.id), int(new_model.number))
+                filename = "%06d-%06d.tiff" % (int(c.id), int(new_model.number))
                 new_model.save_image_file(filename, content, True)
 
         print "now going to save"
