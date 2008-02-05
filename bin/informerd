@@ -21,6 +21,7 @@ unset TMPDIR
 # Check that networking is up.
 [ ${NETWORKING} = "no" ] && exit 0
 
+echo "PARENT PID: ${PPID}"
 
 USER="$2"
 FLAME_PID="$3"
@@ -31,7 +32,7 @@ INFORMER_ROOT="/usr/discreet/sparks/instinctual/informer"
 
 UPLOADER_APP="${INFORMER_ROOT}/bin/uploader"
 UPLOADER_APP_FLAGS="-D"
-UPLOADER_APP_PID="${INFORMER_ROOT}/uploads/.uploader.pid"
+UPLOADER_APP_PID="${INFORMER_ROOT}/uploads/uploader.pid"
 
 start() {
     if [ ! -z "$FLAME_PID" ]; then

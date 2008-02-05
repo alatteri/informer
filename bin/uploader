@@ -27,6 +27,14 @@ from instinctual.informer.frame import Frame
 
 LOG = instinctual.getLogger('uploader')
 
+class LogInfo(object):
+    def write(self, msg):
+        return LOG.info(msg)
+
+class LogWarn(object):
+    def write(self, msg):
+        return LOG.warn(msg)
+
 conf = instinctual.getConf()
 uploadDir = conf.get('informer', 'dir_uploads')
 frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
@@ -45,10 +53,13 @@ if daemon == True:
     if os.fork():
         sys.exit(0)
 
+    sys.stdout = LogInfo()
+    sys.stderr = LogWarn()
+
 # ------------------------------------------------------------------------------
 # check for running process
 # ------------------------------------------------------------------------------
-pidfile = os.path.join(uploadDir, '.uploader.pid')
+pidfile = os.path.join(uploadDir, 'uploader.pid')
 
 try:
     fd = open(pidfile, 'r')
@@ -93,15 +104,12 @@ try:
         matches = glob(frameGlob)
         matches.sort()
 
-        print "_" * 80
         count = 0
         for framePath in matches:
             tries = 0
             count += 1
             LOG.debug("%s) Found -> %s" % (count, framePath))
             frame = Frame.load(framePath)
-
-            print "%s) Frame %s (%s)" % (count, framePath, frame.status)
 
             if frame.isBusy:
                 LOG.debug("Frame was busy...")
