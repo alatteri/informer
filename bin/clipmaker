@@ -29,6 +29,17 @@ from instinctual.informer.models import *
 
 LOG = instinctual.getLogger(__file__)
 
+class LogInfo(object):
+    def write(self, msg):
+        return LOG.info(msg)
+
+class LogWarn(object):
+    def write(self, msg):
+        return LOG.warn(msg)
+
+sys.stdout = LogInfo()
+sys.stderr = LogWarn()
+
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
 tmpdir  = root + '/tmp'
 pending = root + '/media/pending.tiff'
@@ -87,7 +98,6 @@ def makeclip(clip_id):
     workspace = tempfile.mkdtemp('', prefix, tmpdir)
     os.chdir(workspace)
 
-    to_delete = []
     pattern = workspace + '/' + '%06d.tiff'
     for number in range(clip.start, max + 1):
         if number in frames:
@@ -98,7 +108,6 @@ def makeclip(clip_id):
             source = pending
         dest = pattern % (number)
         os.symlink(source, dest)
-        to_delete.append(dest)
 
     # --------------------------------------------------
     # create the hi rez clip
@@ -135,29 +144,21 @@ def makeclip(clip_id):
     # --------------------------------------------------
     # copy the movies...
     UNLINK(clip.get_movie_hi_filename())
-
     f = open(fast_hi, 'rb')
     clip.save_movie_hi_file('%s_hi.mov' % clip.id, f.read(), True)
 
     UNLINK(clip.get_movie_lo_filename())
-
     f = open(fast_lo, 'rb')
     clip.save_movie_lo_file('%s_lo.mov' % clip.id, f.read(), True)
 
     # save it
     for frame in frames.values():
-        # frame.in_clip = True
-        # frame.save()
+        frame.in_clip = True
+        frame.save()
         pass
 
     # cleanup
-    # UNLINK(slow_hi)
-    # UNLINK(fast_hi)
-
-    for delete_me in to_delete:
-        UNLINK(delete_me)
-
-    os.rmdir(workspace)
+    UNLINK(workspace)
 
 # ------------------------------------------------------------------------------
 # utility functions
