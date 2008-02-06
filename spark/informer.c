@@ -135,9 +135,11 @@ InformerAppStruct    gApp;
  */
 static int RESULT_ID = 1;
 static int FRONT_ID  = 2;
+static int TEMP_ID;
 
 static SparkMemBufStruct SparkResult;
 static SparkMemBufStruct SparkSource;
+static SparkMemBufStruct SparkTemp;
 
 /*--------------------------------------------------------------------------*/
 /* Called before initialising the Spark. Sparks defining                    */
@@ -150,7 +152,8 @@ static SparkMemBufStruct SparkSource;
 void
 SparkMemoryTempBuffers(void)
 {
-    /* no temporary buffers */
+    /* one temp buffer for generating rgb[a] image */
+    TEMP_ID = sparkMemRegisterBuffer();
 }
 
 /*--------------------------------------------------------------------------*/
@@ -366,8 +369,8 @@ SparkProcess(SparkInfoStruct spark_info)
     int col;
     int rgb;
     int index;
-    unsigned char *ptr;
-    unsigned char buf[1049760];
+    unsigned char *ptr, *buf;
+    // unsigned char buf[1049760];
 
     FILE *fp;
     char *path;
@@ -375,6 +378,7 @@ SparkProcess(SparkInfoStruct spark_info)
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
+    if (sparkMemGetBuffer(TEMP_ID, &SparkTemp) == FALSE) return NULL;
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
     spark_name = InformerGetSparkName();
@@ -423,7 +427,9 @@ SparkProcess(SparkInfoStruct spark_info)
         RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
 
         ptr = (unsigned char *) SparkResult.Buffer;
+        buf = (unsigned char *) SparkTemp.Buffer;
 
+        InformerDEBUG("OK... going to use Flame's buf instead of my own...\n");
         // memory is [rgb], [rgb], [rgb]
         for (index = 0; index < spark_info.FramePixels; index++) {
             buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];

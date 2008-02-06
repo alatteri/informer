@@ -73,9 +73,9 @@ class Client(object):
         data['created_by'] = frame.createdBy
         data['created_on'] = frame.createdOn
 
-        data['resized_width'] = 100
-        data['resized_height'] = 100
-        data['resized_depth'] = 100
+        data['resized_width'] = frame.resizedWidth
+        data['resized_height'] = frame.resizedHeight
+        data['resized_depth'] = frame.resizedDepth
 
         image = open(frame.resizedPath).read()
         print "About to get the frames uuid..."

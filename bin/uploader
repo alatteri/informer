@@ -16,9 +16,11 @@ except ImportError, e:
 # ------------------------------------------------------------------------------
 
 import os
+import re
 import sys
 import time
 import errno
+import commands
 from glob import glob
 import instinctual
 from instinctual import settings
@@ -95,8 +97,9 @@ LOG.info("Uploader started with pid: %s" % os.getpid())
 # do the work
 # ------------------------------------------------------------------------------
 tries = 0
-maxHeight = 100
-maxWidth  = 200
+maxWidth  = 1024
+maxHeight = 768
+identifyRegExp = re.compile(r'\s+(\d+)x(\d+)\s+')
 
 try:
     run = True
@@ -119,26 +122,40 @@ try:
                 #frame.save()
 
                 frame.resizedPath = os.path.join(frame.container, 'frame.tiff')
-                cmd = 'convert %s -resize "1024x768>" -channel RGB -depth 8 -compress RLE %s'
-                cmd = cmd % (frame.rgbPath, frame.resizedPath)
+                cmd = 'convert %s -resize "%sx%s>" -channel RGB -depth 8 -compress RLE %s'
+                cmd = cmd % (frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
                 LOG.debug("CMD:" + cmd)
                 if 0 == os.system(cmd):
-                    try:
-                        LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
-                        client = Client()
-                        client.newFrame(frame)
-                        LOG.debug("done!")
-                        frame.delete()
-                        pass
-                    except ClientConnectionError, e:
-                        LOG.debug("Client error encountered -- ignoring frame")
-                        #frame.delete()
+                    cmd = 'identify %s' % (frame.resizedPath)
+                    (result, output) = commands.getstatusoutput(cmd)
+                    if 0 == result:
+                        match = identifyRegExp.search(output)
+                        if match != None:
+                            frame.resizedDepth = 8
+                            frame.resizedWidth = match.group(1)
+                            frame.resizedHeight = match.group(2)
+                            LOG.info("MATCHED (%s) X (%s)!" % (frame.resizedWidth, frame.resizedHeight))
+                            try:
+                                LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
+                                client = Client()
+                                client.newFrame(frame)
+                                LOG.debug("done!")
+                                frame.delete()
+                                pass
+                            except ClientConnectionError, e:
+                                LOG.debug("Client error encountered -- ignoring frame")
+                                #frame.delete()
+                        else:
+                            LOG.warn("DID NOT MATCH identify group!")
+                    else:
+                        LOG.warn("identify did not return 0!")
                 else:
                     LOG.warn("FAILURE running convert")
                     #frame.delete()
 
             time.sleep(0.1)
 
+        os.exit(0)
         if flamePid and len(matches) == 0:
             try:
                 os.stat('/proc/%s' % flamePid)
