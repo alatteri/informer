@@ -43,7 +43,7 @@
 									  <li class="status">{% if note.status %}Completed{% else %}Pending {% endif %}</li>
 									  <li class="close">Close</li>
                   </ul>
-                  <div class="content"><p></p></div>
+                  <div class="content"><p>{{ note.text|linebreaksbr }}</p></div>
                 </div>
 						  </li>
 					  {% endfor %}
