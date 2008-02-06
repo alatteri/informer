@@ -32,7 +32,22 @@
               <li class="status">Status</li>
               <li class="last">&nbsp;</li>
             </ul>
-            <ul class="entries" id="notes_entries"></ul>
+            <ul class="entries" id="notes_entries">
+						{% for note in note_list %}
+              <li>
+							  <div class="entry">
+                  <ul class="heading">
+								    <li class="date highlight">{{ note.created_on|date:"m/d/Y" }}</li>
+									  <li class="author">{{ note.created_by.username }}</li>
+									  <li class="assignedTo">{% firstof note.assigned_to.username "&nbsp;" %}</li>
+									  <li class="status">{% if note.status %}Completed{% else %}Pending {% endif %}</li>
+									  <li class="close">Close</li>
+                  </ul>
+                  <div class="content"><p></p></div>
+                </div>
+						  </li>
+					  {% endfor %}
+						</ul>
             <div class="bottom">&nbsp;</div>
           </div>
         </div>
@@ -60,11 +75,9 @@
         </div>
         <div class="clear">&nbsp;</div>
       </div>
-<!-- end NOTES -->
-    </div>
-<!-- end WRAP -->    
+{% endblock %}
 
-<script type="text/javascript">
+{% block script %}
   function setup()
   {
     Logs.url = '{{shot.get_json_logs_url}}';
@@ -107,7 +120,4 @@
 	}
 
   //Event.observe(window, 'load', setup);
-</script>
-<iframe src="about:blank" name="qtFrame" width="0" height="0" style="border: none; background-color: transparent;" id="qtFrame"></iframe>
-  </body>
-</html>
+{% endblock %}

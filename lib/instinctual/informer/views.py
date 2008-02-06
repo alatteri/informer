@@ -25,6 +25,17 @@ def shot_detail(request, project_name, shot_name):
     return render_to_response('informer/shot_detail_logs.html', c)
 shot_detail = login_required(shot_detail)
 
+def shot_notes(request, project_name, shot_name):
+    p = get_object_or_404(Project, name=project_name)
+    shot = get_object_or_404(Shot, project=p, name=shot_name)
+    users = User.objects.all()
+    notes = shot.note_set.order_by('-created_on')
+    c = {'project':p,
+         'shot':shot,
+         'users':users,
+		     'note_list':notes}
+    return render_to_response('informer/shot_detail_notes.html', c)
+
 def limited_object_list(*args, **kwargs):
     return object_list(*args, **kwargs)
 limited_object_list = login_required(limited_object_list)

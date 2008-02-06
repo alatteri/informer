@@ -233,6 +233,7 @@ pat_shot    = "(?P<shot_name>%s)" % pat_shot
 html_url_projects        = conf.get('informer', 'url_projects') % 'html'
 html_url_project_shots   = conf.get('informer', 'url_project_shots') % ('html', pat_project)
 html_url_project_shot    = conf.get('informer', 'url_project_shot') % ('html', pat_project, pat_shot)
+html_url_project_shot_notes = conf.get('informer', 'url_project_shot_notes') % ('html', pat_project, pat_shot)
 
 urlpatterns = patterns('',
     ('^' + xml_url_note + '$',              xml_note),
@@ -264,6 +265,7 @@ urlpatterns = patterns('',
     ('^' + html_url_projects + '$', 'instinctual.informer.views.limited_object_list', {'queryset':Project.objects.all()}),
     ('^' + html_url_project_shots + '$', 'instinctual.informer.views.project_detail'),
     ('^' + html_url_project_shot + '$', 'instinctual.informer.views.shot_detail'),
+    ('^' + html_url_project_shot_notes + '$',  'instinctual.informer.views.shot_notes'),
     ('^listdir/(?P<path>.*)$', FileCollection(type='json',permitted_methods = ['GET', 'POST'] )),
 
 

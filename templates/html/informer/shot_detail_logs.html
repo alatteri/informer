@@ -4,6 +4,7 @@
 {% block body_id %}overview{% endblock %}
 
 {% block content %}
+        <div class="box large">
           <h3>Recent Activity</h3>
           <ul class="heading" id="overview_heading">
             <li class="date highlight" onclick="Logs.set_sorter('date');">Date</li>
@@ -28,6 +29,7 @@
 							</span>
 					{% endfor %}
 					</ul>
+			  </div>
 {% endblock %}
 
 {%block script %}

@@ -38,8 +38,8 @@ var requiredRevision = 115;
           <li><a href="#" title="Log Out">Log Out</a></li>
         </ul>
         <ul id="nav">
-          <li><a href="" title="Overview" class="overview">Overview</a></li>
-          <li><a href="" title="Notes" class="notes">Notes</a></li>
+          <li><a href="{{ shot.get_absolute_url }}" title="Overview" class="overview">Overview</a></li>
+          <li><a href="{{ shot.get_absolute_url }}notes/" title="Notes" class="notes">Notes</a></li>
           <li><a href="" title="Elements" class="elements">Elements</a></li>
           <li><a href="" title="Renders" class="renders">Renders</a></li>                              
         </ul>
@@ -91,9 +91,7 @@ var requiredRevision = 115;
           <h2>Overview</h2>
           <p><strong>Last Updated:</strong> Today at 4:30pm</p>        
         </div>      
-        <div class="box large">
 {% block content %}{% endblock %}
-        </div>
       </div>
     </div>
 <!-- end WRAP -->    
