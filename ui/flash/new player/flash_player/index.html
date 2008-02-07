@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Player</title>
+<script language="javascript" type="text/javascript" src="scripts.js"></script>
+</head>
+<body>
+
+<BODY BGCOLOR="#44474A">
+<script src="AC_OETags.js" language="javascript"></script>
+<script language="JavaScript" type="text/javascript">
+<!--
+// -----------------------------------------------------------------------------
+// Globals
+// Major version of Flash required
+var requiredMajorVersion = 9;
+// Minor version of Flash required
+var requiredMinorVersion = 0;
+// Minor version of Flash required
+var requiredRevision = 115;
+// -----------------------------------------------------------------------------
+// -->
+</script>
+<script language="JavaScript" type="text/javascript">
+<!--
+	// Version check based upon the values entered above in "Globals"
+	var hasReqestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
+	if (!hasReqestedVersion) {
+		var alternateContent = 'This site requires the latest version of the Adobe Flash Player. '
+		+ '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
+		document.write(alternateContent);  // insert non-flash content
+	} else {
+		renderFlash("player.swf?video=COUNTER_NTSC_60.mov&videoAutoPlay=true&downloadURL=COUNTER_NTSC_60.mov&viewLargerURL=qtFrame.htm&unique=5165654651321", 541, 382, 'wmode="transparent"');
+	}
+-->
+</script>
+<br /><br />
+<iframe src="about:blank" name="qtFrame" width="0" height="0" style="border: none; background-color: transparent;" id="qtFrame"></iframe>
+</body>
+</html>
