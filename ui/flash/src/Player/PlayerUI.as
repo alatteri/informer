@@ -18,6 +18,7 @@ package Player
     import flash.net.URLRequest;
     import flash.net.FileReference;
     import flash.display.Bitmap;
+    import flash.net.URLRequestMethod;
 
     public class PlayerUI extends Sprite
     {
@@ -73,13 +74,20 @@ package Player
             scrubber.addEventListener(Scrubber.PROGRESS_CHANGE, onProgressChange);
         }
         
+        // fscking ugly fix
+        // The Garbage Collector collects this instance before the user returns.
+        // So the instance that actually downloads once the user has clicked ok
+        // is now null. So you place in class scope so it remains alive and the GC
+        // doesnt pick it up. Must remember this problem for future refrence.
+        protected var file:FileReference = new FileReference();
+        
         public function onDownloadClick(e:MouseEvent):void
         {
             var downloadURL:URLRequest = new URLRequest();
             downloadURL.url = PlayerForAlan.DownloadLink;
-            var file:FileReference = new FileReference();
+            downloadURL.method = URLRequestMethod.POST;
 
-            file.download(downloadURL, PlayerForAlan.DownloadLink);
+            file.download(downloadURL);
         }
         
         public function onExpandClick(e:MouseEvent):void

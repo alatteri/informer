@@ -30,8 +30,8 @@ ffmpeg (Notes: x264 must be built and installed first)
 --------------------------------------------------------------------------------
 qt-faststart optional post-processing for quicktime streaming
 --------------------------------------------------------------------------------
-% make tools/qt-faststart
-% cp tools/qt-faststart ../../bin
+% make qt-faststart
+% cp qt-faststart ../../bin
 
 -------------------------------------------------------------------------------
 Jasper (do this before ImageMagick)
