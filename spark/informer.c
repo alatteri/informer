@@ -135,11 +135,13 @@ InformerAppStruct    gApp;
  */
 static int RESULT_ID = 1;
 static int FRONT_ID  = 2;
-static int TEMP_ID;
+static int STAGE_ID;
+static int RESIZE_ID;
 
 static SparkMemBufStruct SparkResult;
 static SparkMemBufStruct SparkSource;
-static SparkMemBufStruct SparkTemp;
+static SparkMemBufStruct SparkStage;
+static SparkMemBufStruct SparkResize;
 
 /*--------------------------------------------------------------------------*/
 /* Called before initialising the Spark. Sparks defining                    */
@@ -153,7 +155,8 @@ void
 SparkMemoryTempBuffers(void)
 {
     /* one temp buffer for generating rgb[a] image */
-    TEMP_ID = sparkMemRegisterBuffer();
+    STAGE_ID = sparkMemRegisterBuffer();
+    RESIZE_ID = sparkMemRegisterBuffer();
 }
 
 /*--------------------------------------------------------------------------*/
@@ -365,20 +368,13 @@ SparkAnalyse(SparkInfoStruct spark_info)
 unsigned long *
 SparkProcess(SparkInfoStruct spark_info)
 {
-    int row;
-    int col;
-    int rgb;
-    int index;
-    unsigned char *ptr, *buf;
-    // unsigned char buf[1049760];
-
-    FILE *fp;
     char *path;
     const char *spark_name;
 
     if (sparkMemGetBuffer(FRONT_ID,  &SparkSource) == FALSE) return NULL;
     if (sparkMemGetBuffer(RESULT_ID, &SparkResult) == FALSE) return NULL;
-    if (sparkMemGetBuffer(TEMP_ID, &SparkTemp) == FALSE) return NULL;
+    if (sparkMemGetBuffer(STAGE_ID, &SparkStage) == FALSE) return NULL;
+    if (sparkMemGetBuffer(RESIZE_ID, &SparkResize) == FALSE) return NULL;
 
     sparkCopyBuffer(SparkSource.Buffer, SparkResult.Buffer);
     spark_name = InformerGetSparkName();
@@ -418,27 +414,7 @@ SparkProcess(SparkInfoStruct spark_info)
     if (NULL == path) {
         InformerDEBUG("------> GatewayProcess said not to save this\n");
     } else {
-        if ((fp=fopen(path, "w")) == NULL) {
-            InformerERROR("can't write datafile [%s]", path);
-            return FALSE;
-        }
-
-        // rgb files are: header, red, green, blue
-        RgbWriteHeader(fp, SparkResult.BufWidth, SparkResult.BufHeight, 3);
-
-        ptr = (unsigned char *) SparkResult.Buffer;
-        buf = (unsigned char *) SparkTemp.Buffer;
-
-        InformerDEBUG("OK... going to use Flame's buf instead of my own...\n");
-        // memory is [rgb], [rgb], [rgb]
-        for (index = 0; index < spark_info.FramePixels; index++) {
-            buf[index + 0*spark_info.FramePixels] = ptr[3*index + 0];
-            buf[index + 1*spark_info.FramePixels] = ptr[3*index + 1];
-            buf[index + 2*spark_info.FramePixels] = ptr[3*index + 2];
-        }
-
-        fwrite(buf, sizeof(unsigned char), SparkResult.BufSize, fp);
-        fclose(fp);
+        RgbWriteSparkFrame(path, SparkResult, SparkStage, SparkResize, spark_info);
 
         // printf("The size of a ptr is p[%d]\n", sizeof(ulong));
         // printf("The number of pixels in a frame: %d\n", spark_info.FramePixels);

@@ -306,7 +306,7 @@ GatewayGetElems(const char *setup, InformerElemData *data)
 char *
 GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info)
 {
-    int depth;
+    int depth = 0;
     char *str = NULL;
     PyObject *app, *pResult = NULL;
 
@@ -324,38 +324,43 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
 
     if (SPARKBUF_RGB_24_3x8 == spark_info.FrameDepth) {
         depth = 8;
+    } else if (SPARKBUF_RGB_48_3x12 == spark_info.FrameDepth) {
+        depth = 12;
     } else {
-        printf("++++++++++ SOME OTHER DEPTH: %d ++++++++++\n", spark_info.FrameDepth);
-        depth = spark_info.FrameDepth;
+        InformerERROR("Unsupported frame depth (%d)\n", spark_info.FrameDepth);
+        return NULL;
     }
 
-    printf("OK. the spark was not null -- now calling processFrame\n");
-    printf("* spark_name: %s\n", spark_name);
-    printf("* spark_info.FrameWidth: %d\n", spark_info.FrameWidth);
-    printf("* spark_info.FrameHeight: %d\n", spark_info.FrameHeight);
-    printf("* depth: %d\n", depth);
-    printf("* 1: 1\n");
-    printf("* spark_info.FrameNo + 1: %d\n", spark_info.FrameNo + 1);
-    printf("* spark_info.TotalFrameNo: %d\n", spark_info.TotalFrameNo);
+    if (depth) {
+        printf("OK. the spark was not null -- now calling processFrame\n");
+        printf("* spark_name: %s\n", spark_name);
+        printf("* spark_info.FrameWidth: %d\n", spark_info.FrameWidth);
+        printf("* spark_info.FrameHeight: %d\n", spark_info.FrameHeight);
+        printf("* depth: %d\n", depth);
+        printf("* 1: 1\n");
+        printf("* spark_info.FrameNo + 1: %d\n", spark_info.FrameNo + 1);
+        printf("* spark_info.TotalFrameNo: %d\n", spark_info.TotalFrameNo);
 
-    pResult = PyObject_CallMethod(app, "frameProcessStart", "siiiiii",
-                                  spark_name,
-                                  spark_info.FrameWidth,
-                                  spark_info.FrameHeight,
-                                  depth,
-                                  1,
-                                  spark_info.FrameNo + 1,
-                                  spark_info.TotalFrameNo);
-    if (pResult == Py_None) {
-        printf("NULL! frameProcessStart said to ignore the frame...\n");
-        str = NULL;
-    } else {
-        printf("pResult was not None\n");
-        str = PyString_AsString(pResult);
-        printf("Done. returning %s\n", str);
+        pResult = PyObject_CallMethod(app, "frameProcessStart", "siiiiii",
+                                      spark_name,
+                                      spark_info.FrameWidth,
+                                      spark_info.FrameHeight,
+                                      depth,
+                                      1,
+                                      spark_info.FrameNo + 1,
+                                      spark_info.TotalFrameNo);
+        if (pResult == Py_None) {
+            printf("NULL! frameProcessStart said to ignore the frame...\n");
+            str = NULL;
+        } else {
+            printf("pResult was not None\n");
+            str = PyString_AsString(pResult);
+            printf("Done. returning %s\n", str);
+        }
+
+        Py_XDECREF(pResult);
     }
 
-    Py_XDECREF(pResult);
     PythonEndCall();
 
     printf("--- exiting process frame start for %s ---\n", spark_name);
