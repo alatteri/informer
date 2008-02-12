@@ -1,0 +1,65 @@
+1) checkout the source
+svn checkout http://svn.instinctualsoftware.com/informer/trunk --username=yourname
+
+2) cd to the source
+cd trunk
+
+3) edit conf/instinctual.conf line 3 (set to your hostname/IP address):
+server: 127.0.0.1
+
+4) edit lib/instinctual/settings.py line 24:
+DATABASE_ENGINE = 'sqlite3'
+
+5) run the dev server
+./bin/runserver
+
+6) it will prompt you with a series of questions...
+
+You just installed Django's auth system, which means you don't have any superusers defined.
+Would you like to create one now? (yes/no):
+---> ENTER yes
+
+Username (Leave blank to use 'yourname'): 
+---> ENTER informer
+
+E-mail address: 
+---> ENTER (anything you want)
+
+Password: 
+---> ENTER informer
+
+Password (again): 
+---> ENTER informer
+
+7) The server should now be running... make sure you the following with your IP from step 3:
+
+Django version 0.96, using settings 'instinctual.settings'
+Development server is running at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+8) Set up a fake project
+
+http://127.0.0.1:8000/admin/informer/project/add/
+
+Name: nike
+Description: fake project
+
+(click save)
+
+9) Set up a fake shot
+
+http://127.0.0.1:8000/admin/informer/shot/add/
+
+Project: nike: fake project
+Shot: sweatshop
+Description: children making shoes
+Status: in progress
+Handles: 0
+Frames: 200
+
+10) Browse to the projects page
+
+http://127.0.0.1:8000/informer/1.0/html/projects/
+
+11) select nike
+12) select sweatshop
