@@ -1,19 +1,25 @@
 1) checkout the source
 svn checkout http://svn.instinctualsoftware.com/informer/trunk --username=yourname
 
-2) cd to the source
+2) cd to the source and take note of your current directory...
 cd trunk
+pwd
 
-3) edit conf/instinctual.conf line 3 (set to your hostname/IP address):
+3) edit conf/logging.conf line 24 to include the full path to your logs directory:
+args: ['/PATH/FROM/PWD/ABOVE/logs/informer.log']
+
+(replace '/PATH/FROM/PWD/ABOVE' with the output from pwd in step 2)
+
+4) edit conf/instinctual.conf line 3 (set to your hostname/IP address):
 server: 127.0.0.1
 
-4) edit lib/instinctual/settings.py line 24:
+5) edit lib/instinctual/settings.py line 24:
 DATABASE_ENGINE = 'sqlite3'
 
-5) run the dev server
+6) run the dev server
 ./bin/runserver
 
-6) it will prompt you with a series of questions...
+7) it will prompt you with a series of questions...
 
 You just installed Django's auth system, which means you don't have any superusers defined.
 Would you like to create one now? (yes/no):
@@ -31,13 +37,13 @@ Password:
 Password (again): 
 ---> ENTER informer
 
-7) The server should now be running... make sure you the following with your IP from step 3:
+8) The server should now be running... make sure you the following with your IP from step 3:
 
 Django version 0.96, using settings 'instinctual.settings'
 Development server is running at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 
-8) Set up a fake project
+9) Set up a fake project
 
 http://127.0.0.1:8000/admin/informer/project/add/
 
@@ -46,7 +52,7 @@ Description: fake project
 
 (click save)
 
-9) Set up a fake shot
+10) Set up a fake shot
 
 http://127.0.0.1:8000/admin/informer/shot/add/
 
@@ -57,9 +63,9 @@ Status: in progress
 Handles: 0
 Frames: 200
 
-10) Browse to the projects page
+11) Browse to the projects page
 
 http://127.0.0.1:8000/informer/1.0/html/projects/
 
-11) select nike
-12) select sweatshop
+12) select nike
+13) select sweatshop
