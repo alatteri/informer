@@ -40,12 +40,12 @@ html, body {
 #header a {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: #444 2px 2px 2px;
+	text-shadow: #444 1px 1px 1px;
 	text-decoration: none;	
 	}
 #header a:hover {
 	color: #ccc;
-	text-shadow: #666 2px 2px 2px;	
+	text-shadow: #666 1px 1px 1px;	
 	}
 #header #breadcrumb {
 	position: absolute;
@@ -62,7 +62,7 @@ html, body {
 	margin: 0 10px 0 0;
 	color: #fff;
 	font-weight: bold;
-	text-shadow: #444 2px 2px 2px;
+	text-shadow: #444 1px 1px 1px;
 	}
 #header #breadcrumb li h1 #logo {
 	display: block;
@@ -166,7 +166,7 @@ html, body {
 	position: relative;
 	margin: 0 10px 5px 10px;
 	color: #fff;
-	text-shadow: #444 2px 2px 2px;	
+	text-shadow: #444 1px 1px 1px;	
 	}
 #content div.header h2 {
 	color: #fff;
@@ -196,7 +196,7 @@ html, body {
 	padding: 0 0 0 12px;	
 	font-weight: bold;
 	font-size: 12px;
-	text-shadow: #d3d3d3 2px 2px 2px;	
+	text-shadow: #d3d3d3 1px 1px 1px;	
 	}
 
  	
@@ -218,7 +218,7 @@ div.box.small h3 {
 	color: #000;
 	font-weight: bold;
 	font-size: 12px;
-	text-shadow: #d3d3d3 2px 2px 2px;
+	text-shadow: #d3d3d3 1px 1px 1px;
 	}
 div.box.small h4 {
 	margin: 0 0 0 20px;
@@ -310,7 +310,7 @@ div.box.small ul li.path strong {
 	padding: 0 5px 0 8px;
 	background: url(../images/image-box-heading-divider.gif) no-repeat left top;
 	font-weight: bold;
-	text-shadow: #bbb 2px 2px 2px;	
+	text-shadow: #bbb 1px 1px 1px;	
 	}
 #content div.box.medium ul.heading li.highlight {
 	background: url(../images/background-box-heading-highlight.gif) no-repeat left top;
@@ -405,7 +405,7 @@ div.box.small ul li.path strong {
 	padding: 0 0 0 8px;
 	background: url(../images/background-box-large-heading.gif) no-repeat right top;
 	font-weight: bold;
-	text-shadow: #bbb 2px 2px 2px;	
+	text-shadow: #bbb 1px 1px 1px;	
 	}
 #content div.box.large ul.heading li.activity {
 	background: none;
