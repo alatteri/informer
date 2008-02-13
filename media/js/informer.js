@@ -247,11 +247,12 @@
       data_copy.each(function (item) {
         if (this.row_2)
         {
-          this.handle_two_rows(item);
+          //this.handle_two_rows(item);
+		alert('double');
         }
         else
         {
-          this.handle_single_row(item);
+		this.handle_single_row(item);
         }
       }.bind(this));
     },
@@ -468,7 +469,7 @@ function format_nl2br(txt)
 function create_log(info)
 {
   var span = document.createElement('span');
-  span.className = 'activity';
+  span.className = 'activity'; //TODO action+type
   var obj = get_value('fields.object_repr', info);
   var prefix = get_value('fields.msg_prefix', info);
   var suffix = get_value('fields.msg_suffix', info);
@@ -550,7 +551,9 @@ function set_sorter(th, which, data_obj)
        field:'fields.who.username',
        sorter: sort_by_string},
       {name: 'activity',
-       create_func: create_log}
+       field: 'fields.msg_prefix',
+       create_func: create_log,
+       sorter: sort_by_string}
     ],
     null, //row_2
     [ // filter_list
