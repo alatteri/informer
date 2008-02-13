@@ -12,7 +12,7 @@ class Handler(object):
     user = None
 
     def setUser(self, user):
-        print "((((((((((( setting user to %s ))))))))))))" % (user)
+        # print "((((((((((( setting user to %s ))))))))))))" % (user)
         self.user = user
 
     def handle_class_prepared(self, signal, sender, instance, *args, **kwargs):
