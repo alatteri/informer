@@ -241,8 +241,11 @@
         }
       }
       
-      if (this._reversed)
+      if (this._reversed) 
+      {
         data_copy.reverse();
+        this._reversed = !this._reversed;
+      }
       
       data_copy.each(function (item) {
         if (this.row_2)
@@ -435,8 +438,10 @@ function create_li(text, func)
 }
 
 function format_date(d)
-{
-  return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
+{	
+  month = (d.getMonth()+1) < 10?'0'+(d.getMonth()+1):(d.getMonth()+1);
+  day = d.getDate() < 10?'0'+d.getDate():d.getDate();
+  return month+'/'+day+'/'+d.getFullYear();
 }
 
 function format_pending(p)
