@@ -247,8 +247,7 @@
       data_copy.each(function (item) {
         if (this.row_2)
         {
-          //this.handle_two_rows(item);
-		alert('double');
+        this.handle_two_rows(item);
         }
         else
         {

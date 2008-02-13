@@ -9,12 +9,12 @@
           <ul class="heading" id="overview_heading">
             <li class="date highlight" onclick="Logs.set_sorter('date');">Date</li>
             <li class="author" onclick="Logs.set_sorter('author');">Author</li>
-            <li class="activity">Activity</li>
+            <li class="activity" onclick="Logs.set_sorter('activity');">Activity</li>
           </ul>
     
           <ul class="entries" id="overview_entries">
 					{% for log in log_list %}
-            <li>
+            		<li>
 							<span class="date highlight">{{ log.when|date:"m/j/Y" }}</span>
 							<span class="author">{{ log.who.username }}</span>
 							<span class="activity">{% spaceless %}
@@ -27,6 +27,7 @@
 							{% if log.msg_suffix %}{{ log.msg_suffix }}{% endif %}
 							{% endspaceless %}</span>
 							</span>
+						</li>
 					{% endfor %}
 					</ul>
 			  </div>
