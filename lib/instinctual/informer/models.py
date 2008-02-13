@@ -44,10 +44,24 @@ class Shot(models.Model):
     handles     = models.CharField(maxlength=32, null=True, blank=True)
     frames      = models.IntegerField(default=0)
 
+    # --------------------
     def get_absolute_url(self):
         project = self.project.name
         return informer.getProjectShotUrl(project, self.name, format='html')
 
+    def get_absolute_notes_url(self):
+        project = self.project.name
+        return informer.getProjectShotNotesUrl(project, self.name, format='html')
+
+    def get_absolute_elements_url(self):
+        project = self.project.name
+        return informer.getProjectShotElementsUrl(project, self.name, format='html')
+
+    def get_absolute_renders_url(self):
+        project = self.project.name
+        return informer.getProjectShotClipsUrl(project, self.name, format='html')
+
+    # --------------------
     def get_json_logs_url(self):
         project = self.project.name
         return informer.getProjectShotLogsUrl(project, self.name, format='json')

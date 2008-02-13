@@ -39,9 +39,9 @@ var requiredRevision = 115;
         </ul>
         <ul id="nav">
           <li><a href="{{ shot.get_absolute_url }}" title="Overview" class="overview">Overview</a></li>
-          <li><a href="{{ shot.get_absolute_url }}notes/" title="Notes" class="notes">Notes</a></li>
-          <li><a href="" title="Elements" class="elements">Elements</a></li>
-          <li><a href="" title="Renders" class="renders">Renders</a></li>                              
+          <li><a href="{{ shot.get_absolute_notes_url }}" title="Notes" class="notes">Notes</a></li>
+          <li><a href="{{ shot.get_absolute_elements_url }}" title="Elements" class="elements">Elements</a></li>
+          <li><a href="{{ shot.get_absolute_renders_url }}" title="Renders" class="renders">Renders</a></li>
         </ul>
       </div>
 <!-- end HEADER -->
@@ -58,7 +58,7 @@ var requiredRevision = 115;
     document.write(alternateContent);  // insert non-flash content
   } else {
     now = new Date().getTime();
-    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_clip_lo }}&videoAutoPlay=true&downloadURL=/site_media/{{ shot.get_render_clip_hi }}&viewLargerURL=qtFrame.htm&unique=" + now, 541, 382, 'wmode="transparent"');
+    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_clip_lo }}&videoAutoPlay=false&downloadURL=/site_media/{{ shot.get_render_clip_hi }}&viewLargerURL=qtFrame.htm&unique=" + now, 541, 382, 'wmode="transparent"');
   }
 
 </script>
