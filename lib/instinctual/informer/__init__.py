@@ -1,3 +1,4 @@
+import os
 import re
 import instinctual
 
@@ -101,12 +102,26 @@ def getProjectShotClipsUrl(project, shot, format):
     shot: 0001
     # sometimes sh0001 or sc0001
 """
-_reSetup = re.compile(r'/project/([^/]+)/batch/(\w+)')
+_reProject = re.compile('/project/([^/]+)/')
 def parseSetup(setup):
-    match = _reSetup.search(setup)
+    parsed = {}
+    match = _reProject.search(setup)
     if match != None:
-        parsed = {'project': match.group(1), 'shot': match.group(2)}
-        LOG.info("parsed ---> %s" % (parsed))
-        return parsed
+        parsed['project'] = match.group(1)
     else:
-        raise ValueError("Unable to parse setup: %s" % (setup))
+        raise ValueError("Unable to parse setup (unknown project): %s" % (setup))
+
+    # start with the batch file name
+    shot = os.path.basename(setup)
+
+    # remove the trailing .batch if present
+    shot = re.sub('\.batch\.?$', '', shot)
+
+    # remove trailing -001 etc (for Alan)
+    shot = re.sub('-\w+$', '', shot)
+
+    # remove trailing v3, b2 etc
+    shot = re.sub('(?i)_?(v|b)\d\w*$', '', shot)
+
+    parsed['shot'] = shot
+    return parsed
