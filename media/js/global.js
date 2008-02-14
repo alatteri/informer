@@ -50,6 +50,27 @@ function styleSelects() {
      }
 }
 
+/* Highlights given table heading (assumes given heading is a <li>)*/
+
+function highlightHeading(li) {
+	if(li.className.search('down') != -1) {
+		li.className = (li.className + "").replace("down","up");
+		return;
+	} else if(li.className.search('up') != -1) {
+		li.className = (li.className + "").replace("up","down");
+		return;
+	}	
+	
+	list_items = li.parentNode.getElementsByTagName('li');
+	
+	for(var i=0; i<list_items.length; i++) {
+		if(list_items[i].className.split(' ')[1]);
+			list_items[i].className = list_items[i].className.split(' ')[0];
+	}
+	
+	li.className += " highlight down";
+}
+
 
 /* Helper Functions
  * ------------------------------------------------------ */

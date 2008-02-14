@@ -27,7 +27,7 @@ html, body {
 	}	
 #dashboard {
 	height: 380px;
-	padding: 10px 15px;
+	padding: 10px 15px 10px 12px;
 	background: #44474a url(../images/background-dashboard.gif) repeat-x left top;
 	}	
 #content {
@@ -157,6 +157,7 @@ html, body {
 
 #dashboard #video {
 	float: left;
+	width: 544px;
 	}
 
 /* Content > General
@@ -308,12 +309,12 @@ div.box.small ul li.path strong {
 	display: block;
 	float: left;
 	padding: 0 5px 0 8px;
-	background: url(../images/image-box-heading-divider.gif) no-repeat left top;
+	background: url(../images/background-table-heading.gif) no-repeat right top;
 	font-weight: bold;
 	text-shadow: #bbb 1px 1px 1px;	
 	}
 #content div.box.medium ul.heading li.highlight {
-	background: url(../images/background-box-heading-highlight.gif) no-repeat left top;
+	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}	
 #content div.box.medium ul.heading li.date,
 #content div.box.medium ul.heading li.author,
@@ -403,7 +404,7 @@ div.box.small ul li.path strong {
 	display: block;
 	float: left;
 	padding: 0 0 0 8px;
-	background: url(../images/background-box-large-heading.gif) no-repeat right top;
+	background: url(../images/background-table-heading.gif) no-repeat right top;
 	font-weight: bold;
 	text-shadow: #bbb 1px 1px 1px;	
 	}
@@ -424,9 +425,12 @@ div.box.small ul li.path strong {
 	width: 590px;
 	padding: 0 0 0 8px;
 	}		
-#content div.box.large ul.heading li.highlight {
-	background: url(../images/background-box-large-heading-highlight.gif) no-repeat right top;
+#content div.box.large ul.heading li.highlight.down {
+	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}
+#content div.box.large ul.heading li.highlight.up {
+	background: url(../images/background-table-heading-highlight-up.gif) no-repeat right top;
+	}	
 #content div.box.large ul.entries li {
 	clear: both;
 	position: relative;
@@ -575,4 +579,4 @@ div.left form #form-element-checkIn-file {
 #content div.left div.box.medium form ul.selectOpen li.selected:hover {
 	background: #333;
 	color: #fff;
-	}	
+	}

@@ -145,11 +145,11 @@
     
     set_sorter: function(which)
     {
-      if (this._sorter == which)
+      if (this._sorter == which) // if passed sorter is currently selected sorter then reverse order of elements
       {
         this._reversed = !this._reversed;
       }
-      else
+      else // else set current sorter
       {
         this._sorter = which;
         this._reversed = false;
@@ -240,7 +240,7 @@
          data_copy.sortBy(function (x) { get_value(sorter.field, x); });
         }
       }
-      
+		
       if (this._reversed) 
       {
         data_copy.reverse();
