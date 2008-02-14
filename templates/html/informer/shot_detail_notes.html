@@ -57,19 +57,19 @@
             <ul>
               <li class="highlight"><a href="#" title="#">Show All</a></li>
               <li><a href="#" title="#">Pending (1)</a></li>
-              <li class="last"><a href="#" title="#">Completed (3)</a></li>                            
+              <li class="last"><a href="#" title="#">Completed (3)</a></li>
             </ul>
           </div>
           <div class="box small">
             <h3>Author</h3>
             <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>                                                    
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
             </ul>
           </div>
           <div class="box small">
             <h3>Assigned to</h3>
             <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>                                        
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
             </ul>
           </div>
         </div>
@@ -78,46 +78,55 @@
 {% endblock %}
 
 {% block script %}
-  function setup()
-  {
-    Logs.url = '{{shot.get_json_logs_url}}';
-    Notes.url = '{{shot.get_json_notes_url}}';
-    Logs.populate_table();
-  }
 
-  var divs = [$('notes_div'), $('overview_div')];
-  function show(which)
-  {
-    for (var i=0; i<divs.length; i++)
-    {
+/* Notes functions
+ * ------------------------------------------------------ */
+
+/* called when page first loaded, initialize data */
+function setup() {
+    Notes.url = '{{shot.get_json_notes_url}}';
+}
+
+/* called when user clicks on the 'Add Note' button */
+function add_note() {
+    // make sure the user entered something
+    if (!$F('form-note-create-message')) {
+        alert('Please enter a note first');
+        return;
+    }
+
+    // fire off the request to the server to create the note
+    new Ajax.Request(Notes.url, {
+        parameters: $('form-note-create').serialize(),
+        evalJSON:   true,
+        onSuccess:  add_note_callback,
+    });
+}
+
+/* Ajax callback triggered after a user clicks the 'Add Note' button */
+function add_note_callback(r) {
+    $('form-note-create').reset();
+    Notes.add_data(r.responseJSON[0]);
+}
+
+////////////////////////////////////////////////////////////////////////////
+/* bryan shit below ... not sure if it's needed yet */
+var divs = [$('notes_div'), $('overview_div')];
+function show(which) {
+    for (var i=0; i<divs.length; i++) {
       divs[i].style.display = divs[i].id == which+'_div' ? 'block' : 'none';
     }
     document.body.id = which;
-  }
+}
 
-	function add_note()
-	{
-	  if (!$F('form-note-create-message'))
-		{
-		  alert('Please enter a note first');
-			return;
-		}
-		new Ajax.Request(Notes.url, {
-		  parameters: $('form-note-create').serialize(),
-			evalJSON: true,
-			onSuccess: function(r){
-        Notes.add_data(r.responseJSON[0]);
-        $('form-note-create').reset();
-			}});
-	}
-
-  function new_note(r)
-	{
+function new_note(r) {
     var n = eval(r.responseText)[0];
-		Notes.data.push(n);
-		Notes.populate_table();
-		$('form-note-create').reset();
-	}
+    Notes.data.push(n);
+    Notes.populate_table();
+    $('form-note-create').reset();
+}
+////////////////////////////////////////////////////////////////////////////
 
-  //Event.observe(window, 'load', setup);
+// onload trigger
+Event.observe(window, 'load', setup);
 {% endblock %}
