@@ -15,7 +15,7 @@ function addIEOverviewHoverStyles() {
 		return;
 
 	var lists = document.getElementsByTagName('ul');
-	var list_items;
+	var list_items = new Array();
 	
 	// Find entry list elements
 	for(var i=0; i<lists.length; i++) {
