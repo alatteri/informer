@@ -155,7 +155,6 @@ try:
 
             time.sleep(0.1)
 
-        os.exit(0)
         if flamePid and len(matches) == 0:
             try:
                 os.stat('/proc/%s' % flamePid)

@@ -28,7 +28,7 @@ class Client(object):
         parsed = informer.parseSetup(event.setup)
         project = parsed['project']
         shot = parsed['shot']
-        eventsUrl = instinctual.informer.getProjectShotEventsUrl(project, shot)
+        eventsUrl = informer.getProjectShotEventsUrl(project, shot, 'xml')
 
         data = {}
         data['now'] = datetime.now()
@@ -53,7 +53,7 @@ class Client(object):
         parsed = informer.parseSetup(frame.setup)
         project = parsed['project']
         shot = parsed['shot']
-        framesUrl = instinctual.informer.getProjectShotFramesUrl(project, shot)
+        framesUrl = informer.getProjectShotFramesUrl(project, shot, 'xml')
         print "Time to upload", frame.rgbPath, "to", framesUrl
 
         data = {}
@@ -88,7 +88,7 @@ class Client(object):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
         shot = parsed['shot']
-        url = informer.getProjectShotElementsUrl(project, shot)
+        url = informer.getProjectShotElementsUrl(project, shot, 'xml')
 
         data = self.GET(url)
         deserializer = Deserializer(data)
@@ -102,7 +102,7 @@ class Client(object):
         id = updates['id']
         del updates['id']
 
-        url = informer.getProjectShotElementUrl(project, shot, id)
+        url = informer.getProjectShotElementUrl(project, shot, id, 'xml')
         result = self.PUT(url, updates)
 
         deserializer = Deserializer(result)
@@ -113,7 +113,7 @@ class Client(object):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
         shot = parsed['shot']
-        url = informer.getProjectShotNoteUrl(project, shot, id)
+        url = informer.getProjectShotNoteUrl(project, shot, id, 'xml')
 
         data = self.GET(url)
         deserializer = Deserializer(data)
@@ -124,7 +124,7 @@ class Client(object):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
         shot = parsed['shot']
-        url = informer.getProjectShotNotesUrl(project, shot)
+        url = informer.getProjectShotNotesUrl(project, shot, 'xml')
 
         data = self.GET(url)
         deserializer = Deserializer(data)
@@ -138,7 +138,7 @@ class Client(object):
         id = updates['id']
         del updates['id']
 
-        url = informer.getProjectShotNoteUrl(project, shot, id)
+        url = informer.getProjectShotNoteUrl(project, shot, id, 'xml')
         result = self.PUT(url, updates)
 
         deserializer = Deserializer(result)
@@ -152,7 +152,7 @@ class Client(object):
         parsed = informer.parseSetup(setup)
         project = parsed['project']
         shot = parsed['shot']
-        url = informer.getProjectShotNotesUrl(project, shot)
+        url = informer.getProjectShotNotesUrl(project, shot, 'xml')
         self.POST(url, data)
 
     def _getObjects(self, deserializer):

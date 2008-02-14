@@ -28,7 +28,7 @@ def getServerRoot():
     else:
         return "%s://%s" % (proto, server)
 
-def _getUrlComponent(component, format='xml'):
+def _getUrlComponent(component, format):
     conf = instinctual.getConf()
     root = getServerRoot()
     component = conf.get('informer', component)
