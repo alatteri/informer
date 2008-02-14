@@ -4,17 +4,15 @@ import instinctual
 from instinctual import informer
 from instinctual.settings import media_path
 from instinctual.informer.models import Project
+from instinctual.informer import relativeUrl as rel
 
 conf = instinctual.getConf()
 root = informer.getServerRoot()
 
-def rel(url):
-    if url.startswith(root + '/'):
-        url = url[len(root)+1:]
-    return url
-
 pat_project = "(?P<project_name>[^/]+)"
 pat_shot    = "(?P<shot_name>[^/]+)"
+
+url_api = informer.getApiFragment()
 
 url_projects              = rel(informer.getProjectsUrl(format='html'))
 url_project_shots         = rel(informer.getProjectShotsUrl(pat_project, format='html'))
@@ -28,7 +26,7 @@ url_project_shot_renders  = rel(informer.getProjectShotClipsUrl(pat_project, pat
 #
 urlpatterns = patterns('',
     (r'^admin/', include('django.contrib.admin.urls')),
-    (r'^informer/1.0/', include('instinctual.informer.urls')),
+    (r'^' + url_api + '/', include('instinctual.informer.urls')),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': media_path}),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 

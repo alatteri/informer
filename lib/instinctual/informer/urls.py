@@ -2,6 +2,8 @@ from django.conf.urls.defaults import patterns
 from django.contrib.auth.models import User
 
 import instinctual
+from instinctual import informer
+from instinctual.informer import relativeApiUrl as rel
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
@@ -201,31 +203,31 @@ pat_shot    = '[^/]+'
 pat_note    = '(\d+)'
 pat_element = '(\d+)'
 
-xml_url_shots           = conf.get('informer', 'url_shots') % ('xml')
-xml_url_projects        = conf.get('informer', 'url_projects') % ('xml')
-xml_url_project_shots   = conf.get('informer', 'url_project_shots') % ('xml', pat_project)
-xml_url_note            = conf.get('informer', 'url_project_shot_note') % ('xml', pat_project, pat_shot, pat_note)
-xml_url_notes           = conf.get('informer', 'url_project_shot_notes') % ('xml', pat_project, pat_shot)
-xml_url_element         = conf.get('informer', 'url_project_shot_element') % ('xml', pat_project, pat_shot, pat_element)
-xml_url_elements        = conf.get('informer', 'url_project_shot_elements') % ('xml', pat_project, pat_shot)
-xml_url_users           = conf.get('informer', 'url_users') % 'xml'
-xml_url_events          = conf.get('informer', 'url_project_shot_events') % ('xml', pat_project, pat_shot)
-xml_url_frames          = conf.get('informer', 'url_project_shot_frames') % ('xml', pat_project, pat_shot)
-xml_url_clips           = conf.get('informer', 'url_project_shot_clips') % ('xml', pat_project, pat_shot)
-xml_url_logs            = conf.get('informer', 'url_project_shot_logs') % ('xml', pat_project, pat_shot)
+xml_url_shots           = rel(informer.getShotsUrl(format='xml'))
+xml_url_projects        = rel(informer.getProjectsUrl(format='xml'))
+xml_url_project_shots   = rel(informer.getProjectShotsUrl(pat_project, format='xml'))
+xml_url_note            = rel(informer.getProjectShotNoteUrl(pat_project, pat_shot, pat_note, format='xml'))
+xml_url_notes           = rel(informer.getProjectShotNotesUrl(pat_project, pat_shot, format='xml'))
+xml_url_element         = rel(informer.getProjectShotElementUrl(pat_project, pat_shot, pat_element, format='xml'))
+xml_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, pat_shot, format='xml'))
+xml_url_users           = rel(informer.getUsersUrl(format='xml'))
+xml_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='xml'))
+xml_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='xml'))
+xml_url_clips           = rel(informer.getProjectShotClipsUrl(pat_project, pat_shot, format='xml'))
+xml_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='xml'))
 
-json_url_shots           = conf.get('informer', 'url_shots') % 'json'
-json_url_projects        = conf.get('informer', 'url_projects') % 'json'
-json_url_project_shots   = conf.get('informer', 'url_project_shots') % ('json', pat_project)
-json_url_note            = conf.get('informer', 'url_project_shot_note') % ('json', pat_project, pat_shot, pat_note)
-json_url_notes           = conf.get('informer', 'url_project_shot_notes') % ('json', pat_project, pat_shot)
-json_url_element         = conf.get('informer', 'url_project_shot_element') % ('json', pat_project, pat_shot, pat_element)
-json_url_elements        = conf.get('informer', 'url_project_shot_elements') % ('json', pat_project, pat_shot)
-json_url_users           = conf.get('informer', 'url_users') % 'json'
-json_url_events          = conf.get('informer', 'url_project_shot_events') % ('json', pat_project, pat_shot)
-json_url_frames          = conf.get('informer', 'url_project_shot_frames') % ('json', pat_project, pat_shot)
-json_url_clips           = conf.get('informer', 'url_project_shot_clips') % ('json', pat_project, pat_shot)
-json_url_logs            = conf.get('informer', 'url_project_shot_logs') % ('json', pat_project, pat_shot)
+json_url_shots           = rel(informer.getShotsUrl(format='json'))
+json_url_projects        = rel(informer.getProjectsUrl(format='json'))
+json_url_project_shots   = rel(informer.getProjectShotsUrl(pat_project, format='json'))
+json_url_note            = rel(informer.getProjectShotNoteUrl(pat_project, pat_shot, pat_note, format='json'))
+json_url_notes           = rel(informer.getProjectShotNotesUrl(pat_project, pat_shot, format='json'))
+json_url_element         = rel(informer.getProjectShotElementUrl(pat_project, pat_shot, pat_element, format='json'))
+json_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, pat_shot, format='json'))
+json_url_users           = rel(informer.getUsersUrl(format='json'))
+json_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='json'))
+json_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='json'))
+json_url_clips           = rel(informer.getProjectShotClipsUrl(pat_project, pat_shot, format='json'))
+json_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='json'))
 
 pat_project = "(?P<project_name>%s)" % pat_project
 pat_shot    = "(?P<shot_name>%s)" % pat_shot

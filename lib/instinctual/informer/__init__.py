@@ -3,6 +3,19 @@ import instinctual
 
 LOG = instinctual.getLogger(__name__)
 
+def relativeUrl(url):
+    root = getServerRoot()
+    if url.startswith(root + '/'):
+        url = url[len(root)+1:]
+    return url
+
+def relativeApiUrl(url):
+    url = relativeUrl(url)
+    api = getApiFragment()
+    if url.startswith(api + '/'):
+        url = url[len(api)+1:]
+    return url
+
 def getServerRoot():
     conf = instinctual.getConf()
     proto = conf.get('informer', 'proto')
@@ -17,16 +30,26 @@ def getServerRoot():
 def _getUrlComponent(component, format='xml'):
     conf = instinctual.getConf()
     root = getServerRoot()
+    component = conf.get('informer', component)
 
     if 'html' == format:
-        fragment = conf.get('informer', component)
-        if '%s/' == fragment[0:3]:
-            fragment = fragment[3:]
-        url = "%s/%s" % (root, fragment)
+        url = "%s/%s" % (root, component)
     else:
-        base = conf.get('informer', 'url_base')
-        url = "%s/%s/%s" % (root, base, conf.get('informer', component))
+        api = getApiFragment()
+        url = "%s/%s/%s/%s" % (root, api, format, component)
     return url
+
+def getApiFragment():
+    conf = instinctual.getConf()
+    return conf.get('informer', 'url_api')
+
+def getUsersUrl(format):
+    template = _getUrlComponent('url_users', format)
+    return template
+
+def getShotsUrl(format):
+    template = _getUrlComponent('url_shots', format)
+    return template
 
 def getProjectsUrl(format):
     template = _getUrlComponent('url_projects', format)
