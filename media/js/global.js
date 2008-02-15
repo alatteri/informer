@@ -59,8 +59,7 @@ function highlightHeading(li) {
 	} else if(li.className.search('up') != -1) {
 		li.className = (li.className + "").replace("up","down");
 		return;
-	}	
-	
+	}
 	list_items = li.parentNode.getElementsByTagName('li');
 	
 	for(var i=0; i<list_items.length; i++) {

@@ -270,7 +270,7 @@
       entry.appendChild(ul);
       
       var content = document.createElement('DIV');
-      content.className = 'entry_content';
+      content.className = 'content';
 			var val = get_value(this.row_2, item);
 			if (val.tagName)
 			{
@@ -313,6 +313,13 @@
           elem.appendChild(document.createTextNode(value));
         }
         parent.appendChild(elem);
+      }
+    // Adds the close button if we're on the notes page
+	if(document.body.id == "notes") {
+         var close_button = document.createElement('li');
+         close_button.appendChild(document.createTextNode('Close'));
+         close_button.className = "close";
+         parent.appendChild(close_button);
       }
     },
 

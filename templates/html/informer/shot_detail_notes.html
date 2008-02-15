@@ -18,7 +18,7 @@
                 <option value="{{user.username}}">{{ user.username }}</option>
                 {% endfor %}
                 </select>
-                <input type="image" id="form-note-create-submit" src="/site_media/images/button-addNote.gif" onclick="add_note();return false;"/>
+                <input type="image" id="form-note-create-submit" src="/site_media/images/button-addNote.gif" onclick="add_note();Notes.set_sorter('date');return false;"/>
               </p>
             </form>
             <div class="bottom">&nbsp;</div>
@@ -26,10 +26,10 @@
           <div class="box medium">
             <h3>All Notes</h3>
             <ul class="heading" id="notes_heading">
-              <li class="date highlight">Date</li>
-              <li class="author">Author</li>
-              <li class="assignedTo">Assigned To</li>
-              <li class="status">Status</li>
+              <li class="date highlight down" onclick="Notes.set_sorter('date'); highlightHeading(this);">Date</li>
+              <li class="author" onclick="Notes.set_sorter('author'); highlightHeading(this);">Author</li>
+              <li class="assignedTo" onclick="Notes.set_sorter('assignedTo'); highlightHeading(this);">Assigned To</li>
+              <li class="status" onclick="Notes.set_sorter('status'); highlightHeading(this);">Status</li>
             </ul>
             <ul class="entries" id="notes_entries">
 						{% for note in note_list %}

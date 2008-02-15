@@ -199,7 +199,12 @@ html, body {
 	font-size: 12px;
 	text-shadow: #d3d3d3 1px 1px 1px;	
 	}
-
+#content div.box ul.heading li.highlight.down {
+	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
+	}
+#content div.box ul.heading li.highlight.up {
+	background: url(../images/background-table-heading-highlight-up.gif) no-repeat right top;
+	}
  	
 /* Box - Small
  * ------------------------------------------------------------ */ 	
@@ -279,7 +284,7 @@ div.box.small ul li.path strong {
 	padding: 0 0 0 30px;
 	background: url(../images/background-box-right-highlight.gif) no-repeat left bottom;
 	font-weight: bold;
-	}		
+	}			
 
 	
 /* Box - Medium
@@ -312,9 +317,6 @@ div.box.small ul li.path strong {
 	background: url(../images/background-table-heading.gif) no-repeat right top;
 	font-weight: bold;
 	text-shadow: #bbb 1px 1px 1px;	
-	}
-#content div.box.medium ul.heading li.highlight {
-	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}	
 #content div.box.medium ul.heading li.date,
 #content div.box.medium ul.heading li.author,
@@ -408,29 +410,17 @@ div.box.small ul li.path strong {
 	font-weight: bold;
 	text-shadow: #bbb 1px 1px 1px;	
 	}
-#content div.box.large ul.heading li.activity {
-	background: none;
-	}	
 #content div.box.large ul li.date,
 #content div.box.large ul.entries li span.date {
 	width: 90px;
-	font-weight: bold;
 	}	
 #content div.box.large ul.heading li.author,
 #content div.box.large ul.entries li span.author {
 	width: 70px;
-	font-weight: bold;
 	}
 #content div.box.large ul.heading li.activity {
 	width: 590px;
-	padding: 0 0 0 8px;
-	}		
-#content div.box.large ul.heading li.highlight.down {
-	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}
-#content div.box.large ul.heading li.highlight.up {
-	background: url(../images/background-table-heading-highlight-up.gif) no-repeat right top;
-	}	
 #content div.box.large ul.entries li {
 	clear: both;
 	position: relative;
