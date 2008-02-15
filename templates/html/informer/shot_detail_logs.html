@@ -7,9 +7,9 @@
         <div class="box large">
           <h3>Recent Activity</h3>
           <ul class="heading" id="overview_heading">
-            <li class="date highlight" onclick="Logs.set_sorter('date');">Date</li>
-            <li class="author" onclick="Logs.set_sorter('author');">Author</li>
-            <li class="activity" onclick="Logs.set_sorter('activity');">Activity</li>
+            <li class="date highlight down" onclick="Logs.set_sorter('date'); highlightHeading(this);">Date</li>
+            <li class="author" onclick="Logs.set_sorter('author'); highlightHeading(this);">Author</li>
+            <li class="activity" onclick="Logs.set_sorter('activity'); highlightHeading(this);">Activity</li>
           </ul>
     
           <ul class="entries" id="overview_entries">
