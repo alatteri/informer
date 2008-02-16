@@ -1,36 +1,19 @@
 {% extends "informer/shot_detail_base.html" %}
 {% block title %}Overview{% endblock %}
-  
+
 {% block body_id %}overview{% endblock %}
 
 {% block content %}
-        <div class="box large">
-          <h3>Recent Activity</h3>
-          <ul class="heading" id="overview_heading">
-            <li class="date highlight down" onclick="Logs.set_sorter('date'); highlightHeading(this);">Date</li>
-            <li class="author" onclick="Logs.set_sorter('author'); highlightHeading(this);">Author</li>
-            <li class="activity" onclick="Logs.set_sorter('activity'); highlightHeading(this);">Activity</li>
-          </ul>
-    
-          <ul class="entries" id="overview_entries">
-					{% for log in log_list %}
-            		<li>
-							<span class="date highlight">{{ log.when|date:"m/j/Y" }}</span>
-							<span class="author">{{ log.who.username }}</span>
-							<span class="activity">{% spaceless %}
-							{% if log.msg_prefix %}{{ log.msg_prefix }}{% endif %}
-							{% ifequal log.type 'Note' %}
-								<q>{{ log.object_repr|truncatewords:10 }}</q>
-							{% else %}
-								{{ log.object_repr }}
-							{% endifequal %}
-							{% if log.msg_suffix %}{{ log.msg_suffix }}{% endif %}
-							{% endspaceless %}</span>
-							</span>
-						</li>
-					{% endfor %}
-					</ul>
-			  </div>
+<div class="box large">
+    <h3>Recent Activity</h3>
+    <ul class="heading" id="overview_heading">
+        <li class="date highlight down" onclick="Logs.set_sorter('date'); highlightHeading(this);">Date</li>
+        <li class="author" onclick="Logs.set_sorter('author'); highlightHeading(this);">Author</li>
+        <li class="activity" onclick="Logs.set_sorter('activity'); highlightHeading(this);">Activity</li>
+    </ul>
+    <ul class="entries" id="overview_entries">
+    </ul>
+</div>
 {% endblock %}
 
 {%block script %}

@@ -32,21 +32,7 @@
               <li class="status" onclick="Notes.set_sorter('status'); highlightHeading(this);">Status</li>
             </ul>
             <ul class="entries" id="notes_entries">
-						{% for note in note_list %}
-              <li>
-							  <div class="entry">
-                  <ul class="heading">
-								    <li class="date highlight">{{ note.created_on|date:"m/d/Y" }}</li>
-									  <li class="author">{{ note.created_by.username }}</li>
-									  <li class="assignedTo">{% firstof note.assigned_to.username "&nbsp;" %}</li>
-									  <li class="status">{% if note.status %}Completed{% else %}Pending {% endif %}</li>
-									  <li class="close">Close</li>
-                  </ul>
-                  <div class="content"><p>{{ note.text|linebreaksbr }}</p></div>
-                </div>
-						  </li>
-					  {% endfor %}
-						</ul>
+            </ul>
             <div class="bottom">&nbsp;</div>
           </div>
         </div>
@@ -133,9 +119,8 @@ function add_note() {
 
 /* Ajax callback triggered after a user clicks the 'Add Note' button */
 function add_note_callback(r) {
-    // set_sorter(Notes._sorter)
-    $('form-note-create').reset();
     Notes.add_data(r.responseJSON[0]);
+    $('form-note-create').reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////

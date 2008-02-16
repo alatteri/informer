@@ -29,12 +29,10 @@ def shot_detail(request, project_name, shot_name):
     latest = shot.log_set.latest('when')
     log_list = shot.log_set.order_by('-when')
     c = {
-        'project':p,
-        'shot':shot,
-        'users':users,
-        'latest':latest,
-        'log_list':log_list,
-        'data': Serializer().serialize(shot.log_set.all()),
+        'project':  p,
+        'shot':     shot,
+        'users':    users,
+        'data':     Serializer().serialize(shot.log_set.all()),
     }
     return render_to_response('informer/shot_detail_logs.html', c)
 shot_detail = login_required(shot_detail)
@@ -47,11 +45,10 @@ def shot_notes(request, project_name, shot_name):
     users = User.objects.all()
     notes = shot.note_set.order_by('-created_on')
     c = {
-        'project':p,
-        'shot':shot,
-        'users':users,
-        'note_list':notes,
-        'data': Serializer().serialize(shot.note_set.all()),
+        'project':  p,
+        'shot':     shot,
+        'users':    users,
+        'data':     Serializer().serialize(shot.note_set.all()),
     }
     return render_to_response('informer/shot_detail_notes.html', c)
 shot_notes = login_required(shot_notes)
