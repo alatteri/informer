@@ -83,7 +83,36 @@
 
 /* called when page first loaded, initialize data */
 function setup() {
+  Notes = new Informer.Data(
+    'notes', // name
+    [ // row_1
+      {name: 'date',
+       field: 'fields.created_on',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+      {name: 'author',
+       field:'fields.created_by.username',
+       sorter: sort_by_string},
+       {name: 'assignedTo',
+        field:'fields.assigned_to',
+        formatter: format_assigned},
+       {name: 'status',
+        field: 'fields.is_checked',
+       formatter: format_pending}
+    ],
+    { //row_2
+     field: 'fields.text',
+     formatter: format_nl2br
+    },
+    [ // filter_list
+      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
+      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+    ]);
+
     Notes.url = '{{shot.get_json_notes_url}}';
+    Notes.load_data({{ data }});
 }
 
 /* called when user clicks on the 'Add Note' button */
@@ -104,6 +133,7 @@ function add_note() {
 
 /* Ajax callback triggered after a user clicks the 'Add Note' button */
 function add_note_callback(r) {
+    // set_sorter(Notes._sorter)
     $('form-note-create').reset();
     Notes.add_data(r.responseJSON[0]);
 }

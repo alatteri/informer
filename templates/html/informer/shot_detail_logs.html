@@ -35,6 +35,34 @@
 
 {%block script %}
 
-Event.observe(window, 'load', function() { Logs.url = '{{ shot.get_json_logs_url }}'; });
+function setup() {
+  Logs = new Informer.Data(
+    'overview', // name
+    [ // row_1
+      {name: 'date',
+       field: 'fields.when',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+      {name: 'author',
+       field:'fields.who.username',
+       sorter: sort_by_string},
+      {name: 'activity',
+       field: 'fields.msg_prefix',
+       create_func: create_log,
+       sorter: sort_by_string}
+    ],
+    null, //row_2
+    [ // filter_list
+      new Informer.Filter('date', 'fields.when', 'fields.when', format_date),
+      new Informer.Filter('author', 'fields.who.pk', 'fields.who.username')
+    ]);
+
+    Logs.url = '{{ shot.get_json_logs_url }}';
+    Logs.load_data({{ data }});
+}
+
+Event.observe(window, 'load', setup)
 
 {% endblock %}

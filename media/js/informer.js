@@ -119,7 +119,7 @@
 			return tmp;
 		}
 
-  }
+  };
   
   Informer.Data = Class.create();
   Informer.Data.prototype = {
@@ -157,28 +157,34 @@
       this.populate_table();
     },
 
-    load_data: function()
+    load_data: function(data)
     {
       if (this.data) return;
 
+      if (data) {
+        this.setup_data(data);
+        return;
+      }
+
       var a = new Ajax.Request(this.url, {
         method: 'GET',
-        onSuccess: function(r) { 
-          this.data=eval(r.responseText);
-          this.pre_process();
-          this.populate_table()
+        onSuccess: function(r) {
+            this.setup_data(r.responseText);
         }.bind(this)
       });
 
     },
 
-    setup_data: function(resp)
+    setup_data: function(data)
     {
-      this.data = eval(resp.responseText);
-      this.pre_process(); 
+      if ('String' == typeof(data))
+          this.data=eval(data);
+      else
+          this.data=data;
+      this.pre_process();
       this.populate_table();
     },
-    
+
     pre_process: function()
     {
 		  this.filters.reset_list_data();
@@ -518,56 +524,3 @@ function set_sorter(th, which, data_obj)
 {
   Event.observe(th, 'click', function(x) { data_obj.set_sorter(which); });
 }
-  
-  var Notes = new Informer.Data(
-    'notes', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.created_on',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-      {name: 'author',
-       field:'fields.created_by.username',
-       sorter: sort_by_string},
-       {name: 'assignedTo',
-        field:'fields.assigned_to',
-        formatter: format_assigned},
-       {name: 'status',
-        field: 'fields.is_checked',
-       formatter: format_pending}
-    ],
-    { //row_2
-     field: 'fields.text',
-		 formatter: format_nl2br
-    }, 
-    [ // filter_list
-      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked',
-                          format_pending),
-      new Informer.Filter('author', 'fields.created_by.pk', 
-			                    'fields.created_by.username')
-    ]);
-    
-  var Logs = new Informer.Data(
-    'overview', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.when',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-      {name: 'author',
-       field:'fields.who.username',
-       sorter: sort_by_string},
-      {name: 'activity',
-       field: 'fields.msg_prefix',
-       create_func: create_log,
-       sorter: sort_by_string}
-    ],
-    null, //row_2
-    [ // filter_list
-      new Informer.Filter('date', 'fields.when', 'fields.when', format_date),
-      new Informer.Filter('author', 'fields.who.pk', 'fields.who.username')
-    ]);

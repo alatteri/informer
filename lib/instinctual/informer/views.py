@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.list_detail import object_list
 from django.contrib.auth.models import User
 
+from instinctual.serializers.custom_json import Serializer
 from instinctual.informer.models import Project, Shot, Note, Element, Event
 
 # ------------------------------------------------------------------------------
@@ -27,11 +28,14 @@ def shot_detail(request, project_name, shot_name):
     users = User.objects.all()
     latest = shot.log_set.latest('when')
     log_list = shot.log_set.order_by('-when')
-    c = {'project':p,
-         'shot':shot,
-         'users':users,
-         'latest':latest,
-         'log_list':log_list}
+    c = {
+        'project':p,
+        'shot':shot,
+        'users':users,
+        'latest':latest,
+        'log_list':log_list,
+        'data': Serializer().serialize(shot.log_set.all()),
+    }
     return render_to_response('informer/shot_detail_logs.html', c)
 shot_detail = login_required(shot_detail)
 
@@ -42,10 +46,13 @@ def shot_notes(request, project_name, shot_name):
     shot = get_object_or_404(Shot, project=p, name=shot_name)
     users = User.objects.all()
     notes = shot.note_set.order_by('-created_on')
-    c = {'project':p,
-         'shot':shot,
-         'users':users,
-         'note_list':notes}
+    c = {
+        'project':p,
+        'shot':shot,
+        'users':users,
+        'note_list':notes,
+        'data': Serializer().serialize(shot.note_set.all()),
+    }
     return render_to_response('informer/shot_detail_notes.html', c)
 shot_notes = login_required(shot_notes)
 
