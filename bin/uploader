@@ -105,7 +105,9 @@ try:
     run = True
     while run:
         count = 0
-        for framePath in sorted(glob(frameGlob)):
+        matches = glob(frameGlob)
+        matches.sort()
+        for framePath in matches:
             tries = 0
             count += 1
             LOG.debug("%s) Found -> %s" % (count, framePath))
