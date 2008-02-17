@@ -158,7 +158,7 @@ def makeclip(clip_id):
         pass
 
     # cleanup
-    UNLINK(workspace)
+    # UNLINK(workspace)
 
 # ------------------------------------------------------------------------------
 # utility functions
