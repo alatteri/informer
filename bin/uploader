@@ -148,14 +148,14 @@ try:
                                 pass
                             except ClientConnectionError, e:
                                 LOG.debug("Client error encountered -- ignoring frame")
-                                #frame.delete()
+                                frame.delete()
                         else:
                             LOG.warn("DID NOT MATCH identify group!")
                     else:
                         LOG.warn("identify did not return 0!")
                 else:
                     LOG.warn("FAILURE running convert")
-                    #frame.delete()
+                    frame.delete()
 
             time.sleep(0.1)
 
