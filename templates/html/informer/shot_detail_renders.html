@@ -1,40 +1,57 @@
 {% extends "informer/shot_detail_base.html" %}
-{% block title %}Overview{% endblock %}
-  
-{% block body_id %}overview{% endblock %}
+
+{% block body_id %}Render History{% endblock %}
 
 {% block content %}
         <div class="box large">
-          <h3>PLACEHOLDER FOR RENDERS PAGE</h3>
+          <h3>Render History</h3>
           <ul class="heading" id="overview_heading">
-            <li class="date highlight" onclick="Logs.set_sorter('date');">Date</li>
-            <li class="author" onclick="Logs.set_sorter('author');">Author</li>
-            <li class="activity" onclick="Logs.set_sorter('activity');">Activity</li>
+            <li class="date highlight" onclick="Renders.set_sorter('date');">Date</li>
+            <li class="author" onclick="Renders.set_sorter('machine');">Machine</li>
+            <li class="activity" onclick="Remders.set_sorter('artist');">Artist</li>
           </ul>
-    
-          <ul class="entries" id="overview_entries">
-					{% for log in log_list %}
-            		<li>
-							<span class="date highlight">{{ log.when|date:"m/j/Y" }}</span>
-							<span class="author">{{ log.who.username }}</span>
-							<span class="activity">{% spaceless %}
-							{% if log.msg_prefix %}{{ log.msg_prefix }}{% endif %}
-							{% ifequal log.type 'Note' %}
-								<q>{{ log.object_repr|truncatewords:10 }}</q>
-							{% else %}
-								{{ log.object_repr }}
-							{% endifequal %}
-							{% if log.msg_suffix %}{{ log.msg_suffix }}{% endif %}
-							{% endspaceless %}</span>
-							</span>
-						</li>
-					{% endfor %}
-					</ul>
-			  </div>
+          <ul class="entries" id="renders_entries">
+          </ul>
+        </div>
 {% endblock %}
 
 {%block script %}
 
-Event.observe(window, 'load', function() { Logs.url = '{{ shot.get_json_logs_url }}'; });
+/* Renders functions
+ * ------------------------------------------------------ */
+
+/* called when page first loaded, initialize data */
+function setup() {
+  Renders = new Informer.Data(
+    'renders', // name
+    [ // row_1
+      {name: 'date',
+       field: 'fields.created_on',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+       {name: 'machine',
+        field: 'fields.host',
+        sorter: sort_by_string},
+      {name: 'artist',
+       field:'fields.created_by.username',
+       sorter: sort_by_string},
+    ],
+    { //row_2
+     field: 'fields.setup',
+     formatter: format_nl2br
+    },
+    [ // filter_list
+      new Informer.Filter('machine', 'fields.host', 'fields.host'),
+      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+    ]);
+
+    Renders.url = '{{shot.get_json_renders_url}}';
+    Renders.load_data({{ data }});
+}
+
+
+Event.observe(window, 'load', setup);
 
 {% endblock %}

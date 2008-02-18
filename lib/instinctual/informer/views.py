@@ -25,13 +25,13 @@ project_detail = login_required(project_detail)
 def shot_detail(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     shot = get_object_or_404(Shot, project=p, name=shot_name)
-    users = User.objects.all()
     latest = shot.log_set.latest('when')
     log_list = shot.log_set.order_by('-when')
     c = {
         'project':  p,
         'shot':     shot,
-        'users':    users,
+        'title':    'Overview',
+        'user':     request.user,
         'data':     Serializer().serialize(shot.log_set.all()),
     }
     return render_to_response('informer/shot_detail_logs.html', c)
@@ -48,6 +48,8 @@ def shot_notes(request, project_name, shot_name):
         'project':  p,
         'shot':     shot,
         'users':    users,
+        'title':    'Notes',
+        'user':     request.user,
         'data':     Serializer().serialize(shot.note_set.all()),
     }
     return render_to_response('informer/shot_detail_notes.html', c)
@@ -65,6 +67,8 @@ def shot_elements(request, project_name, shot_name):
          'shot':shot,
          'users':users,
          'latest':latest,
+         'title':    'PLACEHOLDER',
+         'user':     request.user,
          'log_list':log_list}
     return render_to_response('informer/shot_detail_elements.html', c)
 shot_elements = login_required(shot_elements)
@@ -74,14 +78,13 @@ shot_elements = login_required(shot_elements)
 def shot_renders(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     shot = get_object_or_404(Shot, project=p, name=shot_name)
-    users = User.objects.all()
-    latest = shot.log_set.latest('when')
-    log_list = shot.log_set.order_by('-when')
-    c = {'project':p,
-         'shot':shot,
-         'users':users,
-         'latest':latest,
-         'log_list':log_list}
+    c = {
+        'project':  p,
+        'shot':     shot,
+        'title':    'Renders',
+        'user':     request.user,
+        'data':     Serializer().serialize(shot.clip_set.all()),
+    }
     return render_to_response('informer/shot_detail_renders.html', c)
 shot_renders = login_required(shot_renders)
 

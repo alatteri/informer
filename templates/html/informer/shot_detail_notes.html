@@ -1,7 +1,5 @@
 {% extends "informer/shot_detail_base.html" %}
 
-{% block title %}Notes{% endblock %}
-
 {% block body_id %}notes{% endblock %}
 
 {% block content %}
@@ -122,24 +120,6 @@ function add_note_callback(r) {
     Notes.add_data(r.responseJSON[0]);
     $('form-note-create').reset();
 }
-
-////////////////////////////////////////////////////////////////////////////
-/* bryan shit below ... not sure if it's needed yet */
-var divs = [$('notes_div'), $('overview_div')];
-function show(which) {
-    for (var i=0; i<divs.length; i++) {
-      divs[i].style.display = divs[i].id == which+'_div' ? 'block' : 'none';
-    }
-    document.body.id = which;
-}
-
-function new_note(r) {
-    var n = eval(r.responseText)[0];
-    Notes.data.push(n);
-    Notes.populate_table();
-    $('form-note-create').reset();
-}
-////////////////////////////////////////////////////////////////////////////
 
 // onload trigger
 Event.observe(window, 'load', setup);

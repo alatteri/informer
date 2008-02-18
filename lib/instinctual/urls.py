@@ -29,6 +29,7 @@ urlpatterns = patterns('',
     (r'^' + url_api + '/', include('instinctual.informer.urls')),
     (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': media_path}),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
 
     (r'^/?$',                                'instinctual.informer.views.project_list'),
     (r'^' + url_projects + '$',              'instinctual.informer.views.project_list'),

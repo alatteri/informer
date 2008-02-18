@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
   <head>
-    <title>Informer | {% block title %}Overview{% endblock %}</title>
+    <title>Informer | {{ title }}</title>
     
     <link rel="stylesheet" type="text/css" media="screen" href="/site_media/stylesheets/screen.css" />
     
@@ -29,13 +29,15 @@ var requiredRevision = 115;
       <div id="header">
         <ul id="breadcrumb">
           <li><h1><a href="/" title="Home" id="logo">Informer</a></h1></li>
-          <li><span>&#8250;</span><a href="#" title="{{ project.name }} Project">{{ project.name }}</a></li>
+          <li><span>&#8250;</span><a href="{{ project.get_absolute_shots_url }}" title="{{ project.name }} Project">{{ project.name }}</a></li>
           <li><span>&#8250;</span>{{ shot.name }}</li>
         </ul>
         <ul id="login">
           <li>Welcome {{ user.username }}</li>
-          <li><a href="#" title="Admin">Admin</a></li>
-          <li><a href="#" title="Log Out">Log Out</a></li>
+          {% if user.is_staff %}
+          <li><a href="/admin" title="Admin">Admin</a></li>
+          {% endif %}
+          <li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
         </ul>
         <ul id="nav">
           <li><a href="{{ shot.get_absolute_url }}" title="Overview" class="overview">Overview</a></li>
@@ -67,9 +69,9 @@ var requiredRevision = 115;
           <h3>Shot Summary</h3>
           <ul>
             <li class="editor"><strong>Last Edited by:</strong> {{ shot.get_render_artist }}</li>
-            <li class="time"><strong>Time:</strong> {{ shot.get_render_time }}</li>
+            <li class="time"><strong>Time:</strong>{{ shot.get_render_time|date:"n/j/y \a\t g:i A"|lower }}</li>
             <li class="machine"><strong>Machine:</strong> {{ shot.get_render_machine }}</li>
-            <li class="path"><strong>Setup:</strong> {{ shot.get_render_path }}</li>
+            <li class="path"><strong>Setup:</strong> {{ shot.get_render_file }}</li>
           </ul>
           <h4>Shot Description</h4>
           <p>{{ shot.description }}</p>
@@ -88,12 +90,12 @@ var requiredRevision = 115;
 <!-- start CONTENT -->
       <div id="content">
         <div class="header">
-          <h2>Overview</h2>
-        </div>      
+          <h2>{{ title }}</h2>
+        </div>
 {% block content %}{% endblock %}
       </div>
     </div>
-<!-- end WRAP -->    
+<!-- end WRAP -->
 
 <script type="text/javascript">
 {%block script %}

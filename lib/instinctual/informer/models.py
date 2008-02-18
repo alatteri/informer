@@ -1,3 +1,4 @@
+import os
 from pprint import pprint
 from datetime import datetime
 from time import strptime, mktime
@@ -30,6 +31,9 @@ class Project(models.Model):
             return "%s: %s" % (self.name, self.description)
         else:
             return self.name
+
+    def get_absolute_shots_url(self):
+        return informer.getProjectShotsUrl(self.name, format='html')
 
     def getNameFromRequest(cls, request):
         return request.path.split("/")[5]
@@ -117,6 +121,10 @@ class Shot(models.Model):
     def get_render_path(self):
         e = self._get_render_event()
         return e and e.setup or 'None'
+
+    def get_render_file(self):
+        e = self._get_render_event()
+        return e and os.path.basename(e.setup) or 'None'
 
     def get_render_clip_hi(self):
         c = self._get_render_clip()
