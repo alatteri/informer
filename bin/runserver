@@ -23,7 +23,7 @@ from instinctual import settings
 from django.core.management import execute_manager
 
 conf = instinctual.getConf()
-server = "%s:%s" % (conf.get('informer', 'server'), conf.get('informer', 'port'))
+server = "%s:%s" % (conf.get('informer', 'hostname'), conf.get('informer', 'port') or '80')
 
 syncdb = False
 commands = []
