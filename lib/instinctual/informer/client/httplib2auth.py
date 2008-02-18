@@ -9,7 +9,7 @@ _auths = []
 
 _conf   = instinctual.getConf()
 _proto  = _conf.get('informer', 'proto').lower()
-_server = _conf.get('informer', 'server').lower()
+_server = _conf.get('informer', 'hostname').lower()
 
 class Http(httplib2.Http):
     def __init__(self, *args, **kwargs):

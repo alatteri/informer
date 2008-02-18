@@ -1,4 +1,5 @@
 import os
+from urlparse import urlparse
 import logging
 import logging.config
 import sys, codecs
@@ -31,6 +32,11 @@ CONF_DEFAULTS = {
 confIni = os.path.join(confDir, 'instinctual.ini')
 conf = ConfigParser.ConfigParser(defaults=CONF_DEFAULTS)
 conf.read(confIni)
+
+o = urlparse(conf.get('informer', 'server'))
+conf.set('informer', 'hostname', o.hostname)
+conf.set('informer', 'proto', o.scheme)
+conf.set('informer', 'port', str(o.port or ''))
 
 logging.config.fileConfig(logIni)
 logging.codecs = codecs.getwriter('utf-8')

@@ -19,14 +19,7 @@ def relativeApiUrl(url):
 
 def getServerRoot():
     conf = instinctual.getConf()
-    proto = conf.get('informer', 'proto')
-    server = conf.get('informer', 'server')
-    port = conf.get('informer', 'port')
-
-    if port:
-        return "%s://%s:%s" % (proto, server, port)
-    else:
-        return "%s://%s" % (proto, server)
+    return conf.get('informer', 'server')
 
 def _getUrlComponent(component, format):
     conf = instinctual.getConf()
