@@ -99,6 +99,7 @@ xml_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
+    expose_fields = Log.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
@@ -190,6 +191,7 @@ json_logs = ProjectShotCollection(
     queryset = Log.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
+    expose_fields = Log.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 

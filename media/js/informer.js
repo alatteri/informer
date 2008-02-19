@@ -250,7 +250,7 @@
       if (this._reversed) 
       {
         data_copy.reverse();
-        this._reversed = !this._reversed;
+        this._reversed = !this._reversed;   // Luke: Should we be toggling the state? Bug?
       }
       
       data_copy.each(function (item) {
@@ -321,11 +321,19 @@
         parent.appendChild(elem);
       }
     // Adds the close button if we're on the notes page
-	if(document.body.id == "notes") {
-         var close_button = document.createElement('li');
-         close_button.appendChild(document.createTextNode('Close'));
-         close_button.className = "close";
-         parent.appendChild(close_button);
+    if(document.body.id == "notes") {
+         var button = document.createElement('li');
+         button.appendChild(document.createTextNode('Close'));
+         button.className = "close";
+         parent.appendChild(button);
+      }
+
+    // Adds the update button if we're on the renders page
+    if(document.body.id == "renders") {
+         var button = document.createElement('li');
+         button.appendChild(document.createTextNode('Update'));
+         button.className = "update";
+         parent.appendChild(button);
       }
     },
 

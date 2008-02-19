@@ -334,11 +334,16 @@ div.box.small ul li.path strong {
 #content div.box.medium ul.heading li.category {
 	width: 271px;
 	}	
-#content div.box.medium ul li div.entry ul.heading li.close,
-#content div.box.medium ul li div.entry ul.heading li.update {
+#content div.box.medium ul li div.entry ul.heading li.close {
 	width: 32px;
 	padding: 0;
 	background: url(../images/button-close-entry.gif) no-repeat left top;
+	text-indent: -9999px;
+	}	
+#content div.box.medium ul li div.entry ul.heading li.update {
+	width: 32px;
+	padding: 0;
+	background: url(../images/button-update-entry.gif) no-repeat left top;
 	text-indent: -9999px;
 	}	
 #content div.box.medium ul li {

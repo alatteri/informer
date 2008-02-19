@@ -1,21 +1,48 @@
 {% extends "informer/shot_detail_base.html" %}
 
-{% block body_id %}Render History{% endblock %}
+{% block body_id %}renders{% endblock %}
 
 {% block content %}
-        <div class="box large">
+        <div class="left">
+          <div class="box medium">
           <h3>Render History</h3>
-          <ul class="heading" id="overview_heading">
-            <li class="date highlight" onclick="Renders.set_sorter('date');">Date</li>
-            <li class="author" onclick="Renders.set_sorter('machine');">Machine</li>
-            <li class="activity" onclick="Remders.set_sorter('artist');">Artist</li>
+          <ul class="heading" id="renders_heading">
+            <li class="date highlight down" onclick="Renders.set_sorter('date'); highlightHeading(this);">Date</li>
+            <li class="machine" onclick="Renders.set_sorter('machine'); highlightHeading(this);">Machine</li>
+            <li class="artist" onclick="Renders.set_sorter('artist'); highlightHeading(this);">Artist</li>
           </ul>
           <ul class="entries" id="renders_entries">
           </ul>
+            <div class="bottom">&nbsp;</div>
+          </div>
         </div>
+        <div class="right">
+          <div class="box small">
+            <h3>Status</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+              <li><a href="#" title="#">Pending (1)</a></li>
+              <li class="last"><a href="#" title="#">Completed (3)</a></li>
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Author</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Assigned to</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="clear">&nbsp;</div>
+      </div>
 {% endblock %}
 
-{%block script %}
+{% block script %}
 
 /* Renders functions
  * ------------------------------------------------------ */
@@ -40,11 +67,10 @@ function setup() {
     ],
     { //row_2
      field: 'fields.setup',
-     formatter: format_nl2br
     },
     [ // filter_list
       new Informer.Filter('machine', 'fields.host', 'fields.host'),
-      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+      new Informer.Filter('author', 'fields.created_by.username', 'fields.created_by.username')
     ]);
 
     Renders.url = '{{shot.get_json_renders_url}}';
