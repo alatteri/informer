@@ -60,7 +60,7 @@ var requiredRevision = 115;
     document.write(alternateContent);  // insert non-flash content
   } else {
     now = new Date().getTime();
-    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_clip_lo }}&videoAutoPlay=false&downloadURL=/site_media/{{ shot.get_render_clip_hi }}&viewLargerURL=qtFrame.htm&unique=" + now, 544, 382, 'wmode="transparent"');
+    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_clip_lo }}&videoAutoPlay=false&downloadURL=/site_media/{{ shot.get_render_clip_hi }}&viewLargerURL=/site_media/flash/qtFrame.html%3Fmovie%3D/site_media/{{ shot.get_render_clip_hi }}&unique=" + now, 544, 382, 'wmode="transparent"');
   }
 
 </script>
