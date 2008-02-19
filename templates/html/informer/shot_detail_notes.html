@@ -16,7 +16,7 @@
                 <option value="{{user.username}}">{{ user.username }}</option>
                 {% endfor %}
                 </select>
-                <input type="image" id="form-note-create-submit" src="/site_media/images/button-addNote.gif" onclick="add_note();Notes.set_sorter('date');return false;"/>
+                <input type="image" id="form-note-create-submit" src="/site_media/images/button-addNote.gif" onclick="add_note();return false;"/>
               </p>
             </form>
             <div class="bottom">&nbsp;</div>
@@ -24,10 +24,10 @@
           <div class="box medium">
             <h3>All Notes</h3>
             <ul class="heading" id="notes_heading">
-              <li class="date highlight down" onclick="Notes.set_sorter('date'); highlightHeading(this);">Date</li>
-              <li class="author" onclick="Notes.set_sorter('author'); highlightHeading(this);">Author</li>
-              <li class="assignedTo" onclick="Notes.set_sorter('assignedTo'); highlightHeading(this);">Assigned To</li>
-              <li class="status" onclick="Notes.set_sorter('status'); highlightHeading(this);">Status</li>
+              <li class="date highlight down" onclick="Notes.set_sorter('date'); highlightHeading(this, Notes);">Date</li>
+              <li class="author" onclick="Notes.set_sorter('author'); highlightHeading(this, Notes);">Author</li>
+              <li class="assignedto" onclick="Notes.set_sorter('assignedTo'); highlightHeading(this, Notes);">Assigned To</li>
+              <li class="status" onclick="Notes.set_sorter('status'); highlightHeading(this, Notes);">Status</li>
             </ul>
             <ul class="entries" id="notes_entries">
             </ul>
@@ -79,7 +79,7 @@ function setup() {
       {name: 'author',
        field:'fields.created_by.username',
        sorter: sort_by_string},
-       {name: 'assignedTo',
+       {name: 'assignedto',
         field:'fields.assigned_to',
         formatter: format_assigned},
        {name: 'status',
@@ -119,6 +119,7 @@ function add_note() {
 function add_note_callback(r) {
     Notes.add_data(r.responseJSON[0]);
     $('form-note-create').reset();
+    Notes.set_sorter(Notes._sorter);
 }
 
 // onload trigger

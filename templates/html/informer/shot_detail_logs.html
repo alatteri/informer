@@ -6,9 +6,9 @@
 <div class="box large">
     <h3>Recent Activity</h3>
     <ul class="heading" id="overview_heading">
-        <li class="date highlight down" onclick="Logs.set_sorter('date'); highlightHeading(this);">Date</li>
-        <li class="author" onclick="Logs.set_sorter('author'); highlightHeading(this);">Author</li>
-        <li class="activity" onclick="Logs.set_sorter('activity'); highlightHeading(this);">Activity</li>
+        <li class="date highlight down" onclick="Logs.set_sorter('date'); highlightHeading(this,Logs);">Date</li>
+        <li class="author" onclick="Logs.set_sorter('author'); highlightHeading(this,Logs);">Author</li>
+        <li class="activity" onclick="Logs.set_sorter('activity'); highlightHeading(this,Logs);">Activity</li>
     </ul>
     <ul class="entries" id="overview_entries">
     </ul>
@@ -43,6 +43,7 @@ function setup() {
 
     Logs.url = '{{ shot.get_json_logs_url }}';
     Logs.load_data({{ data }});
+	Logs.sorting_order = "descending";
 }
 
 Event.observe(window, 'load', setup)

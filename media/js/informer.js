@@ -134,6 +134,7 @@
       this.url = undefined;
       this._sorter = undefined;
       this._reversed = false;
+      this._descending = false;
       
       if (filter_list)
       {
@@ -246,11 +247,12 @@
          data_copy.sortBy(function (x) { get_value(sorter.field, x); });
         }
       }
-		
+
       if (this._reversed) 
       {
         data_copy.reverse();
         this._reversed = !this._reversed;   // Luke: Should we be toggling the state? Bug?
+        this._descending = !this._descending;
       }
       
       data_copy.each(function (item) {
@@ -494,7 +496,7 @@ function format_nl2br(txt)
 function create_log(info)
 {
   var span = document.createElement('span');
-  span.className = 'activity'; //TODO action+type
+  span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.msg_prefix', info).split(/\s/)[0].toLowerCase(); //TODO action+type
   var obj = get_value('fields.object_repr', info);
   var prefix = get_value('fields.msg_prefix', info);
   var suffix = get_value('fields.msg_suffix', info);

@@ -320,7 +320,7 @@ div.box.small ul li.path strong {
 	}	
 #content div.box.medium ul.heading li.date,
 #content div.box.medium ul.heading li.author,
-#content div.box.medium ul.heading li.assignedTo {	
+#content div.box.medium ul.heading li.assignedto {	
 	width: 80px;
 	}
 #content div.box.medium ul.heading li.machine,
@@ -433,6 +433,7 @@ div.box.small ul li.path strong {
 	line-height: 24px;
 	margin: 0 6px 0 1px;
 	border-bottom: 1px solid #717171;
+	overflow: hidden;
 	}		
 #content div.box.large ul.entries li.last {
 	margin: 0 5px 0 0;
@@ -489,16 +490,16 @@ div.box.small ul li.path strong {
 #content div.box.large ul.entries li span.activity.shot-update {
 	background-image: url(../images/icon-shot-update.gif);
 	}
-#content div.box.large ul.entries li span.activity.shot-create {
+#content div.box.large ul.entries li span.activity.shot.created {
 	background-image: url(../images/icon-shot-create.gif);
 	}	
-#content div.box.large ul.entries li span.activity.comment-create {
+#content div.box.large ul.entries li span.activity.note.commented {
 	background-image: url(../images/icon-comment-create.gif);
 	}
-#content div.box.large ul.entries li span.activity.comment-mark {
+#content div.box.large ul.entries li span.activity.note.marked {
 	background-image: url(../images/icon-comment-mark.gif);
 	}
-#content div.box.large ul.entries li span.activity.comment-delete {
+#content div.box.large ul.entries li span.activity.note.deleted {
 	background-image: url(../images/icon-comment-delete.gif);
 	}
 #content div.box.large ul.entries li span.activity.element-create {
