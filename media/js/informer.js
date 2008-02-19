@@ -321,7 +321,7 @@
         parent.appendChild(elem);
       }
     // Adds the close button if we're on the notes page
-    if(document.body.id == "notes") {
+    if(document.body.id == "notes" || document.body.id == "elements") {
          var button = document.createElement('li');
          button.appendChild(document.createTextNode('Close'));
          button.className = "close";

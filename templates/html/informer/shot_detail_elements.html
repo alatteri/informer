@@ -1,39 +1,99 @@
 {% extends "informer/shot_detail_base.html" %}
 
-{% block body_id %}overview{% endblock %}
+{% block body_id %}elements{% endblock %}
 
 {% block content %}
-        <div class="box large">
-          <h3>PLACEHOLDER FOR ELEMENTS PAGE</h3>
-          <ul class="heading" id="overview_heading">
-            <li class="date highlight" onclick="Logs.set_sorter('date');">Date</li>
-            <li class="author" onclick="Logs.set_sorter('author');">Author</li>
-            <li class="activity" onclick="Logs.set_sorter('activity');">Activity</li>
+        <div class="left">
+          <div class="box medium">
+              <h3>Check In New Element</h3>
+              <form id="form-element-checkIn" action="#" method="post">
+                  <input type="file" id="form-element-checkIn-file" />
+                  <p>
+                      <strong>Category:</strong>
+                      <select id="form-element-checkIn-cateogory">
+                          <option selected="selected">Car</option>
+                          <option>Boat</option>
+                          <option>Truck</option>
+                      </select> 
+                      <input type="image" id="form-element-checkIn-submit" src="images/button-checkIn.gif" />              
+                  </p>
+              </form>
+              <div class="bottom">&nbsp;</div>
+          </div>
+
+          <div class="box medium">
+          <h3>Elements Browser</h3>
+          <ul class="heading" id="elements_heading">
+            <li class="date highlight down" onclick="Elements.set_sorter('date'); highlightHeading(this);">Date</li>
+            <li class="checkedInBy" onclick="Elements.set_sorter('checkedInBy'); highlightHeading(this);">Checked in by</li>
+            <li class="category" onclick="Elements.set_sorter('category'); highlightHeading(this);">Category</li>
           </ul>
-    
-          <ul class="entries" id="overview_entries">
-					{% for log in log_list %}
-            		<li>
-							<span class="date highlight">{{ log.when|date:"m/j/Y" }}</span>
-							<span class="author">{{ log.who.username }}</span>
-							<span class="activity">{% spaceless %}
-							{% if log.msg_prefix %}{{ log.msg_prefix }}{% endif %}
-							{% ifequal log.type 'Note' %}
-								<q>{{ log.object_repr|truncatewords:10 }}</q>
-							{% else %}
-								{{ log.object_repr }}
-							{% endifequal %}
-							{% if log.msg_suffix %}{{ log.msg_suffix }}{% endif %}
-							{% endspaceless %}</span>
-							</span>
-						</li>
-					{% endfor %}
-					</ul>
-			  </div>
+          <ul class="entries" id="elements_entries">
+          </ul>
+            <div class="bottom">&nbsp;</div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="box small">
+            <h3>Status</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+              <li><a href="#" title="#">Pending (1)</a></li>
+              <li class="last"><a href="#" title="#">Completed (3)</a></li>
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Author</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            </ul>
+          </div>
+          <div class="box small">
+            <h3>Assigned to</h3>
+            <ul>
+              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="clear">&nbsp;</div>
+      </div>
 {% endblock %}
 
-{%block script %}
+{% block script %}
 
-Event.observe(window, 'load', function() { Logs.url = '{{ shot.get_json_logs_url }}'; });
+/* Elements functions
+ * ------------------------------------------------------ */
+
+/* called when page first loaded, initialize data */
+function setup() {
+  Elements = new Informer.Data(
+    'elements', // name
+    [ // row_1
+      {name: 'date',
+       field: 'fields.created_on',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date,
+       is_default: true},
+       {name: 'checkedInBy',
+        field: 'fields.created_by.username',
+        sorter: sort_by_string},
+      {name: 'category',
+       field:'fields.kind',
+       sorter: sort_by_string},
+    ],
+    { //row_2
+     field: 'fields.text',
+    },
+    [ // filter_list
+      new Informer.Filter('category', 'fields.kind', 'fields.kind'),
+      new Informer.Filter('created_by', 'fields.created_by.username', 'fields.created_by.username')
+    ]);
+
+    Elements.url = '{{shot.get_json_elements_url}}';
+    Elements.load_data({{ data }});
+}
+
+Event.observe(window, 'load', setup);
 
 {% endblock %}

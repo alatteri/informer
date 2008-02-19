@@ -62,17 +62,15 @@ shot_notes = login_required(shot_notes)
 def shot_elements(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     shot = get_object_or_404(Shot, project=p, name=shot_name)
-    users = User.objects.all()
-    latest = shot.log_set.latest('when')
-    log_list = shot.log_set.order_by('-when')
-    # Element.Rest.expose_fields
-    c = {'project':p,
-         'shot':shot,
-         'users':users,
-         'latest':latest,
-         'title':    'PLACEHOLDER',
-         'user':     request.user,
-         'log_list':log_list}
+    responder = CustomJSONResponder()
+    responder.expose_fields = Element.Rest.expose_fields
+    c = {
+        'project':  p,
+        'shot':     shot,
+        'title':    'Elements',
+        'user':     request.user,
+        'data':     responder.render(shot.element_set.all()),
+    }
     return render_to_response('informer/shot_detail_elements.html', c)
 shot_elements = login_required(shot_elements)
 
