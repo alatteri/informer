@@ -55,16 +55,21 @@ package Player
             ui.scrubber.CurrentFrame = CurrentFrame;
         }
         
+        protected var _currFrame:Number = 0;
+        
         // frames in flash start at 0 in the video they start at 1, so add one.
         public function get CurrentFrame():Number
         {
-            var t:Number = Math.round(stream.time * Framerate) + 1;
-            return (isNaN(t))?0:t;
+            if(Playing)
+                _currFrame = Math.round(stream.time * Framerate) + 1;
+                
+            return _currFrame;
         }
         
         public function set CurrentFrame(n:Number):void
         {
-            stream.seek(n / Framerate);
+            _currFrame = (n < 1)?1:n;
+            stream.seek(_currFrame / Framerate);
             
             ui.scrubber.Progress = Position;
         }
@@ -77,6 +82,10 @@ package Player
         public function set Position(n:Number):void
         {
             stream.seek(n * Duration);
+            var p:Boolean = paused;
+            paused = false;
+            ui.scrubber.CurrentFrame = CurrentFrame;
+            paused = p;
         }
         
         public function get Paused():Boolean
@@ -163,7 +172,7 @@ package Player
         {
             _duration = n;
             
-            ui.scrubber.MaxFrame = n*Framerate;
+            ui.scrubber.MaxFrame = Math.round(n*Framerate);
         }
 
         public override function set width(n:Number):void
@@ -189,7 +198,7 @@ package Player
         
         public function set Framerate(n:Number):void
         {
-            _framerate = n;
+            _framerate = Math.round(n);
         }
         
         public override function get width():Number

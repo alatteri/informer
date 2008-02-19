@@ -13,9 +13,7 @@ package Player.UI
     import flash.text.TextFormatAlign;
     
     public class Scrubber extends Sprite
-    {
-        public static const PROGRESS_CHANGE:String = "PROGRESS_CHANGE";
-        
+    {   
         protected static const WIDTH:Number = 448;
         protected static const Y_OFFSET:Number = 5;
         protected static const OVERALL_OFFSET:Number = 40;
@@ -135,7 +133,7 @@ package Player.UI
             
             MyStage.getStage().addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
             
-            dispatchEvent(new Event(PROGRESS_CHANGE));
+            dispatchEvent(new Event(Event.CHANGE));
         }
         
         protected function onMouseMove(e:MouseEvent):void
@@ -143,7 +141,7 @@ package Player.UI
             head.x = e.stageX - x - OVERALL_OFFSET;
             Progress = (head.x - HEAD_OFFSET) / HEAD_WIDTH;
             
-            dispatchEvent(new Event(PROGRESS_CHANGE));
+            dispatchEvent(new Event(Event.CHANGE));
         }
         
         protected function onMouseUp(e:MouseEvent):void
@@ -166,7 +164,7 @@ package Player.UI
             head.x = e.stageX - x - OVERALL_OFFSET;
             Progress = (head.x - HEAD_OFFSET) / HEAD_WIDTH;
             
-            dispatchEvent(new Event(PROGRESS_CHANGE));
+            dispatchEvent(new Event(Event.CHANGE));
         }
         
         public function get NewEstimatedFrame():Number

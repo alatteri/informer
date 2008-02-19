@@ -19,6 +19,7 @@ package Player
     import flash.net.FileReference;
     import flash.display.Bitmap;
     import flash.net.URLRequestMethod;
+    import flash.media.Video;
 
     public class PlayerUI extends Sprite
     {
@@ -71,7 +72,7 @@ package Player
             download.addEventListener(MouseEvent.CLICK, onDownloadClick);
             expand.addEventListener(MouseEvent.CLICK, onExpandClick);
             
-            scrubber.addEventListener(Scrubber.PROGRESS_CHANGE, onProgressChange);
+            scrubber.addEventListener(Event.CHANGE, onProgressChange);
         }
         
         // fscking ugly fix
@@ -137,10 +138,10 @@ package Player
         
         public function onRewindDown(e:Event):void
         {
+            _stopped = false;
             _rewindDown = true;
             Video.pause();
             Video.CurrentFrame = Video.CurrentFrame - 2;
-            
             
             //timer
             var T:Timer = new Timer(1000, 1);
@@ -157,7 +158,7 @@ package Player
         
         public function onRewindEnterFrame(e:Event):void
         {
-            Video.CurrentFrame = Video.CurrentFrame - 2;
+            Video.CurrentFrame = Video.CurrentFrame - 1;
         }
         
         public function onRewindUp(e:Event):void
@@ -181,6 +182,7 @@ package Player
         
         public function stop():void
         {
+            scrubber.Progress = 1;
             if(!scrubber.Dragged)
                 _stopped = true;
         }
