@@ -40,18 +40,19 @@ class LogWarn(object):
 sys.stdout = LogInfo()
 sys.stderr = LogWarn()
 
-root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
-tmpdir  = root + '/tmp'
-pending = root + '/media/pending.tiff'
-ffmpeg  = root + '/third_party/bin/ffmpeg'
-qt_fast = root + '/third_party/bin/qt-faststart'
+ROOT = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2])
+TMPDIR  = ROOT + '/tmp'
+PENDING = ROOT + '/media/pending.tiff'
+FFMPEG  = ROOT + '/third_party/bin/ffmpeg'
+QT_FAST = ROOT + '/third_party/bin/qt-faststart'
+CONVERT = ROOT + '/third_party/bin/convert'
 
 def main():
     # get the lock
-    lockfile = tmpdir + '/lockfile'
+    lockfile = TMPDIR + '/lockfile'
 
     try:
-        MKDIR(tmpdir)
+        MKDIR(TMPDIR)
         flag = os.O_CREAT | os.O_EXCL | os.O_WRONLY
         fd = os.open(lockfile, flag, 0600)
         os.write(fd, str(os.getpid()))
@@ -84,19 +85,28 @@ def makeclip(clip_id):
 
     # grab info about the frames that need processing
     max = None
+    height = None
+    width = None
     frames = {}
     for frame in Frame.objects.filter(clip=clip):
         frame.in_clip = True
         frames[frame.number] = frame
+        height = frame.resized_height
+        width  = frame.resized_width
         if not max or frame.number > max:
             max = frame.number
 
     # create the temp workspace
-    MKDIR(tmpdir)
+    MKDIR(TMPDIR)
 
     prefix = "%s-%s-%s-" % ('clipmaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), clip.id)
-    workspace = tempfile.mkdtemp('', prefix, tmpdir)
+    workspace = tempfile.mkdtemp('', prefix, TMPDIR)
     os.chdir(workspace)
+
+    # create a pending frame to match the size of the resized frames
+    pending = workspace + '/' + 'pending.tiff'
+    cmd = '%s %s -resize %sx%s -compress RLE %s' % (CONVERT, PENDING, width, height, pending)
+    SYSTEM(cmd)
 
     pattern = workspace + '/' + '%06d.tiff'
     for number in range(clip.start, max + 1):
@@ -113,32 +123,32 @@ def makeclip(clip_id):
     # create the hi rez clip
     slow_hi = workspace + '/' + 'slow-hi.mov'
     print "pass hi 1"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 1 -y %s" % (ffmpeg, clip.rate, pattern, slow_hi)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 1 -y %s" % (FFMPEG, clip.rate, pattern, slow_hi)
     SYSTEM(cmd)
 
     print "pass hi 2"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 2 -y %s" % (ffmpeg, clip.rate, pattern, slow_hi)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 2 -y %s" % (FFMPEG, clip.rate, pattern, slow_hi)
     SYSTEM(cmd)
 
     # qt-faststart it
     fast_hi = workspace + '/' + 'fast-hi.mov'
-    cmd = "%s %s %s" % (qt_fast, slow_hi, fast_hi)
+    cmd = "%s %s %s" % (QT_FAST, slow_hi, fast_hi)
     SYSTEM(cmd)
 
     # --------------------------------------------------
     # create the lo rez clip
     slow_lo = workspace + '/' + 'slow-lo.mov'
     print "pass lo 1"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (ffmpeg, clip.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (FFMPEG, clip.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     print "pass lo 2"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (ffmpeg, clip.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (FFMPEG, clip.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     # qt-faststart it
     fast_lo = workspace + '/' + 'fast-lo.mov'
-    cmd = "%s %s %s" % (qt_fast, slow_lo, fast_lo)
+    cmd = "%s %s %s" % (QT_FAST, slow_lo, fast_lo)
     SYSTEM(cmd)
 
     # --------------------------------------------------
