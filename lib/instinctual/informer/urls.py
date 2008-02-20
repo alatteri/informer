@@ -88,10 +88,10 @@ xml_frames = ProjectShotCollection(
 )
 
 xml_renders = ProjectShotCollection(
-    queryset = Renders.objects.all(),
+    queryset = Render.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    expose_fields = Renders.Rest.expose_fields,
+    expose_fields = Render.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
