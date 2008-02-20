@@ -69,7 +69,12 @@ var requiredRevision = 115;
           <h3>Shot Summary</h3>
           <ul>
             <li class="editor"><strong>Last Edited by:</strong> {% firstof shot.get_render_artist "None" %}</li>
-            <li class="time"><strong>Time:</strong> {% firstof shot.get_render_time|date:"n/j/y \a\t g:i A"|lower "None" %}</li>
+            <li class="time"><strong>Time:</strong> {% if shot.get_render_time %}
+                                                        {{ shot.get_render_time|date:"n/j/y \a\t g:i A"|lower }}
+                                                    {% else %}
+                                                        None
+                                                    {% endif %}
+                                                    </li>
             <li class="machine"><strong>Machine:</strong> {% firstof shot.get_render_machine "None" %}</li>
             <li class="path"><strong>Setup:</strong> {% firstof shot.get_render_setup_filename "None" %}</li>
           </ul>
