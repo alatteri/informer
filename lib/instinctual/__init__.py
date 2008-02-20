@@ -33,11 +33,25 @@ confIni = os.path.join(confDir, 'instinctual.ini')
 conf = ConfigParser.ConfigParser(defaults=CONF_DEFAULTS)
 conf.read(confIni)
 
+# --------------------
+# support the urlparse of python 2.3 as well...
+#
 o = urlparse(conf.get('informer', 'server'))
-conf.set('informer', 'hostname', o.hostname)
-conf.set('informer', 'proto', o.scheme)
-conf.set('informer', 'port', str(o.port or ''))
+proto = o[0]
+match = o[1].find(':')
+if -1 != match:
+    hostname = o[1][:match]
+    port = o[1][match+1:]
+else:
+    hostname = o[1]
+    port = ''
+conf.set('informer', 'hostname', hostname)
+conf.set('informer', 'proto', proto)
+conf.set('informer', 'port', port)
 
+# --------------------
+# init the logger
+#
 logging.config.fileConfig(logIni)
 logging.codecs = codecs.getwriter('utf-8')
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
