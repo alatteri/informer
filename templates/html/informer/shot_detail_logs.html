@@ -43,6 +43,7 @@ function setup() {
 
     Logs.url = '{{ shot.get_json_logs_url }}';
     Logs.load_data({{ data }});
+    Logs._sorter = "date";
 }
 
 Event.observe(window, 'load', setup)

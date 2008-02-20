@@ -97,6 +97,7 @@ function setup() {
 
     Notes.url = '{{shot.get_json_notes_url}}';
     Notes.load_data({{ data }});
+    Notes._sorter = "date";
 }
 
 /* called when user clicks on the 'Add Note' button */

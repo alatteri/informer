@@ -63,9 +63,9 @@ function highlightHeading(li, log) {
 	}
 		
 	if(log._reversed)
-		li.className = log._sorter.toLowerCase() + " highlight down";
-	else
 		li.className = log._sorter.toLowerCase() + " highlight up";
+	else
+		li.className = log._sorter.toLowerCase() + " highlight down";
 }
 
 

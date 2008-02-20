@@ -134,14 +134,6 @@ Informer.Data.prototype = {
             }.bind(this)); 
         }
     },
-    
-    /* Resorts data given passed sorter */
-    resort_table: function(which) {
-        if (this._sorter != which)
-        this._sorter = which;
-
-        this.populate_table();
-    },
 
 	/* Loads Informer data */
     load_data: function(data) {
@@ -193,6 +185,18 @@ Informer.Data.prototype = {
             }
         }  
     },
+
+    /* Resorts data given passed sorter */
+    resort_table: function(which) {
+        this.clear_table();	
+        if (this._sorter == which) {
+            this.reverse_table();
+	    } else {
+	        this._sorter = which;
+	        this.sort_data();
+        }
+        this.populate_table();
+    },
     
 	/* Populates table with date */
     populate_table: function() {
@@ -201,16 +205,7 @@ Informer.Data.prototype = {
             return;
         }
 
-        this.clear_table();
-
-        var data_copy = this.data.clone();
-        if (this.filters)
-            data_copy = this.filters.execute(this.data);
-
-        this.sort_data(data_copy);
-        this.reverse_table(data_copy);
-
-        data_copy.each(function (item) {
+        this.data.each(function (item) {
             if (this.row_2)
                 this.create_entry(item);
            else
@@ -228,18 +223,19 @@ Informer.Data.prototype = {
     },
 
     /* Sorts passed data given current sorter */
-    sort_data: function(data) {
+    sort_data: function() {
+        this.data = this.filters.execute(this.data);	
         var sorter = this.row_1.find(function(x) { 
             return x.name==this._sorter; 
         }.bind(this));
 
         if (sorter) {
             if (sorter.sorter) {
-                data.sortBy(function (x) {
+                this.data.sortBy(function (x) {
                     return sorter.sorter(get_value(sorter.field, x));
                 });
             } else {
-                data.sortBy(function (x) { 
+                this.data.sortBy(function (x) { 
                     get_value(sorter.field, x); 
                 });
             }
@@ -247,8 +243,8 @@ Informer.Data.prototype = {
     },
 	
 	/* Reverses given data and flips reversed flag */
-    reverse_table: function(data) {
-        data.reverse();
+    reverse_table: function() {
+        this.data.reverse();
         this._reversed = !this._reversed;
     },
     
