@@ -85,8 +85,8 @@ def getProjectShotLogsUrl(project, shot, format):
     template = _getUrlComponent('url_project_shot_logs', format)
     return template % (project, shot)
 
-def getProjectShotClipsUrl(project, shot, format):
-    template = _getUrlComponent('url_project_shot_clips', format)
+def getProjectShotRendersUrl(project, shot, format):
+    template = _getUrlComponent('url_project_shot_renders', format)
     return template % (project, shot)
 
 """

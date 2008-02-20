@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from instinctual.serializers.custom_json import Serializer
 from instinctual.informer.responder import CustomJSONResponder
-from instinctual.informer.models import Project, Shot, Note, Clip, Element, Log
+from instinctual.informer.models import Project, Shot, Note, Render, Element, Log
 
 # ------------------------------------------------------------------------------
 def project_list(request):
@@ -80,13 +80,13 @@ def shot_renders(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     shot = get_object_or_404(Shot, project=p, name=shot_name)
     responder = CustomJSONResponder()
-    responder.expose_fields = Clip.Rest.expose_fields
+    responder.expose_fields = Render.Rest.expose_fields
     c = {
         'project':  p,
         'shot':     shot,
         'title':    'Renders',
         'user':     request.user,
-        'data':     responder.render(shot.clip_set.all()),
+        'data':     responder.render(shot.render_set.all()),
     }
     return render_to_response('informer/shot_detail_renders.html', c)
 shot_renders = login_required(shot_renders)

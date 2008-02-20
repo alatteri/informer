@@ -115,17 +115,17 @@ class GetProject(GetOrCreateObject):
     def create(self, proj, *args, **kwargs):
         return self.model(name=proj)
 
-class GetClip(GetOrCreateObject):
+class GetRender(GetOrCreateObject):
     def get(self, event, *args, **kwargs):
-        c = self.model.objects.get(event=event)
+        r = self.model.objects.get(event=event)
         print "-" * 80
-        print "Found clip %s" % (c.id)
+        print "Found Render %s" % (r.id)
         print "-" * 80
-        return c
+        return r
 
     def create(self, event, *args, **kwargs):
         print "-" * 80
-        print "Now making new clip!"
+        print "Now making new render!"
         print "-" * 80
         kwargs['movie_hi'] = kwargs['movie_lo'] = 'pending.mov'
         return self.model(event=event, **kwargs)

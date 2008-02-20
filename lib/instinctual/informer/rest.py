@@ -2,7 +2,7 @@ import os
 from django_restapi.model_resource import Collection, Entry
 from django_restapi.authentication import HttpBasicAuthentication
 from django.contrib.auth.models import User
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, getHandler
+from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Render, getHandler
 
 def LogHandlerWrapper(func, method):
     def wrapper(obj, request):
@@ -97,12 +97,12 @@ class ProjectShotCollection(Collection):
 
         # handle file uploads
         if 'Frame' == new_model.__class__.__name__:
-            c = new_model.getOrCreateParentClip(**info)
-            new_model.clip = c
+            r = new_model.getOrCreateParentRender(**info)
+            new_model.render = r
 
             if 'image' in request.FILES:
                 content = request.FILES['image']['content']
-                filename = "%06d-%06d.tiff" % (int(c.id), int(new_model.number))
+                filename = "%06d-%06d.tiff" % (int(r.id), int(new_model.number))
                 new_model.save_image_file(filename, content, True)
 
         print "now going to save"

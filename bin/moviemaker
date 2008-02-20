@@ -66,12 +66,12 @@ def main():
 
     try:
         try:
-            # get the clips that need updating
-            clip_ids = Frame.objects.filter(in_clip=False).values('clip').distinct()
-            LOG.info("Lock acquired: %s clips to process..." % len(clip_ids))
+            # get the renders that need updating
+            render_ids = Frame.objects.filter(in_render=False).values('render').distinct()
+            LOG.info("Lock acquired: %s renders to process..." % len(render_ids))
 
-            for clip_id in clip_ids:
-                makeclip(clip_id)
+            for render_id in render_ids:
+                makerender(render_id)
         except Exception, e:
             LOG.fatal(str(e))
             sys.exit(1)
@@ -79,17 +79,17 @@ def main():
         LOG.info("removing lockfile")
         os.unlink(lockfile)
 
-def makeclip(clip_id):
-    clip = Clip.objects.get(id=clip_id['clip'])
-    LOG.info("+ working on clip id %s" % clip.id)
+def makerender(render_id):
+    render = Render.objects.get(id=render_id['render'])
+    LOG.info("+ working on render id %s" % render.id)
 
     # grab info about the frames that need processing
     max = None
     height = None
     width = None
     frames = {}
-    for frame in Frame.objects.filter(clip=clip):
-        frame.in_clip = True
+    for frame in Frame.objects.filter(render=render):
+        frame.in_render = True
         frames[frame.number] = frame
         height = frame.resized_height
         width  = frame.resized_width
@@ -99,7 +99,7 @@ def makeclip(clip_id):
     # create the temp workspace
     MKDIR(TMPDIR)
 
-    prefix = "%s-%s-%s-" % ('clipmaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), clip.id)
+    prefix = "%s-%s-%s-" % ('moviemaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), render.id)
     workspace = tempfile.mkdtemp('', prefix, TMPDIR)
     os.chdir(workspace)
 
@@ -109,7 +109,7 @@ def makeclip(clip_id):
     SYSTEM(cmd)
 
     pattern = workspace + '/' + '%06d.tiff'
-    for number in range(clip.start, max + 1):
+    for number in range(render.start, max + 1):
         if number in frames:
             print "Frame [%s] %s" % (number, frames[number].get_image_filename())
             source = frames[number].get_image_filename()
@@ -120,14 +120,14 @@ def makeclip(clip_id):
         os.symlink(source, dest)
 
     # --------------------------------------------------
-    # create the hi rez clip
+    # create the hi rez movie
     slow_hi = workspace + '/' + 'slow-hi.mov'
     print "pass hi 1"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 1 -y %s" % (FFMPEG, clip.rate, pattern, slow_hi)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 1 -y %s" % (FFMPEG, render.rate, pattern, slow_hi)
     SYSTEM(cmd)
 
     print "pass hi 2"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 2 -y %s" % (FFMPEG, clip.rate, pattern, slow_hi)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264 -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp .7 -g 75 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor .7 -b 2600k -bt 3500k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 5 -qmax 35 -qdiff 2 -qscale 1 -pass 2 -y %s" % (FFMPEG, render.rate, pattern, slow_hi)
     SYSTEM(cmd)
 
     # qt-faststart it
@@ -136,14 +136,14 @@ def makeclip(clip_id):
     SYSTEM(cmd)
 
     # --------------------------------------------------
-    # create the lo rez clip
+    # create the lo rez movie
     slow_lo = workspace + '/' + 'slow-lo.mov'
     print "pass lo 1"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (FFMPEG, clip.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     print "pass lo 2"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (FFMPEG, clip.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     # qt-faststart it
@@ -153,17 +153,17 @@ def makeclip(clip_id):
 
     # --------------------------------------------------
     # copy the movies...
-    UNLINK(clip.get_movie_hi_filename())
+    UNLINK(render.get_movie_hi_filename())
     f = open(fast_hi, 'rb')
-    clip.save_movie_hi_file('%s_hi.mov' % clip.id, f.read(), True)
+    render.save_movie_hi_file('%s_hi.mov' % render.id, f.read(), True)
 
-    UNLINK(clip.get_movie_lo_filename())
+    UNLINK(render.get_movie_lo_filename())
     f = open(fast_lo, 'rb')
-    clip.save_movie_lo_file('%s_lo.mov' % clip.id, f.read(), True)
+    render.save_movie_lo_file('%s_lo.mov' % render.id, f.read(), True)
 
     # save it
     for frame in frames.values():
-        frame.in_clip = True
+        frame.in_render = True
         frame.save()
         pass
 

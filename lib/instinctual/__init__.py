@@ -18,7 +18,7 @@ CONF_DEFAULTS = {
     "url_project_shot_logs":      "projects/%s/shots/%s/logs/",
     "url_project_shot_note":      "projects/%s/shots/%s/notes/%s/",
     "url_project_shot_notes":     "projects/%s/shots/%s/notes/",
-    "url_project_shot_clips":     "projects/%s/shots/%s/renders/",
+    "url_project_shot_renders":   "projects/%s/shots/%s/renders/",
     "url_project_shot_events":    "projects/%s/shots/%s/events/",
     "url_project_shot_frames":    "projects/%s/shots/%s/frames/",
     "url_project_shot_element":   "projects/%s/shots/%s/elements/%s/",

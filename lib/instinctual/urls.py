@@ -19,7 +19,7 @@ url_project_shots         = rel(informer.getProjectShotsUrl(pat_project, format=
 url_project_shot          = rel(informer.getProjectShotUrl(pat_project, pat_shot, format='html'))
 url_project_shot_notes    = rel(informer.getProjectShotNotesUrl(pat_project, pat_shot, format='html'))
 url_project_shot_elements = rel(informer.getProjectShotElementsUrl(pat_project, pat_shot, format='html'))
-url_project_shot_renders  = rel(informer.getProjectShotClipsUrl(pat_project, pat_shot, format='html'))
+url_project_shot_renders  = rel(informer.getProjectShotRendersUrl(pat_project, pat_shot, format='html'))
 
 # --------------------
 # base patterns:

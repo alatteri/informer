@@ -60,7 +60,7 @@ var requiredRevision = 115;
     document.write(alternateContent);  // insert non-flash content
   } else {
     now = new Date().getTime();
-    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_clip_lo }}&videoAutoPlay=false&downloadURL=/site_media/{{ shot.get_render_clip_hi }}&viewLargerURL=/site_media/flash/qtFrame.html%3Fmovie%3D/site_media/{{ shot.get_render_clip_hi }}&unique=" + now, 544, 382, 'wmode="transparent"');
+    renderFlash("/site_media/flash/player.swf?video=/site_media/{{ shot.get_render_movie_lo }}&videoAutoPlay=false&downloadURL=/site_media/{{ shot.get_render_movie_hi }}&viewLargerURL=/site_media/flash/qtFrame.html%3Fmovie%3D/site_media/{{ shot.get_render_movie_hi }}&unique=" + now, 544, 382, 'wmode="transparent"');
   }
 
 </script>
@@ -68,10 +68,10 @@ var requiredRevision = 115;
         <div id="shot-summary" class="box small">
           <h3>Shot Summary</h3>
           <ul>
-            <li class="editor"><strong>Last Edited by:</strong> {{ shot.get_render_artist }}</li>
-            <li class="time"><strong>Time:</strong> {{ shot.get_render_time|date:"n/j/y \a\t g:i A"|lower }}</li>
-            <li class="machine"><strong>Machine:</strong> {{ shot.get_render_machine }}</li>
-            <li class="path"><strong>Setup:</strong> {{ shot.get_render_file }}</li>
+            <li class="editor"><strong>Last Edited by:</strong> {% firstof shot.get_render_artist "None" %}</li>
+            <li class="time"><strong>Time:</strong> {% firstof shot.get_render_time|date:"n/j/y \a\t g:i A"|lower "None" %}</li>
+            <li class="machine"><strong>Machine:</strong> {% firstof shot.get_render_machine "None" %}</li>
+            <li class="path"><strong>Setup:</strong> {% firstof shot.get_render_setup_filename "None" %}</li>
           </ul>
           <h4>Shot Description:</h4>
           <p>{{ shot.description }}</p>

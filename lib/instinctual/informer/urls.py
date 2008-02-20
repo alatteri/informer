@@ -6,7 +6,7 @@ from instinctual import informer
 from instinctual.informer import relativeApiUrl as rel
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
-from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Clip, Log
+from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Render, Log
 from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection, InformerAuthentication
 
 # --------------------
@@ -87,11 +87,11 @@ xml_frames = ProjectShotCollection(
     authentication = InformerAuthentication(),
 )
 
-xml_clips = ProjectShotCollection(
-    queryset = Clip.objects.all(),
+xml_renders = ProjectShotCollection(
+    queryset = Renders.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
-    expose_fields = Clip.Rest.expose_fields,
+    expose_fields = Renders.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
@@ -179,11 +179,11 @@ json_frames = ProjectShotCollection(
     authentication = InformerAuthentication(),
 )
 
-json_clips = ProjectShotCollection(
-    queryset = Clip.objects.all(),
+json_renders = ProjectShotCollection(
+    queryset = Render.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),
-    expose_fields = Clip.Rest.expose_fields,
+    expose_fields = Render.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
@@ -215,7 +215,7 @@ xml_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, pa
 xml_url_users           = rel(informer.getUsersUrl(format='xml'))
 xml_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='xml'))
 xml_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='xml'))
-xml_url_clips           = rel(informer.getProjectShotClipsUrl(pat_project, pat_shot, format='xml'))
+xml_url_renders         = rel(informer.getProjectShotRendersUrl(pat_project, pat_shot, format='xml'))
 xml_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='xml'))
 
 json_url_shots           = rel(informer.getShotsUrl(format='json'))
@@ -228,7 +228,7 @@ json_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, p
 json_url_users           = rel(informer.getUsersUrl(format='json'))
 json_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='json'))
 json_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='json'))
-json_url_clips           = rel(informer.getProjectShotClipsUrl(pat_project, pat_shot, format='json'))
+json_url_renders         = rel(informer.getProjectShotRendersUrl(pat_project, pat_shot, format='json'))
 json_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='json'))
 
 pat_project = "(?P<project_name>%s)" % pat_project
@@ -245,7 +245,7 @@ urlpatterns = patterns('',
     ('^' + xml_url_project_shots + '$',     xml_project_shots,  {'is_entry':False}),
     ('^' + xml_url_users + '$',             xml_users,          {'is_entry':False}),
     ('^' + xml_url_frames + '$',            xml_frames,         {'is_entry':False}),
-    ('^' + xml_url_clips + '$',             xml_clips,          {'is_entry':False}),
+    ('^' + xml_url_renders + '$',           xml_renders,        {'is_entry':False}),
     ('^' + xml_url_logs + '$',              xml_logs,           {'is_entry':False}),
 
     ('^' + json_url_note + '$',              json_note),
@@ -258,7 +258,7 @@ urlpatterns = patterns('',
     ('^' + json_url_project_shots + '$',     json_project_shots,  {'is_entry':False}),
     ('^' + json_url_users + '$',             json_users,          {'is_entry':False}),
     ('^' + json_url_frames + '$',            json_frames,         {'is_entry':False}),
-    ('^' + json_url_clips + '$',             json_clips,          {'is_entry':False}),
+    ('^' + json_url_renders + '$',           json_renders,        {'is_entry':False}),
     ('^' + json_url_logs + '$',              json_logs,           {'is_entry':False}),
 
     ('^listdir/(?P<path>.*)$', FileCollection(type='json',permitted_methods = ['GET', 'POST'] )),

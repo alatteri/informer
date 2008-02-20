@@ -12,7 +12,7 @@ from django.dispatch import dispatcher
 import instinctual
 from instinctual import informer
 from instinctual.informer.mixins import InformerMixIn
-from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetClip, GetEvent
+from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetRender, GetEvent
 from instinctual.informer.signals import Handler, IgnoreSignalException
 
 # ------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ class Shot(models.Model):
 
     def get_absolute_renders_url(self):
         project = self.project.name
-        return informer.getProjectShotClipsUrl(project, self.name, format='html')
+        return informer.getProjectShotRendersUrl(project, self.name, format='html')
 
     # --------------------
     def get_json_logs_url(self):
@@ -78,12 +78,9 @@ class Shot(models.Model):
         project = self.project.name
         return informer.getProjectShotElementsUrl(project, self.name, format='json')
 
-    def get_json_clips_url(self):
+    def get_json_renders_url(self):
         project = self.project.name
-        return informer.getProjectShotClipsUrl(project, self.name, format='json')
-
-    # need to settle on if these are "clips" or "renders"
-    get_json_renders_url = get_json_clips_url
+        return informer.getProjectShotRendersUrl(project, self.name, format='json')
 
     # --------------------------------------------------------------------------
     def _get_render_event(self):
@@ -94,47 +91,45 @@ class Shot(models.Model):
         self._render_event = len(e) and e[0] or None
         return self._render_event
 
-    def _get_render_clip(self):
-        if hasattr(self, '_render_clip'):
-            return self._render_clip
+    def _get_render_obj(self):
+        if hasattr(self, '_render_obj'):
+            return self._render_obj
 
         e = self._get_render_event()
         if e:
-            c = Clip.objects.filter(event=e, shot=self)
-            self._render_clip = len(c) and c[0] or None
+            r = Render.objects.filter(event=e, shot=self)
+            self._render_obj = len(r) and r[0] or None
         else:
-            self._render_clip = None
-        return self._render_clip
+            self._render_obj = None
+        return self._render_obj
 
     def get_render_artist(self):
         e = self._get_render_event()
-        return e and e.created_by or 'None'
+        return e and e.created_by or None
 
     def get_render_time(self):
         e = self._get_render_event()
-        return e and e.created_on or 'None'
+        return e and e.created_on or None
 
     def get_render_machine(self):
         e = self._get_render_event()
-        return e and e.host or 'None'
+        return e and e.host or None
 
-    def get_render_path(self):
+    def get_render_setup(self):
         e = self._get_render_event()
-        return e and e.setup or 'None'
+        return e and e.setup or None
 
-    def get_render_file(self):
+    def get_render_setup_filename(self):
         e = self._get_render_event()
-        return e and os.path.basename(e.setup) or 'None'
+        return e and os.path.basename(e.setup) or None
 
-    def get_render_clip_hi(self):
-        c = self._get_render_clip()
-        # TODO: support hi/lo res and handle errors
-        return c and c.movie_hi or 'pending.mov'
+    def get_render_movie_hi(self):
+        r = self._get_render_obj()
+        return r and r.movie_hi or 'pending.mov'
 
-    def get_render_clip_lo(self):
-        c = self._get_render_clip()
-        # TODO: support hi/lo res and handle errors
-        return c and c.movie_lo or 'pending.mov'
+    def get_render_movie_lo(self):
+        r = self._get_render_obj()
+        return r and r.movie_lo or 'pending.mov'
 
     # --------------------------------------------------------------------------
     class Meta:
@@ -210,8 +205,6 @@ class Element(InformerMixIn, models.Model):
     kind        = models.CharField(maxlength=32)
     text        = models.CharField(maxlength=4096)
     is_checked  = models.BooleanField('is checked', default=False)
-    start_frame = models.IntegerField()
-    end_frame   = models.IntegerField()
     created_on  = models.DateTimeField('date created', auto_now_add=True)
     created_by  = models.ForeignKey(User)
 
@@ -251,15 +244,16 @@ class Event(InformerMixIn, models.Model):
         return "Event %s (%s, %s)" % (self.id, self.type, self.created_by)
 
 # ------------------------------------------------------------------------------
-class Clip(InformerMixIn, models.Model):
+class Render(InformerMixIn, models.Model):
     shot  = models.ForeignKey(Shot)
     event = models.ForeignKey(Event)
     created_on = models.DateTimeField('date created', auto_now_add=True)
     modified_on = models.DateTimeField('date modified', auto_now=True)
+    is_pending = models.BooleanField('pending', default=True)
 
     spark = models.CharField(maxlength=255)
-    movie_hi = models.FileField(upload_to='clips/%Y/%m/%d')
-    movie_lo = models.FileField(upload_to='clips/%Y/%m/%d')
+    movie_hi = models.FileField(upload_to='movies/%Y/%m/%d')
+    movie_lo = models.FileField(upload_to='movies/%Y/%m/%d')
 
     start = models.IntegerField()
     end = models.IntegerField()
@@ -276,14 +270,14 @@ class Clip(InformerMixIn, models.Model):
                          'event__created_by', 'event__host', 'event__setup']
 
     def __str__(self):
-        return "Clip %s" % (self.id)
+        return "Render %s" % (self.id)
 
 # ------------------------------------------------------------------------------
 class Frame(InformerMixIn, models.Model):
     shot = models.ForeignKey(Shot)
-    clip = models.ForeignKey(Clip)
+    render = models.ForeignKey(Render)
     image = models.FileField(upload_to='frames/%Y/%m/%d')
-    in_clip = models.BooleanField('in clip', default=False)
+    in_render = models.BooleanField('in render', default=False)
 
     host        = models.CharField(maxlength=255)
     created_on  = models.DateTimeField('date created')
@@ -301,16 +295,16 @@ class Frame(InformerMixIn, models.Model):
     resized_depth = models.IntegerField()
 
     class Meta:
-        unique_together = (('clip', 'number'),)
+        unique_together = (('render', 'number'),)
 
     class Admin:
-        list_display = ('id', 'host', 'image', 'clip', 'in_clip',
+        list_display = ('id', 'host', 'image', 'render', 'in_render',
                         'created_on', 'created_by', 'raw_created_on',
                         'number', 'width', 'height', 'depth',
                         'resized_width', 'resized_height', 'resized_depth')
 
-    def getOrCreateParentClip(self, start, end, rate, spark):
-        print "getOrCreateParentClip called for frame:"
+    def getOrCreateParentRender(self, start, end, rate, spark):
+        print "getOrCreateParentRender called for frame:"
         pprint(self.__dict__)
 
         print "Going to look for BATCH PROCESS < %s" % (self.created_on)
@@ -322,28 +316,28 @@ class Frame(InformerMixIn, models.Model):
         print "Hey! Found e... it is: %s" % (e)
         pprint(e.__dict__)
 
-        c = Clip.getClip(event=e,
-                         shot=e.shot,
-                         start=start,
-                         end=end,
-                         rate=rate,
-                         spark=spark,
-                         create=True)
+        r = Render.getRender(event=e,
+                             shot=e.shot,
+                             start=start,
+                             end=end,
+                             rate=rate,
+                             spark=spark,
+                             create=True)
 
-        if start < c.start:
-            print "+++ setting c.start to", c.start
-            c.start = start
-        if end > c.end:
-            print "+++ setting c.end to", c.end
-            c.end = end
+        if start < r.start:
+            print "+++ setting r.start to", r.start
+            r.start = start
+        if end > r.end:
+            print "+++ setting r.end to", r.end
+            r.end = end
 
-        c.save()
+        r.save()
 
         print "*" * 80
-        print "The clip id is:", c.id
+        print "The render id is:", r.id
         print "*" * 80
 
-        return c
+        return r
 
 # ------------------------------------------------------------------------------
 class Log(InformerMixIn, models.Model):
@@ -368,7 +362,7 @@ class Log(InformerMixIn, models.Model):
 # ------------------------------------------------------------------------------
 # monkey patched model methods
 # ------------------------------------------------------------------------------
-Clip.getClip = GetClip(Clip)
+Render.getRender = GetRender(Render)
 Shot.getShot = GetShot(Shot)
 User.getUser = GetUser(User)
 Event.getEvent = GetEvent(Event)
