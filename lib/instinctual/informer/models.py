@@ -263,7 +263,7 @@ class Render(InformerMixIn, models.Model):
 
     class Admin:
         list_display = ('id', 'shot', 'event', 'spark', 'movie_hi', 'movie_lo',
-                        'start', 'end', 'rate', 'created_on')
+                        'start', 'end', 'rate', 'created_on', 'is_pending')
     class Rest:
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
                          'start', 'end', 'rate',

@@ -153,13 +153,18 @@ def makerender(render_id):
 
     # --------------------------------------------------
     # copy the movies...
-    UNLINK(render.get_movie_hi_filename())
+    if not render.is_pending:
+        UNLINK(render.get_movie_hi_filename())
     f = open(fast_hi, 'rb')
     render.save_movie_hi_file('%s_hi.mov' % render.id, f.read(), True)
 
-    UNLINK(render.get_movie_lo_filename())
+    if not render.is_pending:
+        UNLINK(render.get_movie_lo_filename())
     f = open(fast_lo, 'rb')
     render.save_movie_lo_file('%s_lo.mov' % render.id, f.read(), True)
+
+    render.is_pending = False
+    render.save()
 
     # save it
     for frame in frames.values():
