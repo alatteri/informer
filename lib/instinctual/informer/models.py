@@ -11,6 +11,7 @@ from django.dispatch import dispatcher
 
 import instinctual
 from instinctual import informer
+from instinctual import settings
 from instinctual.informer.mixins import InformerMixIn
 from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetRender, GetEvent
 from instinctual.informer.signals import Handler, IgnoreSignalException
@@ -126,12 +127,12 @@ class Shot(models.Model):
     def get_render_movie_hi_url(self):
         r = self._get_render_obj()
         # TODO: what movie should this return if there aren't any?
-        return r and r.get_movie_hi_url() or 'pending.mov'
+        return r and r.get_movie_hi_url() or settings.MEDIA_URL + 'pending.mov'
 
     def get_render_movie_lo_url(self):
         r = self._get_render_obj()
         # TODO: what movie should this return if there aren't any?
-        return r and r.get_movie_lo_url() or 'pending.mov'
+        return r and r.get_movie_lo_url() or settings.MEDIA_URL + 'pending.mov'
 
     # --------------------------------------------------------------------------
     class Meta:
