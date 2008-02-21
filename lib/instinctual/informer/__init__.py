@@ -107,6 +107,9 @@ def parseSetup(setup):
     # start with the batch file name
     shot = os.path.basename(setup)
 
+    # remove any trailing newlines/spaces if present
+    shot = re.sub('\s*$', '', shot)
+
     # remove the trailing .batch if present
     shot = re.sub('\.batch\.?$', '', shot)
 
