@@ -126,7 +126,6 @@ Informer.Data.prototype = {
         this.url = undefined;
         this._sorter = undefined;
         this._reversed = false;
-        this._descending = false;
       
         if (filter_list) {
             filter_list.each(function(x) {
@@ -222,24 +221,24 @@ Informer.Data.prototype = {
             this.entries.removeChild(this.entries.firstChild);	
     },
 
-    /* Sorts passed data given current sorter */
+    /* Sorts data given current sorter */
     sort_data: function() {
         this.data = this.filters.execute(this.data);	
         var sorter = this.row_1.find(function(x) { 
-            return x.name==this._sorter; 
+            return x.name == this._sorter; 
         }.bind(this));
 
         if (sorter) {
             if (sorter.sorter) {
-                this.data.sortBy(function (x) {
+                this.data = this.data.sortBy(function (x) {
                     return sorter.sorter(get_value(sorter.field, x));
                 });
             } else {
-                this.data.sortBy(function (x) { 
+                this.data = this.data.sortBy(function (x) { 
                     get_value(sorter.field, x); 
                 });
             }
-        }	
+        }
     },
 	
 	/* Reverses given data and flips reversed flag */
@@ -337,9 +336,9 @@ Informer.Data.prototype = {
 function sort_by_date(d) {
     return d.getTime();
 }
-  
+
 function sort_by_string(s) {
-    return s.toLowerCase();
+    return (s+"").toLowerCase();
 }
   
 function get_value(field, object) {

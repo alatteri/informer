@@ -53,19 +53,14 @@ function styleSelects() {
 /* Highlights given table heading (assumes given heading is a <li>)*/
 
 function highlightHeading(li, log) {
-	if(li.className.search('down') == -1 && li.className.search('up') == -1) {	
-		list_items = li.parentNode.getElementsByTagName('li');
+    list_items = li.parentNode.getElementsByTagName('li');
 
-		for(var i=0; i<list_items.length; i++) {
-			if(list_items[i].className.split(' ')[1]);
-				list_items[i].className = list_items[i].className.split(' ')[0];
-		}
-	}
-		
-	if(log._reversed)
-		li.className = log._sorter.toLowerCase() + " highlight up";
-	else
-		li.className = log._sorter.toLowerCase() + " highlight down";
+    // Clears highlight class
+    for(var i=0; i<list_items.length; i++)
+        list_items[i].className = list_items[i].className.split(' ')[0] + " " + list_items[i].className.split(' ')[1];
+    
+    
+	li.className = log._sorter + " " + log._reversed + " highlight";
 }
 
 

@@ -199,10 +199,10 @@ html, body {
 	font-size: 12px;
 	text-shadow: #d3d3d3 1px 1px 1px;	
 	}
-#content div.box ul.heading li.highlight.down {
+#content div.box ul.heading li.false.highlight {
 	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}
-#content div.box ul.heading li.highlight.up {
+#content div.box ul.heading li.true.highlight {
 	background: url(../images/background-table-heading-highlight-up.gif) no-repeat right top;
 	}
  	
@@ -319,16 +319,16 @@ div.box.small ul li.path strong {
 	text-shadow: #bbb 1px 1px 1px;	
 	}	
 #content div.box.medium ul.heading li.date,
-#content div.box.medium ul.heading li.author,
-#content div.box.medium ul.heading li.assignedto {	
+#content div.box.medium ul.heading li.author {	
 	width: 80px;
 	}
 #content div.box.medium ul.heading li.machine,
-#content div.box.medium ul.heading li.checkedInBy {
+#content div.box.medium ul.heading li.checkedInBy,
+#content div.box.medium ul.heading li.assignedTo {
 	width: 100px;
 	}	
 #content div.box.medium ul.heading li.status {	
-	width: 198px;
+	width: 178px;
 	}	
 #content div.box.medium ul.heading li.artist,
 #content div.box.medium ul.heading li.category {
