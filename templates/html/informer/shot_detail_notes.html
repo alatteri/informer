@@ -24,10 +24,10 @@
           <div class="box medium">
             <h3>All Notes</h3>
             <ul class="heading" id="notes_heading">
-              <li class="date highlight down" onclick="Notes.resort_table('date'); highlightHeading(this, Notes);">Date</li>
-              <li class="author" onclick="Notes.resort_table('author'); highlightHeading(this, Notes);">Author</li>
-              <li class="assignedto" onclick="Notes.resort_table('assignedTo'); highlightHeading(this, Notes);">Assigned To</li>
-              <li class="status" onclick="Notes.resort_table('status'); highlightHeading(this, Notes);">Status</li>
+              <li class="date false highlight" onclick="Notes.resort_table('date'); highlightHeading(this, Notes);">Date</li>
+              <li class="author false" onclick="Notes.resort_table('author'); highlightHeading(this, Notes);">Author</li>
+              <li class="assignedTo false" onclick="Notes.resort_table('assignedTo'); highlightHeading(this, Notes);">Assigned To</li>
+              <li class="status false" onclick="Notes.resort_table('status'); highlightHeading(this, Notes);">Status</li>
             </ul>
             <ul class="entries" id="notes_entries">
             </ul>
@@ -79,11 +79,13 @@ function setup() {
       {name: 'author',
        field:'fields.created_by.username',
        sorter: sort_by_string},
-       {name: 'assignedto',
+       {name: 'assignedTo',
         field:'fields.assigned_to',
+        sorter: sort_by_string,
         formatter: format_assigned},
        {name: 'status',
         field: 'fields.is_checked',
+        sorter: sort_by_string,
        formatter: format_pending}
     ],
     { //row_2
@@ -96,7 +98,7 @@ function setup() {
     ]);
 
     Notes.url = '{{shot.get_json_notes_url}}';
-    Notes.load_data({{ data }});
+	Notes.load_data({{ data }});
     Notes._sorter = "date";
 }
 
