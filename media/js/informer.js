@@ -188,7 +188,12 @@ Informer.Data.prototype = {
     /* Resorts data given passed sorter */
     resort_table: function(which) {
         this.clear_table();	
-        if (this._sorter == which) {
+        if (null == which) {
+	        this.sort_data();
+            if (this._reversed) {
+                this.data.reverse();
+            }
+        } else if (this._sorter == which) {
             this.reverse_table();
 	    } else {
 	        this._sorter = which;
@@ -325,7 +330,7 @@ Informer.Data.prototype = {
     add_data: function(d) {
         this.data.push(d);
         this.pre_process();
-        this.populate_table();
+        // this.populate_table();
     }
 };
   
