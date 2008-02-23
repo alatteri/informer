@@ -10,8 +10,8 @@ args: ['/PATH/FROM/PWD/ABOVE/logs/informer.log']
 
 (replace '/PATH/FROM/PWD/ABOVE' with the output from pwd in step 2)
 
-4) edit conf/instinctual.conf line 3 (set to your hostname/IP address):
-server: 127.0.0.1
+4) edit conf/instinctual.conf line 3 (customize for your IP):
+server: http://127.0.0.1:8000
 
 5) edit lib/instinctual/settings.py line 24:
 DATABASE_ENGINE = 'sqlite3'
@@ -37,7 +37,7 @@ Password:
 Password (again): 
 ---> ENTER informer
 
-8) The server should now be running... make sure you the following with your IP from step 3:
+8) The server should now be running... make sure you see the following with your IP from step 3:
 
 Django version 0.96, using settings 'instinctual.settings'
 Development server is running at http://127.0.0.1:8000/
