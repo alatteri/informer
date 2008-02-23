@@ -51,7 +51,6 @@ function styleSelects() {
 }
 
 /* Highlights given table heading (assumes given heading is a <li>)*/
-
 function highlightHeading(li, log) {
     list_items = li.parentNode.getElementsByTagName('li');
 
@@ -59,8 +58,20 @@ function highlightHeading(li, log) {
     for(var i=0; i<list_items.length; i++)
         list_items[i].className = list_items[i].className.split(' ')[0] + " " + list_items[i].className.split(' ')[1];
     
-    
 	li.className = log._sorter + " " + log._reversed + " highlight";
+	
+	highlightColumn(log._sorter);
+}
+
+
+function highlightColumn(sorter) {	
+	var column_cells = $('overview_entries').getElementsByTagName('span');
+	
+	for(var i=0; i <column_cells.length; i++) {
+		column_cells[i].removeClassName('highlight');
+		if(column_cells[i].hasClassName(sorter))
+			column_cells[i].addClassName('highlight');
+	}
 }
 
 

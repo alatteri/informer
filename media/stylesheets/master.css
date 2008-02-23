@@ -419,12 +419,16 @@ div.box.small ul li.path strong {
 #content div.box.large ul.entries li span.date {
 	width: 90px;
 	}	
-#content div.box.large ul.heading li.author,
-#content div.box.large ul.entries li span.author {
-	width: 70px;
+#content div.box.large ul.heading li.author {
+	width: 70px;	
 	}
+#content div.box.large ul.entries li span.author {
+	width: 68px;	
+	border-right: 1px solid #717171;
+	border-left: 1px solid #717171;	
+}	
 #content div.box.large ul.heading li.activity {
-	width: 590px;
+	width: 599px;
 	}
 #content div.box.large ul.entries li {
 	clear: both;
@@ -447,7 +451,7 @@ div.box.small ul li.path strong {
 	padding: 0 0 0 8px;
 	overflow: hidden;
 	}	
-#content div.box.large ul.entries li span.author {
+#content div.box.large ul.entries li span.highlight {
 	background-color: #77797b;
 	}	
 #content div.box.large ul.entries li span.activity a {
@@ -482,7 +486,7 @@ div.box.small ul li.path strong {
 	background-repeat: no-repeat;
 	}
 #content div.box.large ul.entries li span.activity {
-	width: 570px;
+	width: 575px;
 	padding: 0 0 0 32px;
 	background-repeat: no-repeat;
 	background-position: 8px 0px;
