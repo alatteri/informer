@@ -64,8 +64,11 @@ function highlightHeading(li, log) {
 }
 
 
-function highlightColumn(sorter) {	
-	var column_cells = $('overview_entries').getElementsByTagName('span');
+function highlightColumn(sorter) {
+	if(document.body.id == "overview")
+		var column_cells = $('overview_entries').getElementsByTagName('span');
+	else
+		var column_cells = $(document.body.id+'_entries').getElementsByTagName('li');
 	
 	for(var i=0; i <column_cells.length; i++) {
 		column_cells[i].removeClassName('highlight');

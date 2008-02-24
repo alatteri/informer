@@ -7,9 +7,9 @@
           <div class="box medium">
           <h3>Render History</h3>
           <ul class="heading" id="renders_heading">
-            <li class="date true highlight" onclick="Renders.resort_table('date'); highlightHeading(this);">Date</li>
-            <li class="machine" onclick="Renders.resort_table('machine'); highlightHeading(this);">Machine</li>
-            <li class="artist" onclick="Renders.resort_table('artist'); highlightHeading(this);">Artist</li>
+            <li class="date true highlight" onclick="Renders.resort_table('date'); highlightHeading(this,Renders);">Date</li>
+            <li class="machine" onclick="Renders.resort_table('machine'); highlightHeading(this,Renders);">Machine</li>
+            <li class="artist" onclick="Renders.resort_table('artist'); highlightHeading(this,Renders);">Artist</li>
           </ul>
           <ul class="entries" id="renders_entries">
           </ul>
@@ -75,6 +75,9 @@ function setup() {
 
     Renders.url = '{{shot.get_json_renders_url}}';
     Renders.load_data({{ data }});
+	Renders._sorter = "date";
+    Renders.resort_table();
+	highlightColumn('date');
 }
 
 

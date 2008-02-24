@@ -376,7 +376,7 @@ div.box.small ul li.path strong {
 	background: url(../images/image-entry-heading-divider.gif) no-repeat right top;
 	}	
 #content div.box.medium ul li div.entry ul.heading li.highlight {	
-	background: url(../images/background-heading-entry-highlight.gif) no-repeat right top;
+	background: url(../images/background-heading-entry-highlight.gif) no-repeat right top;	
 	}
 #content div.box.medium ul li div.entry div.content {
 	padding: 0 6px 1px 6px;
@@ -481,7 +481,9 @@ div.box.small ul li.path strong {
 	background: url(../images/icon-arrow-hover.gif) no-repeat;	
 	} 	
 #content div.box.large ul.entries li:hover span.activity,
-#content div.box.large ul.entries li.last:hover span.activity {
+#content div.box.large ul.entries li:hover span.activity.highlight,
+#content div.box.large ul.entries li.last:hover span.activity,
+#content div.box.large ul.entries li.last:hover span.activity.highlight {
 	background-position: 8px -24px;
 	background-repeat: no-repeat;
 	}
@@ -506,9 +508,12 @@ div.box.small ul li.path strong {
 #content div.box.large ul.entries li span.activity.note.deleted {
 	background-image: url(../images/icon-comment-delete.gif);
 	}
-#content div.box.large ul.entries li span.activity.element-create {
+#content div.box.large ul.entries li span.activity.element.checked {
 	background-image: url(../images/icon-element-create.gif);
 	}	
+#content div.box.large ul.entries li span.activity.highlight {
+	background-position: 8px -48px;
+	}		
 	
 /* Forms
  * ------------------------------------------------------------ */ 	
