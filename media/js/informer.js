@@ -188,11 +188,8 @@ Informer.Data.prototype = {
     /* Resorts data given passed sorter */
     resort_table: function(which) {
         this.clear_table();	
-        if (null == which) {
+        if (which == null) {
 	        this.sort_data();
-            if (this._reversed) {
-                this.data.reverse();
-            }
         } else if (this._sorter == which) {
             this.reverse_table();
 	    } else {
@@ -228,7 +225,6 @@ Informer.Data.prototype = {
 
     /* Sorts data given current sorter */
     sort_data: function() {
-        this.data = this.filters.execute(this.data);	
         var sorter = this.row_1.find(function(x) { 
             return x.name == this._sorter; 
         }.bind(this));
@@ -240,7 +236,7 @@ Informer.Data.prototype = {
                 });
             } else {
                 this.data = this.data.sortBy(function (x) { 
-                    get_value(sorter.field, x); 
+                    return get_value(sorter.field, x); 
                 });
             }
         }
