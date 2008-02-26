@@ -74,7 +74,6 @@ function create_status_item(info, item) {
     Element.extend(status_a);
     status_a.appendChild(document.createTextNode(value));
     status_li.appendChild(status_a);
-    Element.extend(status_a);
     status_a.observe(
       'click',
       function() {new Ajax.Request(
