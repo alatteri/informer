@@ -4,23 +4,27 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.list_detail import object_list
 from django.contrib.auth.models import User
 
-from instinctual.serializers.custom_json import Serializer
+from instinctual import informer
+
 from instinctual.informer.responder import CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Render, Element, Log
 
 # ------------------------------------------------------------------------------
 def project_list(request):
-    ol = Project.objects.all()
-    return render_to_response('informer/project_list.html', {'object_list':ol})
+    responder = CustomJSONResponder()
+    responder.expose_fields = Project.Rest.expose_fields
+    context = dict(
+        json_url = informer.getProjectsUrl(format='json'),
+        user = request.user,
+        data = responder.render(Project.objects.all()))
+    return render_to_response('informer/project_list.html', context)
 project_list = login_required(project_list)
-
 
 # ------------------------------------------------------------------------------
 def project_detail(request, project_name):
     p = get_object_or_404(Project, name=project_name)
     return render_to_response('informer/project_detail.html', {'project':p})
 project_detail = login_required(project_detail)
-
 
 # ------------------------------------------------------------------------------
 def shot_logs(request, project_name, shot_name):

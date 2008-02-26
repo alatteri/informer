@@ -40,6 +40,9 @@ class Project(models.Model):
         return request.path.split("/")[5]
     getNameFromRequest = classmethod(getNameFromRequest)
 
+    class Rest:
+        expose_fields = ['name', 'description']
+
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
     project     = models.ForeignKey(Project)
