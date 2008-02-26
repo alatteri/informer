@@ -76,7 +76,7 @@ function setup() {
        parser: parse_date,
        is_default: true},
        {name: 'checkedInBy',
-        field: 'fields.created_by.username',
+        field: 'fields.created_by',
         sorter: sort_by_string},
       {name: 'category',
        field:'fields.kind',
@@ -87,7 +87,7 @@ function setup() {
     },
     [ // filter_list
       new Informer.Filter('category', 'fields.kind', 'fields.kind'),
-      new Informer.Filter('created_by', 'fields.created_by.username', 'fields.created_by.username')
+      new Informer.Filter('created_by', 'fields.created_by', 'fields.created_by')
     ]);
 
     Elements.url = '{{shot.get_json_elements_url}}';

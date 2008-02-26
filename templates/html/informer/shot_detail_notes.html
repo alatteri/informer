@@ -77,17 +77,18 @@ function setup() {
        parser: parse_date,
        is_default: true},
       {name: 'author',
-       field:'fields.created_by.username',
+       field:'fields.created_by',
        sorter: sort_by_string,
        formatter: format_author},
        {name: 'assignedTo',
         field:'fields.assigned_to',
-        sorter: sort_by_string,
+        sorter: sort_by_assigned,
         formatter: format_assigned},
        {name: 'status',
         field: 'fields.is_checked',
         sorter: sort_by_string,
-       formatter: format_pending}
+        parser: parse_boolean,
+        formatter: format_pending}
     ],
     { //row_2
      field: 'fields.text',
@@ -95,7 +96,7 @@ function setup() {
     },
     [ // filter_list
       new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
-      new Informer.Filter('author', 'fields.created_by.pk', 'fields.created_by.username')
+      new Informer.Filter('author', 'fields.created_by', 'fields.created_by')
     ]);
 
     Notes.url = '{{shot.get_json_notes_url}}';

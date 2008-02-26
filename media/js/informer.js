@@ -1,3 +1,11 @@
+function LOG(x) {
+    if (window.console) {
+        window.console.log(x);
+    } else {
+        alert(x);
+    }
+}
+
 /* 
  * Informer Object
  * ------------------------------------------------------- */
@@ -175,12 +183,14 @@ Informer.Data.prototype = {
 			  
             for (var j=0; j<this.row_1.length; j++) {
                 var col = this.row_1[j];
-			    
+                val = get_value(col.field, obj);
+
                 if (col.parser) {
-                    val = get_value(col.field, obj);
+                    // use the column's parser if specified
                     val = col.parser(val);
-                    set_value(col.field, obj, val);
                 }
+
+                set_value(col.field, obj, val);
             }
         }  
     },
@@ -190,8 +200,15 @@ Informer.Data.prototype = {
         this.clear_table();	
         if (which == null) {
 	        this.sort_data();
+
+            if (this._reversed) {
+                // sorting undoes the reverse order
+                // reverse it again if it was previously
+                this.reverse_table();
+            }
         } else if (this._sorter == which) {
             this.reverse_table();
+            this._reversed = !this._reversed;
 	    } else {
 	        this._sorter = which;
 	        this.sort_data();
@@ -199,13 +216,8 @@ Informer.Data.prototype = {
         this.populate_table();
     },
     
-	/* Populates table with date */
+	/* Populates table with data */
     populate_table: function() {
-        if (!this.data) {
-            this.load_data();
-            return;
-        }
-
         this.data.each(function (item) {
             if (this.row_2)
                 this.create_entry(item);
@@ -245,7 +257,6 @@ Informer.Data.prototype = {
 	/* Reverses given data and flips reversed flag */
     reverse_table: function() {
         this.data.reverse();
-        this._reversed = !this._reversed;
     },
     
     /* Creates table entry (note, render, or clip) given passed data item */
@@ -261,9 +272,9 @@ Informer.Data.prototype = {
         var content = document.createElement('DIV');
         content.className = 'content';
         var val = get_value(this.row_2, item);
-        if (val.tagName)
+        if (val.tagName) {
             content.appendChild(val);
-        else {
+        } else {
             var p = document.createElement('P');
             p.appendChild(document.createTextNode(val));
             content.appendChild(p);
@@ -285,9 +296,9 @@ Informer.Data.prototype = {
         for (var i=0; i<this.row_1.length; i++) {
             var info = this.row_1[i];
             var elem;
-            if (info.create_func)
+            if (info.create_func) {
                 elem = info.create_func(item);
-            else {
+            } else {
                 var value = get_value(info, item);
                 elem = document.createElement(tag);
                 elem.className = info.name;
@@ -326,7 +337,6 @@ Informer.Data.prototype = {
     add_data: function(d) {
         this.data.push(d);
         this.pre_process();
-        // this.populate_table();
     }
 };
   
@@ -340,6 +350,10 @@ function sort_by_date(d) {
 
 function sort_by_string(s) {
     return (s+"").toLowerCase();
+}
+
+function sort_by_assigned(u) {
+    return sort_by_string(format_assigned(u));
 }
   
 function get_value(field, object) {
@@ -392,6 +406,18 @@ function parse_date(strDate) {
     d.setSeconds(nums[6]);
     return d;
 }
+
+// slight hack to get around the json sometimes
+// evaluating boolean false to the string 'false'
+function parse_boolean(b) {
+    if (b && 'false' == b) {
+        return false;
+    } else if (b) {
+        return true;
+    } else {
+        return false;
+    }
+}
   
 function create_filter_ul(values, data_obj, which, ul_element) {
     while (ul_element.hasChildNodes())
@@ -427,14 +453,11 @@ function format_pending(p) {
 }
 
 function format_assigned(u) {
-	if (!u || !u.pk)
-		return 'Anyone';
-	else
-		return u.username.substring(0,1).toUpperCase() + u.username.substring(1,u.username.length);
+    return u ? format_author(u) : 'Anyone';
 }
 
-function format_author(name) {
-     return name.substring(0,1).toUpperCase() + name.substring(1,name.length);	
+function format_author(u) {
+     return u.substring(0,1).toUpperCase() + u.substring(1,u.length);	
 }
 
 function format_nl2br(txt) {

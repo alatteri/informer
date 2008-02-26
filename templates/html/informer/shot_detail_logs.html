@@ -28,7 +28,7 @@ function setup() {
        parser: parse_date,
        is_default: true},
       {name: 'author',
-       field:'fields.who.username',
+       field:'fields.who',
        sorter: sort_by_string},
       {name: 'activity',
        field: 'fields.msg_prefix',
@@ -38,7 +38,7 @@ function setup() {
     null, //row_2
     [ // filter_list
       new Informer.Filter('date', 'fields.when', 'fields.when', format_date),
-      new Informer.Filter('author', 'fields.who.pk', 'fields.who.username')
+      new Informer.Filter('author', 'fields.who', 'fields.who')
     ]);
 
     Logs.url = '{{ shot.get_json_logs_url }}';
