@@ -28,18 +28,18 @@
 	  </ul>
 	  <div class="bottom">&nbsp;</div>
 
-<!-- 	  <table> -->
-<!-- 	    <caption>this is project_list.html</caption> -->
-<!-- 	    <tr><th>Name</th> -->
-<!-- 	    <th>Description</th> -->
-<!-- 	    </tr> -->
-<!-- 	    {% for project in object_list %} -->
-<!-- 	    <tr> -->
-<!-- 	      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td> -->
-<!-- 	      <td>{{ project.description }}</td> -->
-<!-- 	    </tr> -->
-<!-- 	    {% endfor %} -->
-<!-- 	  </table> -->
+	  <table>
+	    <caption>temporary list</caption>
+	    <tr><th>Name</th>
+	    <th>Description</th>
+	    </tr>
+	    {% for project in object_list %}
+	    <tr>
+	      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
+	      <td>{{ project.description }}</td>
+	    </tr>
+	    {% endfor %}
+	  </table>
 	</div>
       </div>
 

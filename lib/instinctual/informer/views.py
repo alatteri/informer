@@ -14,6 +14,7 @@ def project_list(request):
     responder = CustomJSONResponder()
     responder.expose_fields = Project.Rest.expose_fields
     context = dict(
+        object_list = Project.objects.all(),
         json_url = informer.getProjectsUrl(format='json'),
         user = request.user,
         data = responder.render(Project.objects.all()))
