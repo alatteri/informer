@@ -18,23 +18,13 @@
         </div>
         <div class="right">
           <div class="box small">
-            <h3>Status</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-              <li><a href="#" title="#">Pending (1)</a></li>
-              <li class="last"><a href="#" title="#">Completed (3)</a></li>
+            <h3>Machine</h3>
+            <ul id='filter_machine'>
             </ul>
           </div>
           <div class="box small">
-            <h3>Author</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-            </ul>
-          </div>
-          <div class="box small">
-            <h3>Assigned to</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            <h3>Artist</h3>
+            <ul id='filter_artist'>
             </ul>
           </div>
         </div>
@@ -63,14 +53,15 @@ function setup() {
         sorter: sort_by_string},
       {name: 'artist',
        field:'fields.created_by',
+       formatter: format_author,
        sorter: sort_by_string},
     ],
     { //row_2
      field: 'fields.setup',
     },
     [ // filter_list
-      new Informer.Filter('machine', 'fields.host', 'fields.host'),
-      new Informer.Filter('author', 'fields.created_by', 'fields.created_by')
+      new Informer.Filter('filter_machine', 'fields.host'),
+      new Informer.Filter('filter_artist',  'fields.created_by', format_author)
     ]);
 
     Renders.url = '{{shot.get_json_renders_url}}';

@@ -37,22 +37,18 @@
         <div class="right">
           <div class="box small">
             <h3>Status</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-              <li><a href="#" title="#">Pending (1)</a></li>
-              <li class="last"><a href="#" title="#">Completed (3)</a></li>
+            <ul id='filter_status'>
+                <li>foo bar</li>
             </ul>
           </div>
           <div class="box small">
             <h3>Author</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            <ul id='filter_author'>
             </ul>
           </div>
           <div class="box small">
             <h3>Assigned to</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            <ul id='filter_assigned_to'>
             </ul>
           </div>
         </div>
@@ -116,8 +112,9 @@ function setup() {
      formatter: format_nl2br
     },
     [ // filter_list
-      new Informer.Filter('status', 'fields.is_checked', 'fields.is_checked', format_pending),
-      new Informer.Filter('author', 'fields.created_by', 'fields.created_by')
+      new Informer.Filter('filter_status',      'fields.is_checked',  format_pending),
+      new Informer.Filter('filter_author',      'fields.created_by',  format_author),
+      new Informer.Filter('filter_assigned_to', 'fields.assigned_to', format_assigned),
     ]);
 
     Notes.url = '{{shot.get_json_notes_url}}';

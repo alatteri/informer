@@ -9,110 +9,113 @@ function LOG(x) {
 /* 
  * Informer Object
  * ------------------------------------------------------- */
-
 var Informer = {};
-Informer.Filter = Class.create();
-Informer.Filter.prototype = {
-    initialize: function(name, field, label, filter) {
-        this.name = name
-        this.field = field
-        this.value = '';
-        this.use = false;
-
-        this.label_field = label;
-        this.label_field_filter = filter;
-    },
-
-    run_for_list: function(obj) {
-        return [get_value(this.field, obj), get_value(this.label_field, obj)];
-    },
-
-    get_label: function(label_value) {
-        return this.label_field_filter ? this.label_field_filter(label_value) : label_value;
-    },
-  
-    execute: function(objects) {
-        if (!this.use)
-            return objects;
-        else {
-            var tr = [];
-            for (var o=0; o<objects.length; o++) {
-                var tmp = get_value(this.field, objects[o]);
-                if (tmp == this.value)
-                    tr.push(objects[o]);
-            }
-            return tr;
-        }
-    }
-};
-  
 
 /* 
- * Informer Filter List
+ * Informer Filter: represents one filtered category
  * ------------------------------------------------------- */
+Informer.Filter = Class.create();
+Informer.Filter.prototype = {
+    // initialize: create a new Filter object
+    //      name:   string of the id of the UL element to use
+    //      field:  the field description to filter
+    //      format: optional formatting function
+    initialize: function(name, field, format) {
+        this.name = name;
+        this.field = field;
 
-Informer.FilterList = Class.create();
-Informer.FilterList.prototype = {
-    initialize: function() {
-        this._filters = $H();
-        this._list_data;
-    },
-  
-    add: function(filter) {
-        this._filters.set(filter.name, filter);
-    },
-  
-    execute: function(objects) {
-        var tr = objects;
-        var names = this._filters.keys();
-        for (var i=0; i<names.length; i++)
-            tr = this._filters.get(names[i]).execute(tr);
-        return tr;
-    },
-  
-    reset_list_data: function() {
-        this._list_data = $H();
-        this._filters.keys().each(function(x){
-            this._list_data.set(x, $H());
-        }.bind(this));
+        // the format function is optional
+        this.format = format ? format : function(x) { return x };
+
+        this.use = false;
+        this.value = null;
+        this.matches = $H();
     },
 
-    process_list_data: function(obj) {
-        var names = this._filters.keys();
-        for (var i=0; i<names.length; i++) {
-            var f = this._filters.get(names[i]);
-            var data = this._list_data.get(names[i]);
-            var info = f.run_for_list(obj);
-            var tmp = data.get(info[1]);
-            
-            if (tmp)
-                tmp.count++;
-            else
-                tmp = {'count':1, 'value':info[0]};
-            
-            data.set(info[1], tmp);
-            this._list_data.set(names[i], data);
+    // clears the match count for the Filter object
+    reset_filter: function() {
+        this.matches = $H();
+    },
+
+    // accepts a data object, increments internal counts for fields
+    observe_data: function(data) {
+        var val = this.format(get_value(this.field, data));
+        var count = this.matches.get(val);
+        if (count) {
+            this.matches.set(val, count + 1);
+        } else {
+            this.matches.set(val, 1);
         }
     },
 
-    get_list_data: function() {
-        var tmp = $H();
-        var keys = this._list_data.keys();
-        for (var i=0; i<keys.length; i++) {
-            var key = keys[i];
-            var filter = this._filters.get(key);
-            var sub = this._list_data.get(key);
-            var sub_keys = sub.keys();
-            var tmp2 = $H();
-            for (var j=0; j<sub_keys.length; j++) {
-                var sub_key = sub_keys[j];
-                var label = filter.get_label(sub_key);
-                tmp2.set(label, sub.get(sub_key));
+    // render the Filter object to the screen
+    draw: function() {
+        var ul = $(this.name);
+        while (ul.hasChildNodes())
+            ul.removeChild(ul.firstChild);
+
+        var create_li = function (text, func) {
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(text));
+            Event.observe(li, 'click', func);
+            return li;
+        };
+
+        var keys = this.matches.keys().sort();
+        if (keys.length) {
+            // XXX TODO: need to add click handlers
+            // display the show all link first
+            ul.appendChild(create_li('Show All', function(x) { }));
+
+            // followed by the counts for all rows
+            for (var i=0; i<keys.length; i++) {
+                var key = keys[i];
+                var text = key + ' (' + this.matches.get(key) + ')';
+                var func = function(x) { };
+                ul.appendChild(create_li(text, func));
             }
-            tmp.set(key, tmp2);
+        } else {
+            ul.appendChild(create_li('None', function(x) {} ));
         }
-        return tmp;
-    }
+    },
+};
+
+
+/* 
+ * Informer Filter Manager: manages several Filter objects
+ * ------------------------------------------------------- */
+Informer.FilterManger = Class.create();
+Informer.FilterManger.prototype = {
+    // initialize: create a new Filter Manager object
+    initialize: function() {
+        this.filters = $H();
+    },
+  
+    // associate a Filter object with the Manger
+    register_filter: function(filter) {
+        this.filters.set(filter.name, filter);
+    },
+  
+    // associates a data object with all registered filters
+    register_data: function(data) {
+        var names = this.filters.keys();
+        for (var i=0; i<names.length; i++)
+            this.filters.get(names[i]).observe_data(data);
+    },
+
+    // clears the match count for all registered filters
+    reset_all_filters: function() {
+        var names = this.filters.keys();
+        for (var i=0; i<names.length; i++)
+            this.filters.get(names[i]).reset_filter();
+    },
+
+    // render all filters
+    draw: function() {
+        var names = this.filters.keys();
+        for (var i=0; i<names.length; i++)
+            this.filters.get(names[i]).draw();
+    },
 };
   
 
@@ -128,8 +131,8 @@ Informer.Data.prototype = {
         this.name = name;
         this.row_1 = row_1;
         this.row_2 = row_2;
-        this.entries = undefined;
-        this.filters = new Informer.FilterList();;
+        this.entries = $(this.name + "_entries");
+        this.fm = new Informer.FilterManger();
         this.data = undefined;
         this.url = undefined;
         this._sorter = undefined;
@@ -137,7 +140,7 @@ Informer.Data.prototype = {
       
         if (filter_list) {
             filter_list.each(function(x) {
-                this.filters.add(x);
+                this.fm.register_filter(x);
             }.bind(this)); 
         }
     },
@@ -172,14 +175,11 @@ Informer.Data.prototype = {
 
     /* Preprocesses data */
     pre_process: function() {
-        this.filters.reset_list_data();
+        this.fm.reset_all_filters();
 		  
-        if (!this.entries)
-            this.entries = $(this.name + "_entries");
-        
         for (var i=0; i<this.data.length; i++) {
             var obj = this.data[i];
-            this.filters.process_list_data(obj);
+            this.fm.register_data(obj);
 			  
             for (var j=0; j<this.row_1.length; j++) {
                 var col = this.row_1[j];
@@ -193,6 +193,8 @@ Informer.Data.prototype = {
                 set_value(col.field, obj, val);
             }
         }  
+
+        this.fm.draw();
     },
 
     /* Resorts data given passed sorter */
@@ -228,9 +230,6 @@ Informer.Data.prototype = {
 
     /* Clears table of all data */
     clear_table: function() {
-        if (!this.entries)
-            this.entries = $(this.name + '_entries');
-
         while (this.entries.hasChildNodes())
             this.entries.removeChild(this.entries.firstChild);	
     },
@@ -321,13 +320,13 @@ Informer.Data.prototype = {
 
     /* Turns off given filter and repopulates table */
     turn_off: function(which) {
-        this.filters._filters.get(which).use = false;
+        this.fm.filters.get(which).use = false;
         this.populate_table();
     },
 
     /* Sets the filter value and repopulates the table */
     set_value: function(which, value) {
-        var f = this.filters._filters.get(which);
+        var f = this.fm.filters.get(which);
         f.use = true;
         f.value = value;
         this.populate_table();
@@ -419,43 +418,24 @@ function parse_boolean(b) {
     }
 }
   
-function create_filter_ul(values, data_obj, which, ul_element) {
-    while (ul_element.hasChildNodes())
-        ul_element.removeChild(ul_element.firstChild);
-
-	var names = values.keys();
-	names.sort();
-	ul_element.appendChild(create_li(
-		'All', function(x) { data_obj.turn_off(which); return false; }));
-	names.each(function(each) {
-		var txt = each + ' (' + values.get(each).count + ')';
-		var val = values.get(each).value;
-		var func = function(x) { data_obj.set_value(which, val); return false; };
-		ul_element.appendChild(create_li(txt, func));
-	});
-}
-
-function create_li(text, func) {
-    var li = document.createElement('li');
-    li.appendChild(document.createTextNode(text));
-    Event.observe(li, 'click', func);
-    return li;
-}
-
+/* accepts a Date object, returns pretty stringified Date */
 function format_date(d) {	
     month = (d.getMonth()+1) < 10?'0'+(d.getMonth()+1):(d.getMonth()+1);
     day = d.getDate() < 10?'0'+d.getDate():d.getDate();
     return month+'/'+day+'/'+d.getFullYear();
 }
 
+/* accepts a boolean, returns string describing bool for Note status */
 function format_pending(p) {
-    return p ? 'Completed' : 'Pending';
+    return parse_boolean(p) ? 'Completed' : 'Pending';
 }
 
+/* accepts string, returns pretty formatted username. Defaults to 'Anyone' */
 function format_assigned(u) {
     return u ? format_author(u) : 'Anyone';
 }
 
+/* accepts string, capitalizes first letter */
 function format_author(u) {
      return u.substring(0,1).toUpperCase() + u.substring(1,u.length);	
 }

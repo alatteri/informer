@@ -35,11 +35,9 @@ function setup() {
        create_func: create_log,
        sorter: sort_by_string}
     ],
-    null, //row_2
-    [ // filter_list
-      new Informer.Filter('date', 'fields.when', 'fields.when', format_date),
-      new Informer.Filter('author', 'fields.who', 'fields.who')
-    ]);
+    null, // row_2
+    null // no filters
+    );
 
     Logs.url = '{{ shot.get_json_logs_url }}';
     Logs.load_data({{ data }});

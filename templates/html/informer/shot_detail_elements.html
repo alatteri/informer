@@ -35,23 +35,13 @@
         </div>
         <div class="right">
           <div class="box small">
-            <h3>Status</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-              <li><a href="#" title="#">Pending (1)</a></li>
-              <li class="last"><a href="#" title="#">Completed (3)</a></li>
+            <h3>Category</h3>
+            <ul id='filter_category'>
             </ul>
           </div>
           <div class="box small">
-            <h3>Author</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-            </ul>
-          </div>
-          <div class="box small">
-            <h3>Assigned to</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
+            <h3>Created by</h3>
+            <ul id='filter_created_by'>
             </ul>
           </div>
         </div>
@@ -75,9 +65,10 @@ function setup() {
        formatter: format_date,
        parser: parse_date,
        is_default: true},
-       {name: 'checkedInBy',
-        field: 'fields.created_by',
-        sorter: sort_by_string},
+      {name: 'checkedInBy',
+       field: 'fields.created_by',
+       formatter: format_author,
+       sorter: sort_by_string},
       {name: 'category',
        field:'fields.kind',
        sorter: sort_by_string},
@@ -86,8 +77,8 @@ function setup() {
      field: 'fields.text',
     },
     [ // filter_list
-      new Informer.Filter('category', 'fields.kind', 'fields.kind'),
-      new Informer.Filter('created_by', 'fields.created_by', 'fields.created_by')
+      new Informer.Filter('filter_category',   'fields.kind'),
+      new Informer.Filter('filter_created_by', 'fields.created_by', format_author)
     ]);
 
     Elements.url = '{{shot.get_json_elements_url}}';
