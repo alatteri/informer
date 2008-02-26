@@ -434,7 +434,11 @@ function format_assigned(u) {
 	if (!u || !u.pk)
 		return 'Anyone';
 	else
-		return u.username;
+		return u.username.substring(0,1).toUpperCase() + u.username.substring(1,u.username.length);
+}
+
+function format_author(name) {
+     return name.substring(0,1).toUpperCase() + name.substring(1,name.length);	
 }
 
 function format_nl2br(txt) {

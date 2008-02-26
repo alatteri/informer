@@ -78,7 +78,8 @@ function setup() {
        is_default: true},
       {name: 'author',
        field:'fields.created_by.username',
-       sorter: sort_by_string},
+       sorter: sort_by_string,
+       formatter: format_author},
        {name: 'assignedTo',
         field:'fields.assigned_to',
         sorter: sort_by_string,
@@ -124,7 +125,8 @@ function add_note() {
 function add_note_callback(r) {
     Notes.add_data(r.responseJSON[0]);
     $('form-note-create').reset();
-    Notes.resort_table();
+    Notes.sort_data();
+    Notes.populate_table();
 }
 
 // onload trigger
