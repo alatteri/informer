@@ -65,6 +65,26 @@
 /* Notes functions
  * ------------------------------------------------------ */
 
+// Generates status row with click event
+function create_status_item(info, item) {
+    var value = get_value(info, item);
+    var status_li = document.createElement('li');
+    status_li.className = info.name;
+    var status_a = document.createElement('a');
+    Element.extend(status_a);
+    status_a.appendChild(document.createTextNode(value));
+    status_li.appendChild(status_a);
+    Element.extend(status_a);
+    status_a.observe(
+      'click',
+      function() {new Ajax.Request(
+        Notes.url, {
+        parameters: {id: 'test'},
+	onComplete: function() {
+	alert('success');}}) });
+
+    return status_li; };
+
 /* called when page first loaded, initialize data */
 function setup() {
   Notes = new Informer.Data(
@@ -88,7 +108,9 @@ function setup() {
         field: 'fields.is_checked',
         sorter: sort_by_string,
         parser: parse_boolean,
-        formatter: format_pending}
+        formatter: format_pending,
+	create_func: create_status_item
+	}
     ],
     { //row_2
      field: 'fields.text',
@@ -129,6 +151,8 @@ function add_note_callback(r) {
     Notes.add_data(r.responseJSON[0]);
     Notes.resort_table();
 }
+
+  
 
 // onload trigger
 Event.observe(window, 'load', setup);

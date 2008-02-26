@@ -297,7 +297,7 @@ Informer.Data.prototype = {
             var info = this.row_1[i];
             var elem;
             if (info.create_func) {
-                elem = info.create_func(item);
+                elem = info.create_func(info, item);
             } else {
                 var value = get_value(info, item);
                 elem = document.createElement(tag);
