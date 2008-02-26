@@ -123,10 +123,10 @@ function add_note() {
 
 /* Ajax callback triggered after a user clicks the 'Add Note' button */
 function add_note_callback(r) {
+    $('form-note-create').reset();	
+	styleSelects();
     Notes.add_data(r.responseJSON[0]);
-    $('form-note-create').reset();
-    Notes.sort_data();
-    Notes.populate_table();
+    Notes.resort_table();
 }
 
 // onload trigger
