@@ -362,7 +362,7 @@ class Log(InformerMixIn, models.Model):
                         'msg_prefix', 'object_repr', 'msg_suffix')
 
     class Rest:
-        expose_fields = ['who', 'when', 'action', 'type',
+        expose_fields = ['who', 'when', 'action', 'type', 'object_id',
                          'msg_prefix', 'object_repr', 'msg_suffix']
 
 # ------------------------------------------------------------------------------
