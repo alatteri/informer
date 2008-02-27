@@ -24,10 +24,10 @@
           <div class="box medium">
             <h3>All Notes</h3>
             <ul class="heading" id="notes_heading">
-              <li class="date down highlight" onclick="Notes.resort_table('date'); highlightHeading(this, Notes);">Date</li>
-              <li class="author" onclick="Notes.resort_table('author'); highlightHeading(this, Notes);">Author</li>
-              <li class="assignedTo" onclick="Notes.resort_table('assignedTo'); highlightHeading(this, Notes);">Assigned To</li>
-              <li class="status" onclick="Notes.resort_table('status'); highlightHeading(this, Notes);">Status</li>
+              <li class="date down highlight" onclick="notes.resort_table('date'); highlightHeading(this, notes);">Date</li>
+              <li class="author" onclick="notes.resort_table('author'); highlightHeading(this, notes);">Author</li>
+              <li class="assignedTo" onclick="notes.resort_table('assignedTo'); highlightHeading(this, notes);">Assigned To</li>
+              <li class="status" onclick="notes.resort_table('status'); highlightHeading(this, notes);">Status</li>
             </ul>
             <ul class="entries" id="notes_entries">
             </ul>
@@ -47,7 +47,7 @@
             </ul>
           </div>
           <div class="box small">
-            <h3>Assigned to</h3>
+            <h3>Assigned To</h3>
             <ul id='filter_assigned_to'>
             </ul>
           </div>
@@ -82,7 +82,7 @@ function create_status_item(info, item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
-  Notes = new Informer.Data(
+  notes = new Informer.Data(
     'notes', // name
     [ // row_1
       {name: 'date',
@@ -116,11 +116,8 @@ function setup() {
       new Informer.Filter('filter_assigned_to', 'fields.assigned_to', format_assigned),
     ]);
 
-    Notes.url = '{{shot.get_json_notes_url}}';
-	Notes.load_data({{ data }});
-    Notes._sorter = "date";
-    Notes.resort_table();
-	highlightColumn('date');
+    notes.url = '{{shot.get_json_notes_url}}';
+	notes.load_data({{ data }});
 }
 
 /* called when user clicks on the 'Add Note' button */
@@ -132,7 +129,7 @@ function add_note() {
     }
 
     // fire off the request to the server to create the note
-    new Ajax.Request(Notes.url, {
+    new Ajax.Request(notes.url, {
         parameters: $('form-note-create').serialize(),
         evalJSON:   true,
         onSuccess:  add_note_callback,
@@ -143,8 +140,8 @@ function add_note() {
 function add_note_callback(r) {
     $('form-note-create').reset();	
 	styleSelects();
-    Notes.add_data(r.responseJSON[0]);
-    Notes.resort_table();
+    notes.add_data(r.responseJSON[0]);
+    notes.resort_table();
 }
 
   

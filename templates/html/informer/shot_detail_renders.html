@@ -7,9 +7,9 @@
           <div class="box medium">
           <h3>Render History</h3>
           <ul class="heading" id="renders_heading">
-            <li class="date down highlight" onclick="Renders.resort_table('date'); highlightHeading(this,Renders);">Date</li>
-            <li class="machine" onclick="Renders.resort_table('machine'); highlightHeading(this,Renders);">Machine</li>
-            <li class="artist" onclick="Renders.resort_table('artist'); highlightHeading(this,Renders);">Artist</li>
+            <li class="date down highlight" onclick="renders.resort_table('date'); highlightHeading(this,renders);">Date</li>
+            <li class="machine" onclick="renders.resort_table('machine'); highlightHeading(this,renders);">Machine</li>
+            <li class="artist" onclick="renders.resort_table('artist'); highlightHeading(this,renders);">Artist</li>
           </ul>
           <ul class="entries" id="renders_entries">
           </ul>
@@ -39,7 +39,7 @@
 
 /* called when page first loaded, initialize data */
 function setup() {
-  Renders = new Informer.Data(
+  renders = new Informer.Data(
     'renders', // name
     [ // row_1
       {name: 'date',
@@ -64,11 +64,8 @@ function setup() {
       new Informer.Filter('filter_artist',  'fields.created_by', format_author)
     ]);
 
-    Renders.url = '{{shot.get_json_renders_url}}';
-    Renders.load_data({{ data }});
-	Renders._sorter = "date";
-    Renders.resort_table();
-	highlightColumn('date');
+    renders.url = '{{shot.get_json_renders_url}}';
+    renders.load_data({{ data }});
 }
 
 

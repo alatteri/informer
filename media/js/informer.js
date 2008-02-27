@@ -27,9 +27,25 @@ Informer.Filter.prototype = {
         // the format function is optional
         this.format = format ? format : function(x) { return x };
 
-        this.use = false;
         this.value = null;
         this.matches = $H();
+        this.on_click = null;
+    },
+
+    // specify the value the object will filter on
+    // pass null to turn off filter
+    filter_by: function(value) {
+        this.value = value;
+    },
+
+    // returns true if the data would be filtered
+    is_filtered: function(data) {
+        if (null == this.value) return false;
+
+        // the data is filtered if the value doesn't
+        // match the filter's value
+        var val = this.format(get_value(this.field, data));
+        return val != this.value;
     },
 
     // clears the match count for the Filter object
@@ -48,34 +64,37 @@ Informer.Filter.prototype = {
         }
     },
 
+    // create a list item entry: accepts text label to display and value
+    // to use in the on_click handler
+    create_li: function(text, value) {
+        var li = document.createElement('li');
+        li.appendChild(document.createTextNode(text));
+
+        if (value != null) value = "'" + value + "'";
+        var fn = this.on_click + "('" + this.name + "', " + value + ")";
+        Event.observe(li, 'click', function() { eval(fn); });
+        return li;
+    },
+
     // render the Filter object to the screen
     draw: function() {
         var ul = $(this.name);
         while (ul.hasChildNodes())
             ul.removeChild(ul.firstChild);
 
-        var create_li = function (text, func) {
-            var li = document.createElement('li');
-            li.appendChild(document.createTextNode(text));
-            Event.observe(li, 'click', func);
-            return li;
-        };
-
         var keys = this.matches.keys().sort();
         if (keys.length) {
-            // XXX TODO: need to add click handlers
             // display the show all link first
-            ul.appendChild(create_li('Show All', function(x) { }));
+            ul.appendChild(this.create_li('Show All', null));
 
             // followed by the counts for all rows
             for (var i=0; i<keys.length; i++) {
                 var key = keys[i];
                 var text = key + ' (' + this.matches.get(key) + ')';
-                var func = function(x) { };
-                ul.appendChild(create_li(text, func));
+                ul.appendChild(this.create_li(text, key));
             }
         } else {
-            ul.appendChild(create_li('None', function(x) {} ));
+            ul.appendChild(this.create_li('None', null));
         }
     },
 };
@@ -87,12 +106,14 @@ Informer.Filter.prototype = {
 Informer.FilterManger = Class.create();
 Informer.FilterManger.prototype = {
     // initialize: create a new Filter Manager object
-    initialize: function() {
+    initialize: function(on_click) {
         this.filters = $H();
+        this.on_click = on_click;
     },
   
     // associate a Filter object with the Manger
     register_filter: function(filter) {
+        filter.on_click = this.on_click;
         this.filters.set(filter.name, filter);
     },
   
@@ -108,6 +129,17 @@ Informer.FilterManger.prototype = {
         var names = this.filters.keys();
         for (var i=0; i<names.length; i++)
             this.filters.get(names[i]).reset_filter();
+    },
+
+    // returns true if any of the filters would filter the data
+    is_filtered: function(data) {
+        var names = this.filters.keys();
+        for (var i=0; i<names.length; i++) {
+            if (this.filters.get(names[i]).is_filtered(data)) {
+                return true;
+            }
+        }
+        return false;
     },
 
     // render all filters
@@ -132,10 +164,17 @@ Informer.Data.prototype = {
         this.row_1 = row_1;
         this.row_2 = row_2;
         this.entries = $(this.name + "_entries");
-        this.fm = new Informer.FilterManger();
+
+        // the Filter Manager accepts the name of a function
+        // for callback when a filter is clicked
+        var on_click = this.name + '.filter';
+        this.fm = new Informer.FilterManger(on_click);
+
+        // default to sorting by the first column in the table
+        this._sorter = this.row_1[0]['name'];
+
         this.data = undefined;
         this.url = undefined;
-        this._sorter = undefined;
         this._reversed = false;
       
         if (filter_list) {
@@ -145,32 +184,16 @@ Informer.Data.prototype = {
         }
     },
 
-	/* Loads Informer data */
-    load_data: function(data) {
-        if (this.data) return;
-
-        if (data) {
-            this.setup_data(data);
-            return;
-        }
-
-        var a = new Ajax.Request(this.url, {
-            method: 'GET',
-            onSuccess: function(r) {
-                this.setup_data(r.responseText);
-            }.bind(this)
-        });
-    },
-
     /* Preprocesses data and populates table */
-    setup_data: function(data) {
-        if ('String' == typeof(data))
+    load_data: function(data) {
+        if ('String' == typeof(data)) {
             this.data=eval(data);
-        else
+        } else {
             this.data=data;
+        }
         
         this.pre_process();
-        this.populate_table();
+        this.draw();
     },
 
     /* Preprocesses data */
@@ -193,13 +216,10 @@ Informer.Data.prototype = {
                 set_value(col.field, obj, val);
             }
         }  
-
-        this.fm.draw();
     },
 
     /* Resorts data given passed sorter */
     resort_table: function(which) {
-        this.clear_table();	
         if (which == null) {
 	        this.sort_data();
 
@@ -215,41 +235,47 @@ Informer.Data.prototype = {
 	        this._sorter = which;
 	        this.sort_data();
         }
-        this.populate_table();
+
+        this.draw();
     },
     
-	/* Populates table with data */
-    populate_table: function() {
-        this.data.each(function (item) {
-            if (this.row_2)
-                this.create_entry(item);
-           else
-                this.create_log_entry(item);
-        }.bind(this));
-    },
-
-    /* Clears table of all data */
-    clear_table: function() {
+	/* Renders the table item */
+    draw: function() {
+        // Clear out previous entries (if any)
         while (this.entries.hasChildNodes())
             this.entries.removeChild(this.entries.firstChild);	
+
+        // Draw the non-filtered data
+        for (var i=0; i<this.data.length; i++) {
+            if (false == this.fm.is_filtered(this.data[i])) {
+                if (this.row_2) {
+                    this.create_entry(this.data[i]);
+                } else {
+                    this.create_log_entry(this.data[i]);
+                }
+            }
+        }
+
+        // TODO: It would be nice to make this into an object method
+        highlightColumn(this._sorter);
+
+        // Finally, draw the filters
+        this.fm.draw();
     },
 
     /* Sorts data given current sorter */
     sort_data: function() {
-        var sorter = this.row_1.find(function(x) { 
+        // search through all columns, find the sorter of the currently
+        // highlighted column
+        var column = this.row_1.find(function(x) { 
             return x.name == this._sorter; 
         }.bind(this));
 
-        if (sorter) {
-            if (sorter.sorter) {
-                this.data = this.data.sortBy(function (x) {
-                    return sorter.sorter(get_value(sorter.field, x));
-                });
-            } else {
-                this.data = this.data.sortBy(function (x) { 
-                    return get_value(sorter.field, x); 
-                });
-            }
+        // make sure we found the column and it had a sorter defined
+        if (column && column.sorter) {
+            this.data = this.data.sortBy(function (x) {
+                return column.sorter(get_value(column.field, x));
+            });
         }
     },
 	
@@ -320,18 +346,10 @@ Informer.Data.prototype = {
         parent.appendChild(button);
     },
 
-    /* Turns off given filter and repopulates table */
-    turn_off: function(which) {
-        this.fm.filters.get(which).use = false;
-        this.populate_table();
-    },
-
-    /* Sets the filter value and repopulates the table */
-    set_value: function(which, value) {
-        var f = this.fm.filters.get(which);
-        f.use = true;
-        f.value = value;
-        this.populate_table();
+    filter: function(filter_name, filter_val) {
+        var f = this.fm.filters.get(filter_name);
+        f.filter_by(filter_val);
+        this.draw();
     },
 
     /* Adds given data object, preprocesses it, and repopulates table */     

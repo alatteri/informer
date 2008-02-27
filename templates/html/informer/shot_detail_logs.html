@@ -6,9 +6,9 @@
 <div class="box large">
     <h3>Recent Activity</h3>
     <ul class="heading" id="overview_heading">
-        <li class="date down highlight" onclick="Logs.resort_table('date'); highlightHeading(this,Logs);">Date</li>
-        <li class="author" onclick="Logs.resort_table('author'); highlightHeading(this,Logs);">Author</li>
-        <li class="activity" onclick="Logs.resort_table('activity'); highlightHeading(this,Logs);">Activity</li>
+        <li class="date down highlight" onclick="overview.resort_table('date'); highlightHeading(this,overview);">Date</li>
+        <li class="author" onclick="overview.resort_table('author'); highlightHeading(this,overview);">Author</li>
+        <li class="activity" onclick="overview.resort_table('activity'); highlightHeading(this,overview);">Activity</li>
     </ul>
     <ul class="entries" id="overview_entries">
     </ul>
@@ -18,7 +18,7 @@
 {%block script %}
 
 function setup() {
-  Logs = new Informer.Data(
+  overview = new Informer.Data(
     'overview', // name
     [ // row_1
       {name: 'date',
@@ -39,11 +39,8 @@ function setup() {
     null // no filters
     );
 
-    Logs.url = '{{ shot.get_json_logs_url }}';
-    Logs.load_data({{ data }});
-    Logs._sorter = "date";
-    Logs.resort_table();
-	highlightColumn('date');
+    overview.url = '{{ shot.get_json_logs_url }}';
+    overview.load_data({{ data }});
 }
 
 Event.observe(window, 'load', setup)

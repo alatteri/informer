@@ -24,9 +24,9 @@
           <div class="box medium">
           <h3>Elements Browser</h3>
           <ul class="heading" id="elements_heading">
-            <li class="date down highlight" onclick="Elements.resort_table('date'); highlightHeading(this,Elements);">Date</li>
-            <li class="checkedInBy" onclick="Elements.resort_table('checkedInBy'); highlightHeading(this,Elements);">Checked in by</li>
-            <li class="category" onclick="Elements.resort_table('category'); highlightHeading(this,Elements);">Category</li>
+            <li class="date down highlight" onclick="elements.resort_table('date'); highlightHeading(this,elements);">Date</li>
+            <li class="checkedInBy" onclick="elements.resort_table('checkedInBy'); highlightHeading(this,elements);">Checked in by</li>
+            <li class="category" onclick="elements.resort_table('category'); highlightHeading(this,elements);">Category</li>
           </ul>
           <ul class="entries" id="elements_entries">
           </ul>
@@ -56,7 +56,7 @@
 
 /* called when page first loaded, initialize data */
 function setup() {
-  Elements = new Informer.Data(
+  elements = new Informer.Data(
     'elements', // name
     [ // row_1
       {name: 'date',
@@ -81,11 +81,8 @@ function setup() {
       new Informer.Filter('filter_created_by', 'fields.created_by', format_author)
     ]);
 
-    Elements.url = '{{shot.get_json_elements_url}}';
-    Elements.load_data({{ data }});
-	Elements._sorter = "date";
-    Elements.resort_table();
-	highlightColumn('date');
+    elements.url = '{{shot.get_json_elements_url}}';
+    elements.load_data({{ data }});
 }
 
 Event.observe(window, 'load', setup);
