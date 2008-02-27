@@ -480,7 +480,14 @@ function create_log(info) {
         span.appendChild(obj);
     if (suffix && t!='Shot')
         span.appendChild(document.createTextNode(' ' + suffix));
-    
+
+    // Add Rollover link
+    var link = document.createElement('A');
+    var link_text = document.createTextNode("View " + get_value('fields.type', info).toLowerCase());
+    link.appendChild(link_text);
+    link.title = "View " + get_value('fields.type', info).toLowerCase();
+    link.href = "notes/#" + get_value('fields.object_id', info);
+    span.appendChild(link);
     return span;
 }
 
