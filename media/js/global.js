@@ -52,18 +52,25 @@ function styleSelects() {
 
 /* Highlights given table heading (assumes given heading is a <li>)*/
 function highlightHeading(li, log) {
-    list_items = li.parentNode.getElementsByTagName('li');
-
-    // Clears highlight class
-    for(var i=0; i<list_items.length; i++)
-        list_items[i].className = list_items[i].className.split(' ')[0] + " " + list_items[i].className.split(' ')[1];
-    
-	li.className = log._sorter + " " + log._reversed + " highlight";
+    // If not restoring the highlighted column
+	if(!li.hasClassName('highlight')) {
+        list_items = li.parentNode.getElementsByTagName('li');
+		for(var i=0; i<list_items.length; i++)
+		    if(list_items[i].hasClassName('highlight'))
+	            list_items[i].className = list_items[i].className.split(' ')[0];
+	} 
 	
+	// Highlight with appropriate up or down arrow
+	if (li.hasClassName('down'))
+	    li.className = log._sorter + " up highlight";
+	else
+        li.className = log._sorter + " down highlight";
+	    
+	// Highlight entire column
 	highlightColumn(log._sorter);
 }
 
-
+/* Highlights column with given sorter name */
 function highlightColumn(sorter) {
 	if(document.body.id == "overview")
 		var column_cells = $('overview_entries').getElementsByTagName('span');

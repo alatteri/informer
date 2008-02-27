@@ -261,6 +261,7 @@ Informer.Data.prototype = {
     /* Creates table entry (note, render, or clip) given passed data item */
     create_entry: function(item) {
         var li = document.createElement('LI');
+        li.id = item.pk;
         var entry = document.createElement('DIV');
         entry.className = 'entry';
         var ul = document.createElement('UL');
@@ -304,6 +305,7 @@ Informer.Data.prototype = {
                 elem.appendChild(document.createTextNode(value));
             }
             parent.appendChild(elem);
+            
         }
 
         // Adds the close button if we're on the notes page

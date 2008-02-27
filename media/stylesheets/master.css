@@ -199,10 +199,10 @@ html, body {
 	font-size: 12px;
 	text-shadow: #d3d3d3 1px 1px 1px;	
 	}
-#content div.box ul.heading li.false.highlight {
+#content div.box ul.heading li.down.highlight {
 	background: url(../images/background-table-heading-highlight-down.gif) no-repeat right top;
 	}
-#content div.box ul.heading li.true.highlight {
+#content div.box ul.heading li.up.highlight {
 	background: url(../images/background-table-heading-highlight-up.gif) no-repeat right top;
 	}
  	
