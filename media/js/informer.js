@@ -70,7 +70,16 @@ Informer.Filter.prototype = {
         var li = document.createElement('li');
         li.appendChild(document.createTextNode(text));
 
-        if (value != null) value = "'" + value + "'";
+        // if the value is the highlighted value set the class
+        if (value == this.value)
+            li.className = 'highlight';
+
+        // I'm eval'ing fn inside of the callback. It seems gross
+        // it'll work until there's something better. Since it's an
+        // eval make sure to not quote null or it becomes string 'null'
+        if (value != null)
+            value = "'" + value + "'";
+
         var fn = this.on_click + "('" + this.name + "', " + value + ")";
         Event.observe(li, 'click', function() { eval(fn); });
         return li;
