@@ -85,6 +85,6 @@ function setup() {
     elements.load_data({{ data }});
 }
 
-Event.observe(window, 'load', setup);
-
+// onload trigger
+setup();
 {% endblock %}
