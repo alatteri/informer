@@ -13,11 +13,8 @@ function addIEOverviewHoverStyles() {
 	if(document.body.id != "overview")
 		return;
 
-		list_items = document.getElementById('overview_entries').getElementsByTagName('li');
-	
-	alert(list_items.length);
-	
 	// Add hover states to list items
+	list_items = document.getElementById('overview_entries').getElementsByTagName('li');
 	for(var i=0; i<list_items.length; i++) {
 		list_items[i].onmouseover = function(){
 			if(this.className == "last")
