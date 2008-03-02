@@ -482,7 +482,7 @@ function format_nl2br(txt) {
 
 function create_log(info) {
     var span = document.createElement('span');
-    span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.msg_prefix', info).split(/\s/)[0].toLowerCase(); //TODO action+type
+    span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.object_id', info);
     var obj = get_value('fields.object_repr', info);
     var prefix = get_value('fields.msg_prefix', info);
     var suffix = get_value('fields.msg_suffix', info);
@@ -508,13 +508,31 @@ function create_log(info) {
     if (suffix && t!='Shot')
         span.appendChild(document.createTextNode(' ' + suffix));
 
-    // Add Rollover link
-    var link = document.createElement('A');
-    var link_text = document.createTextNode("View " + get_value('fields.type', info).toLowerCase());
-    link.appendChild(link_text);
-    link.title = "View " + get_value('fields.type', info).toLowerCase();
-    link.href = "notes/#" + get_value('fields.object_id', info);
-    span.appendChild(link);
+    // Add Rollover link if log item not for deletion
+    if(get_value('fields.msg_prefix', info).split(/\s/)[0].toLowerCase() != "deleted") {
+		var link = document.createElement('A');
+	    var link_text = document.createTextNode("View " + get_value('fields.type', info).toLowerCase());
+	    link.appendChild(link_text);
+	    link.title = "View " + get_value('fields.type', info).toLowerCase();
+	    if(get_value('fields.type', info).toLowerCase() == "note")
+	       link.href = "notes/#" + get_value('fields.object_id', info);
+	    else if(get_value('fields.type', info).toLowerCase() == "element")
+	       link.href = "elements/#" + get_value('fields.object_id', info);	
+	    else if(get_value('fields.type', info).toLowerCase() == "render")
+	       link.href = "renders/#" + get_value('fields.object_id', info);
+
+	    span.appendChild(link);
+    }else { // If deleted, remove link from log where item was created
+	    spans = $('overview_entries').getElementsByTagName('span');
+	    
+	    for(var i=0; i<spans.length; i++) {
+		    if(spans[i].hasClassName(get_value('fields.object_id', info))) {
+				if(dead_link = spans[i].getElementsByTagName('A')[0])
+					dead_link.parentNode.removeChild(dead_link);
+		    }
+	    }
+    }
+    
     return span;
 }
 

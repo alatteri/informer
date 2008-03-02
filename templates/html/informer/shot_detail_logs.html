@@ -41,6 +41,7 @@ function setup() {
 
     overview.url = '{{ shot.get_json_logs_url }}';
     overview.load_data({{ data }});
+    addIEOverviewHoverStyles();
 }
 
 Event.observe(window, 'load', setup)

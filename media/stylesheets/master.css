@@ -455,7 +455,7 @@ div.box.small ul li.path strong {
 	background-color: #77797b;
 	}	
 #content div.box.large ul.entries li span.activity a {
-	display: block;
+	display: none;
 	position: absolute;
 	right: 0px;
 	top: 0px;
@@ -464,18 +464,6 @@ div.box.small ul li.path strong {
 	margin: 5px 5px 0 0;
 	background: url(../images/icon-arrow.gif) no-repeat;
 	text-indent: -9999px;
-	}	
-#content div.box.large ul.entries li:hover,
-#content div.box.large ul.entries li:hover span {
-	background-color: #33363b;
-	color: #fff;
-	}
-#content div.box.large ul.entries li.last:hover {
-	background: url(../images/background-box-wide-bottom-highlight.gif) no-repeat left bottom;
-	background-color: none;
-	}	
-#content div.box.large ul.entries li.last:hover span {
-	background: none;
 	}
 #content div.box.large ul.entries li:hover span.activity a {
 	background: url(../images/icon-arrow-hover.gif) no-repeat;	

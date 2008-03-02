@@ -1,6 +1,5 @@
 /* Window Load Events
  * ------------------------------------------------------ */
-addLoadEvent(addIEOverviewHoverStyles);
 addLoadEvent(styleSelects);
 
 
@@ -14,14 +13,9 @@ function addIEOverviewHoverStyles() {
 	if(document.body.id != "overview")
 		return;
 
-	var lists = document.getElementsByTagName('ul');
-	var list_items = new Array();
+		list_items = document.getElementById('overview_entries').getElementsByTagName('li');
 	
-	// Find entry list elements
-	for(var i=0; i<lists.length; i++) {
-		if(lists[i].className == "entries")
-			list_items = lists[i].getElementsByTagName('li');
-	}
+	alert(list_items.length);
 	
 	// Add hover states to list items
 	for(var i=0; i<list_items.length; i++) {
@@ -30,6 +24,8 @@ function addIEOverviewHoverStyles() {
 				this.className = "lastHover";
 			else
 				this.className = "hover";
+			if(link = this.getElementsByTagName('a')[0])
+				link.style.display = "block";
 		}
 		
 		list_items[i].onmouseout = function(){
@@ -37,6 +33,8 @@ function addIEOverviewHoverStyles() {
 				this.className = "last";
 			else
 				this.className = "";
+			if(link = this.getElementsByTagName('a')[0])
+				link.style.display = "none";			
 		}
 		
 	}
