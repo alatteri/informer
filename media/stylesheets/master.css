@@ -455,7 +455,7 @@ div.box.small ul li.path strong {
 	background-color: #77797b;
 	}	
 #content div.box.large ul.entries li span.activity a {
-	display: none;
+	display: block;
 	position: absolute;
 	right: 0px;
 	top: 0px;

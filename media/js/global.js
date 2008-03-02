@@ -21,17 +21,13 @@ function addIEOverviewHoverStyles() {
 				this.className = "lastHover";
 			else
 				this.className = "hover";
-			if(link = this.getElementsByTagName('a')[0])
-				link.style.display = "block";
 		}
 		
 		list_items[i].onmouseout = function(){
 			if(this.className == "lastHover")
 				this.className = "last";
 			else
-				this.className = "";
-			if(link = this.getElementsByTagName('a')[0])
-				link.style.display = "none";			
+				this.className = "";		
 		}
 		
 	}
