@@ -68,7 +68,6 @@ Informer.Filter.prototype = {
     // to use in the on_click handler
     create_li: function(text, value) {
         var li = document.createElement('li');
-        li.appendChild(document.createTextNode(text));
 
         // if the value is the highlighted value set the class
         if (value == this.value)
@@ -80,8 +79,12 @@ Informer.Filter.prototype = {
         if (value != null)
             value = "'" + value + "'";
 
-        var fn = this.on_click + "('" + this.name + "', " + value + ")";
-        Event.observe(li, 'click', function() { eval(fn); });
+        var a = document.createElement('a');
+        a.appendChild(document.createTextNode(text));
+        var fn = this.on_click + "('" + this.name + "'," + value + ")";
+        a.href = 'javascript:' + fn;
+        li.appendChild(a);
+
         return li;
     },
 
