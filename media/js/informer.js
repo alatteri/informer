@@ -482,7 +482,7 @@ function format_nl2br(txt) {
 
 function create_log(info) {
     var span = document.createElement('span');
-    span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.object_id', info);
+    span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.msg_prefix', info).toLowerCase() + " " + get_value('fields.object_id', info);
     var obj = get_value('fields.object_repr', info);
     var prefix = get_value('fields.msg_prefix', info);
     var suffix = get_value('fields.msg_suffix', info);
