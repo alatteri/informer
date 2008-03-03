@@ -3,12 +3,15 @@ import errno
 import instinctual
 from instinctual.serializable import Serializable
 
+FRAME_UPLOAD='upload'
+FRAME_UNKNOWN='unknown'
+
 class Frame(Serializable):
     def __init__(self, parent):
         Serializable.__init__(self, parent, 'frame.pkl')
         self.rgbPath = os.path.join(self.container, 'frame.rgb')
 
-        self.status = 'unknown'
+        self.status = FRAME_UNKNOWN
         self.isBusy = False
 
         self.width  = None

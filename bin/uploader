@@ -25,7 +25,7 @@ from glob import glob
 import instinctual
 from instinctual import settings
 from instinctual.informer.client import Client, ClientConnectionError
-from instinctual.informer.frame import Frame
+from instinctual.informer.frame import Frame, FRAME_UPLOAD
 
 LOG = instinctual.getLogger('uploader')
 
@@ -115,7 +115,7 @@ try:
 
             if frame.isBusy:
                 LOG.debug("Frame was busy...")
-            elif 'upload' == frame.status:
+            elif FRAME_UPLOAD == frame.status:
                 LOG.debug("I can work on:" + frame.rgbPath)
                 #frame.isBusy = True
                 #frame.save()

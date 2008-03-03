@@ -23,32 +23,7 @@ def datetimeToSeconds(dt):
     inSeconds = time.mktime(dt.timetuple())
     return inSeconds + float(dt.microsecond) / (1 * 10**6)
 
-
-class UploadFlushThread(InformerThread):
-    def __init__(self, name, app):
-        InformerThread.__init__(self, name)
-        self.app = app
-
-    def threadProcess(self):
-        """
-        Called to flush pending frames
-        """
-        if self.app.frames:
-            now = datetimeToSeconds(datetime.now())
-
-            # flush any pending frames
-            for (sparkName, frame) in self.app.frames.items():
-                diff = now - frame.createdOnInSeconds
-                print "((((((((((( DIFF: %s ))))))))))))" % (diff)
-
-                if diff > 1.0:
-                    print "diff was greater than 1.0 -- marked for UPLOADING"
-                    print "sparkProcessStart: uploading waiting frame..."
-                    frame.status = 'upload'
-                    frame.save()
-
-                    del self.app.frames[sparkName]
-
+# ------------------------------------------------------------------------------
 class App(Subject):
     def __init__(self):
         Subject.__init__(self)
@@ -65,16 +40,10 @@ class App(Subject):
         self.sparks = {}
 
         # --------------------
-        # FRAMES
-        #
-        self.frames = {}
-
-        # --------------------
         # THREADS
         #
         self.logfile = LogfileThread('logfile')
         self.scheduler = SchedulerThread('scheduler', interval=0.1)
-        self.uploadFlush = UploadFlushThread('uploadFlush', self)
 
         # app state events
         self.logfile.registerObserver(DiscreetSpecifyHostname(self.cbSpecifyHostname))
@@ -82,22 +51,14 @@ class App(Subject):
         self.logfile.registerObserver(DiscreetSpecifyVolume(self.cbSpecifyVolume))
         self.logfile.registerObserver(DiscreetSpecifyUser(self.cbSpecifyUser))
 
+        self.logfile.registerObserver(DiscreetTimedMessage(self.cbTimedMessage))
+
         # setup events
         self.logfile.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
         self.logfile.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
 
         # batch processing events
         self.logfile.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
-
-    def _getShouldProcess(self):
-        print "_getShouldProcess returning: %s" % (self._shouldProcess)
-        return self._shouldProcess
-
-    def _setShouldProcess(self, val):
-        print "_setShouldProcess setting to: %s" % (val)
-        self._shouldProcess = val
-
-    shouldProcess = property(_getShouldProcess, _setShouldProcess)
 
     def resetAppState(self):
         self.user = None
@@ -111,6 +72,8 @@ class App(Subject):
         self.setup = None
         self.events = []
         self.outputs = {}
+        self.lastProcess = None
+        self.ignoreFrames = False
 
     # ----------------------------------------------------------------------
     # App Control
@@ -120,7 +83,6 @@ class App(Subject):
         self.resetBatchState()
 
         self.scheduler.register(self.logfile, 0.1)
-        self.scheduler.register(self.uploadFlush, 1.0)
         self.scheduler.process()
         self.scheduler.start()
 
@@ -191,31 +153,40 @@ class App(Subject):
             print "Could not rename! [%s] was not found" % (oldName)
 
     def sparkProcessStart(self, name):
-        print "hello" * 20
+        """
+        SparkProcessStart is called from the spark when the user enters
+        the spark. The sequence of events is usually:
+            * SparkProcessStart
+            * FrameProcessStart
+            * FrameProcessEnd
+            * SparkProcessEnd
+
+        However, the first time the spark is entered the sequence can be:
+            * enter spark
+            * FrameProcessStart
+            * FrameProcessEnd
+            * SparkProcessStart
+            * SparkProcessEnd
+
+        This is unfortunate since we process a frame when it should have
+        been ignored.
+
+        Since the app is not interested in calls to FrameProcess
+        during edit SparkProcessStart sets a flag to ignore the
+        next Frame to be processed.
+        """
         print "w00t: sparkProcessStart called with: %s" % (name)
-        if name in self.frames:
-            frame = self.frames[name]
-            now = datetimeToSeconds(datetime.now())
-            diff = now - frame.createdOnInSeconds
-            print "((((((((((( DIFF: %s ))))))))))))" % (diff)
-
-            if diff < 1.0:
-                print "diff was less than 1.0 -- DELETING"
-                print "sparkProcessStart: deleting waiting frame..."
-                self.frames[name].delete()
-            else:
-                print "diff was greater than 1.0 -- UPLOADING"
-                print "sparkProcessStart: uploading waiting frame..."
-                frame.status = 'upload'
-                frame.save()
-
-        self.frames[name] = 'IGNORE'
+        self.ignoreFrames = True
         print "hello" * 20
 
     def sparkProcessEnd(self, name):
+        """
+        Always called after a SparkProcessEnd it marks the point where the
+        app can once again save frames.
+        """
         print "goodbye" * 20
         print "w00t: sparkProcessEnd called with: %s" % (name)
-        del self.frames[name]
+        self.ignoreFrames = False
         print "goodbye" * 20
 
     # ----------------------------------------------------------------------
@@ -257,71 +228,72 @@ class App(Subject):
         return appEvent
 
     # ----------------------------------------------------------------------
-    # Frames
+    # Frame event processing
     # ----------------------------------------------------------------------
     def setFrameRate(self, frameRate):
         print "setFrameRate:", frameRate
         self.frameRate = frameRate
 
     def frameProcessStart(self, sparkName, width, height, depth, start, number, end):
+        """
+        Called by the spark when a frame is being processed. If the app is
+        not ignoring frames then it will create a new Frame object to represent
+        the process.
+
+        Returns: None if frame should be ignored, or path for rgb file
+        """
         print "+" * 80
         print "APP: frameProcessStart called for (%s)" % (sparkName)
         print "+" * 80
 
-        if sparkName in self.frames:
-            frame = self.frames[sparkName]
-            if 'IGNORE' == frame:
-                print "----- IGNORING FRAME! -------"
-                return None
-            else:
-                print "frameProcessStart flushing frame..."
-                frame.status = 'upload'
-                frame.save()
-                del self.frames[sparkName]
+        if self.ignoreFrames:
+            print "----- IGNORING FRAME! -------"
+            return None
 
         f = Frame(uploadsDir)
-        self.frames[sparkName] = f
 
-        print "1"
         f.isBusy = True
         f.spark  = sparkName
         f.setup  = self.setup
 
-        print "2"
         f.host = self.hostname
-        print "2.1"
         f.createdBy = self.user
-        print "2.2"
         f.createdOn = datetime.now()
-        print "2.3"
         f.createdOnInSeconds = datetimeToSeconds(f.createdOn)
 
-        print "3"
         f.width  = width
         f.height = height
         f.depth  = depth
 
-        print "4"
         f.start  = start
         f.number = number
         f.end    = end
         f.rate   = self.frameRate
 
-        print "Created frame"
-        pprint(f.__dict__)
+        try:
+            # associate the frame with the spark
+            self.sparks[sparkName].registerFrame(f)
+            print "Created frame"
+            pprint(f.__dict__)
 
-        print "about to save"
-        f.save()
-        print "ok. save is done"
+            print "about to save"
+            f.save()
+            print "ok. save is done"
+        except SparkDuplicateFrame, e:
+            f.delete()
+            return None
 
         return f.rgbPath
 
     def frameProcessEnd(self, sparkName):
+        """
+        Called after the spark has written the frame to disk.
+        """
         print "+" * 80
         print "APP: frameProcessEnd called"
         print "+" * 80
 
-        f = self.frames[sparkName]
+        f = self.sparks[sparkName].getLastFrame()
         f.isBusy = False
         f.save()
 
@@ -473,6 +445,58 @@ class App(Subject):
         print "=" * 80
         print "                     BATCH PROCESS EVENT"
         print "=" * 80
+
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
+        self.lastProcess = appEvent
         self.events.append(appEvent)
         self.flushEventQueue()
+
+    def cbTimedMessage(self, event, **kwargs):
+        """
+        Called when any log message with a time is seen. Due to the buggy bevahior of
+        the limitied API calls available from the spark the log file is used to drive
+        frame uploading.
+
+        This method receives Log file events and uses them to mark pending flags for
+        upload or deletion.
+        """
+        print "=" * 80
+        print "                     TIMED EVENT (happened at: %s)" % (event.date)
+        print "=" * 80
+
+        if self.lastProcess is None:
+            for spark in self.sparks.values():
+                print "last process was none -- calling spark delete"
+                spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
+        else:
+            for spark in self.sparks.values():
+                print "last process was set -- uploading"
+                spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
+
+        # Now, check to see if we need to clear the lastProcess state...
+        # This was determined by looking at various log files and trying
+        # to see what might be expected after a BatchProcess...
+
+        if str.lower(event.level) != 'notice':
+            # ignore errors and others
+            # [error] 65548 swxAudioBlockCache.C:251 07/19/07:17:31:00.960 Unable to load info for frame 0x7: Frame id not found
+            # [error] 65536 wireDevice.C:2464 07/19/07:17:31:00.961 Could not get audio info: Frame id not found.
+            # [error] 65548 swxAudioBlockCache.C:251 07/19/07:17:31:00.962 Unable to load info for frame 0x7: Frame id not found
+            pass
+        elif event.category == 'HOTKEY' and event.message in ('POP', 'PUSH Timeline'):
+            # ignore whatever these HOTKEY events are... I'm not sure
+            # [notice] 65536 hotkeyControl.C:598 08/15/07:17:58:31.915 HOTKEY : POP
+            # [notice] 65536 hotkeyControl.C:588 08/15/07:17:58:31.994 HOTKEY : PUSH Timeline
+            pass
+        elif event.category == 'BATCH':
+            # ignore batch generated events
+            # [notice] 65536 messageAccumulator.C:268 08/15/07:17:58:33.000 BATCH : No output for process.
+            # [notice] 65536 messageAccumulator.C:268 08/15/07:15:35:53.401 BATCH : Processing output4. 1500 frames. 1 processed
+            pass
+        elif self.lastProcess is not None:
+            print "|" * 80
+            print "Setting lastProcess to None!"
+            print "|" * 80
+            self.lastProcess = None
+
+

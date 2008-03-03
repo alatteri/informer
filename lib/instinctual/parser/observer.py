@@ -29,6 +29,11 @@ class DiscreetObserver(Observer):
     def process(self, event):
         return {'event': event}
 
+class DiscreetTimedMessage(DiscreetObserver):
+    def process(self, event):
+        if event.date:
+            return {'date': str(event.date)}
+
 class DiscreetSpecifyHostname(DiscreetObserver):
     _re = re.compile(r'#\s+Hostname\s+\-\s+(.+)')
     def process(self, event):

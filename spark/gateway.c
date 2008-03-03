@@ -114,6 +114,11 @@ GatewaySetFrameRate(double frameRate)
 
     pResult = PyObject_CallMethod(app, "setFrameRate", "d", frameRate);
 
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call setFrameRate(%d)\n", frameRate);
+    }
+
     Py_XDECREF(pResult);
     PythonEndCall();
 }
@@ -138,11 +143,11 @@ GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_b
 
     if (pResult && PyObject_IsTrue(pResult)) {
         status = TRUE;
-        printf("Made note OK!\n");
+        InformerDEBUG("Made note OK!\n");
     } else {
         status = FALSE;
-        printf("Something bad happened -- couldn't make note\n");
         PyErr_Print();
+        InformerError("Unable to create note.\n");
     }
 
     Py_XDECREF(pResult);
@@ -177,8 +182,8 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
     } else {
         // TODO
         status = FALSE;
-        printf("Something bad happened -- couldn't update note\n");
         PyErr_Print();
+        InformerERROR("Failed to update note.\n");
     }
 
     Py_XDECREF(pNotes);
@@ -197,7 +202,7 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
     return 0;
     #endif
 
-    printf("-------------> CALLING GATEWAY UPDATE ELEM ---------\n");
+    InformerDEBUG("-------------> CALLING GATEWAY UPDATE ELEM ---------\n");
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -213,8 +218,8 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
     } else {
         // TODO
         status = FALSE;
-        printf("Something bad happened -- couldn't update element\n");
         PyErr_Print();
+        InformerERROR("Failed to update element.\n");
     }
 
     Py_XDECREF(pElems);
@@ -232,18 +237,18 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
     return 0;
     #endif
 
-    printf("---------__>>>.> CALLING GATEWAY GET NOTES M<<<,--_________b\n");
+    InformerDEBUG("---------__>>>.> CALLING GATEWAY GET NOTES M<<<,--_________b\n");
 
     count = -1;
     PythonBeginCall();
     app = PythonGetApp();
 
-    printf("About to make the call for getNotes [%s]\n", setup);
+    InformerDEBUG("About to make the call for getNotes [%s]\n", setup);
     pNotes = PyObject_CallMethod(app, "getNotes", "s", setup);
 
     if (pNotes && PyList_Check(pNotes)) {
         count = PyList_Size(pNotes);
-        printf("There were %d notes!\n", count);
+        InformerDEBUG("There were %d notes\n", count);
 
         for (i=0; i<count; i++) {
             // pItem is a borrowed ref.
@@ -252,8 +257,8 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
             printf("... read note [%d] ok!\n", i);
         }
     } else {
-        printf("------- ERROR MAKING CALL TODO XXX ---------\n");
         PyErr_Print();
+        InformerERROR("Failed to get notes.\n");
     }
 
     Py_XDECREF(pNotes);
@@ -272,29 +277,29 @@ GatewayGetElems(const char *setup, InformerElemData *data)
     return 0;
     #endif
 
-    printf("--------- CALLING GATEAY GET ELEMS -------------\n");
+    InformerDEBUG("--------- CALLING GATEAY GET ELEMS -------------\n");
 
     count = -1;
     PythonBeginCall();
     app = PythonGetApp();
 
-    printf("About to make the call for getElements [%s]\n", setup);
+    InformerDEBUG("About to make the call for getElements [%s]\n", setup);
     pElems = PyObject_CallMethod(app, "getElements", "s", setup);
 
     if (pElems && PyList_Check(pElems)) {
         count = PyList_Size(pElems);
-        printf("There were %d elements!\n", count);
+        InformerDEBUG("There were %d elements\n", count);
 
         for (i=0; i<count; i++) {
             // pItem is a borrowed ref.
             pItem = PyList_GetItem(pElems, i);
             GatewayPyObjectToElemData(pItem, &(data[i]));
 
-            printf("... read element [%d] ok!\n", i);
+            InformerDEBUG("... read element [%d] ok!\n", i);
         }
     } else {
-        printf("------- ERROR MAKING CALL TODO XXX ---------\n");
         PyErr_Print();
+        InformerERROR("Failed to get elements.\n");
     }
 
     Py_XDECREF(pElems);
@@ -349,7 +354,11 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
                                       1,
                                       spark_info.FrameNo + 1,
                                       spark_info.TotalFrameNo);
-        if (pResult == Py_None) {
+        if (NULL == pResult) {
+            PyErr_Print();
+            InformerERROR("Unable to call frameProcessStart for %s\n", spark_name);
+            str = NULL;
+        } else if (pResult == Py_None) {
             printf("NULL! frameProcessStart said to ignore the frame...\n");
             str = NULL;
         } else {
@@ -382,6 +391,11 @@ GatewaySparkProcessFrameEnd(const char *spark_name)
     app = PythonGetApp();
     pResult = PyObject_CallMethod(app, "frameProcessEnd", "s", spark_name);
 
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call frameProcessEnd for %s\n", spark_name);
+    }
+
     Py_XDECREF(pResult);
     PythonEndCall();
 
@@ -397,6 +411,10 @@ GatewaySparkProcessStart(const char *spark_name)
     PythonBeginCall();
     app = PythonGetApp();
     pResult = PyObject_CallMethod(app, "sparkProcessStart", "s", spark_name);
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call sparkProcessStart for %s\n", spark_name);
+    }
     printf("----- returned from sparkProcessStart in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
@@ -413,6 +431,11 @@ GatewaySparkProcessEnd(const char *spark_name)
     PythonBeginCall();
     app = PythonGetApp();
     pResult = PyObject_CallMethod(app, "sparkProcessEnd", "s", spark_name);
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call sparkProcessEnd for %s\n", spark_name);
+    }
+
     printf("----- returned from sparkProcessEnd in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
@@ -431,7 +454,12 @@ GatewaySparkRegister(const char *spark_name)
     app = PythonGetApp();
 
     pResult = PyObject_CallMethod(app, "sparkRegister", "s", spark_name);
-    name = PyString_AsString(pResult);
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to register spark (%s)\n", spark_name);
+    } else {
+        name = PyString_AsString(pResult);
+    }
 
     Py_XDECREF(pResult);
     PythonEndCall();
@@ -451,6 +479,10 @@ GatewaySparkRename(const char *old_name, const char *new_name)
     app = PythonGetApp();
 
     pResult = PyObject_CallMethod(app, "sparkRename", "ss", old_name, new_name);
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to rename spark (%s -> %s)\n", old_name, new_name);
+    }
 
     Py_XDECREF(pResult);
     PythonEndCall();
