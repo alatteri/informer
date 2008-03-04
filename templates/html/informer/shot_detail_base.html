@@ -11,16 +11,6 @@
 
     <script type="text/javascript" src="/site_media/js/scripts.js"></script>
     <script type="text/javascript" src="/site_media/js/AC_OETags.js"></script>
-    <script type="text/javascript">
-// Globals
-// Major version of Flash required
-var requiredMajorVersion = 9;
-// Minor version of Flash required
-var requiredMinorVersion = 0;
-// Minor version of Flash required
-var requiredRevision = 115;
-</script>
-
   </head>
   <body id="{% block body_id %}overview{% endblock %}">
 <!-- start WRAP -->
@@ -50,21 +40,7 @@ var requiredRevision = 115;
 
 <!-- start DASHBOARD -->      
       <div id="dashboard">
-        <div id="video">
-<script language="JavaScript" type="text/javascript">
-  // Version check based upon the values entered above in "Globals"
-  var hasReqestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
-  if (!hasReqestedVersion) {
-    var alternateContent = 'This site requires the latest version of the Adobe Flash Player. '
-    + '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
-    document.write(alternateContent);  // insert non-flash content
-  } else {
-    now = new Date().getTime();
-    renderFlash("/site_media/flash/player.swf?video={{ shot.get_render_movie_lo_url }}&videoAutoPlay=false&downloadURL={{ shot.get_render_movie_hi_url }}&viewLargerURL=/site_media/flash/qtFrame.html%3Fmovie%3D{{ shot.get_render_movie_hi_url }}&unique=" + now, 544, 382, 'wmode="transparent"');
-  }
-
-</script>
-        </div>
+        <div id="video"></div>
         <div id="shot-summary" class="box small">
           <h3>Shot Summary</h3>
           <ul>
@@ -103,6 +79,16 @@ var requiredRevision = 115;
 <!-- end WRAP -->
 
 <script type="text/javascript">
+function doit(movie_hi, movie_lo) {
+    var v = $('video');
+    while (v.hasChildNodes())
+        v.removeChild(v.firstChild);
+
+    v.appendChild(getFlashPlayer(movie_hi, movie_lo));
+}
+
+doit('{{ shot.get_render_movie_hi_url }}', '{{ shot.get_render_movie_lo_url }}');
+
 {%block script %}
 {% endblock %}
 </script>

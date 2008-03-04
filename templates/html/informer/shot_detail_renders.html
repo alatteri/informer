@@ -37,6 +37,11 @@
 /* Renders functions
  * ------------------------------------------------------ */
 
+/* called when user clicks the play button for a row */
+function render_play(item) {
+    doit(get_value('fields.movie_hi', item), get_value('fields.movie_lo', item));
+}
+
 /* called when page first loaded, initialize data */
 function setup() {
   renders = new Informer.Data(

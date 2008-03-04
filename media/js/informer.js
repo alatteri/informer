@@ -354,6 +354,7 @@ Informer.Data.prototype = {
         } else if(document.body.id == "renders") {
             button.appendChild(document.createTextNode('Update'));
             button.className = "update";
+            button.observe('click', function() { render_play(item) });
         }
         parent.appendChild(button);
     },
