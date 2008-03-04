@@ -139,11 +139,11 @@ def makerender(render_id):
     # create the lo rez movie
     slow_lo = workspace + '/' + 'slow-lo.mov'
     print "pass lo 1"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 2 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 1 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     print "pass lo 2"
-    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 5 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
+    cmd = "%s -r %s -f image2 -vcodec tiff -i %s -threads auto -vcodec libx264  -subq 10 -refs 6 -me umh -me_range 20 -partitions +parti4x4+parti8x8+partp8x8+partp4x4+partb8x8 -qcomp 1 -g 2 -keyint_min 25 -bf 3 -flags +loop+umv -psnr -flags2 +bpyramid+mixed_refs+dct8x8 -coder 1 -cmp +chroma -sc_threshold 40 -i_qfactor 1 -b 800k -bt 1150k -b_strategy 1 -trellis 1 -rc_eq 'blurCplx^(1-qComp)' -qmin 10 -qmax 35 -qdiff 2 -qscale 1 -s 544x304 -pass 2 -y %s" % (FFMPEG, render.rate, pattern, slow_lo)
     SYSTEM(cmd)
 
     # qt-faststart it
