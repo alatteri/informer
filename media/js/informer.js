@@ -483,62 +483,6 @@ function format_nl2br(txt) {
 	return p;
 }
 
-function create_log(info) {
-    var span = document.createElement('span');
-    span.className = 'activity ' +  get_value('fields.type', info).toLowerCase() + " " + get_value('fields.msg_prefix', info).toLowerCase() + " " + get_value('fields.object_id', info);
-    var obj = get_value('fields.object_repr', info);
-    var prefix = get_value('fields.msg_prefix', info);
-    var suffix = get_value('fields.msg_suffix', info);
-    var t = get_value('fields.type', info);
-  
-    if (t == 'Note') {
-        var q = document.createElement('q');
-        var parts = obj.split(/\s/);
-        if (parts.length > 10) {
-            parts = parts.slice(0,10);
-            parts.push('...');
-		}
-		obj = parts.join(' ');
-        q.appendChild(document.createTextNode(obj));
-        obj = q;
-    } else
-    obj = document.createTextNode(obj);
-  
-    if (prefix)
-        span.appendChild(document.createTextNode(prefix + ' '));
-    if (obj)
-        span.appendChild(obj);
-    if (suffix && t!='Shot')
-        span.appendChild(document.createTextNode(' ' + suffix));
-
-    // Add Rollover link if log item not for deletion
-    if(get_value('fields.msg_prefix', info).split(/\s/)[0].toLowerCase() != "deleted") {
-		var link = document.createElement('A');
-	    var link_text = document.createTextNode("View " + get_value('fields.type', info).toLowerCase());
-	    link.appendChild(link_text);
-	    link.title = "View " + get_value('fields.type', info).toLowerCase();
-	    if(get_value('fields.type', info).toLowerCase() == "note")
-	       link.href = "notes/#" + get_value('fields.object_id', info);
-	    else if(get_value('fields.type', info).toLowerCase() == "element")
-	       link.href = "elements/#" + get_value('fields.object_id', info);	
-	    else if(get_value('fields.type', info).toLowerCase() == "render")
-	       link.href = "renders/#" + get_value('fields.object_id', info);
-
-	    span.appendChild(link);
-    }else { // If deleted, remove link from log where item was created
-	    spans = $('overview_entries').getElementsByTagName('span');
-	    
-	    for(var i=0; i<spans.length; i++) {
-		    if(spans[i].hasClassName(get_value('fields.object_id', info))) {
-				if(dead_link = spans[i].getElementsByTagName('A')[0])
-					dead_link.parentNode.removeChild(dead_link);
-		    }
-	    }
-    }
-    
-    return span;
-}
-
 function resort_table(th, which, data_obj) {
     Event.observe(th, 'click', function(x) { data_obj.resort_table(which); });
 }
