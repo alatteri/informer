@@ -432,6 +432,10 @@ class App(Subject):
         """
         LOG.info("--- SAVE SETUP %s", (setup))
 
+        self.setup = setup
+        parsed = instinctual.informer.parseSetup(setup)
+        self.shot = parsed['shot']
+
         appEvent = self._setAppEvent(DiscreetAppSaveEvent(), event)
         self.events.append(appEvent)
         self.flushEventQueue()
@@ -492,11 +496,19 @@ class App(Subject):
             # ignore batch generated events
             # [notice] 65536 messageAccumulator.C:268 08/15/07:17:58:33.000 BATCH : No output for process.
             # [notice] 65536 messageAccumulator.C:268 08/15/07:15:35:53.401 BATCH : Processing output4. 1500 frames. 1 processed
+            # [notice] 2564825280 messageAccumulator.C:268 03/03/08:21:38:10.144 BATCH : WARNING: Processing in proxy mode.
+            pass
+        elif event.message.startswith('Last entry repeated '):
+            # repeated messges (even of errors or other ignored events)
+            # [notice] 1109219680 CoMsgLogger.cpp:199 03/03/08:21:08:25.408 Last entry repeated 3 more times.
+            # [notice] 1109219680 CoMsgLogger.cpp:199 03/03/08:21:22:56.000 Last entry repeated 1 more times.
+            pass
+        elif event.category == 'BUTTON' and event.message == '[Confirm] Confirm(ON)':
+            # Allow the user to click OK to render in proxy mode...
+            # [notice] 2564825280 menu.C:3140 03/03/08:21:38:12.505 BUTTON : [Confirm] Confirm(ON)
             pass
         elif self.lastProcess is not None:
             print "|" * 80
             print "Setting lastProcess to None!"
             print "|" * 80
             self.lastProcess = None
-
-
