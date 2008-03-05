@@ -1,37 +1,24 @@
   {% extends "informer/base.html" %}
 
   {% block content %}
-  <!-- begin wrap -->
-  <div id="wrap">
-    <div id="content"
-	 <div class="box large">
-	   <h3>Informer</h3>
-	   <form method="post" action=".">
-	     <ul class="heading">
-	       <li>Please enter your username and password for this server and we'll send you right along.</li>
-	     </ul>
-	     <ul>
-	       <li>
-		 <label for="id_username">Username:</label>{{ form.username }}
-	       </li>
-	       <li>
-		 <label for="id_password">Password:</label>{{ form.password }}
-	       </li>
-	     </ul>
-	     
-	     <input type="submit" value="login" />
-	     <input type="hidden" name="next" value="{{ next }}" />
-	   </form>
-
-	 </div>
-
-	 {% if form.has_errors %}
-	 <p>Your username and password didn't match. Please try again.</p>
-	 {% endif %}
-
-
-       </div>
-       <!-- end content -->
-     </div>
-     <!-- end wrap -->
+  <!-- start WRAP -->
+  		<div id="login-wrap">
+  		  <h1><img src="/media/images/temp-image-instinctual.png" alt="Placeholder Image"></h1>
+  		  <div id="content">
+  		    <h3>Informer<span>v1.0 beta</span></h3>
+          {% if form.has_errors %}
+          <p class="error">Your username and password didn't match. Please try again.</p>
+          {% else %}
+  		    <p class="intro">Please enter your username and password for this server and we'll send you right along.</p>
+          {% endif %}
+  		    <form method="post" action=".">
+  		      <p><label for="id_username">Username:</label>{{ form.username }}</p>
+  		      <p><label for="id_password">Password:</label>{{ form.password }}</p>
+  		      <p class="last"><button type="submit">Login</button></p>
+  		      <input type="hidden" name="next" value="{{ next }}" />
+  		    </form>
+  	    </div>
+  	    <p id="footer">Informer 1.0 &copy; 2007-2008 <a href="http://instinctual.tv" title="Instinctual">Instinctual.tv</a>. All Rights Reserved. Available at <a href="http://informerapp.com" title="Informer home page">informerapp.com</a></p>
+  		</div>
+  <!-- end WRAP -->
      {% endblock %}

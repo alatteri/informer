@@ -1,24 +1,82 @@
 {% extends "informer/base.html" %}
 {% block content %}
-<h2>{{ project.name }}</h2>
-
-{% if project.shot_set.count %}
-<table>
-<caption>this is project_detail.html</caption>
-<tr>
-<th>Name</th>
-<th>Description</th>
-<th>Setup</th>
-</tr>
-{% for shot in project.shot_set.all %}
-<tr>
-<td><a href="{{ shot.get_absolute_url }}">{{ shot.name }}</a></td>
-<td>{{ shot.description }}</td>
-<td>{{ shot.setup }}</td>
-</tr>
-{% endfor %}
-</table>
-{% else %}
-<i>No shots</i>
-{% endif %}
+  <!-- start WRAP -->
+  <div id="wrap" class="shots">
+    <!-- start HEADER -->      
+    <div id="header">
+      <ul id="breadcrumb">
+	<li><h1><a href="/" title="Home" id="logo">Informer</a></h1></li>
+      </ul>
+      <ul id="login">
+	<li>Welcome {{ user.username }}</li>
+	{% if user.is_staff %}
+	<li><a href="/admin" title="Admin">Admin</a></li>
+	{% endif %}
+	<li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
+      </ul>
+      <ul id="sub_nav">
+          <h2>{{ project.name }}</h2>
+          <ul class="sorting">
+            <li><strong>Sort By:</strong></li>
+            <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
+            <li><a href="#" title="Sort by Date Created">Date Created</a></li>
+            <li><a href="#" title="Sort by Last Update">Last Updated</a></li>              
+			</ul>
+</div>
+<!-- end HEADER -->
+<!-- start CONTENT -->
+<div id="content">		
+  <div class="left">
+	{% if project.shot_set.count %}
+	  {% for shot in project.shot_set.all %}
+    <div class="box medium">
+  		<h3>{{ shot.name }}<a href="{{ shot.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
+  		<img src="/media/images/temp-image-shot-thumbnail.gif" alt="Launch Shot" class="thumbnail" />
+      <div class="description">
+        <div class="heading">
+          <p class="status"><strong>Status:</strong> {{ shot.status }}</p>
+          <p class="length"><strong>Setup:</strong> {{ shot.setup }}</p>
+        </div>
+        <h4>Description:</h4>
+        <p>{{ shot.description }}</p>
+      </div>
+  		<div class="clear"></div>
+  	</div>
+    {% endfor %}
+  {% else %}
+  <p>No shots</p>
+  {% endif %}  
+  </div>
+	<div class="right">
+		<div class="box small">
+			<h3>Status</h3>
+			<ul>
+				<li class="highlight"><a href="#" title="#">Show All</a></li>
+				<li><a href="#" title="#">Open (1)</a></li>
+				<li class="last"><a href="#" title="#">Closed (3)</a></li>														
+			</ul>
+		</div>
+		<div class="box small">
+			<h3>Last Edited by</h3>
+			<ul>
+				<li class="highlight"><a href="#" title="#">Show All</a></li>
+				<li><a href="#" title="#">Alan (1)</a></li>
+				<li class="last"><a href="#" title="#">Luke (3)</a></li>
+				<li class="last"><a href="#" title="#">Josh (3)</a></li>
+			</ul>
+		</div>
+		<div class="box small">
+			<h3>Last Updated</h3>
+			<ul>
+				<li class="highlight"><a href="#" title="#">Show All</a></li>
+				<li><a href="#" title="#">Open (1)</a></li>
+				<li class="last"><a href="#" title="#">Closed (3)</a></li>														
+			</ul>
+		</div>
+	</div>
+	<div class="clear">&nbsp;</div>
+</div>
+<!-- end CONTENT -->
+		</div>
+<!-- end WRAP -->
 {% endblock %}

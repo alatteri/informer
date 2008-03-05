@@ -1,7 +1,7 @@
   {% extends "informer/base.html" %}
   {% block content %}
   <!-- start WRAP -->
-  <div id="wrap">
+  <div id="wrap" class="projects">
     <!-- start HEADER -->      
     <div id="header">
       <ul id="breadcrumb">
@@ -14,58 +14,55 @@
 	{% endif %}
 	<li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
       </ul>
-      <ul id="nav">
-	<li>Open Projects</li>
-      </ul>
+      <ul id="sub_nav">
+          <h2>Projects</h2>
+          <ul class="sorting">
+            <li><strong>Sort By:</strong></li>
+            <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
+            <li><a href="#" title="Sort by Date Created">Date Created</a></li>
+            <li><a href="#" title="Sort by Last Update">Last Updated</a></li>              
+			</ul>
+</div>
+<!-- end HEADER -->
+
+<!-- start CONTENT -->
+<div id="content">
+  <div class="left">
+  {% for project in object_list %}
+    <div class="box medium">
+        <h3>{{ project.name }}<a href="{{ project.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
+        <img src="/media/images/image-no_thumbnail.gif" alt="No Thumbnail image" class="thumbnail" />
+        <ul class="meta">
+          <li class="last">{{ project.description }}</li>
+        </ul>
+			<div class="clear">&nbsp;</div>
     </div>
-    <!-- end HEADER -->
+  {% endfor %}
+  </div>
 
-    <!-- start CONTENT -->
-    <div id="content">
-      <div class="left">
-	<div class="box medium">
-	  <ul class="entries" id="projects_entries">
-	  </ul>
-	  <div class="bottom">&nbsp;</div>
-
-	  <table>
-	    <caption>temporary list</caption>
-	    <tr><th>Name</th>
-	    <th>Description</th>
-	    </tr>
-	    {% for project in object_list %}
-	    <tr>
-	      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
-	      <td>{{ project.description }}</td>
-	    </tr>
-	    {% endfor %}
-	  </table>
-	</div>
+  <div class="right">
+      <div class="box small">
+        <h3>Status</h3>
+        <ul>
+          <li class="highlight"><a href="#" title="#">Show All</a></li>
+          <li><a href="#" title="#">Open (1)</a></li>
+          <li class="last"><a href="#" title="#">Closed (3)</a></li>
+        </ul>
       </div>
-
-      <div class="right">
-          <div class="box small">
-            <h3>Status</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-              <li><a href="#" title="#">Open (1)</a></li>
-              <li class="last"><a href="#" title="#">Closed (3)</a></li>
-            </ul>
-          </div>
-          <div class="box small">
-            <h3>Shots</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-            </ul>
-          </div>
-          <div class="box small">
-            <h3>Due Date</h3>
-            <ul>
-              <li class="highlight"><a href="#" title="#">Show All</a></li>
-            </ul>
-          </div>
+      <div class="box small">
+        <h3>Shots</h3>
+        <ul>
+          <li class="highlight"><a href="#" title="#">Show All</a></li>
+        </ul>
       </div>
-        <div class="clear">&nbsp;</div>
+      <div class="box small">
+        <h3>Due Date</h3>
+        <ul>
+          <li class="highlight"><a href="#" title="#">Show All</a></li>
+        </ul>
+      </div>
+  </div>
+    <div class="clear">&nbsp;</div>
 	{# TODO partialize #}
 
     </div>
