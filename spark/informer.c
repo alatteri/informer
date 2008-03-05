@@ -492,17 +492,18 @@ SparkSetupIOEvent(SparkModuleEvent event, char *path, char *name)
     InformerAppStruct *app = InformerGetApp();
 
     InformerDEBUG("################################################################################\n");
-    InformerDEBUG("SparkSetupIOEvent called with [%d] path [%s] name [%s]\n",
-                  event, path, name);
+    InformerDEBUG("SparkSetupIOEvent called with [%d] path [%s] name [%s]\n", event, path, name);
     InformerDEBUG("################################################################################\n");
 
     if (SPARK_EVENT_LOADSETUP == event || SPARK_EVENT_SAVESETUP == event) {
         GatewaySparkRename(app->spark_last_name, name);
 
-        if (NULL == strstr(path, "/_session")) {
+        if (NULL == strstr(path, "/_session") && 0 != strncmp(path, "/tmp", 4)) {
             /* ignore auto load/saves */
             InformerDEBUG("LOADING/SAVING SETUP: %s\n", path);
             InformerSetSetupPath(path);
+        } else {
+            InformerDEBUG("IGNORING LOAD/SAVE OF SETUP: %s\n", path);
         }
 
         InformerSetSparkName(name);
