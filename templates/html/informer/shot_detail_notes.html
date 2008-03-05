@@ -63,7 +63,7 @@
 
 // Generates status row with click event
 function create_status_item(info, item) {
-    var value = get_value(info, item);
+    var value = getattr(item, info);
     var status_li = document.createElement('li');
     status_li.className = info.name;
     var status_a = document.createElement('a');

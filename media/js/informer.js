@@ -50,7 +50,7 @@ Informer.Filter.prototype = {
 
         // the data is filtered if the value doesn't
         // match the filter's value
-        var val = this.format(get_value(this.field, data));
+        var val = this.format(getattr(data, this.field));
         return val != this.value;
     },
 
@@ -61,7 +61,7 @@ Informer.Filter.prototype = {
 
     // accepts a data object, increments internal counts for fields
     observe_data: function(data) {
-        var val = this.format(get_value(this.field, data));
+        var val = this.format(getattr(data, this.field));
         var count = this.matches.get(val);
         if (count) {
             this.matches.set(val, count + 1);
@@ -224,14 +224,14 @@ Informer.Data.prototype = {
 			  
             for (var j=0; j<this.row_1.length; j++) {
                 var col = this.row_1[j];
-                val = get_value(col.field, obj);
+                val = getattr(obj, col.field);
 
                 if (col.parser) {
                     // use the column's parser if specified
                     val = col.parser(val);
                 }
 
-                set_value(col.field, obj, val);
+                setattr(obj, col.field, val);
             }
         }  
     },
@@ -292,7 +292,7 @@ Informer.Data.prototype = {
         // make sure we found the column and it had a sorter defined
         if (column && column.sorter) {
             this.data = this.data.sortBy(function (x) {
-                return column.sorter(get_value(column.field, x));
+                return column.sorter(getattr(x, column.field));
             });
         }
     },
@@ -315,7 +315,7 @@ Informer.Data.prototype = {
       
         var content = document.createElement('DIV');
         content.className = 'content';
-        var val = get_value(this.row_2, item);
+        var val = getattr(item, this.row_2);
         if (val.tagName) {
             content.appendChild(val);
         } else {
@@ -343,7 +343,7 @@ Informer.Data.prototype = {
             if (info.create_func) {
                 elem = info.create_func(item);
             } else {
-                var value = get_value(info, item);
+                var value = getattr(item, info);
                 elem = document.createElement(tag);
                 elem.className = info.name;
                 elem.appendChild(document.createTextNode(value));
@@ -359,7 +359,7 @@ Informer.Data.prototype = {
             button.className = "close";
         } else if(document.body.id == "renders") {
             button.appendChild(document.createTextNode('Update'));
-            if (get_value('pk', item) == CURRENT_RENDER)
+            if (getattr(item, 'pk') == CURRENT_RENDER)
                 button.className = "updateSelected";
             else
                 button.className = "update";
@@ -397,7 +397,7 @@ function sort_by_assigned(u) {
     return sort_by_string(format_assigned(u));
 }
   
-function get_value(field, object) {
+function getattr(object, field) {
     var filter, f;
     if (field.pop) {
         f = field[0];
@@ -419,20 +419,20 @@ function get_value(field, object) {
     return tmp;
 }
   
-function set_value(field, object, value) {
+function setattr(object, field, value) {
     var fields = field.split('.');
     fields.reverse();
-    return _set_value(fields, object, value);
+    return _setattr(object, fields, value);
 }
   
-function _set_value(fields, object, value) {
+function _setattr(object, fields, value) {
     var f = fields.pop();
     tmp = object[f];
    
     if (!fields.length)
         object[f] = value;
     else
-        object[f] = _set_value(fields, tmp, value);
+        object[f] = _setattr(tmp, fields, value);
     return object;
 }
   

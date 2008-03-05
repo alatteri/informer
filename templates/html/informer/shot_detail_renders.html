@@ -40,13 +40,13 @@
 /* called when user clicks the play button for a row */
 function load_render_callback(item) {
     load_render(
-        get_value('pk', item),
-        get_value('fields.movie_hi', item),
-        get_value('fields.movie_lo', item),
-        get_value('fields.created_by', item),
-        get_value('fields.created_on', item),
-        get_value('fields.host', item),
-        get_value('fields.setup', item)
+        getattr(item, 'pk'),
+        getattr(item, 'fields.movie_hi'),
+        getattr(item, 'fields.movie_lo'),
+        getattr(item, 'fields.created_by'),
+        getattr(item, 'fields.created_on'),
+        getattr(item, 'fields.host'),
+        getattr(item, 'fields.setup')
     );
 
     // redraw the table to update the currently selected row...

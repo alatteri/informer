@@ -18,19 +18,19 @@
 {%block script %}
 function create_log(info) {
     spanClass  = 'activity ';
-    spanClass += get_value('fields.type', info).toLowerCase();
+    spanClass += getattr(info, 'fields.type').toLowerCase();
     spanClass += " ";
-    spanClass +=  get_value('fields.msg_prefix', info).toLowerCase();
+    spanClass +=  getattr(info, 'fields.msg_prefix').toLowerCase();
     spanClass += " ";
-    spanClass += get_value('fields.object_id', info);
+    spanClass += getattr(info, 'fields.object_id');
 
     var span = document.createElement('span');
     span.className = spanClass;
 
-    var obj = get_value('fields.object_repr', info);
-    var prefix = get_value('fields.msg_prefix', info);
-    var suffix = get_value('fields.msg_suffix', info);
-    var t = get_value('fields.type', info);
+    var obj = getattr(info, 'fields.object_repr');
+    var prefix = getattr(info, 'fields.msg_prefix');
+    var suffix = getattr(info, 'fields.msg_suffix');
+    var t = getattr(info, 'fields.type');
   
     if (t == 'Note') {
         var q = document.createElement('q');
@@ -53,18 +53,18 @@ function create_log(info) {
     if (suffix && t!='Shot')
         span.appendChild(document.createTextNode(' ' + suffix));
 
-    if (get_value('fields.msg_prefix', info).split(/\s/)[0].toLowerCase() != "deleted") {
+    if (getattr(info, 'fields.msg_prefix').split(/\s/)[0].toLowerCase() != "deleted") {
         // Add Rollover link if log item not for deletion
 		var link = document.createElement('A');
-	    var link_text = document.createTextNode("View " + get_value('fields.type', info).toLowerCase());
+	    var link_text = document.createTextNode("View " + getattr(info, 'fields.type').toLowerCase());
 	    link.appendChild(link_text);
-	    link.title = "View " + get_value('fields.type', info).toLowerCase();
-	    if(get_value('fields.type', info).toLowerCase() == "note")
-	       link.href = "notes/#" + get_value('fields.object_id', info);
-	    else if(get_value('fields.type', info).toLowerCase() == "element")
-	       link.href = "elements/#" + get_value('fields.object_id', info);	
-	    else if(get_value('fields.type', info).toLowerCase() == "render")
-	       link.href = "renders/#" + get_value('fields.object_id', info);
+	    link.title = "View " + getattr(info, 'fields.type').toLowerCase();
+	    if (getattr(info, 'fields.type').toLowerCase() == "note")
+	       link.href = "notes/#" + getattr(info, 'fields.object_id');
+	    else if (getattr(info, 'fields.type').toLowerCase() == "element")
+	       link.href = "elements/#" + getattr(info, 'fields.object_id');	
+	    else if (getattr(info, 'fields.type').toLowerCase() == "render")
+	       link.href = "renders/#" + getattr(info, 'fields.object_id');
 
 	    span.appendChild(link);
     } else {
@@ -72,7 +72,7 @@ function create_log(info) {
 	    spans = $('overview_entries').getElementsByTagName('span');
 	    
 	    for(var i=0; i<spans.length; i++) {
-		    if(spans[i].hasClassName(get_value('fields.object_id', info))) {
+		    if(spans[i].hasClassName(getattr(info, 'fields.object_id'))) {
 				if(dead_link = spans[i].getElementsByTagName('A')[0])
 					dead_link.parentNode.removeChild(dead_link);
 		    }
