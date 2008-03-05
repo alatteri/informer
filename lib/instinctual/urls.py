@@ -27,7 +27,7 @@ url_project_shot_renders  = rel(informer.getProjectShotRendersUrl(pat_project, p
 urlpatterns = patterns('',
     (r'^admin/', include('django.contrib.admin.urls')),
     (r'^' + url_api + '/', include('instinctual.informer.urls')),
-    (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': media_path}),
+    (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': media_path}),
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     (r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
 

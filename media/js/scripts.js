@@ -32,11 +32,11 @@ function getFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
         if (height == null) height = 382;
 
         now = new Date().getTime();
-        var src = "/site_media/flash/player.swf?";
+        var src = "/media/flash/player.swf?";
         src += "video=" + movie_lo + "&";
         src += "videoAutoPlay=" + autoplay + "&";
         src += "downloadURL=" + movie_hi + "&";
-        src += "viewLargerURL=/site_media/flash/qtFrame.html%3Fmovie%3D" + movie_hi + "&";
+        src += "viewLargerURL=/media/flash/qtFrame.html%3Fmovie%3D" + movie_hi + "&";
         src += "unique=" + now;
 
         var player = document.createElement('embed');

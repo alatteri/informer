@@ -52,12 +52,12 @@ MEDIA_ROOT = media_path
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = getServerRoot() + '/site_media/'
+MEDIA_URL = getServerRoot() + '/media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin_media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'gq#gb$_7cm=+fk*$iqa9&)LUNAROCKS#v(#&7^g*tpi1+li!j5b'
