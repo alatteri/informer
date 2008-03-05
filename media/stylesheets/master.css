@@ -346,6 +346,12 @@ div.box.small ul li.path strong {
 	background: url(../images/button-update-entry.gif) no-repeat left top;
 	text-indent: -9999px;
 	}	
+#content div.box.medium ul li div.entry ul.heading li.updateSelected {
+	width: 32px;
+	padding: 0;
+	background: url(../images/button-update-entry_dark.gif) no-repeat left top;
+	text-indent: -9999px;
+	}	
 #content div.box.medium ul li {
 	padding: 5px 9px;
 	}	
@@ -357,9 +363,6 @@ div.box.small ul li.path strong {
 	}
 #content div.box.medium ul li.highlight div.entry div.content {
 	background: url(../images/background-entry-bottom-highlight.gif) no-repeat left bottom;
-	}	
-#content div.box.medium ul li div.entry ul.heading li.update {
-	background: url(../images/button-update-entry.gif) no-repeat left top;
 	}	
 #content div.box.medium ul li div.entry {
 	width: 524px;

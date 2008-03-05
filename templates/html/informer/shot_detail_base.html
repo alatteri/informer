@@ -44,15 +44,10 @@
         <div id="shot-summary" class="box small">
           <h3>Shot Summary</h3>
           <ul>
-            <li class="editor"><strong>Last Edited by:</strong> {% firstof shot.get_render_artist "None" %}</li>
-            <li class="time"><strong>Time:</strong> {% if shot.get_render_time %}
-                                                        {{ shot.get_render_time|date:"n/j/y \a\t g:i A"|lower }}
-                                                    {% else %}
-                                                        None
-                                                    {% endif %}
-                                                    </li>
-            <li class="machine"><strong>Machine:</strong> {% firstof shot.get_render_machine "None" %}</li>
-            <li class="path"><strong>Setup:</strong> {% firstof shot.get_render_setup_filename "None" %}</li>
+            <li class="editor"><strong>Last Edited by:</strong> <span id="editor"></span></li>
+            <li class="time"><strong>Time:</strong> <span id="time"></span></li>
+            <li class="machine"><strong>Machine:</strong> <span id="machine"></span></li>
+            <li class="path"><strong>Setup:</strong> <span id="path"></span></li>
           </ul>
           <h4>Shot Description:</h4>
           <p>{{ shot.description }}</p>
@@ -79,15 +74,62 @@
 <!-- end WRAP -->
 
 <script type="text/javascript">
-function doit(movie_hi, movie_lo) {
-    var v = $('video');
-    while (v.hasChildNodes())
-        v.removeChild(v.firstChild);
-
-    v.appendChild(getFlashPlayer(movie_hi, movie_lo));
+function nodeReplace(node, child) {
+    while (node.hasChildNodes())
+        node.removeChild(node.firstChild);
+    node.appendChild(child);
 }
 
-doit('{{ shot.get_render_movie_hi_url }}', '{{ shot.get_render_movie_lo_url }}');
+function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
+    // set the global current render id (defined in informer.js)
+    CURRENT_RENDER = id;
+
+    if (null == artist)
+        artist = 'None';
+    if (null == time || 'None' == time) {
+        time = 'None';
+    } else {
+        d = parse_date(time);
+        month = (d.getMonth()+1).toPaddedString(2);
+        day = d.getDate().toPaddedString(2)
+        year = d.getYear();
+        if (year > 100) year -= 100;
+        if (year < 10) year = '0' + year;
+
+        ampm = 'am';
+        hours = d.getHours();
+        if (hours > 12) {
+            ampm = 'pm';
+            hours -= 12;
+        }
+        mins = d.getMinutes().toPaddedString(2);
+        time = month + '/' + day + '/' + year + ' at ' + hours + ':' + mins + ' ' + ampm;
+    }
+    if (null == machine)
+        machine = 'None';
+    if (null == path) {
+        path = 'None';
+    } else {
+        parts = path.split('/');
+        path = parts[parts.length-1];
+    }
+
+    nodeReplace($('video'),     getFlashPlayer(movie_hi, movie_lo));
+    nodeReplace($('editor'),    document.createTextNode(artist));
+    nodeReplace($('time'),      document.createTextNode(time));
+    nodeReplace($('machine'),   document.createTextNode(machine));
+    nodeReplace($('path'),      document.createTextNode(path));
+}
+
+load_render(
+    '{{ shot.get_render_id }}',
+    '{{ shot.get_render_movie_hi_url }}',
+    '{{ shot.get_render_movie_lo_url }}',
+    '{{ shot.get_render_artist }}',
+    '{{ shot.get_render_time }}',
+    '{{ shot.get_render_machine }}',
+    '{{ shot.get_render_setup }}'
+);
 
 {%block script %}
 {% endblock %}

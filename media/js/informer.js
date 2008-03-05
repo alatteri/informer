@@ -6,6 +6,12 @@ function LOG(x) {
     }
 }
 
+/*
+ * GLOBALS
+ * ------------------------------------------------------- */
+// the id of the currently selected render
+var CURRENT_RENDER;
+
 /* 
  * Informer Object
  * ------------------------------------------------------- */
@@ -353,8 +359,11 @@ Informer.Data.prototype = {
             button.className = "close";
         } else if(document.body.id == "renders") {
             button.appendChild(document.createTextNode('Update'));
-            button.className = "update";
-            button.observe('click', function() { render_play(item) });
+            if (get_value('pk', item) == CURRENT_RENDER)
+                button.className = "updateSelected";
+            else
+                button.className = "update";
+            button.observe('click', function() { load_render_callback(item) });
         }
         parent.appendChild(button);
     },

@@ -123,10 +123,6 @@ class Shot(models.Model):
         e = self._get_render_event()
         return e and e.setup or None
 
-    def get_render_setup_filename(self):
-        e = self._get_render_event()
-        return e and os.path.basename(e.setup) or None
-
     def get_render_movie_hi_url(self):
         r = self._get_render_obj()
         # TODO: what movie should this return if there aren't any?
@@ -136,6 +132,10 @@ class Shot(models.Model):
         r = self._get_render_obj()
         # TODO: what movie should this return if there aren't any?
         return r and r.get_movie_lo_url() or settings.MEDIA_URL + 'pending.mov'
+
+    def get_render_id(self):
+        r = self._get_render_obj()
+        return r and r.id or None
 
     # --------------------------------------------------------------------------
     class Meta:

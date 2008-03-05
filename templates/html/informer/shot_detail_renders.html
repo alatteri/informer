@@ -38,8 +38,19 @@
  * ------------------------------------------------------ */
 
 /* called when user clicks the play button for a row */
-function render_play(item) {
-    doit(get_value('fields.movie_hi', item), get_value('fields.movie_lo', item));
+function load_render_callback(item) {
+    load_render(
+        get_value('pk', item),
+        get_value('fields.movie_hi', item),
+        get_value('fields.movie_lo', item),
+        get_value('fields.created_by', item),
+        get_value('fields.created_on', item),
+        get_value('fields.host', item),
+        get_value('fields.setup', item)
+    );
+
+    // redraw the table to update the currently selected row...
+    renders.draw();
 }
 
 /* called when page first loaded, initialize data */
