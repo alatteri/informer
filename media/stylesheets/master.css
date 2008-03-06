@@ -27,7 +27,6 @@ body {
 	border-bottom: 1px solid #2c2f34;
 	}	
 #dashboard {
-	height: 380px;
 	padding: 10px 15px 10px 12px;
 	background: #44474a url(../images/background-dashboard.gif) repeat-x left top;
 	}	
@@ -198,6 +197,10 @@ body {
 #dashboard #video {
 	float: left;
 	width: 544px;
+	}	
+#dashboard div.right {
+	float: left;
+	width: 245px;
 	}
 
 /* Content > General
@@ -272,7 +275,7 @@ div.box.small h4 {
 	}	
 div.box.small p {
 	line-height: 18px;
-	margin: 0 0 15px 20px;
+	margin: 0 10px 15px 20px;
 	}	
 div.box.small ul {
 	margin: 0 0 5px 0;
@@ -594,13 +597,14 @@ div.box.small ul li.path strong {
 	background: url(../images/icon-arrow.gif) no-repeat;
 	text-indent: -9999px;
 	}
-#content div.box.large ul.entries li:hover span.activity a {
+#content div.box.large ul.entries li.hover span.activity a,
+#content div.box.large ul.entries li.lastHover span.activity a {
 	background: url(../images/icon-arrow-hover.gif) no-repeat;	
 	} 	
-#content div.box.large ul.entries li:hover span.activity,
-#content div.box.large ul.entries li:hover span.activity.highlight,
-#content div.box.large ul.entries li.last:hover span.activity,
-#content div.box.large ul.entries li.last:hover span.activity.highlight {
+#content div.box.large ul.entries li.hover span.activity,
+#content div.box.large ul.entries li.hover span.activity.highlight,
+#content div.box.large ul.entries li.lastHover span.activity,
+#content div.box.large ul.entries li.lastHover span.activity.highlight {
 	background-position: 8px -24px;
 	background-repeat: no-repeat;
 	}
@@ -610,7 +614,7 @@ div.box.small ul li.path strong {
 	background-repeat: no-repeat;
 	background-position: 8px 0px;
 	}
-#content div.box.large ul.entries li span.activity.shot-update {
+#content div.box.large ul.entries li span.activity.shot.updated {
 	background-image: url(../images/icon-shot-update.gif);
 	}
 #content div.box.large ul.entries li span.activity.shot.created {
@@ -655,7 +659,12 @@ div.left form p input {
 	top: 0px;
 	}	
 div.left form #form-element-checkIn-file {
-	margin: 5px 0 10px 0;
+	display: block;
+	width: 113px;
+	height: 26px;
+	margin: 5px 0 15px 0;
+	background: url(../images/button-choose.gif) no-repeat left top;
+	text-indent: -9999px;
 	}	
 #content div.left div.box.medium form select {
 	}
@@ -696,9 +705,9 @@ div.left form #form-element-checkIn-file {
 	color: #fff;
 	display: block;
 	}
-#content div.left div.box.medium form ul.selectOpen li:hover,
 #content div.left div.box.medium form ul.selectOpen li.hover,
-#content div.left div.box.medium form ul.selectOpen li.selected:hover {
+#content div.left div.box.medium form ul.selectOpen li.lastHover,
+#content div.left div.box.medium form ul.selectOpen li.selected.hover {
 	background: #333;
 	color: #fff;
 	}

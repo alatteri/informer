@@ -41,25 +41,28 @@
 <!-- start DASHBOARD -->      
       <div id="dashboard">
         <div id="video"></div>
-        <div id="shot-summary" class="box small">
-          <h3>Shot Summary</h3>
-          <ul>
-            <li class="editor"><strong>Last Edited by:</strong> <span id="editor"></span></li>
-            <li class="time"><strong>Time:</strong> <span id="time"></span></li>
-            <li class="machine"><strong>Machine:</strong> <span id="machine"></span></li>
-            <li class="path"><strong>Setup:</strong> <span id="path"></span></li>
-          </ul>
-          <h4>Shot Description:</h4>
-          <p>{{ shot.description }}</p>
+        <div class="right">
+          <div id="shot-summary" class="box small">
+            <h3>Shot Summary</h3>
+            <ul>
+              <li class="editor"><strong>Last Edited by:</strong> <span id="editor"></span></li>
+              <li class="time"><strong>Time:</strong> <span id="time"></span></li>
+              <li class="machine"><strong>Machine:</strong> <span id="machine"></span></li>
+              <li class="path"><strong>Setup:</strong> <span id="path"></span></li>
+            </ul>
+            <h4>Shot Description:</h4>
+            <p>{{ shot.description }}</p>
+          </div>
+          <div id="shot-specs" class="box small">
+            <h3>Shot Specs</h3>
+            <ul>
+              <li><strong>Status:</strong> {{ shot.status }}</li>
+              <li><strong>Total Frames:</strong> {{ shot.frames }}</li>
+              <li class="last"><strong>Handles:</strong> {{ shot.handles }}</li>
+            </ul>
+          </div>
         </div>
-        <div id="shot-specs" class="box small">
-          <h3>Shot Specs</h3>
-          <ul>
-            <li><strong>Status:</strong> {{ shot.status }}</li>
-            <li><strong>Total Frames:</strong> {{ shot.frames }}</li>
-            <li class="last"><strong>Handles:</strong> {{ shot.handles }}</li>
-          </ul>
-        </div>
+        <div class="clear"></div>
       </div>
 <!-- end DASHBOARD -->
 

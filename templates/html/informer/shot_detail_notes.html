@@ -117,7 +117,8 @@ function setup() {
     ]);
 
     notes.url = '{{shot.get_json_notes_url}}';
-	notes.load_data({{ data }});
+	  notes.load_data({{ data }});
+    notes.resort_table('date');
 }
 
 /* called when user clicks on the 'Add Note' button */

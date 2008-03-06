@@ -7,7 +7,7 @@
           <div class="box medium">
               <h3>Check In New Element</h3>
               <form id="form-element-checkIn" action="#" method="post">
-                  <input type="file" id="form-element-checkIn-file" />
+                  <a href="#" id="form-element-checkIn-file">Choose Files</a>
                   <p>
                       <strong>Category:</strong>
                       <select id="form-element-checkIn-cateogory">
@@ -83,6 +83,7 @@ function setup() {
 
     elements.url = '{{shot.get_json_elements_url}}';
     elements.load_data({{ data }});
+    elements.resort_table('date');
 }
 
 // onload trigger

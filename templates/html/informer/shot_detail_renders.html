@@ -82,6 +82,7 @@ function setup() {
 
     renders.url = '{{shot.get_json_renders_url}}';
     renders.load_data({{ data }});
+    renders.resort_table('date');
 }
 
 // onload trigger
