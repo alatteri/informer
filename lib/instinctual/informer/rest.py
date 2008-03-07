@@ -38,7 +38,7 @@ class ProjectShotCollection(Collection):
         project = get_object_or_404(Project, name=project_name)
 
         shot_name = Shot.getNameFromRequest(request)
-        shot = get_object_or_404(Shot, project=project)
+        shot = get_object_or_404(Shot, project=project, name=shot_name)
 
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(shot=shot)
