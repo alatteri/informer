@@ -2,7 +2,7 @@ from pprint import pprint
 from datetime import datetime
 import instinctual
 import instinctual.informer
-from instinctual.informer.frame import Frame, FRAME_UPLOAD
+from instinctual.informer.frame import Frame, FRAME_UPLOAD, FRAME_DELETE
 from instinctual.informer.client import Client
 
 LOG = instinctual.getLogger(__name__)
@@ -46,7 +46,8 @@ class Spark(object):
                 print "frame", i, "time", self.frames[i].createdOnInSeconds
                 if seconds > self.frames[i].createdOnInSeconds:
                     print "deleting!"
-                    self.frames[i].delete()
+                    self.frames[i].status = FRAME_DELETE
+                    self.frames[i].save()
                 else:
                     print "keeping!"
                     self.new.append(self.frames[i])

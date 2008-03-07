@@ -3,6 +3,7 @@ import errno
 import instinctual
 from instinctual.serializable import Serializable
 
+FRAME_DELETE='delete'
 FRAME_UPLOAD='upload'
 FRAME_UNKNOWN='unknown'
 
