@@ -62,7 +62,8 @@ status() {
 
 case "$1" in
   start)
-    start
+     start
+    echo "start turned off - josh 2/20"
     ;;
   status)
     status
