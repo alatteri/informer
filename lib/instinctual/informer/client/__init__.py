@@ -181,7 +181,9 @@ class Client(object):
                 rest.write(data)
                 rest.close()
                 err = "Request failed: status=%s" % (resp.status)
-                raise ClientConnectionError(err)
+                e = ClientConnectionError(err)
+                e.resp = resp
+                raise e
 
             return data
 

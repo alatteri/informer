@@ -10,8 +10,8 @@ from instinctual.parser.event import *
 from instinctual.parser.observer import *
 
 from instinctual.informer.frame import Frame
-from instinctual.informer.spark import Spark
-from instinctual.informer.client import Client
+from instinctual.informer.spark import Spark, SparkDuplicateFrame
+from instinctual.informer.client import Client, ClientConnectionError
 from instinctual.informer.threads import LogfileThread, SchedulerThread, InformerThread
 
 LOG = instinctual.getLogger(__name__)
@@ -25,6 +25,7 @@ def datetimeToSeconds(dt):
 
 # ------------------------------------------------------------------------------
 class App(Subject):
+    count = 0
     def __init__(self):
         Subject.__init__(self)
 
@@ -37,7 +38,9 @@ class App(Subject):
         # --------------------
         # SPARKS
         #
-        self.sparks = {}
+        self.id = str(self.count)
+        self.count += 1
+        self.spark = Spark(self.id)
 
         # --------------------
         # THREADS
@@ -121,36 +124,18 @@ class App(Subject):
         return name
 
     def sparkRegister(self, name):
-        name = self._sparkCleanName(name)
-        print "Hey this is cool. registering spark", name
-        spark = Spark(name)
-        self.sparks[spark.name] = spark
-        print "Now returning", spark.name
-        return spark.name
+        self.spark.name = self._sparkCleanName(name)
+        print "Now returning", self.spark.name
+        return self.spark.name
 
     def sparkGetByName(self, name):
         name = self._sparkCleanName(name)
         print "In the app trying to get the spark named", name
-        if name in self.sparks:
-            print "ok found it"
-            return self.sparks[name]
-        else:
-            print "nope."
-            return None
+        return self.spark
 
     def sparkRename(self, oldName, newName):
         print "rename called with [%s] and [%s]" % (oldName, newName)
-        oldName = self._sparkCleanName(oldName)
-        newName = self._sparkCleanName(newName)
-        if oldName == newName:
-            print "old and new were the same:", newName
-        elif oldName in self.sparks:
-            print "Ok. renamed %s to %s" % (oldName, newName)
-            self.sparks[newName] = self.sparks[oldName]
-            self.sparks[newName].name = newName
-            del self.sparks[oldName]
-        else:
-            print "Could not rename! [%s] was not found" % (oldName)
+        self.spark.name = newName
 
     def sparkProcessStart(self, name):
         """
@@ -272,7 +257,7 @@ class App(Subject):
 
         try:
             # associate the frame with the spark
-            self.sparks[sparkName].registerFrame(f)
+            self.spark.registerFrame(f)
             print "Created frame"
             pprint(f.__dict__)
 
@@ -293,7 +278,7 @@ class App(Subject):
         print "APP: frameProcessEnd called"
         print "+" * 80
 
-        f = self.sparks[sparkName].getLastFrame()
+        f = self.spark.getLastFrame()
         f.isBusy = False
         f.save()
 
@@ -306,13 +291,16 @@ class App(Subject):
         """
         client = Client()
 
-        LOG.info("Running getNotes()")
-        notes = client.getNotes(setup)
+        try:
+            LOG.info("Running getNotes()")
+            notes = client.getNotes(setup)
 
-        LOG.info("Lookup found: %s notes" % (len(notes)))
-        LOG.info("Found this: %s", (notes))
-
-        return notes
+            LOG.info("Lookup found: %s notes" % (len(notes)))
+            LOG.info("Found this: %s", (notes))
+            return notes
+        except ClientConnectionError, e:
+            if 404 == e.resp.status:
+                return []
 
     def getElements(self, setup):
         """
@@ -320,13 +308,16 @@ class App(Subject):
         """
         client = Client()
 
-        LOG.info("Running getElements()")
-        elements = client.getElements(setup)
+        try:
+            LOG.info("Running getElements()")
+            elements = client.getElements(setup)
 
-        LOG.info("Lookup found: %s elements" % (len(elements)))
-        LOG.info("Found this: %s", (elements))
-
-        return elements
+            LOG.info("Lookup found: %s elements" % (len(elements)))
+            LOG.info("Found this: %s", (elements))
+            return elements
+        except ClientConnectionError, e:
+            if 404 == e.resp.status:
+                return []
 
     def createNote(self, setup, isChecked, text, createdBy):
         data = {}
@@ -469,13 +460,11 @@ class App(Subject):
         print "=" * 80
 
         if self.lastProcess is None:
-            for spark in self.sparks.values():
-                print "last process was none -- calling spark delete"
-                spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
+            print "last process was none -- calling spark delete"
+            self.spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
         else:
-            for spark in self.sparks.values():
-                print "last process was set -- uploading"
-                spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
+            print "last process was set -- uploading"
+            self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
 
         # Now, check to see if we need to clear the lastProcess state...
         # This was determined by looking at various log files and trying
