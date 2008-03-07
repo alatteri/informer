@@ -274,6 +274,10 @@ class Render(InformerMixIn, models.Model):
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
                          'start', 'end', 'rate',
                          'event__created_by', 'event__host', 'event__setup']
+    class Logger:
+        def created(cls, instance, *args, **kwargs):
+            return ('Created a new render', '', '')
+        created = classmethod(created)
 
     def __str__(self):
         return "Render %s" % (self.id)

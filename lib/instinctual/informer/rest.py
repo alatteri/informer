@@ -1,4 +1,5 @@
 import os
+from django.shortcuts import get_object_or_404
 from django_restapi.model_resource import Collection, Entry
 from django_restapi.authentication import HttpBasicAuthentication
 from django.contrib.auth.models import User
@@ -34,10 +35,10 @@ class ProjectShots(Collection):
 class ProjectShotCollection(Collection):
     def read(self, request):
         project_name = Project.getNameFromRequest(request)
-        project = Project.getProject(project_name)
+        project = get_object_or_404(Project, name=project_name)
 
         shot_name = Shot.getNameFromRequest(request)
-        shot = Shot.getShot(shot_name, project)
+        shot = get_object_or_404(Shot, project=project)
 
         filtered_set = self.queryset._clone()
         filtered_set = filtered_set.filter(shot=shot)
