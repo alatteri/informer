@@ -1,5 +1,5 @@
-  {% extends "informer/base.html" %}
-  {% block content %}
+{% extends "informer/base.html" %}
+{% block content %}
   <!-- start WRAP -->
   <div id="wrap" class="projects">
     <!-- start HEADER -->      
@@ -32,9 +32,9 @@
     <div class="box medium">
         <h3>{{ project.name }}<a href="{{ project.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
         <img src="/media/images/image-no_thumbnail.gif" alt="No Thumbnail image" class="thumbnail" />
-        <ul class="meta">
-          <li class="last">{{ project.description }}</li>
-        </ul>
+        <div class="description">
+          {{ project.description }}
+        </div>
 			<div class="clear">&nbsp;</div>
     </div>
   {% endfor %}
@@ -97,6 +97,6 @@ Event.observe(window, 'load', setup);
 
   </script>
   <iframe src="about:blank" name="qtFrame" width="0" height="0" style="border: none; background-color: transparent;" id="qtFrame"></iframe>
-  {% endblock %}
+{% endblock %}
 
 

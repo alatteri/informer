@@ -457,20 +457,15 @@ div.box.small ul li.path strong {
 	margin: 10px;
 	border: 1px solid #555;
 	}
-#wrap.projects #content div.box.medium ul.meta {
+#wrap.projects #content div.box.medium div.description {
 	float: left;
-	background: #808284;
-	border-left: 1px solid #666;
-	}		
-#wrap.projects #content div.box.medium ul.meta li {
 	display: block;
 	width: 377px;
+	min-height: 90px;
 	margin: 0 0 0 2px;
-	padding: 10px;
-	background: url(../images/image-divider-box-dashboard.gif) repeat-x left bottom;
-	}
-#wrap.projects #content div.box.medium ul.meta li.last {
+	padding: 10px;	
 	background: #808284 url(../images/background-box-medium-corner.gif) no-repeat right bottom;	
+	border-left: 1px solid #666;	
 	}	
 #wrap.projects #content div.box.medium div.clear {
 	height: 0px;
