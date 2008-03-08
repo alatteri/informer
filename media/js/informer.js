@@ -256,6 +256,7 @@ Informer.Data.prototype = {
 
         this.draw();
 		addIEOverviewHoverStyles();
+		addLogItemLinks();
     },
     
 	/* Renders the table item */

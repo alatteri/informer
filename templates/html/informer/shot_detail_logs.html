@@ -20,7 +20,7 @@ function create_log(info) {
     spanClass  = 'activity ';
     spanClass += getattr(info, 'fields.type').toLowerCase();
     spanClass += " ";
-    spanClass +=  getattr(info, 'fields.msg_prefix').toLowerCase();
+    spanClass +=  getattr(info, 'fields.msg_prefix').toLowerCase().split(' ')[0];
     spanClass += " ";
     spanClass += getattr(info, 'fields.object_id');
 
@@ -52,32 +52,6 @@ function create_log(info) {
         span.appendChild(obj);
     if (suffix && t!='Shot')
         span.appendChild(document.createTextNode(' ' + suffix));
-
-    if (getattr(info, 'fields.msg_prefix').split(/\s/)[0].toLowerCase() != "deleted") {
-        // Add Rollover link if log item not for deletion
-		var link = document.createElement('A');
-	    var link_text = document.createTextNode("View " + getattr(info, 'fields.type').toLowerCase());
-	    link.appendChild(link_text);
-	    link.title = "View " + getattr(info, 'fields.type').toLowerCase();
-	    if (getattr(info, 'fields.type').toLowerCase() == "note")
-	       link.href = "notes/#" + getattr(info, 'fields.object_id');
-	    else if (getattr(info, 'fields.type').toLowerCase() == "element")
-	       link.href = "elements/#" + getattr(info, 'fields.object_id');	
-	    else if (getattr(info, 'fields.type').toLowerCase() == "render")
-	       link.href = "renders/#" + getattr(info, 'fields.object_id');
-
-	    span.appendChild(link);
-    } else {
-        // If deleted, remove link from log where item was created
-	    spans = $('overview_entries').getElementsByTagName('span');
-	    
-	    for(var i=0; i<spans.length; i++) {
-		    if(spans[i].hasClassName(getattr(info, 'fields.object_id'))) {
-				if(dead_link = spans[i].getElementsByTagName('A')[0])
-					dead_link.parentNode.removeChild(dead_link);
-		    }
-	    }
-    }
     
     return span;
 }

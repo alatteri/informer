@@ -76,6 +76,35 @@ function highlightColumn(sorter) {
 }
 
 
+/* Adds links to relvent log items */
+
+function addLogItemLinks() {
+	var deleted_shots = new Hash();
+	var logs = $$('span.activity');
+	
+	// Populate hash with deleted objects
+	for(var i=0; i<logs.length; i++) {
+		if(logs[i].hasClassName('deleted'))
+			deleted_shots.set(logs[i].className.split(' ')[3], true);
+	}
+	
+	// Add links to any undeleted note, element, and render log items
+	for(var i=0; i<logs.length; i++) {
+		if(!logs[i].hasClassName('shot') && !logs[i].hasClassName('deleted') && !deleted_shots.get(logs[i].className.split(' ')[3]))
+			createLogLink(logs[i].className.split(' ')[1],logs[i].className.split(' ')[3],logs[i]);
+	}
+}
+
+/* Creates a log link given the object's type and id */
+function createLogLink(object_type, object_id, object) {
+	var link = document.createElement('A');
+	var link_text = document.createTextNode("View " + object_type);
+	link.appendChild(link_text);
+	link.title = "View " + object_type;
+	link.href = object_type + "s/#" + object_id;
+	object.appendChild(link);
+}
+
 /* Helper Functions
  * ------------------------------------------------------ */
 
