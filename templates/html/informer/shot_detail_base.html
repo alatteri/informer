@@ -1,43 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-  <head>
-    <title>Informer | {{ title }}</title>
-    
-    <link rel="stylesheet" type="text/css" media="screen" href="/media/stylesheets/screen.css" />
-    
-    <script type="text/javascript" src="/media/js/prototype.js"></script>
-    <script type="text/javascript" src="/media/js/informer.js"></script>
-    <script type="text/javascript" src="/media/js/global.js"></script>
+{% extends "informer/base.html" %}
 
-    <script type="text/javascript" src="/media/js/scripts.js"></script>
-    <script type="text/javascript" src="/media/js/AC_OETags.js"></script>
-  </head>
-  <body id="{% block body_id %}overview{% endblock %}">
-<!-- start WRAP -->
-    <div id="wrap">
-<!-- start HEADER -->      
-      <div id="header">
-        <ul id="breadcrumb">
-          <li><h1><a href="/" title="Home" id="logo">Informer</a></h1></li>
-          <li><span>&#8250;</span><a href="{{ project.get_absolute_shots_url }}" title="{{ project.name }} Project">{{ project.name }}</a></li>
-          <li><span>&#8250;</span>{{ shot.name }}</li>
-        </ul>
-        <ul id="login">
-          <li>Welcome {{ user.username }}</li>
-          {% if user.is_staff %}
-          <li><a href="/admin" title="Admin">Admin</a></li>
-          {% endif %}
-          <li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
-        </ul>
+{% block title %} | {% block shot_title %}{% endblock %}{% endblock %}
+
+{% block nav %}
         <ul id="nav">
           <li><a href="{{ shot.get_absolute_url }}" title="" class="overview">Overview</a></li>
           <li><a href="{{ shot.get_absolute_notes_url }}" title="" class="notes">Notes</a></li>
           <li><a href="{{ shot.get_absolute_elements_url }}" title="" class="elements">Elements</a></li>
           <li><a href="{{ shot.get_absolute_renders_url }}" title="" class="renders">Renders</a></li>
         </ul>
-      </div>
-<!-- end HEADER -->
+{% endblock %}
 
+{% block dashboard %}
 <!-- start DASHBOARD -->      
       <div id="dashboard">
         <div id="video"></div>
@@ -65,16 +39,14 @@
         <div class="clear"></div>
       </div>
 <!-- end DASHBOARD -->
+{% endblock %}
 
-<!-- start CONTENT -->
-      <div id="content">
+{% block content %}
         <div class="header">
           <h2>{{ title }}</h2>
         </div>
-{% block content %}{% endblock %}
-      </div>
-    </div>
-<!-- end WRAP -->
+{% block shot_content %}
+{% endblock %}
 
 <script type="text/javascript">
 function nodeReplace(node, child) {
@@ -134,9 +106,7 @@ load_render(
     '{{ shot.get_render_setup }}'
 );
 
-{%block script %}
-{% endblock %}
+{% block shot_script %}{% endblock %}
 </script>
 <iframe src="about:blank" name="qtFrame" width="0" height="0" style="border: none; background-color: transparent;" id="qtFrame"></iframe>
-  </body>
-</html>
+{% endblock %}

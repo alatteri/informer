@@ -1,16 +1,45 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-	<head>
-		<title>{% block title %}Informer{% endblock %}</title>
-		
-		<link rel="stylesheet" type="text/css" media="screen" href="/media/stylesheets/screen.css" />
-		
-		<script type="text/javascript" src="/media/js/prototype.js"></script>
+  <head>
+    <title>Informer{% block title %}{% endblock %}</title>
+    
+    <link rel="stylesheet" type="text/css" media="screen" href="/media/stylesheets/screen.css" />
+    
+    <script type="text/javascript" src="/media/js/prototype.js"></script>
     <script type="text/javascript" src="/media/js/informer.js"></script>
-		<script type="text/javascript" src="/media/js/global.js"></script>
-{% block additional_script %}{% endblock %}
-	</head>
-	<body id="overview">
+    <script type="text/javascript" src="/media/js/global.js"></script>
+
+    <script type="text/javascript" src="/media/js/scripts.js"></script>
+    <script type="text/javascript" src="/media/js/AC_OETags.js"></script>
+    {% block additional_script %}{% endblock %}
+  </head>
+  <body id="{% block body_id %}overview{% endblock %}">
+<!-- start WRAP -->
+    <div id="wrap" {% block wrap_class %}{% endblock %}>
+<!-- start HEADER -->       
+      <div id="header">
+        <ul id="breadcrumb">
+          <li><h1><a href="/" title="Home" id="logo">Informer</a></h1></li>
+          <li><span>&#8250;</span><a href="{{ project.get_absolute_shots_url }}" title="{{ project.name }} Project">{{ project.name }}</a></li>
+          <li><span>&#8250;</span>{{ shot.name }}</li>
+        </ul>
+        <ul id="login">
+          <li>Welcome {{ user.username }}</li>
+          {% if user.is_staff %}
+          <li><a href="/admin" title="Admin">Admin</a></li>
+          {% endif %}
+          <li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
+        </ul>
+        {% block nav %}{% endblock %}
+      </div>
+<!-- end HEADER -->
+{% block dashboard %}{% endblock %}
+<!-- start CONTENT -->
+      <div id="content">
 {% block content %}{% endblock %}
-	</body>
+      </div>
+<!-- end CONTENT -->
+    </div>
+<!-- end WRAP -->
+    </body>
 </html>

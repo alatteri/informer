@@ -1,33 +1,10 @@
-{% extends "informer/base.html" %}
-{% block content %}
-  <!-- start WRAP -->
-  <div id="wrap" class="shots">
-    <!-- start HEADER -->      
-    <div id="header">
-      <ul id="breadcrumb">
-	<li><h1><a href="/" title="Home" id="logo">Informer</a></h1></li>
-  <li><span>&#8250;</span><a href="{{ project.get_absolute_shots_url }}" title="{{ project.name }} Project">{{ project.name }}</a></li>
-      </ul>
-      <ul id="login">
-	<li>Welcome {{ user.username }}</li>
-	{% if user.is_staff %}
-	<li><a href="/admin" title="Admin">Admin</a></li>
-	{% endif %}
-	<li><a href="/accounts/logout" title="Log Out">Log Out</a></li>
-      </ul>
-      <ul id="sub_nav">
-          <h2>{{ project.name }}</h2>
-          <ul class="sorting">
-            <li><strong>Sort By:</strong></li>
-            <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
-            <li><a href="#" title="Sort by Date Created">Date Created</a></li>
-            <li><a href="#" title="Sort by Last Update">Last Updated</a></li>              
-			</ul>
-</div>
-<!-- end HEADER -->
-<!-- start CONTENT -->
-<div id="content">		
-  <div class="left">
+{% extends "informer/project_base.html" %}
+
+{% block project_title %}Shots{% endblock %}
+{% block body_id %}shots{% endblock %}
+{% block project_nav_title %}{{ project.name }}{% endblock %}
+
+{% block project_content %}
 	{% if project.shot_set.count %}
 	  {% for shot in project.shot_set.all %}
     <div class="box medium">
@@ -47,8 +24,9 @@
   {% else %}
   <p>No shots</p>
   {% endif %}  
-  </div>
-	<div class="right">
+{% endblock %}
+
+{% block project_filters %}
 		<div class="box small">
 			<h3>Status</h3>
 			<ul>
@@ -74,10 +52,4 @@
 				<li class="last"><a href="#" title="#">Closed (3)</a></li>														
 			</ul>
 		</div>
-	</div>
-	<div class="clear">&nbsp;</div>
-</div>
-<!-- end CONTENT -->
-		</div>
-<!-- end WRAP -->
 {% endblock %}

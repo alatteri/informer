@@ -1,8 +1,10 @@
 {% extends "informer/shot_detail_base.html" %}
 
+{% block shot_title %}Notes{% endblock %}
+
 {% block body_id %}notes{% endblock %}
 
-{% block content %}
+{% block shot_content %}
         <div class="left">
           <div class="box medium">
             <h3>Add a note</h3>
@@ -38,7 +40,6 @@
           <div class="box small">
             <h3>Status</h3>
             <ul id='filter_status'>
-                <li>foo bar</li>
             </ul>
           </div>
           <div class="box small">
@@ -56,8 +57,7 @@
       </div>
 {% endblock %}
 
-{% block script %}
-
+{% block shot_script %}
 /* Notes functions
  * ------------------------------------------------------ */
 
@@ -144,8 +144,6 @@ function add_note_callback(r) {
     notes.add_data(r.responseJSON[0]);
     notes.resort_table();
 }
-
-  
 
 // onload trigger
 setup();

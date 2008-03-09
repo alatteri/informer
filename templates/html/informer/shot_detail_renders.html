@@ -1,8 +1,9 @@
 {% extends "informer/shot_detail_base.html" %}
 
+{% block shot_title %}Renders{% endblock %}
 {% block body_id %}renders{% endblock %}
 
-{% block content %}
+{% block shot_content %}
         <div class="left">
           <div class="box medium">
           <h3>Render History</h3>
@@ -32,8 +33,7 @@
       </div>
 {% endblock %}
 
-{% block script %}
-
+{% block shot_script %}
 /* Renders functions
  * ------------------------------------------------------ */
 

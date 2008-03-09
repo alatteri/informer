@@ -1,8 +1,9 @@
 {% extends "informer/shot_detail_base.html" %}
 
+{% block shot_title %}Overview{% endblock %}
 {% block body_id %}overview{% endblock %}
 
-{% block content %}
+{% block shot_content %}
 <div class="box large">
     <h3>Recent Activity</h3>
     <ul class="heading" id="overview_heading">
@@ -15,7 +16,7 @@
 </div>
 {% endblock %}
 
-{%block script %}
+{% block shot_script %}
 function create_log(info) {
     spanClass  = 'activity ';
     spanClass += getattr(info, 'fields.type').toLowerCase();
@@ -86,5 +87,4 @@ function setup() {
 
 // onload trigger
 setup();
-
 {% endblock %}

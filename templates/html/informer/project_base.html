@@ -1,0 +1,27 @@
+{% extends "informer/base.html" %}
+
+{% block title %} | {% block project_title %}{% endblock %}{% endblock %}
+
+{% block wrap_class %}class="{% block body_id %}{% endblock %}"{% endblock %}
+
+{% block nav %}
+      <ul id="sub_nav">
+          <h2>{% block project_nav_title %}{% endblock %}</h2>
+          <ul class="sorting">
+            <li><strong>Sort By:</strong></li>
+            <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
+            <li><a href="#" title="Sort by Date Created">Date Created</a></li>
+            <li><a href="#" title="Sort by Last Update">Last Updated</a></li>              
+		</ul>
+{% endblock %}
+
+{% block content %}
+  <div class="left">
+    {% block project_content %}{% endblock %}
+  </div>
+
+  <div class="right">
+    {% block project_filters %}{% endblock %}
+  </div>
+  <div class="clear">&nbsp;</div>
+{% endblock %}
