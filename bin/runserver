@@ -21,6 +21,7 @@ from commands import getoutput
 import instinctual
 from instinctual import settings
 from django.core.management import execute_manager
+from django.contrib.auth.models import User
 
 conf = instinctual.getConf()
 server = "%s:%s" % (conf.get('informer', 'hostname'), conf.get('informer', 'port') or '80')
@@ -44,6 +45,11 @@ if syncdb:
         for command in commands:
             os.system(command)
         execute_manager(settings, [None, 'syncdb'])
+
+        print "Creating spark user..."
+        spark = User(username='spark', is_superuser=True)
+        spark.set_password('sparky')
+        spark.save()
 
 if __name__ == '__main__':
     if len(sys.argv)==2:
