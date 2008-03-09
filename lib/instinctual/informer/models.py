@@ -142,7 +142,7 @@ class Shot(models.Model):
         unique_together = (('project', 'name'),)
 
     class Admin:
-        list_display = ('project', 'name', 'description')
+        list_display = ('project', 'name', 'status', 'description')
 
     class Logger:
         def created(cls, instance, *args, **kwargs):
@@ -152,6 +152,9 @@ class Shot(models.Model):
         def updated(cls, instance, *args, **kwargs):
             return ('Updated this shot', '', '')
         updated = classmethod(updated)
+
+    class Rest:
+        expose_fields = ['project', 'name', 'status', 'description', 'frames']
 
     def __str__(self):
         if self.description:

@@ -13,10 +13,10 @@ from instinctual.informer.models import Project, Shot, Note, Render, Element, Lo
 def project_list(request):
     responder = CustomJSONResponder()
     responder.expose_fields = Project.Rest.expose_fields
-    #    data = responder.render(Project.objects.all()))
     c = {
-        'user':      request.user,
+        'user':         request.user,
         'object_list':  Project.objects.all(),
+        'data':         responder.render(Project.objects.all()),
     }
     return render_to_response('informer/project_list.html', c)
 project_list = login_required(project_list)
@@ -24,9 +24,12 @@ project_list = login_required(project_list)
 # ------------------------------------------------------------------------------
 def project_detail(request, project_name):
     p = get_object_or_404(Project, name=project_name)
+    responder = CustomJSONResponder()
+    responder.expose_fields = Shot.Rest.expose_fields
     c = {
         'user':     request.user,
         'project':  p,
+        'data':     responder.render(Shot.objects.filter(project=p)),
     }
     return render_to_response('informer/project_detail.html', c)
 project_detail = login_required(project_detail)

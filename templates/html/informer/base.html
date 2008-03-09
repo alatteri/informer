@@ -14,6 +14,7 @@
     {% block additional_script %}{% endblock %}
   </head>
   <body id="{% block body_id %}overview{% endblock %}">
+{% block body %}
 <!-- start WRAP -->
     <div id="wrap" {% block wrap_class %}{% endblock %}>
 <!-- start HEADER -->       
@@ -45,5 +46,6 @@
 <!-- end CONTENT -->
     </div>
 <!-- end WRAP -->
-    </body>
+{% endblock %}
+  </body>
 </html>
