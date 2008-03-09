@@ -2,7 +2,7 @@
 
 {% block project_title %}Shots{% endblock %}
 {% block body_id %}shots{% endblock %}
-{% block project_nav_title %}{{ project.name }}{% endblock %}
+{% block project_nav_title %}Project: {{ project.name }}{% endblock %}
 
 {% block project_content %}
 	{% if project.shot_set.count %}
@@ -13,7 +13,7 @@
       <div class="description">
         <div class="heading">
           <p class="status"><strong>Status:</strong> {{ shot.status }}</p>
-          <p class="length"><strong>Setup:</strong> {{ shot.setup }}</p>
+          <p class="length"><strong>Frames:</strong> {{ shot.frames }}</p>
         </div>
         <h4>Description:</h4>
         <p>{{ shot.description }}</p>

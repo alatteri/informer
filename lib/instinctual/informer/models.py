@@ -20,12 +20,16 @@ from instinctual.informer.signals import Handler, IgnoreSignalException
 class Project(models.Model):
     name        = models.CharField(maxlength=255, unique=True)
     description = models.CharField(maxlength=4096, null=True, blank=True)
+    status      = models.CharField(maxlength=64, null=True, blank=True)
+    client      = models.CharField(maxlength=255, null=True, blank=True)
+    due_date    = models.DateTimeField('due date', null=True, blank=True)
+    branding    = models.FileField(upload_to='branding', default='branding/default.gif')
 
     def get_absolute_url(self):
         return informer.getProjectShotsUrl(self.name, format='html')
 
     class Admin:
-        list_display = ('name', 'description')
+        list_display = ('name', 'description', 'status', 'client', 'due_date', 'branding')
 
     def __str__(self):
         if self.description:
@@ -41,7 +45,7 @@ class Project(models.Model):
     getNameFromRequest = classmethod(getNameFromRequest)
 
     class Rest:
-        expose_fields = ['name', 'description']
+        expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding']
 
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
@@ -142,7 +146,7 @@ class Shot(models.Model):
         unique_together = (('project', 'name'),)
 
     class Admin:
-        list_display = ('project', 'name', 'status', 'description')
+        list_display = ('project', 'name', 'status', 'description', 'handles', 'frames')
 
     class Logger:
         def created(cls, instance, *args, **kwargs):
@@ -154,7 +158,7 @@ class Shot(models.Model):
         updated = classmethod(updated)
 
     class Rest:
-        expose_fields = ['project', 'name', 'status', 'description', 'frames']
+        expose_fields = ['project', 'name', 'status', 'description', 'handles', 'frames']
 
     def __str__(self):
         if self.description:
