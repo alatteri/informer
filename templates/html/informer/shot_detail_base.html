@@ -1,6 +1,6 @@
 {% extends "informer/base.html" %}
 
-{% block title %} | {% block shot_title %}{% endblock %}{% endblock %}
+{% block title %} | {{ project.name }} | {{ shot.name }} | {% block shot_title %}{% endblock %}{% endblock %}
 
 {% block nav %}
         <ul id="nav">
