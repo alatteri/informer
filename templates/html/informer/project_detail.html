@@ -2,7 +2,7 @@
 
 {% block project_title %}{{ project.name }}{% endblock %}
 {% block body_id %}shots{% endblock %}
-{% block project_nav_title %}Project: {{ project.name }}{% endblock %}
+{% block project_nav_title %}{% if project.description %}{{ project.description }}{% else %}{{ project.name }}{% endif %}{% endblock %}
 
 {% block project_content %}
 	{% if project.shot_set.count %}
