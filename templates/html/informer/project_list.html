@@ -8,7 +8,7 @@
   {% if object_list.count %}
   {% for project in object_list %}
     <div class="box medium">
-        <h3>{{ project.name }}{% if project.description %}: {{ project.description }}{% endif %}<a href="{{ project.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
+        <h3>{% if project.description %}{{ project.description }}{% else %}{{ project.name }}{% endif %}<a href="{{ project.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
         <img src="/media/{{ project.branding }}" alt="{{ project.name }}" class="thumbnail" />
         <div class="description">
         <div class="heading">
