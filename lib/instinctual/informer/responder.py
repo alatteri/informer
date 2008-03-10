@@ -1,3 +1,5 @@
+from new import instancemethod
+from django.db import models
 from django_restapi.responder import *
 
 class CustomBaseResponder(SerializeResponder):
@@ -15,11 +17,19 @@ class CustomBaseResponder(SerializeResponder):
         # Find foreign fields
         foreign_fields = [ff for ff in self.expose_fields if '__' in ff]
 
+        # Find object methods
+        methods = [m for m in self.expose_fields if '.' in m]
+
+        print "expose fields:", self.expose_fields
+        print "methods:", methods
+
         # Added fields
         added_fields = {}
 
         for obj in list(object_list):
+            print "obj:", obj
             for field in obj._meta.fields:
+                print "field:", field
                 if not field.name in self.expose_fields and field.serialize:
                     field.serialize = False
                     hidden_fields.append(field)
@@ -52,6 +62,28 @@ class CustomBaseResponder(SerializeResponder):
                 item.serialize = True
                 if field_name not in [f.name for f in obj._meta.fields]:
                     obj._meta.fields.append(item)
+
+            print obj._meta.fields
+
+            # display method methods as model fields
+            for m in methods:
+                attrs = m.split('.')[1:]    # ignore self.
+                field = attrs[-1]
+                val = getattr(obj, '.'.join(attrs))
+
+                lame = None
+                if isinstance(val, int):
+                    lame = models.IntegerField()
+                else:
+                    # other case: isinstance(val, str):
+                    lame = models.CharField()
+
+                setattr(lame, field, None)
+                lame.name = field
+                lame.attname = field
+                lame.serialize = True
+                obj._meta.fields.append(lame)
+                added_fields[field] = 1
 
         response = serializers.serialize(self.format, object_list)
 

@@ -16,6 +16,7 @@ xml_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomXMLResponder(),
+    expose_fields = Project.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
@@ -108,6 +109,7 @@ json_projects = Collection(
     queryset = Project.objects.all(),
     permitted_methods = ['GET'],
     responder = CustomJSONResponder(),
+    expose_fields = Project.Rest.expose_fields,
     authentication = InformerAuthentication(),
 )
 
