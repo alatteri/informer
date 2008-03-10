@@ -44,6 +44,9 @@ class Project(models.Model):
         return request.path.split("/")[5]
     getNameFromRequest = classmethod(getNameFromRequest)
 
+    def shot_count(self):
+        return len(Shot.objects.filter(project=self))
+
     class Rest:
         expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding']
 
