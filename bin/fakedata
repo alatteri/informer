@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import datetime
+import instinctual
+from instinctual.informer.models import Project, Shot, Note
+
+def init_samples():
+    print "Creating Apple..."
+    apple = Project(name='Apple',
+                    description='Apple Ad',
+                    status='Open',
+                    client='Apple',
+                    due_date=datetime.datetime.now(),
+                    branding='branding/apple.png')
+    apple.save()
+
+    sh001 = Shot(project=apple,
+                 name='sh001',
+                 description='Close up of product',
+                 status='In progress',
+                 handles='5',
+                 frames=300,)
+    sh001.save()
+
+    print "Creating Nike..."
+    nike = Project(name='Nike',
+                    description='Nike+ Commercial',
+                    status='Open',
+                    client='Nike',
+                    due_date=datetime.datetime.now(),
+                    branding='branding/nike.png')
+    nike.save()
+
+    print "Creating Honda..."
+    honda = Project(name='Honda',
+                    description='Honda Superbowl Commerical',
+                    status='Open',
+                    client='Honda',
+                    due_date=datetime.datetime.now(),
+                    branding='branding/honda.png')
+    honda.save()
+
+if __name__ == '__main__':
+    init_samples()
