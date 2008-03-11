@@ -444,6 +444,19 @@ div.box.small ul li.path strong {
 	margin: 0 0 5px 0;
 	line-height: 16px;
 	}	
+#content div.box.medium ul.heading li.status a {		
+	display: block;
+	position: absolute;
+	right: 46px;
+	width: 17px;
+	height: 16px;
+	margin: -19px 0 0 0;
+	background: url(../images/background-checkbox.gif) no-repeat 0px 0px;
+	text-indent: -9999px;
+	}
+#content div.box.medium ul.heading li.status a.complete {
+	background-position: 0px -16px;
+	}
 	
 /* Projects */
 
@@ -456,20 +469,31 @@ div.box.small ul li.path strong {
 	float: left;
 	margin: 10px;
 	border: 1px solid #555;
+	height: 100px;
+	width: 120px;
 	}
-#wrap.projects #content div.box.medium div.description {
+#content div.box.medium ul.meta {
 	float: left;
+	width: 397px;
+	min-height: 125px;
+	background: #808284;
+	border-left: 1px solid #666;
+	background: #808284 url(../images/background-box-medium-corner.gif) no-repeat right bottom;		
+	}		
+#content div.box.medium ul.meta li {
 	display: block;
-	width: 377px;
-	min-height: 90px;
+	height: 28px;
+	line-height: 28px;
 	margin: 0 0 0 2px;
-	padding: 10px;	
-	background: #808284 url(../images/background-box-medium-corner.gif) no-repeat right bottom;	
-	border-left: 1px solid #666;	
-	}	
+	padding: 0 0 0 10px;
+	background: url(../images/image-divider-box-dashboard.gif) repeat-x left bottom;
+	}
+#content div.box.medium ul.meta li.last {
+	}
 #wrap.projects #content div.box.medium div.clear {
 	height: 0px;
 	}		
+	
 /* Shots */	
 
 #wrap.shots #content div.box.medium {	
@@ -502,7 +526,7 @@ div.box.small ul li.path strong {
 #wrap.shots #content div.box.medium div.description div.heading p {
 	padding: 0;
 	margin: 0;
-}	
+	}	
 #wrap.shots #content div.box.medium div.description div.heading p.status {
 	float: left;
 	margin: 0;
@@ -614,10 +638,12 @@ div.box.small ul li.path strong {
 	background-repeat: no-repeat;
 	background-position: 8px 0px;
 	}
-#content div.box.large ul.entries li span.activity.shot.updated {
+#content div.box.large ul.entries li span.activity.shot.updated,
+#content div.box.large ul.entries li span.activity.render.updated {
 	background-image: url(../images/icon-shot-update.gif);
 	}
-#content div.box.large ul.entries li span.activity.shot.created {
+#content div.box.large ul.entries li span.activity.shot.created,
+#content div.box.large ul.entries li span.activity.render.created {
 	background-image: url(../images/icon-shot-create.gif);
 	}	
 #content div.box.large ul.entries li span.activity.note.commented {
@@ -716,7 +742,6 @@ div.left form #form-element-checkIn-file {
 /* Login Page
  * ------------------------------------------------------------ */
 
-
 #login-wrap {
 	width: 593px;
 	margin: 0 auto;
@@ -744,6 +769,9 @@ div.left form #form-element-checkIn-file {
 #login-wrap #content h3 span {
 	position: absolute;
 	right: 15px;
+	}	
+#login-wrap #content form {
+	margin: 0 0 0 75px;
 	}	
 #login-wrap #content p.intro,
 #login-wrap #content p.error {

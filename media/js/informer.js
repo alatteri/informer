@@ -344,7 +344,27 @@ Informer.Data.prototype = {
             var elem;
             if (info.create_func) {
                 elem = info.create_func(item);
-            } else {
+            } else if(info.name == "status") {
+                var value = getattr(item, info);
+                elem = document.createElement(tag);
+                elem.className = info.name;
+                elem.appendChild(document.createTextNode(value));
+				checkbox = document.createElement('A');
+				checkbox.className = value.toLowerCase();
+				checkbox.href = "#";
+				checkbox.onclick = function() {
+					this.className = (this.className == "pending")? "complete" : "pending";
+					return false;
+				}
+				if(checkbox.className == "pending") {
+					checkbox.innerHTML = "Check if complete";
+					checkbox.title = "Click if complete";
+				} else {
+					checkbox.innerHTML = "Note is complete";
+					checkbox.title = "Note is complete";
+				}
+				elem.appendChild(checkbox);
+			} else {
                 var value = getattr(item, info);
                 elem = document.createElement(tag);
                 elem.className = info.name;

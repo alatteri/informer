@@ -105,6 +105,7 @@ function createLogLink(object_type, object_id, object) {
 	object.appendChild(link);
 }
 
+
 /* Helper Functions
  * ------------------------------------------------------ */
 
@@ -141,15 +142,12 @@ function selectReplacement(obj) {
 				}
 			}
 		}
-		if (window.attachEvent) {
 			li.onmouseover = function() {
 				this.className += ' hover';
 			}
 			li.onmouseout = function() {
-				this.className = 
 				this.className.replace(new RegExp(" hover\\b"), '');
 			}
-		}
 		ul.appendChild(li);
 	}
 	obj.parentNode.insertBefore(ul,obj);
