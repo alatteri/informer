@@ -1,0 +1,198 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import os
+import re
+import sys
+import time
+import errno
+import commands
+from glob import glob
+import instinctual
+from instinctual import settings
+from instinctual.informer.client import Client, ClientConnectionError
+from instinctual.informer.frame import Frame, FRAME_UPLOAD, FRAME_DELETE
+
+LOG = instinctual.getLogger('uploader')
+
+class LogInfo(object):
+    def write(self, msg):
+        return LOG.info(msg)
+
+class LogWarn(object):
+    def write(self, msg):
+        return LOG.warn(msg)
+
+# ------------------------------------------------------------------------------
+# really... someday take the time and clean this up
+# ------------------------------------------------------------------------------
+def main():
+    conf = instinctual.getConf()
+    uploadDir = conf.get('informer', 'dir_uploads')
+    frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
+
+    daemon = False
+    flamePid = None
+
+    for i in range(len(sys.argv)):
+        if sys.argv[i] == '-P':
+            flamePid = sys.argv[i+1]
+        elif sys.argv[i] == '-D':
+            daemon = True
+
+    if daemon == True:
+        LOG.debug("running in daemon mode.")
+        if os.fork():
+            sys.exit(0)
+
+        sys.stdout = LogInfo()
+        sys.stderr = LogWarn()
+
+    # ------------------------------------------------------------------------------
+    # check for running process
+    # ------------------------------------------------------------------------------
+    pidfile = os.path.join(uploadDir, 'uploader.pid')
+
+    try:
+        fd = open(pidfile, 'r')
+        oldpid = fd.readline()[:-1]
+        cmdline = open('/proc/%s/cmdline' % oldpid, 'r').readline()
+
+        if cmdline.find('python') != -1 and cmdline.find('uploader') != -1:
+            LOG.info("Uploader already running with pid: %s" % (oldpid))
+            sys.exit(0)
+    except IOError, e:
+        if errno.ENOENT != e.errno:
+            LOG.fatal("Unable to determine if uploader running: %s" % (e))
+            raise e
+
+    # --------------------
+    # create the pid
+    #
+    try:
+        os.makedirs(uploadDir)
+        LOG.info("ok. made" + uploadDir)
+    except OSError, e:
+        if errno.EEXIST != e.errno:
+            LOG.fatal("Unable to create %s: %s" % (uploadDir, e))
+            raise e
+
+    fd = open(pidfile, 'w')
+    fd.write("%s\n" % os.getpid())
+    fd.close()
+
+    LOG.info("Uploader started with pid: %s" % os.getpid())
+
+    # ------------------------------------------------------------------------------
+    # do the work
+    # ------------------------------------------------------------------------------
+    tries = 0
+    maxWidth  = 1024
+    maxHeight = 768
+    identifyRegExp = re.compile(r'\s+(\d+)x(\d+)\s+')
+
+    try:
+        run = True
+        while run:
+            count = 0
+            matches = glob(frameGlob)
+            matches.sort()
+            for framePath in matches:
+                tries = 0
+                count += 1
+                LOG.debug("%s) Found -> %s" % (count, framePath))
+                print("%s) Found -> %s" % (count, framePath))
+                frame = Frame.load(framePath)
+
+                if frame.isBusy:
+                    LOG.debug("Frame was busy...")
+                elif FRAME_DELETE == frame.status:
+                    LOG.debug("Deleting frame:" + frame.rgbPath)
+                    frame.delete()
+                elif FRAME_UPLOAD == frame.status:
+                    LOG.debug("I can work on:" + frame.rgbPath)
+                    #frame.isBusy = True
+                    #frame.save()
+
+                    if frame.setup is None:
+                        LOG.debug("setup was not defined for: %s" % (framePath))
+                        frame.delete()
+                        continue
+
+                    frame.resizedPath = os.path.join(frame.container, 'frame.tiff')
+                    cmd = 'convert %s -resize "%sx%s>" -channel RGB -depth 8 -compress RLE %s'
+                    cmd = cmd % (frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
+                    LOG.debug("CMD:" + cmd)
+                    if 0 == os.system(cmd):
+                        cmd = 'identify %s' % (frame.resizedPath)
+                        (result, output) = commands.getstatusoutput(cmd)
+                        if 0 == result:
+                            match = identifyRegExp.search(output)
+                            if match != None:
+                                frame.resizedDepth = 8
+                                frame.resizedWidth = match.group(1)
+                                frame.resizedHeight = match.group(2)
+                                LOG.info("MATCHED (%s) X (%s)!" % (frame.resizedWidth, frame.resizedHeight))
+                                try:
+                                    LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
+                                    client = Client()
+                                    client.newFrame(frame)
+                                    LOG.debug("done!")
+                                    frame.delete()
+                                    pass
+                                except ClientConnectionError, e:
+                                    LOG.debug("Client error encountered -- ignoring frame")
+                                    frame.delete()
+                            else:
+                                LOG.warn("DID NOT MATCH identify group!")
+                        else:
+                            LOG.warn("identify did not return 0!")
+                    else:
+                        LOG.warn("FAILURE running convert")
+                        frame.delete()
+
+                time.sleep(0.1)
+
+            if flamePid and len(matches) == 0:
+                try:
+                    os.stat('/proc/%s' % flamePid)
+                    # LOG.debug("Flame process (%s) still running..." % flamePid)
+                except OSError, e:
+                    if e.errno == errno.ENOENT:
+                        LOG.debug("Flame process (%s) NOT running." % flamePid)
+                        tries += 1
+                    else:
+                        raise e
+
+            if tries < 5:
+                # LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
+                time.sleep(3.0)
+            else:
+                LOG.info("Flame appears to have exited and no work to do. Quitting.")
+                run = False
+
+    except e:
+        LOG.fatal("uploader died: %s" % (e))
+        os.unlink(pidfile)
+        sys.exit(1)
+
+    os.unlink(pidfile)
+
+# ------------------------------------------------------------------------------
+class Uploader(object):
+    def run(self):
+        main()
