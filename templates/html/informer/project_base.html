@@ -20,9 +20,12 @@
   <div class="left">
     {% block project_content %}{% endblock %}
   </div>
-
   <div class="right">
     {% block project_filters %}{% endblock %}
   </div>
   <div class="clear">&nbsp;</div>
+
+ <script type="text/javascript">
+ {% block project_script %}{% endblock %}
+ </script>
 {% endblock %}

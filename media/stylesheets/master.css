@@ -482,6 +482,11 @@ div.box.small ul li.path strong {
 	margin: 10px;
 	border: 1px solid #555;
 	}
+#wrap.shots #content div.box.medium span.video {
+	float: left;
+	margin: 10px;
+	border: 1px solid #555;
+	}
 #wrap.shots #content div.box.medium div.description {
 	float: left;
 	width: 356px;

@@ -49,12 +49,6 @@
 {% endblock %}
 
 <script type="text/javascript">
-function nodeReplace(node, child) {
-    while (node.hasChildNodes())
-        node.removeChild(node.firstChild);
-    node.appendChild(child);
-}
-
 function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
     // set the global current render id (defined in informer.js)
     CURRENT_RENDER = id;

@@ -9,7 +9,7 @@
 	  {% for shot in project.shot_set.all %}
     <div class="box medium">
   		<h3>{{ shot.name }}<a href="{{ shot.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
-  		<img src="/media/images/temp-image-shot-thumbnail.gif" alt="Launch Shot" class="thumbnail" />
+        <span id='{{ shot.name }}_video' class="video"></span>
       <div class="description">
         <div class="heading">
           <p class="status"><strong>Status:</strong> {{ shot.status }}</p>
@@ -20,6 +20,12 @@
       </div>
   		<div class="clear"></div>
   	</div>
+    <script type="text/javascript">
+    flash = getMiniFlashPlayer('{{ shot.get_render_movie_lo_url }}',
+                               '{{ shot.get_render_movie_lo_url }}',
+                               160, 90, false);
+    nodeReplace($('{{ shot.name }}_video'), flash);
+    </script>
     {% endfor %}
   {% else %}
   <p>No shots</p>

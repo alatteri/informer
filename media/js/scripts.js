@@ -6,6 +6,16 @@ var requiredMinorVersion = 0;
 // Minor version of Flash required
 var requiredRevision = 115;
 
+/* wrapper function to get code for the flash player. */
+function getFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
+    return _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, 'player.swf');
+}
+
+/* wrapper function to get code for the mini-flash player. */
+function getMiniFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
+    return _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, 'miniPlayer.swf');
+}
+
 /* wrapper function to get code for the flash player.
    Returns error message string if required flash version not found.
 
@@ -15,8 +25,9 @@ var requiredRevision = 115;
     width: the requested width of the flash player
     height: the requested height of the flash player
     autoplay: should the movie start playing automatically? (bool)
+    player: string to specify the type of player to get
 */
-function getFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
+function _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, player) {
     // Version check based upon the values entered above in "Globals"
     var hasReqestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
     if (!hasReqestedVersion) {
@@ -32,7 +43,7 @@ function getFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
         if (height == null) height = 382;
 
         now = new Date().getTime();
-        var src = "/media/flash/player.swf?";
+        var src = "/media/flash/" + player + "?";
         src += "video=" + movie_lo + "&";
         src += "videoAutoPlay=" + autoplay + "&";
         src += "downloadURL=" + movie_hi + "&";
