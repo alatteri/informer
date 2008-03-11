@@ -20,16 +20,11 @@ class CustomBaseResponder(SerializeResponder):
         # Find object methods
         methods = [m for m in self.expose_fields if '.' in m]
 
-        print "expose fields:", self.expose_fields
-        print "methods:", methods
-
         # Added fields
         added_fields = {}
 
         for obj in list(object_list):
-            print "obj:", obj
             for field in obj._meta.fields:
-                print "field:", field
                 if not field.name in self.expose_fields and field.serialize:
                     field.serialize = False
                     hidden_fields.append(field)
@@ -62,8 +57,6 @@ class CustomBaseResponder(SerializeResponder):
                 item.serialize = True
                 if field_name not in [f.name for f in obj._meta.fields]:
                     obj._meta.fields.append(item)
-
-            print obj._meta.fields
 
             # display method methods as model fields
             for m in methods:
