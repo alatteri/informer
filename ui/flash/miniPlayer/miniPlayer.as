@@ -12,15 +12,15 @@ package {
     import flash.net.NetStream;
     import flash.ui.Mouse;
 
-    [SWF(frameRate="35", backgroundColor="#44474A", width="185", height="117")]
+    [SWF(frameRate="35", backgroundColor="#000000", width="160", height="90")]
     public class miniPlayer extends Sprite
     {
-        [Embed(source="images/background.jpg")]
-        public var backgroundImage:Class;
+        //[Embed(source="images/background.jpg")]
+        //public var backgroundImage:Class;
         
         protected var _button:miniPlayerButton = new miniPlayerButton();
         protected var _video:Video = new Video(160, 90);
-        protected var background:Sprite = new Sprite();
+        //protected var background:Sprite = new Sprite();
         protected var connection:NetConnection;
         protected var videoURL:String = "COUNTER_NTSC_60.mov";
         protected var stream:NetStream;
@@ -34,7 +34,7 @@ package {
             
             videoURL = queryString["video"];
             
-            background.addChild(new backgroundImage());
+            //background.addChild(new backgroundImage());
             
             connection = new NetConnection();
             connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
@@ -45,7 +45,7 @@ package {
             _mask.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
             _mask.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
             
-            addChild(background);
+            //addChild(background);
             
             addChild(_video);
             
@@ -56,8 +56,8 @@ package {
                 endFill();
             }
             
-            _mask.x = _video.x = 14;
-            _mask.y = _video.y = 13;
+            //_mask.x = _video.x = 14;
+            //_mask.y = _video.y = 13;
             
             addChild(new AlignToParent(_button,this));
             addChild(_mask);
@@ -144,8 +144,8 @@ package {
             _video.width = w;
             _video.height = h;
             
-            _video.x = 14 + (160 / 2 ) - (w / 2);
-            _video.y = 13 + (90 / 2) - (h / 2);
+            _video.x = (160 / 2 ) - (w / 2);
+            _video.y = (90 / 2) - (h / 2);
         }
 
         private function securityErrorHandler(event:SecurityErrorEvent):void 
