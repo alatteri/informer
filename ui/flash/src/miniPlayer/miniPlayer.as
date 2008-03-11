@@ -32,7 +32,7 @@ package {
         {
             var queryString:Object = LoaderInfo(root.loaderInfo).parameters;
             
-            videoURL = queryString["video"];
+            //videoURL = queryString["video"];
             
             //background.addChild(new backgroundImage());
             
@@ -111,6 +111,7 @@ package {
             
             _video.attachNetStream(stream);
             stream.play(videoURL);
+            stream.seek(0.1);
             stream.pause();
             
             _video.smoothing = true;
