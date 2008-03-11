@@ -181,6 +181,9 @@ package Player.UI
         {
             _currFrame = Math.min(n, MaxFrame);
             
+            if(isNaN(_currFrame))
+                _currFrame = 0;
+                
             currText.text = String(_currFrame);
         }
         
@@ -193,7 +196,10 @@ package Player.UI
         {
             _maxFrame = n;
             
-            maxText.text = String(n);
+            if(isNaN(_maxFrame))
+                _maxFrame = 1;
+                
+            maxText.text = String(_maxFrame);
         }
         
         public function get LoadProgress():Number

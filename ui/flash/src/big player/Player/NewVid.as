@@ -7,6 +7,7 @@ package Player
     import flash.media.Video;
     import flash.net.NetConnection;
     import flash.net.NetStream;
+    import com.deviant.popup.TextPopup;
     
     public class NewVid extends Sprite
     { 
@@ -63,6 +64,9 @@ package Player
             if(Playing)
                 _currFrame = Math.round(stream.time * Framerate) + 1;
                 
+            if(isNaN(_currFrame))
+                _currFrame = 1;
+            
             return _currFrame;
         }
         
@@ -84,6 +88,8 @@ package Player
             stream.seek(n * Duration);
             var p:Boolean = paused;
             paused = false;
+            
+            
             ui.scrubber.CurrentFrame = CurrentFrame;
             paused = p;
         }
@@ -150,13 +156,16 @@ package Player
                 stream.client = this;
                 
                 video.attachNetStream(stream);
+                
+                stream.play(videoURL);
+                stream.pause();
                 if(PlayerForAlan.AutoPlay)
                 {
-                    stream.play(videoURL);
+                    stream.resume();
                     paused = false;
+                    ui.setPlayStatus(true);
                 }
                 
-                ui.setPlayStatus(true);
                 dispatchEvent(new Event(Event.RESIZE));
             }
             else
