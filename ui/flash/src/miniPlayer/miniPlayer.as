@@ -22,7 +22,7 @@ package {
         protected var _video:Video = new Video(160, 90);
         //protected var background:Sprite = new Sprite();
         protected var connection:NetConnection;
-        protected var videoURL:String = "COUNTER_NTSC_60.mov";
+        protected var videoURL:String;
         protected var stream:NetStream;
         protected var paused:Boolean = true;
         protected var stopped:Boolean = false;
@@ -32,7 +32,7 @@ package {
         {
             var queryString:Object = LoaderInfo(root.loaderInfo).parameters;
             
-            //videoURL = queryString["video"];
+            videoURL = queryString["video"];
             
             //background.addChild(new backgroundImage());
             
