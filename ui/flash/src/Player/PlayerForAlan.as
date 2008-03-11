@@ -11,10 +11,10 @@ package
 	[SWF(frameRate="35", backgroundColor="#44474A")]
     public class PlayerForAlan extends Sprite
     {
-        public static var DownloadLink:String = "COUNTER_NTSC_60.mov";
-        public static var Video:String = "COUNTER_NTSC_60.mov";
-        public static var AutoPlay:Boolean = true;
-        public static var viewLargerUrl:String = "COUNTER_NTSC_60.mov";
+        public static var DownloadLink:String = "9_lo.mov";
+        public static var Video:String = "9_lo.mov";
+        public static var AutoPlay:Boolean = false;
+        public static var viewLargerUrl:String = "9_lo.mov";
 
         public function PlayerForAlan()
         {
