@@ -5,6 +5,10 @@ import logging.config
 import sys, codecs
 import ConfigParser
 
+from datetime import datetime
+if datetime.now() >  datetime(2008, 4, 1):
+    raise ValueError("Trial expiration has expired.")
+
 rootDir = os.sep.join(__file__.split(os.sep)[:-3])
 confDir = os.path.join(rootDir, 'conf')
 logIni = os.path.join(confDir, 'logging.ini')
