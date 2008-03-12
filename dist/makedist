@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    root = os.path.abspath(__file__).split(os.sep)[:-2]
+    lib = os.sep.join(root + ['lib'])
+    thirdparty = os.sep.join(root + ['third_party/python'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import os
+import sys
+import shutil
+from glob import glob
+from datetime import datetime
+from commands import getoutput
+
+input = '../lib'
+find = 'find ' + input + ' -type f -name \*%s'
+before = set([f for f in getoutput(find % '.pyc').split()])
+sources = [f for f in getoutput(find % '.py').split()]
+
+output = "dist-" + str(len(glob("dist-*"))+1)
+if len(sys.argv) > 1: output = sys.argv[1]
+os.mkdir(output)
+
+# delete the pycs
+for pyc in before:
+    os.unlink(pyc)
+
+for file in sources:
+    # delete pyc if present
+    module = file[len(input)+1:-3].replace('/', '.')
+    cmd = """
+import sys;
+sys.path.append("%s");
+sys.path.append("%s");
+import %s""" % (lib, thirdparty, module)
+    if os.system("python -c '%s'" % cmd):
+        print "error running:", file
+    else:
+        print "ok:", file
+
+        # create relative path for parent dir
+        rel = file[len(input)+1:]
+        parent = output + '/' + os.path.dirname(rel)
+        if not os.path.isdir(parent):
+           os.mkdir(parent)
+
+        src = file + 'c'
+        dst = output + '/' + rel + 'c'
+        print "copy %s -> %s" % (src, dst)
+        shutil.copy(src, dst)
+
+after = set([f for f in getoutput(find % '.pyc').split()])
+print "Missing:", before-after
+print "New:", after-before
