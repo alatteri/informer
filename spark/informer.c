@@ -659,7 +659,6 @@ int
 InformerGetNotes(void)
 {
     int result;
-    const char *setup;
     InformerAppStruct *app = InformerGetApp();
 
     if (TRUE != InformerIsAppStateOK(app)) {
@@ -668,8 +667,7 @@ InformerGetNotes(void)
     }
 
     sparkMessage(GET_NOTES_WAIT);
-    setup = InformerGetSetupPath();
-    result = GatewayGetNotes(setup, app->notes_data);
+    result = GatewayGetNotes(app->notes_data);
 
     InformerTableHideAllRows();
 
@@ -698,7 +696,6 @@ int
 InformerGetElems(void)
 {
     int result;
-    const char *setup;
     InformerAppStruct *app = InformerGetApp();
 
     if (TRUE != InformerIsAppStateOK(app)) {
@@ -707,8 +704,7 @@ InformerGetElems(void)
     }
 
     sparkMessage(GET_ELEMS_WAIT);
-    setup = InformerGetSetupPath();
-    result = GatewayGetElems(setup, app->elems_data);
+    result = GatewayGetElems(app->elems_data);
 
     InformerTableHideAllRows();
 
@@ -736,21 +732,13 @@ InformerGetElems(void)
 int
 InformerUpdateNote(int index, int id, int is_checked)
 {
-    const char *setup;
-    char username[USERNAME_MAX];
     InformerNoteData *data;
     InformerAppStruct *app = InformerGetApp();
 
-    if (TRUE != InformerGetCurrentUser(username, USERNAME_MAX)) {
-        InformerERROR("Unable to determine the current user");
-        return FALSE;
-    }
-
     data = &(app->notes_data[index]);
-    setup = InformerGetSetupPath();
     sparkMessage(UPDATE_NOTE_WAIT);
 
-    if (TRUE == GatewayUpdateNote(setup, data, id, is_checked, username)) {
+    if (TRUE == GatewayUpdateNote(data, id, is_checked)) {
         InformerTableRefreshUI();
         return TRUE;
     } else {
@@ -763,15 +751,13 @@ InformerUpdateNote(int index, int id, int is_checked)
 int
 InformerUpdateElem(int index, int id, int is_checked)
 {
-    const char *setup;
     InformerElemData *data;
     InformerAppStruct *app = InformerGetApp();
 
     data = &(app->elems_data[index]);
-    setup = InformerGetSetupPath();
     sparkMessage(UPDATE_ELEM_WAIT);
 
-    if (TRUE == GatewayUpdateElem(setup, data, id, is_checked)) {
+    if (TRUE == GatewayUpdateElem(data, id, is_checked)) {
         InformerTableRefreshUI();
         return TRUE;
     } else {
@@ -902,8 +888,6 @@ static unsigned long *
 InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     char *input;
-    const char *setup;
-    char username[USERNAME_MAX];
     InformerAppStruct *app = InformerGetApp();
 
     input = app->notes_ui_create.ui->Value;
@@ -922,16 +906,9 @@ InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
         InformerDEBUG("New note text was entered\n");
         InformerDEBUG("The text value is: [%s]\n", input);
 
-        if (TRUE != InformerGetCurrentUser(username, USERNAME_MAX)) {
-            InformerSetAppState(app, INFORMER_APP_STATE_ERR);
-            sparkMessageDelay(5000, "Unable to determine the current user");
-            return NULL;
-        }
-
-        setup = InformerGetSetupPath();
         sparkMessage(CREATE_NOTE_WAIT);
 
-        if (TRUE == GatewayCreateNote(setup, 0, input, username)) {
+        if (TRUE == GatewayCreateNote(0, input)) {
             InformerGetNotes();
         } else {
             // TODO: What should happen here?
@@ -1268,6 +1245,7 @@ InformerGetSetupPath(void)
 void
 InformerSetSetupPath(char *path)
 {
+    // I THINK THIS CAN GO AWAY...
     InformerAppStruct *app = InformerGetApp();
     strncpy(app->setup_ui_setup_path.ui->Value, path, SPARK_MAX_STRING_LENGTH);
 }
@@ -1293,72 +1271,6 @@ InformerGetSparkName(void)
     name = app->setup_ui_spark_name.ui->Value;
     return name;
 }
-
-/*--------------------------------------------------------------------------*/
-/* Get the current spark user into the char* argument                       */
-/* Returns TRUE on success, FALSE on faliure                                */
-/*--------------------------------------------------------------------------*/
-int
-InformerGetCurrentUser(char *user, int max_length)
-{
-    FILE *fp;
-    char line[1024];
-    const char *program;
-    const char *filepath;
-
-    char *c;
-    char *start;
-    char *end;
-
-    program = sparkProgramGetName();
-
-    if (0 == strcmp("flame", program) ||
-        0 == strcmp("flint", program) ||
-        0 == strcmp("inferno", program)) {
-        filepath = "/usr/discreet/user/effects/user.db";
-    } else if (0 == strcmp("fire", program) ||
-               0 == strcmp("smoke", program)) {
-        filepath = "/usr/discreet/user/editing/user.db";
-    } else {
-        InformerERROR("%s: unknown program [%s]", CURRENT_USER_ERR, program);
-        return FALSE;
-    }
-
-    if ((fp=fopen(filepath, "r")) == NULL) {
-        InformerERROR("%s: can't open [%s]: %s", CURRENT_USER_ERR,
-                      filepath, strerror(errno));
-        return FALSE;
-    }
-
-    max_length -= 1; /* account for the null */
-
-    do {
-        c = fgets(line, 1024, fp);
-        if (c != NULL) {
-            InformerDEBUG("Checking line: %s\n", line);
-            if (strstr(line, "UserGroupStatus:UsrGroup1={") != NULL) {
-                InformerDEBUG("MATCH! -> %s\n", line);
-                start = index(line, '{');
-                end = rindex(line, '}');
-                if (end != NULL && start != NULL) {
-                    if (end - start < max_length - 1)
-                        max_length = end - start;
-                    InformerDEBUG("start [%c], end [%c], max_length [%d]\n",
-                                  *start, *end, max_length);
-
-                    strncpy(user, start + 1, max_length - 1);
-                    user[max_length-1] = '\0';
-                    InformerDEBUG("Going to return user [%s]\n", user);
-                    return TRUE;
-                }
-            }
-        }
-    } while (c != NULL);
-
-
-    return FALSE;
-}
-
 
 InformerAppModeChoice
 InformerGetAppMode(InformerAppStruct *app)

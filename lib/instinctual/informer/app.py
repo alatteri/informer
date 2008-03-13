@@ -193,6 +193,13 @@ class App(Subject):
             eSeconds = datetimeToSeconds(appEvent.date)
             print "<<<<<<<<< eSeconds     %s >>>>>>>>>>" % (eSeconds)
 
+            if key not in os.environ:
+                print "<<<< key not in os.environ"
+            elif float(os.environ[key]) < eSeconds:
+                print "<<<< %s (%s) < %s" % (os.environ[key], float(os.environ[key]), eSeconds)
+            else:
+                print "<<<< key was in os.environ AND it was greater."
+
             if key not in os.environ or float(os.environ[key]) < eSeconds:
                 LOG.debug("SENDING EVENT... LOOKS GOOD")
                 print ("SENDING EVENT... LOOKS GOOD")
@@ -285,7 +292,7 @@ class App(Subject):
     # ----------------------------------------------------------------------
     # App/Server interaction
     # ----------------------------------------------------------------------
-    def getNotes(self, setup):
+    def getNotes(self):
         """
         Returns an array of note objects
         """
@@ -293,7 +300,7 @@ class App(Subject):
 
         try:
             LOG.info("Running getNotes()")
-            notes = client.getNotes(setup)
+            notes = client.getNotes(self.setup)
 
             LOG.info("Lookup found: %s notes" % (len(notes)))
             LOG.info("Found this: %s", (notes))
@@ -302,7 +309,7 @@ class App(Subject):
             if 404 == e.resp.status:
                 return []
 
-    def getElements(self, setup):
+    def getElements(self):
         """
         Returns an array of element objects
         """
@@ -310,7 +317,7 @@ class App(Subject):
 
         try:
             LOG.info("Running getElements()")
-            elements = client.getElements(setup)
+            elements = client.getElements(self.setup)
 
             LOG.info("Lookup found: %s elements" % (len(elements)))
             LOG.info("Found this: %s", (elements))
@@ -319,32 +326,32 @@ class App(Subject):
             if 404 == e.resp.status:
                 return []
 
-    def createNote(self, setup, isChecked, text, createdBy):
+    def createNote(self, isChecked, text):
         data = {}
         data['text'] = text
-        data['created_by'] = createdBy
-        data['modified_by'] = createdBy
+        data['created_by'] = self.user
+        data['modified_by'] = self.user
         data['is_checked'] = isChecked
 
         client = Client()
 
         LOG.info("Running createNote()")
-        client.createNote(setup, data)
+        client.createNote(self.setup, data)
 
         return True
 
-    def updateNote(self, setup, id, isChecked, modifiedBy):
+    def updateNote(self, id, isChecked):
         data = {}
         data['id'] = id
         data['is_checked'] = isChecked
-        data['modified_by'] = modifiedBy
+        data['modified_by'] = self.user
 
         client = Client()
 
         LOG.info("Running updateNote()")
-        return client.updateNote(setup, data)
+        return client.updateNote(self.setup, data)
 
-    def updateElement(self, setup, id, isChecked):
+    def updateElement(self, id, isChecked):
         data = {}
         data['id'] = id
         data['is_checked'] = isChecked
@@ -352,7 +359,7 @@ class App(Subject):
         client = Client()
 
         LOG.info("Running updateElement()")
-        return client.updateElement(setup, data)
+        return client.updateElement(self.setup, data)
 
     # ----------------------------------------------------------------------
     # Callbacks for modifying the App state

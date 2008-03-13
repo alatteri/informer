@@ -124,7 +124,7 @@ GatewaySetFrameRate(double frameRate)
 }
 
 int
-GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_by)
+GatewayCreateNote(int is_checked, char *text)
 {
     int status;
     PyObject *app, *pResult;
@@ -138,8 +138,7 @@ GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_b
     PythonBeginCall();
     app = PythonGetApp();
 
-    pResult = PyObject_CallMethod(app, "createNote", "siss",
-                                  setup, is_checked, text, created_by);
+    pResult = PyObject_CallMethod(app, "createNote", "is", is_checked, text);
 
     if (pResult && PyObject_IsTrue(pResult)) {
         status = TRUE;
@@ -156,8 +155,7 @@ GatewayCreateNote(const char *setup, int is_checked, char *text, char *created_b
 }
 
 int
-GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
-                  int is_checked, char *modified_by)
+GatewayUpdateNote(InformerNoteData *data, int id, int is_checked)
 {
     int status = FALSE;
     PyObject *app, *pNotes, *pItem;
@@ -171,8 +169,7 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
     PythonBeginCall();
     app = PythonGetApp();
 
-    pNotes = PyObject_CallMethod(app, "updateNote", "siis",
-                                 setup, id, is_checked, modified_by);
+    pNotes = PyObject_CallMethod(app, "updateNote", "ii", id, is_checked);
 
     if (pNotes && PyList_Check(pNotes) && 1 == PyList_Size(pNotes)) {
         // pItem is a borrowed ref.
@@ -192,7 +189,7 @@ GatewayUpdateNote(const char *setup, InformerNoteData *data, int id,
 }
 
 int
-GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
+GatewayUpdateElem(InformerElemData *data, int id,
                   int is_checked)
 {
     int status = FALSE;
@@ -207,8 +204,7 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
     PythonBeginCall();
     app = PythonGetApp();
 
-    pElems = PyObject_CallMethod(app, "updateElement", "sii",
-                                 setup, id, is_checked);
+    pElems = PyObject_CallMethod(app, "updateElement", "ii", id, is_checked);
 
     if (pElems && PyList_Check(pElems) && 1 == PyList_Size(pElems)) {
         // pItem is a borrowed ref.
@@ -228,7 +224,7 @@ GatewayUpdateElem(const char *setup, InformerElemData *data, int id,
 }
 
 int
-GatewayGetNotes(const char *setup, InformerNoteData *data)
+GatewayGetNotes(InformerNoteData *data)
 {
     int i, count;
     PyObject *app, *pNotes, *pItem, *pAttr;
@@ -243,8 +239,8 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
     PythonBeginCall();
     app = PythonGetApp();
 
-    InformerDEBUG("About to make the call for getNotes [%s]\n", setup);
-    pNotes = PyObject_CallMethod(app, "getNotes", "s", setup);
+    InformerDEBUG("About to make the call for getNotes\n");
+    pNotes = PyObject_CallMethod(app, "getNotes", NULL);
 
     if (pNotes && PyList_Check(pNotes)) {
         count = PyList_Size(pNotes);
@@ -268,7 +264,7 @@ GatewayGetNotes(const char *setup, InformerNoteData *data)
 }
 
 int
-GatewayGetElems(const char *setup, InformerElemData *data)
+GatewayGetElems(InformerElemData *data)
 {
     int i, count;
     PyObject *app, *pElems, *pItem, *pAttr;
@@ -283,8 +279,8 @@ GatewayGetElems(const char *setup, InformerElemData *data)
     PythonBeginCall();
     app = PythonGetApp();
 
-    InformerDEBUG("About to make the call for getElements [%s]\n", setup);
-    pElems = PyObject_CallMethod(app, "getElements", "s", setup);
+    InformerDEBUG("About to make the call for getElements\n");
+    pElems = PyObject_CallMethod(app, "getElements", NULL);
 
     if (pElems && PyList_Check(pElems)) {
         count = PyList_Size(pElems);

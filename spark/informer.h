@@ -190,7 +190,6 @@ const char *InformerGetSetupPath(void);
 void InformerSetSetupPath(char *path);
 const char *InformerGetSparkName(void);
 void InformerSetSparkName(char *name);
-int InformerGetCurrentUser(char *user, int max_length);
 
 InformerNoteModeChoice InformerGetNoteUIMode(void);
 void InformerTableButtonEvent(InformerTableButtonChoice button);
