@@ -200,6 +200,14 @@ PYFLAGS = -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm
 # what SGI terms a DSO (dynamic shared object). Please consult your SGI
 # documentation for more info regarding shared objects (use 'man dso').
 #
+ifeq ($(PLATFORM_ABI), 64)
+  PYTHON_SO = /usr/lib64/libpython2.3.so
+  PYTHON_PLATFORM = -D_PLATFORM_64
+else
+  PYTHON_SO = /usr/lib/libpython2.3.so
+  PYTHON_PLATFORM = 
+endif
+
 rgb.o : rgb.c rgb.h
 	@echo "MAKING RGB..."
 	cc $(CFLAGS) -c rgb.c
@@ -210,14 +218,14 @@ gateway.o : gateway.c gateway.h
 
 python.o : python.c python.h
 	@echo "MAKING PYTHON..."
-	cc $(CFLAGS) -I$(PYINC) -c python.c
+	cc $(CFLAGS) $(PYTHON_PLATFORM) -I$(PYINC) -c python.c
 
 $(SFILES) : $(OFILES)
 $(OFILES) : %.o : %.c spark.h rgb.o python.o gateway.o
 	@echo ""
 	@echo "MAKING SPARK ..."
 	cc $(CFLAGS) -I$(PYINC) -c $(SPARKSOURCE)/$*.c -o $(SPARKSOURCE)/$*.o
-	ld -export-dynamic python.o /usr/lib64/libpython2.3.so  -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o gateway.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
+	ld -export-dynamic python.o $(PYTHON_SO) -lnsl -ldl -lreadline -ltermcap -lieee -lpthread -lutil -lm $(LDFLAGS) $(SPARKSOURCE)/$*.o rgb.o gateway.o -o $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 	ln -f $(SPARKDESTINATION)/$*.$(SPARK_EXTENSION) ../../$(SPARKDESTINATION)/$*.$(SPARK_EXTENSION)
 
 # $(SFILES_C++) : $(OFILES_C++)

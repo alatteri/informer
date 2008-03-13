@@ -146,7 +146,7 @@ GatewayCreateNote(int is_checked, char *text)
     } else {
         status = FALSE;
         PyErr_Print();
-        InformerError("Unable to create note.\n");
+        InformerERROR("Unable to create note.\n");
     }
 
     Py_XDECREF(pResult);

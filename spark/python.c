@@ -20,7 +20,12 @@ void PythonInitialize(void)
 
     PyObject *pName, *pModule, *pFunc, *pResult;
 
+    #if defined _PLATFORM_64
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
+    #else
+    PyModule = dlopen("/usr/lib/libpython2.3.so",   RTLD_LAZY|RTLD_GLOBAL);
+    #endif
+
     if (!PyModule) {
         printf("----------------- !!!!!!!!!!!! PyMODULE WAS FALSE --------------\n");
         return;
