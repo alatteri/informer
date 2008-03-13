@@ -67,7 +67,9 @@ function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
 
         ampm = 'am';
         hours = d.getHours();
-        if (hours > 12) {
+        if (hours == 0) {
+            hours = 12;
+        } else if (hours > 12) {
             ampm = 'pm';
             hours -= 12;
         }
