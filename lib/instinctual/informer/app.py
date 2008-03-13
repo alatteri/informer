@@ -503,6 +503,10 @@ class App(Subject):
             # Allow the user to click OK to render in proxy mode...
             # [notice] 2564825280 menu.C:3140 03/03/08:21:38:12.505 BUTTON : [Confirm] Confirm(ON)
             pass
+        elif event.message.startswith('Created partition') or event.category.startswith('Creating partition'):
+            # [notice] 3086871040 volumeMgr.C:1717 03/13/08:03:33:10.530 Creating partition: width=360 height=244 name=CUSTOM_RES_360x244_24
+            # [notice] 3086871040 volumeMgr.C:1856 03/13/08:03:33:10.544 Created partition "CUSTOM_RES_360x244_24" (0xa000016067975e5) of type video
+            pass
         elif self.lastProcess is not None:
             print "|" * 80
             print "Setting lastProcess to None!"

@@ -120,8 +120,13 @@ class SchedulerThread(InformerThread):
                 print "Thread %s was dead\n" % (thread.name)
 
 class LogfileThread(InformerThread):
+    # TODO this is weak. it should be changed to something better TODO
+    app = 'FLAME'
+    if 'FLINT_HOME' in os.environ:
+        app = 'FLINT'
+
     # This was mirrored from $FLAME_HOME/bin/startApplication
-    GET_FLAME_VERSION = """cat $FLAME_HOME/FLAME_VERSION | cut -d '"' -f2 | sed 's/\.//g'"""
+    GET_VERSION = """cat $%s_HOME/%s_VERSION | cut -d '"' -f2 | sed 's/\.//g'""" % (app, app)
 
     def __init__(self, name):
         InformerThread.__init__(self, name)
@@ -129,7 +134,7 @@ class LogfileThread(InformerThread):
         # figure out the logfile path
         if 'DL_FLAVOR' in os.environ:
             root = "/usr/discreet/log/" + os.environ['DL_FLAVOR']
-            version = commands.getoutput(self.GET_FLAME_VERSION)
+            version = commands.getoutput(self.GET_VERSION)
             hostname = commands.getoutput("hostname -s")
             self.logfile = "%s%s_%s_app.log" % (root, version, hostname)
         else:
