@@ -83,9 +83,11 @@ class DiscreetSaveSetup(DiscreetObserver):
                 return {'setup': match.group(1)}
 
 class DiscreetBatchProcess(DiscreetObserver):
+    # support 2009 style 
+    # [notice] 2600011520 menu.C:3121 03/14/08:08:30:53.727 BUTTON : [Process] BatchProcessButton
     def process(self, event):
         if event.category == 'BUTTON':
-            if event.message == '[Process] BatchProcess':
+            if event.message.startswith('[Process] BatchProcess'):
                 return {}
 
 class DiscreetEnterSparkModule(DiscreetObserver):
