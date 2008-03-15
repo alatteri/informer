@@ -62,5 +62,7 @@ import %s""" % (lib, thirdparty, module)
         shutil.copy(src, dst)
 
 after = set([f for f in getoutput(find % '.pyc').split()])
-print "Missing:", before-after
-print "New:", after-before
+if before-after:
+    print "Missing:", before-after
+if after-before:
+    print "New:", after-before
