@@ -33,6 +33,10 @@ output = "dist-" + str(len(glob("dist-*"))+1)
 if len(sys.argv) > 1: output = sys.argv[1]
 os.mkdir(output)
 
+# make some empty dirs
+for d in ('lib', 'logs', 'uploads'):
+    os.mkdir(output + '/' + d)
+
 # delete the pycs
 for pyc in before:
     os.unlink(pyc)
@@ -52,14 +56,28 @@ import %s""" % (lib, thirdparty, module)
 
         # create relative path for parent dir
         rel = file[len(input)+1:]
-        parent = output + '/' + os.path.dirname(rel)
+        parent = output + '/lib/' + os.path.dirname(rel)
         if not os.path.isdir(parent):
            os.mkdir(parent)
 
         src = file + 'c'
-        dst = output + '/' + rel + 'c'
+        dst = output + '/lib/' + rel + 'c'
         print "copy %s -> %s" % (src, dst)
         shutil.copy(src, dst)
+
+# copy core
+paths = ['bin', 'conf', 'media', 'templates']
+exclude = '--exclude=.svn --exclude=\*.pyc --exclude=.DS_Store'
+sources = ' '.join(map(lambda x: '../' + x, paths))
+cmd = 'rsync -avz ' + sources + ' ' + exclude + ' ' + output
+os.system(cmd)
+
+# copy third_party
+paths = ['bin', 'include', 'lib', 'python', 'share']
+exclude = '--exclude=.svn --exclude=\*.pyc --exclude=.DS_Store'
+sources = ' '.join(map(lambda x: '../third_party/' + x, paths))
+cmd = 'rsync -avz ' + sources + ' ' + exclude + ' ' + output + '/third_party'
+os.system(cmd)
 
 after = set([f for f in getoutput(find % '.pyc').split()])
 if before-after:
