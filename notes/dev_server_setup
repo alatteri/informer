@@ -43,30 +43,9 @@ Django version 0.96, using settings 'instinctual.settings'
 Development server is running at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 
-9) Set up a fake project
+9) Initialize with some fake data (in another terminal)
+./bin/fakedata
 
-http://127.0.0.1:8000/admin/informer/project/add/
+10) Browse to the projects page
 
-Name: nike
-Description: fake project
-
-(click save)
-
-10) Set up a fake shot
-
-http://127.0.0.1:8000/admin/informer/shot/add/
-
-Project: nike: fake project
-Shot: sweatshop
-Description: children making shoes
-Status: in progress
-Handles: 0
-Frames: 200
-
-11) Browse to the projects page
-
-http://127.0.0.1:8000/informer/1.0/html/projects/
-
-12) select nike
-
-13) select sweatshop
+http://127.0.0.1:8000/
