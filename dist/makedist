@@ -67,7 +67,7 @@ import %s""" % (lib, thirdparty, module)
 
 # copy core
 paths = ['bin', 'conf', 'media', 'templates']
-exclude = '--exclude=.svn --exclude=\*.pyc --exclude=.DS_Store'
+exclude = '--exclude=.svn --exclude=\*.pyc --exclude=.DS_Store  --exclude=2008 --exclude=bin/informer'
 sources = ' '.join(map(lambda x: '../' + x, paths))
 cmd = 'rsync -avz ' + sources + ' ' + exclude + ' ' + output
 os.system(cmd)
