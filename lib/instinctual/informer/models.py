@@ -12,7 +12,7 @@ from django.dispatch import dispatcher
 import instinctual
 from instinctual import informer
 from instinctual import settings
-from instinctual.informer.mixins import InformerMixIn
+from instinctual.informer.mixins import InformerMixIn, InformerBrandingField
 from instinctual.informer.mixins import GetUser, GetProject, GetShot, GetRender, GetEvent
 from instinctual.informer.signals import Handler, IgnoreSignalException
 
@@ -23,7 +23,7 @@ class Project(models.Model):
     status      = models.CharField(maxlength=64, null=True, blank=True)
     client      = models.CharField(maxlength=255, null=True, blank=True)
     due_date    = models.DateTimeField('due date', null=True, blank=True)
-    branding    = models.FileField(upload_to='branding', default='branding/default.gif')
+    branding    = InformerBrandingField(upload_to='branding', default='branding/default.gif')
 
     def get_absolute_url(self):
         return informer.getProjectShotsUrl(self.name, format='html')

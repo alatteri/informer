@@ -5,6 +5,24 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # ------------------------------------------------------------------------------
+class InformerBrandingField(models.FileField):
+    """
+    Provide a custom FileField for the branding element that does not remove
+    the default file on disk.
+    """
+    def __init__(self, *args, **kwargs):
+        self.__default = kwargs['default']
+        models.FileField.__init__(self, *args, **kwargs)
+
+    def delete_file(self, instance):
+        file_name = getattr(instance, 'get_%s_filename' % self.name)()
+        if not file_name.endswith(self.__default):
+            models.FileField.delete_file(self, instance)
+
+    def get_internal_type(self):
+        return 'FileField'
+
+# ------------------------------------------------------------------------------
 class InformerMixIn(object):
     user_fields = ['created_by', 'modified_by', 'who']
     date_fields = ['created_on', 'modified_on']
