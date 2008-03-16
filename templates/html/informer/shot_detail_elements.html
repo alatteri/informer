@@ -81,7 +81,7 @@ function setup() {
       new Informer.Filter('filter_created_by', 'fields.created_by', format_author)
     ]);
 
-    elements.url = '{{shot.get_json_elements_url}}';
+    elements.generate_row = generate_row_double;
     elements.load_data({{ data }});
     elements.resort_table('date');
 }

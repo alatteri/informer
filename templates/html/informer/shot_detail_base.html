@@ -49,6 +49,90 @@
 {% endblock %}
 
 <script type="text/javascript">
+function generate_row_single(item) {
+    // Creates a single row entry given passed data item (logs)
+    var li = document.createElement('LI');
+    create_entry_item(this, item, 'SPAN', li);
+    return li; 
+}
+
+function generate_row_double(item) {
+    // Creates a double row entry (note, render, or clip)
+    var li = document.createElement('LI');
+    li.id = item.pk;
+    var entry = document.createElement('DIV');
+    entry.className = 'entry';
+    var ul = document.createElement('UL');
+    ul.className = 'heading';
+    create_entry_item(this, item, 'LI', ul);
+    entry.appendChild(ul);
+
+    var content = document.createElement('DIV');
+    content.className = 'content';
+    var val = getattr(item, this.row_2);
+    if (val.tagName) {
+        content.appendChild(val);
+    } else {
+        var p = document.createElement('P');
+        p.appendChild(document.createTextNode(val));
+        content.appendChild(p);
+    }
+    entry.appendChild(content);
+    li.appendChild(entry);
+    return li;
+}
+
+function create_entry_item(table, item, tag, parent) {
+    for (var i=0; i<table.row_1.length; i++) {
+        var info = table.row_1[i];
+        var elem;
+        if (info.create_func) {
+            elem = info.create_func(item);
+        } else if(info.name == "status") {
+            var value = getattr(item, info);
+            elem = document.createElement(tag);
+            elem.className = info.name;
+            elem.appendChild(document.createTextNode(value));
+            checkbox = document.createElement('A');
+            checkbox.className = value.toLowerCase();
+            checkbox.href = "#";
+            checkbox.onclick = function() {
+                this.className = (this.className == "pending")? "complete" : "pending";
+                return false;
+            }
+            if(checkbox.className == "pending") {
+                checkbox.innerHTML = "Check if complete";
+                checkbox.title = "Click if complete";
+            } else {
+                checkbox.innerHTML = "Note is complete";
+                checkbox.title = "Note is complete";
+            }
+            elem.appendChild(checkbox);
+        } else {
+            var value = getattr(item, info);
+            elem = document.createElement(tag);
+            elem.className = info.name;
+            elem.appendChild(document.createTextNode(value));
+        }
+        parent.appendChild(elem);
+    }
+
+    // Adds the close button if we're on the notes page
+    var button = document.createElement('li');
+    if(document.body.id == "notes" || document.body.id == "elements") {
+        button.appendChild(document.createTextNode('Close'));
+        button.className = "close";
+    } else if(document.body.id == "renders") {
+        button.appendChild(document.createTextNode('Update'));
+        if (getattr(item, 'pk') == CURRENT_RENDER)
+            button.className = "updateSelected";
+        else
+            button.className = "update";
+        button.observe('click', function() { load_render_callback(item) });
+    }
+    parent.appendChild(button);
+}
+
 function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
     // set the global current render id (defined in informer.js)
     CURRENT_RENDER = id;

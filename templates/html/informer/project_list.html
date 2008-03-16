@@ -2,47 +2,94 @@
 
 {% block project_title %}Projects{% endblock %}
 {% block body_id %}projects{% endblock %}
+
 {% block project_nav_title %}Projects{% endblock %}
 
+{% block project_nav_sort %}
+    <li><strong>Sort By:</strong></li>
+    <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
+    <li><a href="#" title="Sort by Status">Status</a></li>
+    <li><a href="#" title="Sort by Due Date">Due Date</a></li>
+{% endblock %}
+
 {% block project_content %}
-  {% if object_list.count %}
-  {% for project in object_list %}
-    <div class="box medium">
-        <h3>{{ project.name }}<a href="{{ project.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
-        <img src="/media/{{ project.branding }}" alt="{{ project.name }}" class="thumbnail" />
-        <ul class="meta">
-          <li><strong>Client:</strong> {{ project.client }}</li>
-          <li><strong>Due Date:</strong> {{ project.due_date }}</li>
-          <li><strong>Shots:</strong> {{ project.shot_count }}</li>
-          <li><strong>Status:</strong> {{ project.status }}</li>          
-        </ul>
-			<div class="clear">&nbsp;</div>
-    </div>
-  {% endfor %}
-  {% else %}
-  <p>No projects</p>
-  {% endif %}
+    <ul class="entries" id="projects_entries"></ul>
 {% endblock %}
 
 {% block project_filters %}
-      <div class="box small">
+    <div class="box small">
+        <h3>Client</h3>
+        <ul id=filter_client></ul>
+    </div>
+    <div class="box small">
         <h3>Status</h3>
-        <ul>
-          <li class="highlight"><a href="#" title="#">Show All</a></li>
-          <li><a href="#" title="#">Open (1)</a></li>
-          <li class="last"><a href="#" title="#">Closed (3)</a></li>
-        </ul>
-      </div>
-      <div class="box small">
-        <h3>Shots</h3>
-        <ul>
-          <li class="highlight"><a href="#" title="#">Show All</a></li>
-        </ul>
-      </div>
-      <div class="box small">
-        <h3>Due Date</h3>
-        <ul>
-          <li class="highlight"><a href="#" title="#">Show All</a></li>
-        </ul>
-      </div>
+        <ul id=filter_status></ul>
+    </div>
+{% endblock %}
+
+{% block project_script %}
+function generate_row_project(item) {
+    var a = document.createElement('A');
+    a.href = getattr(item, 'fields.url');
+    a.title = 'Launch Project';
+    a.className = 'launch_project';
+    a.appendChild(document.createTextNode('Launch Project'));
+
+    var h3 = document.createElement('H3');
+    h3.appendChild(document.createTextNode(getattr(item, 'fields.name')));
+    h3.appendChild(a);
+
+    var div = document.createElement('DIV');
+    div.className = 'box medium';
+    div.appendChild(h3);
+
+    var img = document.createElement('IMG');
+    img.src = getattr(item, 'fields.branding');
+    img.alt = getattr(item, 'fields.name');
+    img.className = 'thumbnail';
+    div.appendChild(img);
+
+    var fields = ['fields.client', 'fields.due_date', 'fields.shot_count', 'fields.status'];
+    var titles = ['Client', 'Due Date', 'Shots', 'Status'];
+
+    var ul = document.createElement('UL');
+    ul.className = 'meta';
+
+    for (var i=0; i<fields.length; i++) {
+        var li = document.createElement('LI');
+        var strong = document.createElement('STRONG');
+        strong.appendChild(document.createTextNode(titles[i] + ':'));
+        li.appendChild(strong);
+        var span = document.createElement('SPAN');
+        span.appendChild(document.createTextNode(' ' + getattr(item, fields[i])));
+        li.appendChild(span);
+        ul.appendChild(li);
+    }
+
+    div.appendChild(ul);
+
+    var clear = document.createElement('DIV');
+    clear.className = 'clear';
+    clear.appendChild(document.createTextNode(' '));
+    div.appendChild(clear);
+
+    return div;
+}
+
+/* called when page first loaded, initialize data */
+function setup() {
+  projects = new Informer.Data(
+    'projects', // name
+    null,
+    null,
+    [ // filter_list
+      new Informer.Filter('filter_client',      'fields.client'),
+      new Informer.Filter('filter_status',      'fields.status'),
+    ]); 
+
+    projects.generate_row = generate_row_project;
+    projects.load_data({{ data }});
+}
+
+setup();
 {% endblock %}

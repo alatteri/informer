@@ -62,6 +62,8 @@ Informer.Filter.prototype = {
     // accepts a data object, increments internal counts for fields
     observe_data: function(data) {
         var val = this.format(getattr(data, this.field));
+        if (val == null) val = 'None'
+
         var count = this.matches.get(val);
         if (count) {
             this.matches.set(val, count + 1);
@@ -108,7 +110,13 @@ Informer.Filter.prototype = {
             // followed by the counts for all rows
             for (var i=0; i<keys.length; i++) {
                 var key = keys[i];
-                var text = key + ' (' + this.matches.get(key) + ')';
+                var count = this.matches.get(key);
+
+                // Provide defaults to make sure something is displayed
+                // if (key == '') key = 'None';
+                // if (text == '') text = 'None';
+
+                var text = key + ' (' + count + ')';
                 ul.appendChild(this.create_li(text, key));
             }
         } else {
@@ -189,11 +197,12 @@ Informer.Data.prototype = {
         this.fm = new Informer.FilterManger(on_click);
 
         // default to sorting by the first column in the table
-        this._sorter = this.row_1[0]['name'];
+        if (this.row_1)
+            this._sorter = this.row_1[0]['name'];
 
         this.data = undefined;
-        this.url = undefined;
         this._reversed = false;
+        this.generate_row = function() { return null };
       
         if (filter_list) {
             filter_list.each(function(x) {
@@ -222,16 +231,18 @@ Informer.Data.prototype = {
             var obj = this.data[i];
             this.fm.register_data(obj);
 			  
-            for (var j=0; j<this.row_1.length; j++) {
-                var col = this.row_1[j];
-                val = getattr(obj, col.field);
+            if (this.row_1) {
+                for (var j=0; j<this.row_1.length; j++) {
+                    var col = this.row_1[j];
+                    val = getattr(obj, col.field);
 
-                if (col.parser) {
-                    // use the column's parser if specified
-                    val = col.parser(val);
+                    if (col.parser) {
+                        // use the column's parser if specified
+                        val = col.parser(val);
+                    }
+
+                    setattr(obj, col.field, val);
                 }
-
-                setattr(obj, col.field, val);
             }
         }  
     },
@@ -268,16 +279,13 @@ Informer.Data.prototype = {
         // Draw the non-filtered data
         for (var i=0; i<this.data.length; i++) {
             if (false == this.fm.is_filtered(this.data[i])) {
-                if (this.row_2) {
-                    this.create_entry(this.data[i]);
-                } else {
-                    this.create_log_entry(this.data[i]);
-                }
+                var new_entry = this.generate_row(this.data[i]);
+                if (new_entry) this.entries.appendChild(new_entry);
             }
         }
 
         // TODO: It would be nice to make this into an object method
-        highlightColumn(this._sorter);
+        if (this.row_1) highlightColumn(this._sorter);
 
         // Finally, draw the filters
         this.fm.draw();
@@ -304,92 +312,7 @@ Informer.Data.prototype = {
         this.data.reverse();
     },
     
-    /* Creates table entry (note, render, or clip) given passed data item */
-    create_entry: function(item) {
-        var li = document.createElement('LI');
-        li.id = item.pk;
-        var entry = document.createElement('DIV');
-        entry.className = 'entry';
-        var ul = document.createElement('UL');
-        ul.className = 'heading';
-        this.create_entry_item(item, 'LI', ul);
-        entry.appendChild(ul);
-      
-        var content = document.createElement('DIV');
-        content.className = 'content';
-        var val = getattr(item, this.row_2);
-        if (val.tagName) {
-            content.appendChild(val);
-        } else {
-            var p = document.createElement('P');
-            p.appendChild(document.createTextNode(val));
-            content.appendChild(p);
-        }
-        entry.appendChild(content);
-        li.appendChild(entry);
-        this.entries.appendChild(li);
-    },
-    
-    /* Creates a log entry given passed data item */
-    create_log_entry: function(item) {
-        var li = document.createElement('LI');
-        this.create_entry_item(item, 'SPAN', li);
-        this.entries.appendChild(li);
-    },
-    
-	/* Creates entry item */ 
-    create_entry_item: function(item, tag, parent) {
-        for (var i=0; i<this.row_1.length; i++) {
-            var info = this.row_1[i];
-            var elem;
-            if (info.create_func) {
-                elem = info.create_func(item);
-            } else if(info.name == "status") {
-                var value = getattr(item, info);
-                elem = document.createElement(tag);
-                elem.className = info.name;
-                elem.appendChild(document.createTextNode(value));
-				checkbox = document.createElement('A');
-				checkbox.className = value.toLowerCase();
-				checkbox.href = "#";
-				checkbox.onclick = function() {
-					this.className = (this.className == "pending")? "complete" : "pending";
-					return false;
-				}
-				if(checkbox.className == "pending") {
-					checkbox.innerHTML = "Check if complete";
-					checkbox.title = "Click if complete";
-				} else {
-					checkbox.innerHTML = "Note is complete";
-					checkbox.title = "Note is complete";
-				}
-				elem.appendChild(checkbox);
-			} else {
-                var value = getattr(item, info);
-                elem = document.createElement(tag);
-                elem.className = info.name;
-                elem.appendChild(document.createTextNode(value));
-            }
-            parent.appendChild(elem);
-            
-        }
-
-        // Adds the close button if we're on the notes page
-        var button = document.createElement('li');
-        if(document.body.id == "notes" || document.body.id == "elements") {
-            button.appendChild(document.createTextNode('Close'));
-            button.className = "close";
-        } else if(document.body.id == "renders") {
-            button.appendChild(document.createTextNode('Update'));
-            if (getattr(item, 'pk') == CURRENT_RENDER)
-                button.className = "updateSelected";
-            else
-                button.className = "update";
-            button.observe('click', function() { load_render_callback(item) });
-        }
-        parent.appendChild(button);
-    },
-
+    /* Callback triggered when user clicks on a "filter by" link */
     filter: function(filter_name, filter_val) {
         var f = this.fm.filters.get(filter_name);
         f.filter_by(filter_val);

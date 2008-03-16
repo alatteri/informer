@@ -46,10 +46,13 @@ class Project(models.Model):
 
     def _shot_count(self):
         return len(Shot.objects.filter(project=self))
+
     shot_count = property(_shot_count)
+    url = property(get_absolute_url)
 
     class Rest:
-        expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding', 'self.shot_count']
+        expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding',
+                         'self.shot_count', 'self.url']
 
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
@@ -146,6 +149,11 @@ class Shot(models.Model):
         return r and r.id or None
 
     # --------------------------------------------------------------------------
+    url = property(get_absolute_url)
+    render_movie_hi_url = property(get_render_movie_hi_url)
+    render_movie_lo_url = property(get_render_movie_hi_url)
+
+    # --------------------------------------------------------------------------
     class Meta:
         unique_together = (('project', 'name'),)
 
@@ -162,7 +170,8 @@ class Shot(models.Model):
         updated = classmethod(updated)
 
     class Rest:
-        expose_fields = ['project', 'name', 'status', 'description', 'handles', 'frames']
+        expose_fields = ['project', 'name', 'status', 'description', 'handles', 'frames',
+                         'self.url', 'self.render_movie_hi_url', 'self.render_movie_lo_url']
 
     def __str__(self):
         if self.description:

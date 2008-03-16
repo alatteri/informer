@@ -116,8 +116,8 @@ function setup() {
       new Informer.Filter('filter_assigned_to', 'fields.assigned_to', format_assigned),
     ]);
 
-    notes.url = '{{shot.get_json_notes_url}}';
-	  notes.load_data({{ data }});
+    notes.generate_row = generate_row_double;
+    notes.load_data({{ data }});
     notes.resort_table('date');
 }
 
@@ -130,7 +130,7 @@ function add_note() {
     }
 
     // fire off the request to the server to create the note
-    new Ajax.Request(notes.url, {
+    new Ajax.Request('{{shot.get_json_notes_url}}', {
         parameters: $('form-note-create').serialize(),
         evalJSON:   true,
         onSuccess:  add_note_callback,

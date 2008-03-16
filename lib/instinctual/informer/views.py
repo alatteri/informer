@@ -15,7 +15,6 @@ def project_list(request):
     responder.expose_fields = Project.Rest.expose_fields
     c = {
         'user':         request.user,
-        'object_list':  Project.objects.all(),
         'data':         responder.render(Project.objects.all()),
     }
     return render_to_response('informer/project_list.html', c)

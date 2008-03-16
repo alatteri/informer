@@ -80,7 +80,7 @@ function setup() {
       new Informer.Filter('filter_artist',  'fields.created_by', format_author)
     ]);
 
-    renders.url = '{{shot.get_json_renders_url}}';
+    renders.generate_row = generate_row_double;
     renders.load_data({{ data }});
     renders.resort_table('date');
 }

@@ -2,60 +2,103 @@
 
 {% block project_title %}{{ project.name }}{% endblock %}
 {% block body_id %}shots{% endblock %}
+
 {% block project_nav_title %}{{ project.name }}{% endblock %}
 
+{% block project_nav_sort %}
+    <li><strong>Sort By:</strong></li>
+    <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
+    <li><a href="#" title="Sort by Status">Status</a></li>
+    <li><a href="#" title="Sort by Length">Length</a></li>
+{% endblock %}
+
 {% block project_content %}
-	{% if project.shot_set.count %}
-	  {% for shot in project.shot_set.all %}
-    <div class="box medium">
-  		<h3>{{ shot.name }}<a href="{{ shot.get_absolute_url }}" title="Launch Project" class="launch_project">Launch Project</a></h3>
-        <span id='{{ shot.name }}_video' class="video"></span>
-      <div class="description">
-        <div class="heading">
-          <p class="status"><strong>Status:</strong> {{ shot.status }}</p>
-          <p class="length"><strong>Frames:</strong> {{ shot.frames }}</p>
-        </div>
-        <h4>Description:</h4>
-        <p>{{ shot.description }}</p>
-      </div>
-  		<div class="clear"></div>
-  	</div>
-    <script type="text/javascript">
-    flash = getMiniFlashPlayer('{{ shot.get_render_movie_lo_url }}',
-                               '{{ shot.get_render_movie_lo_url }}',
-                               160, 90, false);
-    nodeReplace($('{{ shot.name }}_video'), flash);
-    </script>
-    {% endfor %}
-  {% else %}
-  <p>No shots</p>
-  {% endif %}  
+    <ul class="entries" id="shots_entries"></ul>
 {% endblock %}
 
 {% block project_filters %}
-		<div class="box small">
-			<h3>Status</h3>
-			<ul>
-				<li class="highlight"><a href="#" title="#">Show All</a></li>
-				<li><a href="#" title="#">Open (1)</a></li>
-				<li class="last"><a href="#" title="#">Closed (3)</a></li>														
-			</ul>
-		</div>
-		<div class="box small">
-			<h3>Last Edited by</h3>
-			<ul>
-				<li class="highlight"><a href="#" title="#">Show All</a></li>
-				<li><a href="#" title="#">Alan (1)</a></li>
-				<li class="last"><a href="#" title="#">Luke (3)</a></li>
-				<li class="last"><a href="#" title="#">Josh (3)</a></li>
-			</ul>
-		</div>
-		<div class="box small">
-			<h3>Last Updated</h3>
-			<ul>
-				<li class="highlight"><a href="#" title="#">Show All</a></li>
-				<li><a href="#" title="#">Open (1)</a></li>
-				<li class="last"><a href="#" title="#">Closed (3)</a></li>														
-			</ul>
-		</div>
+    <div class="box small">
+        <h3>Status</h3>
+        <ul id=filter_status></ul>
+    </div>
 {% endblock %}
+
+{% block project_script %}
+function generate_row_shot(item) {
+    var a = document.createElement('A');
+    a.href = getattr(item, 'fields.url');
+    a.title = 'Launch Shot';
+    a.className = 'launch_project';
+    a.appendChild(document.createTextNode('Launch Shot'));
+
+    var h3 = document.createElement('H3');
+    h3.appendChild(document.createTextNode(getattr(item, 'fields.name')));
+    h3.appendChild(a);
+
+    var div = document.createElement('DIV');
+    div.className = 'box medium';
+    div.appendChild(h3);
+
+    var movie = document.createElement('SPAN');
+    movie.className = 'video';
+    var movie_url = getattr(item, 'fields.render_movie_lo_url');
+    movie.appendChild(getMiniFlashPlayer(movie_url, movie_url, 160, 90, false));
+    div.appendChild(movie);
+
+    var heading = document.createElement('DIV');
+    heading.className = 'heading';
+
+    var p_classes = ['status', 'length'];
+    var labels    = ['Status:', 'Frames:'];
+    var fields    = ['fields.status', 'fields.frames'];
+
+    for (var i=0; i<fields.length; i++) {
+        var label = document.createElement('STRONG');
+        label.appendChild(document.createTextNode(labels[i]));
+        var text = document.createElement('SPAN');
+        text.appendChild(document.createTextNode(' ' + getattr(item, fields[i])));
+        var p = document.createElement('P');
+        p.className = p_classes[i];
+        p.appendChild(label);
+        p.appendChild(text);
+        heading.appendChild(p);        
+    }
+
+    var desc = document.createElement('DIV');
+    desc.className = 'description';
+    desc.appendChild(heading);
+
+    var h4 = document.createElement('H4');
+    h4.appendChild(document.createTextNode('Description:'));
+    desc.appendChild(h4);
+
+    var p = document.createElement('P');
+    p.appendChild(document.createTextNode(getattr(item, 'fields.description')));
+    desc.appendChild(p);
+
+    div.appendChild(desc);
+
+    var clear = document.createElement('DIV');
+    clear.className = 'clear';
+    div.appendChild(clear);
+
+    return div;
+}
+
+/* called when page first loaded, initialize data */
+function setup() {
+    shots = new Informer.Data(
+        'shots', // name
+        null,
+        null,
+        [ // filter_list
+          new Informer.Filter('filter_status',      'fields.status')
+        ]); 
+
+    shots.generate_row = generate_row_shot;
+    shots.load_data({{ data }});
+}
+
+setup();
+{% endblock %}
+
