@@ -4,9 +4,11 @@
 {% block breadcrumbs %}<div class="breadcrumbs"><a href="../">{% trans 'Home' %}</a></div>{% endblock %}
 
 {% block content %}
+<div class="box large">
+  <h3>&nbsp;</h3>
+  <p class="intro">{% trans "Thanks for spending some quality time with the Web site today." %}</p>
 
-<p>{% trans "Thanks for spending some quality time with the Web site today." %}</p>
-
-<p><a href="../">{% trans 'Log in again' %}</a></p>
-
+  <a href="../" title="{% trans 'Log in again' %}" class="login">{% trans 'Log in again' %}</a>
+  <div class="bottom"></div>
+</div>
 {% endblock %}

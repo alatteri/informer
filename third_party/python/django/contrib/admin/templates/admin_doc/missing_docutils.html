@@ -1,17 +1,24 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base.html" %}
 {% load i18n %}
-{% block breadcrumbs %}<div class="breadcrumbs"><a href="../">Home</a> &rsaquo; Documentation</div>{% endblock %}
-{% block userlinks %}<a href="../password_change/">{% trans 'Change password' %}</a> / <a href="../logout/">{% trans 'Log out' %}</a>{% endblock %}
+{% block breadcrumbs %}<li>&rsaquo; Documentation</li>{% endblock %}
+{% block userlinks %}
+<li><a href="/admin/doc/" title="Documentation">Documentation</a></li>
+<li><a href="/admin/password_change/" title="Change you password">Change Password</a></li>
+<li><a href="/admin/logout/" title="Logout">Logout</a></li>
+{% endblock %}
 {% block title %}Please install docutils{% endblock %}
+
+{% block content_title %}<h2>Documentation</h2>{% endblock %}
 
 {% block content %}
 
-<h1>Documentation</h1>
-
-<div id="content-main">
-  <h3>The admin documentation system requires Python's <a href="http://docutils.sf.net/">docutils</a> library.</h3>
-
-  <p>Please ask your administrators to install <a href="http://docutils.sf.net/">docutils</a>.</p>
+<div class="box large">
+  <h3>Documentation System Required</h3>
+  <div class="content">
+    <p>The admin documentation system requires Python's <a href="http://docutils.sf.net/">docutils</a> library.</p>
+    <p>Please ask your administrators to install <a href="http://docutils.sf.net/">docutils</a>.</p>
+  </div>
+  <div class="bottom"></div>
 </div>
 
 {% endblock %}

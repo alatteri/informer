@@ -1,0 +1,335 @@
+/* Admin Pages
+ * ------------------------------------------------------------ */
+ 
+/* General */
+
+#admin #content div.box a {
+	color: #222;
+	font-weight: normal;
+	text-decoration: none;
+	}	
+#admin #content div.box a:hover {
+	color: #ccc;
+	text-decoration: underline;
+	}	
+#admin #content div.box table tr {
+	border-bottom: 1px solid #717171;	
+	}	
+#admin #content div.box table {
+	margin: 0 1px;
+	font-size: 12px;	
+	}
+#admin #content div.box table tr td,
+#admin #content div.box table tr th {
+	padding: 2px 5px;
+	}
+#admin #content div.box table tr th a {
+	font-weight: bold;
+	}	
+#admin #content ul.messagelist {
+	padding: 5px 10px;	
+	margin: 0 5px 10px 0;
+	color: #222;
+	background: #999;
+	border: 1px solid #555;
+	}	
+
+/* Medium Boxes */
+
+#admin #content div.box.medium table {
+	width: 538px;
+	}	
+#admin #content div.box.medium table tr th {
+	width: 400px;
+	}	
+	
+/* Small Boxes */	
+	
+#admin div.box.small h4 {
+	margin: 0 0 0 10px;
+	font-weight: bold;
+	}	
+div.box.small p {
+	line-height: 18px;
+	margin: 0 10px 15px 20px;
+	}	
+div.box.small ul {
+	margin: 0 0 5px 0;
+	}	
+#admin div.box.small ul li {
+	display: block;
+	width: 208px;
+	min-height: 25px;
+	height: auto;
+	line-height: 18px;
+	margin: 0 0 0 2px;
+	padding: 5px 10px 5px 10px;
+	background: url(/media/images/image-divider-box-dashboard.gif) no-repeat left bottom;
+	}	
+#admin div.box.small ul li em {
+	display: block;
+	font-size: 11px;
+	color: #555;
+	}	
+	
+/* Large Boxes */
+
+#admin #content div.box.large div.content {
+	padding: 10px 15px 5px 15px;
+	}
+#admin #content div.box.large div.content a {
+	color: #ccc;
+	text-decoration: underline;
+	}	
+#admin #content div.box.large div.content a:hover {
+	color: #fff;
+	}	
+#admin #content div.box.large div.bottom {
+	clear: both;
+	width: 785px;
+	height: 10px;
+	background: url(/media/images/background-box-wide-bottom.gif) no-repeat left top;	
+	}	
+#admin #content div.box.large p.paginator {
+	margin: 5px 10px 0 10px;
+	font-weight: bold;
+	font-style: oblique;
+	color: #444;
+	}	
+#admin #content div.box.large table {
+	width: 783px;
+	}	
+#admin #content div.box.large table thead tr {
+	height: 24px;
+	background: url(/media/images/background-heading-large.gif) repeat-x left top;
+	border: none;
+	font-size: 11px;
+	}
+#admin #content div.box.large table thead tr th {
+	border-right: 1px solid #939597;
+	}	
+#admin #content div.box.large table thead tr th a:hover {
+	color: #444;
+	}	
+#admin #content div.box.large table tr td,
+#admin #content div.box.large table tr th {
+	border-right: 1px solid #717274;
+	}
+#admin #content div.box.large div.form-row {
+	padding: 5px 10px;
+	border-bottom: 1px solid #717171;	
+	}	
+#admin #content div.box.large div.form-row label {
+	float: left;
+	width: 100px;
+	font-weight: bold;
+	line-height: 18px;
+	}	
+#admin #content div.box.large div.form-row input,
+#admin #content div.box.large div.form-row select {
+	max-width: 600px;
+	}	
+#admin #content div.box.large div.form-row p.help {
+	margin: 0 0 0 100px;
+	color: #444;
+	font-style: oblique;
+	}	
+#admin #content div.box.large div.form-row div.selector {
+	margin: 0 0 0 100px;
+	}
+#admin #content div.box.large div.form-row div.selector h2 {
+	margin: 0;
+	padding: 0;
+	background: none;
+	font-size: 12px;
+	}	
+#admin #content div.box.large div.form-row div.selector p.selector-filter {
+	margin: 5px 0;
+	}		
+#admin #content div.box.large div.submit-row {
+	padding: 10px 10px 5px 10px;
+	}
+#admin #content div.box.large div.submit-row p.float-left {
+	float: left;
+	padding: 0 10px 0 0;
+	}	
+#admin #content div.box.large div.submit-row p.float-left a {
+	font-weight: bold;
+	}	
+#admin #content div.box.large p.empty {
+	margin: 20px;
+	}	
+#admin #content p.intro,
+#admin #content p.error {
+	margin: 0 6px 20px 1px;
+	padding: 3px 15px;
+	background: #8f9091;
+	color: #333;
+	border-top: 1px solid #6c6d6f;	
+	border-bottom: 1px solid #6c6d6f;
+	text-align: center;
+	}	
+#admin #content p.error {
+	color: #9c060b;
+	}		
+#admin #content form {
+	margin: 0 6px 0 2px;	
+	}	
+#admin #content form h2 {
+	padding: 10px 0 10px 20px;
+	font-size: 14px;
+	font-weight: bold;
+	background: #7c7c7c;
+	}	
+#admin #content form p {
+	margin: 0 0 10px 170px;
+	}	
+#admin #content form p.last {
+	padding: 0 0 0 80px;
+	color: #252b34;
+	font: bold 12px "Lucida Grande", verdana, sans-serif;
+	text-shadow: #aaa 1px 1px 1px;	
+	}	
+#admin #content form button {
+	width: 85px;
+	height: 27px;
+	margin: 0 0 10px 250px;
+	background: url(/media/images/button-login.gif) no-repeat left top;
+	border: none;
+	text-indent: -9999px;
+	}	
+#admin #content form label {
+	display: block;
+	float: left;
+	width: 80px;
+	color: #252b34;
+	font: bold 12px/28px "Lucida Grande", verdana, sans-serif;
+	text-shadow: #aaa 1px 1px 1px;
+	}	
+#admin #content #login-form input,
+#admin #toolbar #searchbar {
+	width: 308px;
+	height: 28px;
+	padding: 0 0 0 5px;
+	background: url(/media/images/background-login-input.gif) no-repeat left top;
+	border: none;
+	font-size: 14px;
+	}
+#admin div.module {
+	padding: 5px 10px;
+	background: #b8babb;
+	border: 1px solid #636568;
+	} 	
+#admin div.module h2 {
+	font-weight: bold;
+	}		
+#admin div.module a {
+	color: #444;
+	}	
+#admin div.module p.calendar-cancel a {
+	line-height: 25px;
+	color: #777;
+	text-decoration: none;
+	}	
+#admin #toolbar {
+	padding: 5px 10px;
+	}	
+#admin #wrap #toolbar button {
+	margin: 0;
+	background-image: url(/media/images/button-search.gif);
+	}	
+#admin #wrap div.box.large a.login {
+	display: block;
+	width: 85px;
+	height: 27px;
+	margin: 0 auto 10px auto;
+	background: url(/media/images/button-login.gif) no-repeat left top;
+	border: none;
+	text-indent: -9999px;
+	}	
+
+/* Large Boxes */
+
+#admin div.box.large #changelist-filter {
+	margin: 10px 15px 10px 10px;
+	padding: 0 0 5px 0;
+	background: #939595;
+	border: 1px solid #717171;
+	}
+#admin div.box.large #changelist-filter h2 {
+	padding: 2px 10px;
+	background: #8a8a8a;
+	border-bottom: 1px solid #717171;	
+	color: #2a2a2a;
+	font-weight: bold;
+	font-size: 12px;
+	}	
+#admin div.box.large #changelist-filter h4 {
+	float: left;
+	margin: 5px 5px 0 10px;
+	text-transform: capitalize;
+	font-weight: bold;
+	}	
+#admin div.box.large #changelist-filter ul {
+	float: left;
+	margin: 5px 0 0 0;
+	}	
+#admin div.box.large #changelist-filter ul li {
+	display: inline;
+	padding: 2px 5px;
+	}	
+#admin div.box.large #changelist-filter ul li.selected {
+	background: #7c7c7c;
+	}	
+	
+/* SELECTOR (FILTER INTERFACE) */
+.selector { width:580px; float:left; }
+.selector select { width:270px; height:17.2em; }
+.selector-available, .selector-chosen { float:left; width:270px; text-align:center; margin-bottom:5px; }
+.selector .selector-filter { font-size:10px; margin:0;}
+.selector .selector-chosen .selector-filter { padding:4px 5px; }
+.selector .selector-available input { width:230px; }
+.selector ul.selector-chooser { float:left; width:22px; height:50px; margin:8em 3px 0 3px; padding:0; }
+.selector-chooser li { margin:0; padding:3px; list-style-type:none; }
+.selector select { margin-bottom:5px; margin-top:0; }
+.selector-add, .selector-remove { width:16px; height:16px; display:block; text-indent:-3000px; }
+.selector-add { background:url(../images/admin/selector-add.gif) top center no-repeat; margin-bottom:2px; }
+.selector-remove { background:url(../images/admin/selector-remove.gif) top center no-repeat; }
+a.selector-chooseall, a.selector-clearall { display:block; width:6em; text-align:left; margin-left:auto; margin-right:auto; font-weight:bold; color:#666;  padding:3px 0 3px 18px; }
+a.selector-chooseall:hover, a.selector-clearall:hover { color:#036; }
+
+/* STACKED SELECTORS */
+.stacked { float:left; width:500px; }
+.stacked select { width:480px; height:10.1em; }
+.stacked .selector-available, .stacked .selector-chosen { width:480px; }
+.stacked .selector-available { margin-bottom:0; }
+.stacked .selector-available input { width:442px; }
+.stacked ul.selector-chooser { height:22px; width:50px; margin:0 0 3px 40%; background:url(../images/admin/chooser_stacked-bg.gif) top center no-repeat; }
+.stacked .selector-chooser li { float:left; padding:3px 3px 3px 5px; }
+.stacked .selector-chooseall, .stacked .selector-clearall { display:none; }
+.stacked .selector-add { background-image:url(../images/admin/selector_stacked-add.gif); }
+.stacked .selector-remove { background-image:url(../images/admin/selector_stacked-remove.gif); }	
+	
+/* CALENDARS & CLOCKS */
+.calendarbox, .clockbox { margin:5px auto; font-size:11px; width:16em; text-align:center; background:white; position:relative; }
+.clockbox { width:9em; }
+.calendar { margin:0; padding: 0; }
+.calendar table { margin:0; padding:0; border-collapse:collapse; background:white; width:99%; }
+.calendar caption, .calendarbox h2 { margin: 0; font-size:11px; text-align:center; border-top:none; }
+.calendar th { font-size:10px; color:#666; padding:2px 3px; text-align:center; background:#e1e1e1; border-bottom:1px solid #ddd; }
+.calendar td { font-size:11px; text-align: center; padding: 0; border-top:1px solid #eee; border-bottom:none; }
+.calendar td.selected a { background: #C9DBED; }
+.calendar td.nonday { background:#efefef; }
+.calendar td.today a { background:#ffc; }
+.calendar td a, .timelist a { display: block; font-weight:bold; padding:4px; text-decoration: none; color:#444; }
+.calendar td a:hover, .timelist a:hover { background: #999; color: #000; }
+.calendar td a:active, .timelist a:active { background: #036; color:white; }
+.calendarnav { font-size:10px; text-align: center; color:#ccc; margin:0; padding:1px 3px; }
+.calendarnav a:link, #calendarnav a:visited, #calendarnav a:hover { color: #999; }
+.calendar-shortcuts { font-size:10px; line-height:11px; border-top:1px solid #eee; padding:3px 0 4px; color:#999; }
+.calendarbox .calendarnav-previous, .calendarbox .calendarnav-next { display:block; position:absolute; font-weight:bold; font-size:12px; padding:1px 4px 2px 4px; color:white; }
+.calendarnav-previous:hover, .calendarnav-next:hover { background:#036; }
+.calendarnav-previous { top:0; left:0; }
+.calendarnav-next { top:0; right:0; }
+ul.timelist, .timelist li { list-style-type:none; margin:0; padding:0; }
+.timelist a { padding:2px; }
