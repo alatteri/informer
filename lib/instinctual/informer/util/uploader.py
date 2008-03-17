@@ -107,12 +107,12 @@ def main():
 
     try:
         run = True
+        tries = 0
         while run:
             count = 0
             matches = glob(frameGlob)
             matches.sort()
             for framePath in matches:
-                tries = 0
                 count += 1
                 LOG.debug("%s) Found -> %s" % (count, framePath))
                 print("%s) Found -> %s" % (count, framePath))
@@ -167,9 +167,10 @@ def main():
 
                 time.sleep(0.1)
 
-            if flamePid and len(matches) == 0:
+            if flamePid:
                 try:
                     os.stat('/proc/%s' % flamePid)
+                    tries = 0
                     # LOG.debug("Flame process (%s) still running..." % flamePid)
                 except OSError, e:
                     if e.errno == errno.ENOENT:
@@ -178,12 +179,12 @@ def main():
                     else:
                         raise e
 
-            if tries < 5:
+            if tries > 200:     # 10 minutes = 200 * 3.0 / 60
+                LOG.info("TIMEOUT: Flame appears to have exited. Quitting.")
+                run = False
+            else:
                 # LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
                 time.sleep(3.0)
-            else:
-                LOG.info("Flame appears to have exited and no work to do. Quitting.")
-                run = False
 
     except e:
         LOG.fatal("uploader died: %s" % (e))
