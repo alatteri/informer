@@ -25,6 +25,7 @@
     <div class="box small">
         <h3>Last Edited By</h3>
         <ul id=filter_last_modified_by></ul>
+        <div class="bottom"></div>        
     </div>
 {% endblock %}
 
@@ -53,7 +54,7 @@ function generate_row_shot(item) {
     var heading = document.createElement('DIV');
     heading.className = 'heading';
 
-    var p_classes = ['status', 'length', 'status'];
+    var p_classes = ['status', 'length', 'last_update'];
     var labels    = ['Status:', 'Frames:', 'Last Updated:'];
     var fields    = ['fields.status', 'fields.frames', 'fields.last_modified'];
 

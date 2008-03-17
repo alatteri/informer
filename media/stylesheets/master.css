@@ -525,18 +525,21 @@ div.box.small ul li.path strong {
 	border-left: 1px solid #666;
 	}
 #wrap.shots #content div.box.medium div.description div.heading {
-	padding: 5px 10px 8px 10px;
 	text-align: right;
 	background: url(/media/images/image-divider-box-dashboard.gif) repeat-x left bottom;	
 	}	
 #wrap.shots #content div.box.medium div.description div.heading p {
-	padding: 0;
+	padding: 3px 10px 3px 10px;
 	margin: 0;
 	}	
 #wrap.shots #content div.box.medium div.description div.heading p.status {
 	float: left;
-	margin: 0;
-	}	
+	}
+#wrap.shots #content div.box.medium div.description div.heading p.last_update {;
+	padding: 3px 0 5px 10px;
+	background: url(/media/images/image-divider-box-dashboard.gif) repeat-x left top;	
+	text-align: left;
+	}		
 #wrap.shots #content div.box.medium div.description h4 {
 	margin: 0 0 0 10px;
 	font-weight: bold;
