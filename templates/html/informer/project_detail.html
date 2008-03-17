@@ -7,9 +7,9 @@
 
 {% block project_nav_sort %}
     <li><strong>Sort By:</strong></li>
-    <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
-    <li><a href="#" title="Sort by Status">Status</a></li>
-    <li><a href="#" title="Sort by Length">Length</a></li>
+    <li><a id=sort_by_name             href="javascript:sort_table(shots,'name')" title="Sort by Name" class="highlight">Name</a></li>
+    <li><a id=sort_by_status           href="javascript:sort_table(shots,'status')" title="Sort by Status">Status</a></li>
+    <li><a id=sort_by_last_modified    href="javascript:sort_table(shots,'last_modified')" title="Sort by Last Updated">Last Updated</a></li>
 {% endblock %}
 
 {% block project_content %}
@@ -20,6 +20,10 @@
     <div class="box small">
         <h3>Status</h3>
         <ul id=filter_status></ul>
+    </div>
+    <div class="box small">
+        <h3>Last Edited By</h3>
+        <ul id=filter_last_modified_by></ul>
     </div>
 {% endblock %}
 
@@ -48,9 +52,9 @@ function generate_row_shot(item) {
     var heading = document.createElement('DIV');
     heading.className = 'heading';
 
-    var p_classes = ['status', 'length'];
-    var labels    = ['Status:', 'Frames:'];
-    var fields    = ['fields.status', 'fields.frames'];
+    var p_classes = ['status', 'length', 'status'];
+    var labels    = ['Status:', 'Frames:', 'Last Updated:'];
+    var fields    = ['fields.status', 'fields.frames', 'fields.last_modified'];
 
     for (var i=0; i<fields.length; i++) {
         var label = document.createElement('STRONG');
@@ -63,6 +67,9 @@ function generate_row_shot(item) {
         p.appendChild(text);
         heading.appendChild(p);        
     }
+    var clear = document.createElement('DIV');
+    clear.className = 'clear';
+    heading.appendChild(clear);
 
     var desc = document.createElement('DIV');
     desc.className = 'description';
@@ -89,10 +96,23 @@ function generate_row_shot(item) {
 function setup() {
     shots = new Informer.Data(
         'shots', // name
-        null,
+        [ // row 1
+          {name: 'name',
+           field: 'fields.name',
+           sorter: sort_by_string,
+           is_default: true},
+          {name: 'status',
+           field: 'fields.status',
+           sorter: sort_by_string},
+          {name: 'last_modified_by',
+           field:'fields.last_modified_by',
+           sorter: sort_by_string,
+           formatter: format_author},
+        ],
         null,
         [ // filter_list
-          new Informer.Filter('filter_status',      'fields.status')
+          new Informer.Filter('filter_status',      'fields.status'),
+          new Informer.Filter('filter_last_modified_by',  'fields.last_modified_by',  format_author),
         ]); 
 
     shots.generate_row = generate_row_shot;

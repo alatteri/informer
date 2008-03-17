@@ -95,17 +95,18 @@ function create_entry_item(table, item, tag, parent) {
             elem.appendChild(document.createTextNode(value));
             checkbox = document.createElement('A');
             checkbox.className = value.toLowerCase();
-            checkbox.href = "#";
-            checkbox.onclick = function() {
-                this.className = (this.className == "pending")? "complete" : "pending";
-                return false;
-            }
+            // checkbox.href = "#";
+            // checkbox.onclick = function() {
+            //     this.className = (this.className == "pending")? "complete" : "pending";
+            //     return false;
+            // }
             if(checkbox.className == "pending") {
-                checkbox.innerHTML = "Check if complete";
-                checkbox.title = "Click if complete";
+                checkbox.innerHTML = "Pending";
+                checkbox.title = "Pending";
             } else {
-                checkbox.innerHTML = "Note is complete";
-                checkbox.title = "Note is complete";
+                checkbox.className = 'complete';
+                checkbox.innerHTML = "Complete";
+                checkbox.title = "Complete";
             }
             elem.appendChild(checkbox);
         } else {

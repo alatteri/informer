@@ -7,9 +7,9 @@
 
 {% block project_nav_sort %}
     <li><strong>Sort By:</strong></li>
-    <li><a href="#" title="Sort by Name" class="highlight">Name</a></li>
-    <li><a href="#" title="Sort by Status">Status</a></li>
-    <li><a href="#" title="Sort by Due Date">Due Date</a></li>
+    <li><a id=sort_by_name     href="javascript:sort_table(projects,'name')" title="Sort by Name" class="highlight">Name</a></li>
+    <li><a id=sort_by_status   href="javascript:sort_table(projects,'status')" title="Sort by Status">Status</a></li>
+    <li><a id=sort_by_due_date href="javascript:sort_table(projects,'due_date')" title="Sort by Due Date">Due Date</a></li>
 {% endblock %}
 
 {% block project_content %}
@@ -78,9 +78,23 @@ function generate_row_project(item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
+  
   projects = new Informer.Data(
     'projects', // name
-    null,
+    [ // row 1
+      {name: 'name',
+       field: 'fields.name',
+       sorter: sort_by_string,
+       is_default: true},
+      {name: 'due_date',
+       field: 'fields.due_date',
+       sorter: sort_by_date,
+       formatter: format_date,
+       parser: parse_date},
+      {name: 'status',
+       field: 'fields.status',
+       sorter: sort_by_string},
+    ],
     null,
     [ // filter_list
       new Informer.Filter('filter_client',      'fields.client'),

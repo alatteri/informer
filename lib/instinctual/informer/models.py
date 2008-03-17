@@ -152,6 +152,8 @@ class Shot(models.Model):
     url = property(get_absolute_url)
     render_movie_hi_url = property(get_render_movie_hi_url)
     render_movie_lo_url = property(get_render_movie_hi_url)
+    last_modified = property(get_render_time)
+    last_modified_by = property(get_render_artist)
 
     # --------------------------------------------------------------------------
     class Meta:
@@ -171,7 +173,8 @@ class Shot(models.Model):
 
     class Rest:
         expose_fields = ['project', 'name', 'status', 'description', 'handles', 'frames',
-                         'self.url', 'self.render_movie_hi_url', 'self.render_movie_lo_url']
+                         'self.url', 'self.render_movie_hi_url', 'self.render_movie_lo_url',
+                         'self.last_modified', 'self.last_modified_by']
 
     def __str__(self):
         if self.description:

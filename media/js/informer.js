@@ -1,5 +1,7 @@
 function LOG(x) {
-    if (window.console) {
+    if (1) {
+        return;
+    } else if (window.console) {
         window.console.log(x);
     } else {
         alert(x);
@@ -16,6 +18,49 @@ var CURRENT_RENDER;
  * Informer Object
  * ------------------------------------------------------- */
 var Informer = {};
+
+/* 
+ * Informer Column: represents a table column
+ * ------------------------------------------------------- */
+Informer.BaseColumn = Class.create({
+    initialize: function(name, field) {
+        this.name = name;
+        this.field = field;
+        this.is_default = false;
+
+        this.parser    = function (x) { return x };
+        this.sorter    = function (x) { return x };
+        this.formatter = function (x) { return x };
+        LOG("BaseColumn initialize called: " + this.name);
+    },
+});
+
+Informer.DateColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("DateColumn initialize called");
+        this.sorter = sort_by_date;
+        this.formatter = format_date;
+        this.parser = parse_date;
+    },
+});
+
+Informer.UserColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("UserColumn initialize called");
+        this.sorter = sort_by_string;
+    },
+});
+
+Informer.AssignedUserColumn = Class.create(Informer.UserColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("AssignedUserColumn initialize called");
+        this.formatter = format_assigned;
+    },
+});
+
 
 /* 
  * Informer Filter: represents one filtered category
@@ -113,8 +158,9 @@ Informer.Filter.prototype = {
                 var count = this.matches.get(key);
 
                 // Provide defaults to make sure something is displayed
-                // if (key == '') key = 'None';
-                // if (text == '') text = 'None';
+                // XXX is this always right? -- NOPE. Too late at this point. TODO
+                if (key == '') key = 'None';
+                if (text == '') text = 'None';
 
                 var text = key + ' (' + count + ')';
                 ul.appendChild(this.create_li(text, key));
@@ -235,7 +281,6 @@ Informer.Data.prototype = {
                 for (var j=0; j<this.row_1.length; j++) {
                     var col = this.row_1[j];
                     val = getattr(obj, col.field);
-
                     if (col.parser) {
                         // use the column's parser if specified
                         val = col.parser(val);
@@ -329,9 +374,19 @@ Informer.Data.prototype = {
 /* 
  * Helper Functions
  * ------------------------------------------------------- */
+function sort_table(table, filter_by) {
+    $('sort_by_' + table._sorter).className = null;
+    table.resort_table(filter_by);
+    $('sort_by_' + table._sorter).className = 'highlight';
+}
 
 function sort_by_date(d) {
-    return d.getTime();
+    if (d != null) {
+        return d.getTime();
+    } else {
+        // 0 sorts to the top
+        return 9999999999999;
+    }
 }
 
 function sort_by_string(s) {
@@ -343,24 +398,26 @@ function sort_by_assigned(u) {
 }
   
 function getattr(object, field) {
-    var filter, f;
+    var formatter, f;
     if (field.pop) {
         f = field[0];
-        filter = field[1];
-    }
-    else if (field.field) {
+        formatter = field[1];
+    } else if (field.field) {
         f = field.field;
-        filter = field.formatter;
-    }
-    else {
+        formatter = field.formatter;
+    } else {
         f = field;
     }
     var tmp = object;
     var fields = f.split('.');
-    for (var i=0; i<fields.length; i++)
+    for (var i=0; i<fields.length; i++) {
         tmp = tmp[fields[i]];
-    if (filter)
-        tmp = filter(tmp);
+    }
+
+    if (formatter) {
+        var before = tmp;
+        tmp = formatter(tmp);
+    }
     return tmp;
 }
   
@@ -425,6 +482,11 @@ function format_assigned(u) {
 /* accepts string, capitalizes first letter */
 function format_author(u) {
      return u.substring(0,1).toUpperCase() + u.substring(1,u.length);	
+}
+
+/* accepts string, returns None if null */
+function format_string(s) {
+    return u != null ? u : 'None';
 }
 
 function format_nl2br(txt) {

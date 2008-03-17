@@ -1,6 +1,8 @@
 from new import instancemethod
 from django.db import models
 from django_restapi.responder import *
+from django.contrib import auth
+from django.contrib.auth.models import User
 
 class CustomBaseResponder(SerializeResponder):
     def render(self, object_list):
@@ -67,11 +69,14 @@ class CustomBaseResponder(SerializeResponder):
                 lame = None
                 if isinstance(val, int):
                     lame = models.IntegerField()
+                elif isinstance(val, auth.models.User):
+                    lame = models.ForeignKey(User)
                 else:
                     # other case: isinstance(val, str):
+                    val = str(val)
                     lame = models.CharField()
 
-                setattr(lame, field, None)
+                setattr(lame, field, val)
                 lame.name = field
                 lame.attname = field
                 lame.serialize = True
