@@ -44,7 +44,10 @@
 	}	
 	
 /* Small Boxes */	
-	
+
+#admin div.box.small {
+	overflow:hidden;
+	}	
 #admin div.box.small h4 {
 	margin: 0 0 0 10px;
 	font-weight: bold;
