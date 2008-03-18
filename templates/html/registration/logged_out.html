@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="../">{% trans 'Home' %}</a></div>{% endblock %}
+
+{% block content %}
+<div class="box large">
+  <h3>&nbsp;</h3>
+  <p class="intro">{% trans "You have successfully logged out of Informer." %}</p>
+
+  <a href="/" title="{% trans 'Log in again' %}" class="login">{% trans 'Log in again' %}</a>
+  <div class="bottom"></div>
+</div>
+{% endblock %}
