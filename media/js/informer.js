@@ -329,6 +329,16 @@ Informer.Data.prototype = {
             }
         }
 
+        if (0 == this.data.length) {
+            var msg = document.createElement('P');
+            msg.style.textAlign = 'center';
+            msg.style.fontSize = '12px';
+            msg.style.margin = '10px 0 0 0';
+            var text = 'No ' + this.name + ' to display';
+            msg.appendChild(document.createTextNode(text));
+            this.entries.appendChild(msg);
+        }
+
         // TODO: It would be nice to make this into an object method
         if (this.row_1) highlightColumn(this._sorter);
 
@@ -481,7 +491,7 @@ function format_assigned(u) {
 
 /* accepts string, capitalizes first letter */
 function format_author(u) {
-     return u.substring(0,1).toUpperCase() + u.substring(1,u.length);	
+     return u ? u.substring(0,1).toUpperCase() + u.substring(1,u.length) : 'None';
 }
 
 /* accepts string, returns None if null */
