@@ -54,9 +54,9 @@ function generate_row_shot(item) {
     var heading = document.createElement('DIV');
     heading.className = 'heading';
 
-    var p_classes = ['status', 'length', 'last_update'];
-    var labels    = ['Status:', 'Frames:', 'Last Updated:'];
-    var fields    = ['fields.status', 'fields.frames', 'fields.last_modified'];
+    var p_classes = ['status', 'length', 'last_update', 'last_update'];
+    var labels    = ['Status:', 'Frames:', 'Last Updated:', 'Last Modified By:'];
+    var fields    = ['fields.status', 'fields.frames', 'fields.last_modified', 'fields.last_modified_by'];
 
     for (var i=0; i<fields.length; i++) {
         var label = document.createElement('STRONG');
