@@ -12,11 +12,11 @@ unittest/       unit tests
 
 # --------------------
 To run the server:
-% cd src/bin
+% cd /bin
 % ./runserver
 
 The script will auto-detect if the backend sqlite
-databse has not been set-up. If the src/data/informer.db
+databse has not been set-up. If the /data/informer.db
 file does not exist, then you will be prompted to
 initialize the database.
 
@@ -25,10 +25,3 @@ If you see import errors about not finding 'pysqlite' then:
 % cd src/third_party/src
 % tar zxvf pysqlite-2.3.5.tar.gz
 % sudo python setup.py install
-
-# --------------------
-Things to configure:
-
-% cd src/conf
-% vi instinctual.ini
-% vi logging.ini
