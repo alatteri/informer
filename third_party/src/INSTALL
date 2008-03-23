@@ -4,7 +4,6 @@ x264
 % cd third_party/src
 % tar zxvf x264.tar.gz
 % cd x264
-% svn update
 % ./configure  --prefix=`pwd`/../.. --enable-pthread
 % make
 % make install
@@ -30,22 +29,29 @@ ffmpeg (Notes: x264 must be built and installed first)
 --------------------------------------------------------------------------------
 qt-faststart optional post-processing for quicktime streaming
 --------------------------------------------------------------------------------
+% cd third_party/src
 % make qt-faststart
 % cp qt-faststart ../../bin
 
 -------------------------------------------------------------------------------
 Jasper (do this before ImageMagick)
 -------------------------------------------------------------------------------
+% cd third_party/src
+% cd jasper-1.900.1
 ./configure --prefix=`pwd`/../.. --with-pic --enable-static
 
 -------------------------------------------------------------------------------
 Tiff Support (Some Macs need this... lameness.  Do this before ImageMagick.)
 -------------------------------------------------------------------------------
+% cd third_party/src
+% cd tiff-3.8.2
 ./configure  --prefix=`pwd`/../..
 
 ---------------------------------------------------------------------------------
 ImageMagick with Jasper Support
 ---------------------------------------------------------------------------------
+% cd third_party/src
+% cd ImageMagick-6.3.9
 ./configure  --prefix=`pwd`/../.. LDFLAGS=-L`pwd`/../../lib CFLAGS=-I`pwd`/../../include --with-pic --enable-static
 
 --------------------------------------------------------------------------------
