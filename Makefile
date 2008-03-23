@@ -40,7 +40,7 @@ THIRD_PARTY_FFMPEG=ffmpeg
 MAKE = make
 SHELL = /bin/sh
 RSYNC = rsync -q -avz $(EXCLUDE)
-UNTAR = tar --keep-newer-files -zxvf
+UNTAR = tar zxvf
 
 LIB_PYS = $(shell find $(DIR_LIB) -type f -name \*.py)
 LIB_PYCS = $(LIB_PYS:.py=.pyc)
