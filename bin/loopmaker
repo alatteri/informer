@@ -1,6 +1,10 @@
-#!/bin/bash
-while true
-do
-./moviemaker
-sleep 20
-done
+#!/usr/bin/env python
+import os
+import sys
+import time
+
+moviemaker = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1] + ['moviemaker'])
+
+while 1:
+    os.system(moviemaker)
+    time.sleep(20)
