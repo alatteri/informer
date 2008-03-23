@@ -5,7 +5,10 @@
   		<div id="login-wrap">
   		  <h1><img src="/media/images/client_logo.png" alt="Branding Image"></h1>
   		  <div id="content">
-  		    <h3>Informer<span>v1.0 beta</span></h3>
+  		    <h3>Informer<span>
+<script language=javascript>
+document.write(INFORMER_VERSION);
+</script></span></h3>
           {% if form.has_errors %}
           <p class="error">Your username and password didn't match. Please try again.</p>
           {% else %}

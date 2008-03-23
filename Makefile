@@ -68,6 +68,8 @@ server : $(SERVER_LIB_PYCS)
 	$(RSYNC) "$(DIR_TEMPLATES)" "$(DIR_SERVER)"
 	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
 
+	echo "INFORMER_VERSION = \"`svn info | grep Revision`\";" > $(DIR_SERVER)/$(DIR_MEDIA)/js/version.js
+
 $(LIB_PYCS) : $(LIB_PYS)
 	python -c "import sys; \
 		   sys.path.append('$(DIR_LIB)'); \
