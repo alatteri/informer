@@ -321,15 +321,18 @@ Informer.Data.prototype = {
         while (this.entries.hasChildNodes())
             this.entries.removeChild(this.entries.firstChild);	
 
+        var number_drawn = 0;
+
         // Draw the non-filtered data
         for (var i=0; i<this.data.length; i++) {
             if (false == this.fm.is_filtered(this.data[i])) {
+                number_drawn += 1;
                 var new_entry = this.generate_row(this.data[i]);
                 if (new_entry) this.entries.appendChild(new_entry);
             }
         }
 
-        if (0 == this.data.length) {
+        if (0 == number_drawn) {
             var msg = document.createElement('P');
             msg.style.textAlign = 'center';
             msg.style.fontSize = '12px';
@@ -378,7 +381,33 @@ Informer.Data.prototype = {
     add_data: function(d) {
         this.data.push(d);
         this.pre_process();
-    }
+    },
+
+    /* Updates the data with a particular pk with new entry */
+    update_data: function(d) {
+        var pk = getattr(d, 'pk');
+        var done = false;
+        for (var i=0; i<this.data.length && !done; i++) {
+            if (pk == getattr(this.data[i], 'pk')) {
+                this.data[i] = d;
+                done = true;
+            }
+        }
+        this.pre_process();
+    },
+
+    /* Deletes the row associated with the data element */
+    delete_data: function(d) {
+        var pk = getattr(d, 'pk');
+        var new_data = [];
+        for (var i=0; i<this.data.length; i++) {
+            if (pk != getattr(this.data[i], 'pk')) {
+                new_data.push(this.data[i]);
+            }
+        }
+        this.data = new_data;
+        this.pre_process();
+    },
 };
   
 /* 

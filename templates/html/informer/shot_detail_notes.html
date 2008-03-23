@@ -133,16 +133,45 @@ function add_note() {
     new Ajax.Request('{{shot.get_json_notes_url}}', {
         parameters: $('form-note-create').serialize(),
         evalJSON:   true,
-        onSuccess:  add_note_callback,
+        onSuccess:  function (r) {
+            // Ajax callback triggered after a user clicks the 'Add Note' button
+            $('form-note-create').reset();	
+            styleSelects();
+            notes.add_data(r.responseJSON[0]);
+            notes.resort_table();
+        },
     });
 }
 
-/* Ajax callback triggered after a user clicks the 'Add Note' button */
-function add_note_callback(r) {
-    $('form-note-create').reset();	
-	styleSelects();
-    notes.add_data(r.responseJSON[0]);
-    notes.resort_table();
+function delete_note(item) {
+    var url = '{{shot.get_json_notes_url}}' + getattr(item, 'pk') + '/';
+
+    new Ajax.Request(url, {
+        method:     'delete',
+        evalJSON:   true,
+        onSuccess:  function (r) {
+            // Ajax callback triggered when a user successfully deletes a note
+            notes.delete_data(item);
+            notes.resort_table();
+        },
+    });
+}
+
+/* onclick handler called when a user toggles the note status */
+function toggle_note_status(item) {
+    var url = '{{shot.get_json_notes_url}}' + getattr(item, 'pk') + '/';
+    var status = !getattr(item, 'fields.is_checked');
+
+    new Ajax.Request(url, {
+        parameters: 'is_checked='+status,
+        method:     'put',
+        evalJSON:   true,
+        onSuccess:  function (r) {
+            // Ajax callback triggered when a user successfully toggle's note status
+            notes.update_data(r.responseJSON[0]);
+            notes.resort_table();
+        },
+    });
 }
 
 // onload trigger

@@ -1,6 +1,6 @@
 import os
 from django.shortcuts import get_object_or_404
-from django_restapi.model_resource import Collection, Entry
+from django_restapi.model_resource import Collection, Entry, load_put_and_files
 from django_restapi.authentication import HttpBasicAuthentication
 from django.contrib.auth.models import User
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Render, getHandler
@@ -23,7 +23,40 @@ def LogHandlerWrapper(func, method):
             handler.setUser(None)
     return wrapper
 
-class ProjectShots(Collection):
+class InformerCollection(Collection):
+    def dispatch(self, request, target, *args, **kwargs):
+        """ 
+        Override the django_restapi's Collection object to allow support for
+        Prototype's _method argument style.
+        """
+        request_method = request.method.upper()
+
+        if request_method == 'POST' and '_method' in request.POST:
+            method = str.lower(request.POST['_method'])
+            if 'put' == method:
+                request_method = 'PUT'
+                request.PUT = request.POST
+            elif 'delete' == method:
+                request_method = 'DELETE'
+                # request.DELETE = request.POST
+
+        if request_method not in self.permitted_methods:
+            raise HttpMethodNotAllowed
+     
+        if request_method == 'GET':
+            return target.read(request, *args, **kwargs)
+        elif request_method == 'POST':
+            return target.create(request, *args, **kwargs)
+        elif request_method == 'PUT':
+            load_put_and_files(request)
+            return target.update(request, *args, **kwargs)
+        elif request_method == 'DELETE':
+            return target.delete(request, *args, **kwargs)
+        else:
+            raise Http404
+
+
+class ProjectShots(InformerCollection):
     def read(self, request):
         project_name = Project.getNameFromRequest(request)
         project = Project.getProject(project_name)
@@ -32,7 +65,7 @@ class ProjectShots(Collection):
         filtered_set = filtered_set.filter(project=project)
         return self.responder.list(request, filtered_set)
 
-class ProjectShotCollection(Collection):
+class ProjectShotCollection(InformerCollection):
     def read(self, request):
         project_name = Project.getNameFromRequest(request)
         project = get_object_or_404(Project, name=project_name)

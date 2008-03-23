@@ -97,12 +97,12 @@ function create_entry_item(table, item, tag, parent) {
             elem.appendChild(document.createTextNode(value));
             checkbox = document.createElement('A');
             checkbox.className = value.toLowerCase();
-            // checkbox.href = "#";
-            // checkbox.onclick = function() {
-            //     this.className = (this.className == "pending")? "complete" : "pending";
-            //     return false;
-            // }
-            if(checkbox.className == "pending") {
+            checkbox.href = "#";
+            checkbox.onclick = function() {
+                toggle_note_status(item);
+                return false;
+            };
+            if (checkbox.className == "pending") {
                 checkbox.innerHTML = "Pending";
                 checkbox.title = "Pending";
             } else {
@@ -122,7 +122,14 @@ function create_entry_item(table, item, tag, parent) {
 
     // Adds the close button if we're on the notes page
     var button = document.createElement('li');
-    if(document.body.id == "notes" || document.body.id == "elements") {
+    if (document.body.id == "notes") {
+        button.appendChild(document.createTextNode('Close'));
+        button.onclick = function() {
+            delete_note(item);
+            return false;
+        };
+        button.className = "close";
+    } else if (document.body.id == "elements") {
         button.appendChild(document.createTextNode('Close'));
         button.className = "close";
     } else if(document.body.id == "renders") {

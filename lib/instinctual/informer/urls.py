@@ -7,7 +7,8 @@ from instinctual.informer import relativeApiUrl as rel
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Render, Log
-from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, Collection, InformerAuthentication
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, InformerAuthentication
+from instinctual.informer.rest import InformerCollection as Collection
 
 # --------------------
 # RESTful patterns:
@@ -36,7 +37,7 @@ xml_project_shots = ProjectShots(
 
 xml_note = Collection(
     queryset = Note.objects.all(),
-    permitted_methods = ['GET', 'PUT'],
+    permitted_methods = ['GET', 'PUT', 'DELETE'],
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
@@ -129,7 +130,7 @@ json_project_shots = ProjectShots(
 
 json_note = Collection(
     queryset = Note.objects.all(),
-    permitted_methods = ['GET', 'PUT'],
+    permitted_methods = ['GET', 'PUT', 'DELETE'],
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Note.Rest.expose_fields,
