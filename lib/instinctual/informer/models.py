@@ -291,7 +291,7 @@ class Render(InformerMixIn, models.Model):
     rate = models.CharField(maxlength=32)
 
     class Admin:
-        list_display = ('id', 'shot', 'event', 'spark', 'movie_hi', 'movie_lo',
+        list_display = ('id', 'shot', 'event', 'movie_hi', 'movie_lo',
                         'start', 'end', 'rate', 'created_on', 'is_pending')
     class Rest:
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
@@ -331,10 +331,8 @@ class Frame(InformerMixIn, models.Model):
         unique_together = (('render', 'number'),)
 
     class Admin:
-        list_display = ('id', 'host', 'image', 'render', 'in_render',
-                        'created_on', 'created_by', 'raw_created_on',
-                        'number', 'width', 'height', 'depth',
-                        'resized_width', 'resized_height', 'resized_depth')
+        list_display = ('id', 'in_render', 'render', 'number', 'image', 'host',
+                        'created_on', 'created_by', 'raw_created_on')
 
     def getOrCreateParentRender(self, start, end, rate, spark):
         print "getOrCreateParentRender called for frame:"
