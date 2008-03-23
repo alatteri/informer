@@ -1,1 +1,1 @@
-INFORMER_VERSION = "Revision: svn head";
+INFORMER_VERSION = "svn head";

@@ -1,9 +1,17 @@
 ########################################################################
 #                             Makefile                                 #
 ########################################################################
-
 DIR_DEST = build
 EXCLUDE = --exclude=.svn --exclude=\*.pyc --exclude=.DS_Store
+
+UNAME = $(shell uname)
+ifeq 'Darwin' '$(UNAME)'
+	OSX = true
+	PLATFORM = 'osx'
+else
+	LINUX = true
+	PLATFORM = 'linux'
+endif
 
 DIR_CLIENT = $(DIR_DEST)/instinctual/informer
 DIR_SERVER = $(DIR_DEST)/server
@@ -20,10 +28,19 @@ DIR_SPARK = spark
 DIR_UPLOADS = uploads
 DIR_TEMPLATES = templates
 DIR_THIRD_PARTY = third_party
-DIR_THIRD_PARTY_LIB = third_party/python
+DIR_THIRD_PARTY_SRC = third_party/src
+DIR_THIRD_PARTY_PYTHON = third_party/python
 
+THIRD_PARTY_JASPER=jasper-1.900.1
+THIRD_PARTY_TIFF=tiff-3.8.2
+THIRD_PARTY_IMAGE_MAGICK=ImageMagick-6.3.9
+THIRD_PARTY_X264=x264
+THIRD_PARTY_FFMPEG=ffmpeg
+
+MAKE = make
 SHELL = /bin/sh
 RSYNC = rsync -q -avz $(EXCLUDE)
+UNTAR = tar --keep-newer-files -zxvf
 
 LIB_PYS = $(shell find $(DIR_LIB) -type f -name \*.py)
 LIB_PYCS = $(LIB_PYS:.py=.pyc)
@@ -32,7 +49,11 @@ LIB_PYCS_SERVER_ONLY = %rest.pyc %responder.pyc %moviemaker.pyc %urls.pyc %views
                        %rest_filelist.pyc %signals.pyc %manage.pyc
 
 CLIENT_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DIR_CLIENT)/, $(LIB_PYCS)))
+
 SERVER_LIB_PYCS = $(addprefix $(DIR_SERVER)/, $(LIB_PYCS))
+SERVER_THIRD_PARTY = $(abspath $(DIR_SERVER)/$(DIR_THIRD_PARTY))
+SERVER_THIRD_PARTY_LIB = $(SERVER_THIRD_PARTY)/lib
+SERVER_THIRD_PARTY_INCLUDE = $(SERVER_THIRD_PARTY)/include
 
 all : client server
 
@@ -52,7 +73,7 @@ client : $(CLIENT_LIB_PYCS)
 	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DIR_CLIENT)/$(DIR_THIRD_PARTY)" \
 		--exclude=django --exclude=django_restapi --exclude=psycopg2\*
 
-server : $(SERVER_LIB_PYCS)
+server : $(SERVER_LIB_PYCS) server_third_party
 	@echo "Making server $(DIR_SERVER)..."
 	install -d "$(DIR_SERVER)/$(DIR_BIN)"
 	install -d "$(DIR_SERVER)/$(DIR_LOGS)"
@@ -66,14 +87,15 @@ server : $(SERVER_LIB_PYCS)
 	$(RSYNC) "$(DIR_CONF)"      "$(DIR_SERVER)"
 	$(RSYNC) "$(DIR_MEDIA)"     "$(DIR_SERVER)" --exclude=2008
 	$(RSYNC) "$(DIR_TEMPLATES)" "$(DIR_SERVER)"
-	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
+	$(RSYNC) "$(DIR_THIRD_PARTY_PYTHON)" "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
 
-	echo "INFORMER_VERSION = \"`svn info | grep Revision`\";" > $(DIR_SERVER)/$(DIR_MEDIA)/js/version.js
+	svn info | grep Revision | cut -d ' ' -f 2 > $(DIR_SERVER)/VERSION
+	echo "INFORMER_VERSION = \"`cat $(DIR_SERVER)/VERSION`\";" > $(DIR_SERVER)/$(DIR_MEDIA)/js/version.js
 
 $(LIB_PYCS) : $(LIB_PYS)
 	python -c "import sys; \
 		   sys.path.append('$(DIR_LIB)'); \
-		   sys.path.append('$(DIR_THIRD_PARTY_LIB)'); \
+		   sys.path.append('$(DIR_THIRD_PARTY_PYTHON)'); \
 		   import sitecustomize; \
 		   import $(subst /,., $(subst $(DIR_LIB)/,,$(basename $@)))"
 	
@@ -85,8 +107,75 @@ $(SERVER_LIB_PYCS) : $(LIB_PYCS)
 	install -d "$(dir $@)"
 	install -m 644 "$(subst $(DIR_SERVER)/,,$@)" "$@"
 
+server_third_party : server_image_magick server_ffmpeg
+
+server_jasper :
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) jasper.tar.gz && \
+	cd $(THIRD_PARTY_JASPER) && \
+        ./configure --prefix=$(SERVER_THIRD_PARTY) -with-pic --enable-static && \
+	make && \
+	make install)
+
+server_tiff :
+ifdef OSX
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) $(THIRD_PARTY_TIFF).tar.gz && \
+	cd $(THIRD_PARTY_TIFF) && \
+	./configure --prefix=$(SERVER_THIRD_PARTY) && \
+	make && \
+	make install)
+endif
+
+server_image_magick : server_jasper server_tiff
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) ImageMagick.tar.gz && \
+	cd $(THIRD_PARTY_IMAGE_MAGICK) && \
+	./configure  --prefix=$(SERVER_THIRD_PARTY) LDFLAGS=-L$(SERVER_THIRD_PARTY_LIB) \
+	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static && \
+	make && \
+	make install)
+
+server_x264 :
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) $(THIRD_PARTY_X264).tar.gz && \
+	cd $(THIRD_PARTY_X264) && \
+	./configure --prefix=$(SERVER_THIRD_PARTY) --enable-pthread && \
+	make && \
+	make install)
+
+server_ffmpeg : server_x264
+ifdef OSX
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) $(THIRD_PARTY_FFMPEG).tar.gz && \
+	cd $(THIRD_PARTY_FFMPEG) && \
+	./configure --prefix=$(SERVER_THIRD_PARTY) --enable-gpl --enable-pp \
+	--enable-swscaler --enable-pthreads --enable-libx264 \
+	--extra-cflags=-I$(SERVER_THIRD_PARTY_INCLUDE) \
+	--extra-ldflags=-L$(SERVER_THIRD_PARTY_LIB) \
+	--disable-vhook --disable-mmx && \
+	make && \
+	make install)
+else
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) $(THIRD_PARTY_FFMPEG).tar.gz && \
+	cd $(THIRD_PARTY_FFMPEG) && \
+	./configure --prefix=$(SERVER_THIRD_PARTY) --enable-gpl --enable-pp \
+	--enable-swscaler --enable-pthreads --enable-libx264 \
+	--extra-cflags=-I$(SERVER_THIRD_PARTY_INCLUDE) \
+	--extra-ldflags=-L$(SERVER_THIRD_PARTY_LIB) && \
+	make && \
+	make install)
+endif
+
 .PHONY : clean
 clean :
 	@echo "Making clean..."
-	rm -Rf $(DIR_DEST)
+	rm -Rf $(DIR_CLIENT) $(DIR_SERVER)
 	rm -f $(LIB_PYCS)
+	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_JASPER) && \
+	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_JASPER) && make clean; true)
+	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_TIFF) && \
+	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_TIFF) && make clean; true)
+	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_IMAGE_MAGICK) && \
+	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_IMAGE_MAGICK) && make clean; true)
