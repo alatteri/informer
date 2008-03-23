@@ -1,0 +1,32 @@
+http://groups.google.com/group/comp.lang.python/browse_thread/thread/c057e6208a1da33b/2d6b8c2f8d0a3845?hl=en&lnk=st&q=python+tkinter+borderless#2d6b8c2f8d0a3845
+
+Hi,
+
+Does anybody know how to create a python-GUI without a windowhandle.
+When I say windowhandle, I mean the windowmanager's upper bar of the
+main window that makes it possible to grab the window, iconify it, close
+it, resize it etc. I probably should tell you that I'm experimenting
+with python on a UNIX-workstation running a CDE window manager.
+
+I'm playing with a system supervision type application. It consists of a
+large number processes, each with a small GUI-window that present data
+graphically to the user. The reason I don't want windowhandles is: A/ in
+this case it saves alot of space on the screen, B/ I have no use at all
+for handles on my subwindows, the windows are opened and closed by the
+main application and they must be fixed in size and position at all
+times.
+
+Thanks,
+Marcus 
+
+If you're using Tkinter, then set the overrideredirect flag...
+
+e.g.
+
+    shell = Tkinter.Toplevel(root)
+      .......
+    shell.overrideredirect(1)
+      .......
+
+  John
+
