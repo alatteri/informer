@@ -9,11 +9,35 @@ from datetime import datetime
 if datetime.now() >  datetime(2008, 5, 1):
     raise ValueError("Trial expiration has expired.")
 
+def getLogger(name):
+    return _logger
+
+def getConf():
+    global conf
+    return conf
+
+def isDebug():
+    c = getConf()
+    if 'true' == str.lower(c.get('informer', 'debug')):
+        return True
+    else:
+        return False
+
 rootDir = os.sep.join(__file__.split(os.sep)[:-3])
 confDir = os.path.join(rootDir, 'conf')
 logIni = os.path.join(confDir, 'logging.ini')
 
 CONF_DEFAULTS = {
+    "db_engine":                  "sqlite3",
+    "db_name":                    os.path.join(rootDir, 'data', 'informer.db'),
+    "db_user":                    "informer",
+    "db_pass":                    "informer",
+    "db_host":                    "localhost",
+    "db_port":                    "",
+    "debug":                      "true",
+    "dir_logs":                   os.path.join(rootDir, 'logs'),
+    "dir_uploads":                os.path.join(rootDir, 'uploads'),
+    "dir_filelist_base":          "/tmp",
     "url_api":                    "informer/1.0",
     "url_projects":               "projects/",
     "url_shots":                  "shots/",
@@ -28,9 +52,6 @@ CONF_DEFAULTS = {
     "url_project_shot_element":   "projects/%s/shots/%s/elements/%s/",
     "url_project_shot_elements":  "projects/%s/shots/%s/elements/",
     "url_users":                  "users/",
-    "dir_logs":                   os.path.join(rootDir, 'logs'),
-    "dir_uploads":                os.path.join(rootDir, 'uploads'),
-    "dir_filelist_base":          "/tmp",
 }
 
 confIni = os.path.join(confDir, 'instinctual.ini')
@@ -56,13 +77,21 @@ conf.set('informer', 'port', port)
 # --------------------
 # init the logger
 #
-logging.config.fileConfig(logIni)
 logging.codecs = codecs.getwriter('utf-8')
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
-def getLogger(name):
-    return logging.getLogger(name)
+_logger = logging.getLogger('root')
+_logfile = os.path.join(rootDir, 'logs', 'informer.log')
+_handler = logging.FileHandler(_logfile)
 
-def getConf():
-    global conf
-    return conf
+if isDebug():
+    _logger.setLevel(logging.DEBUG)
+    _handler.setLevel(logging.DEBUG)
+else:
+    _logger.setLevel(logging.INFO)
+    _handler.setLevel(logging.INFO)
+
+_formater = logging.Formatter("%(asctime)s [%(levelname)s %(name)s %(module)s:%(lineno)d] %(message)s")
+_handler.setFormatter(_formater)
+_logger.addHandler(_handler)
+

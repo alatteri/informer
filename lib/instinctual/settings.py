@@ -1,8 +1,10 @@
 import os
+import instinctual
 from instinctual.informer import getServerRoot
 
+conf = instinctual.getConf()
+
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
-sqlitePath = os.sep.join([root, 'data', 'informer.db'])
 templatePath = os.sep.join([root, 'templates', 'admin'])
 templatePath2 = os.sep.join([root, 'templates', 'html'])
 media_path = os.sep.join([root, 'media'])
@@ -11,22 +13,28 @@ media_path = os.sep.join([root, 'media'])
 os.umask(0002)
 
 # Django settings for instinctual project.
-DEBUG = True
-#DEBUG = False
+DEBUG = instinctual.isDebug()
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('josh', 'josh@domain.com'),
+    ('informer', 'support@informerapp.com'),
 )
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'postgresql_psycopg2' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
-DATABASE_NAME = 'informer'     # Or path to database file if using sqlite3.
-DATABASE_USER = 'informer'  # Not used with sqlite3.
-DATABASE_PASSWORD = 'informer'        # Not used with sqlite3.
-DATABASE_HOST = 'localhost'    # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+db_engine = conf.get('informer', 'db_engine')
+db_name = conf.get('informer', 'db_name')
+db_user = conf.get('informer', 'db_user')
+db_pass = conf.get('informer', 'db_pass')
+db_host = conf.get('informer', 'db_host')
+db_port = conf.get('informer', 'db_port')
+
+DATABASE_ENGINE   = db_engine   # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_NAME     = db_name     # Or path to database file if using sqlite3.
+DATABASE_USER     = db_user     # Not used with sqlite3.
+DATABASE_PASSWORD = db_pass     # Not used with sqlite3.
+DATABASE_HOST     = db_host     # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT     = db_port     # Set to empty string for default. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
