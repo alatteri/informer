@@ -153,15 +153,19 @@ def makerender(render_id):
 
     # --------------------------------------------------
     # copy the movies...
+    etime = render.event.created_on
+    setup = os.path.basename(render.event.setup)
+    basename = "%s_%s" % (setup, etime.strftime("%H%M"))
+
     if not render.is_pending:
         UNLINK(render.get_movie_hi_filename())
     f = open(fast_hi, 'rb')
-    render.save_movie_hi_file('%s_hi.mov' % render.id, f.read(), True)
+    render.save_movie_hi_file('%s.mov' % basename, f.read(), True)
 
     if not render.is_pending:
         UNLINK(render.get_movie_lo_filename())
     f = open(fast_lo, 'rb')
-    render.save_movie_lo_file('%s_lo.mov' % render.id, f.read(), True)
+    render.save_movie_lo_file('%s_lo.mov' % basename, f.read(), True)
 
     render.is_pending = False
     render.save()
