@@ -740,15 +740,14 @@ div.left form #form-element-checkIn-file {
 	display: block;
 	}
 #content div.left div.box.medium form ul.selectOpen li.selected {
-	background: #333;
-	color: #fff;
+	background: none;
 	display: block;
 	}	
 #content div.left div.box.medium form ul.selectReplacement.selectOpen li.hover {
 	width: 125px;
 	border-right: 1px solid #6c6d6f;
 	border-left: 1px solid #6c6d6f;	
-	background: #888;
+	background: #333;
 	color: #fff;
 	cursor: pointer;
 	}
