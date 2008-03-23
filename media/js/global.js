@@ -123,7 +123,7 @@ function selectReplacement(obj) {
 			selectedOpt = 0;
 		}
 	}
-	
+
 	for (var i=0; i<opts.length; i++) {
 		var li = document.createElement('li');
 		var txt = document.createTextNode(opts[i].text);
@@ -142,12 +142,15 @@ function selectReplacement(obj) {
 				}
 			}
 		}
-			li.onmouseover = function() {
-				this.className += ' hover';
-			}
-			li.onmouseout = function() {
-				this.className.replace(new RegExp(" hover\\b"), '');
-			}
+		
+		li.onmouseover = function() {
+			if(this.className != "selected")
+				this.className = "hover";
+		}
+		li.onmouseout = function() {
+			if(this.className != "selected")
+				this.className = "";
+		}
 		ul.appendChild(li);
 	}
 	obj.parentNode.insertBefore(ul,obj);
