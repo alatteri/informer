@@ -132,7 +132,7 @@ server_image_magick : server_jasper server_tiff
 	$(UNTAR) ImageMagick.tar.gz && \
 	cd $(THIRD_PARTY_IMAGE_MAGICK) && \
 	./configure  --prefix=$(SERVER_THIRD_PARTY) LDFLAGS=-L$(SERVER_THIRD_PARTY_LIB) \
-	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static && \
+	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static --without-perl && \
 	make && \
 	make install)
 
