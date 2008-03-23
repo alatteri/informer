@@ -42,6 +42,11 @@ elif settings.DATABASE_ENGINE.startswith('postgresql'):
 if syncdb:
     yn = raw_input("Would you like to initialize the database? [y/n]: ")
     if yn == 'y':
+        if 'sqlite3' == settings.DATABASE_ENGINE:
+            parent = os.path.dirname(settings.DATABASE_NAME)
+            if not os.path.exists(parent):
+                os.makedirs(parent, mode=0755)
+
         for command in commands:
             os.system(command)
         execute_manager(settings, [None, 'syncdb'])
