@@ -853,7 +853,7 @@ InformerTableRowUpdateUIWithNotes(int data_index, int row_num)
         strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
         InformerTableRowSetStatusText(row, "by %s on %s", source.modified_by, str);
     } else {
-        InformerTableRowSetStatusText(row, "TODO");
+        InformerTableRowSetStatusText(row, "Pending...");
     }
 
     InformerTableRowSetMessageText(row, "%s", source.text);
