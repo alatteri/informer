@@ -115,7 +115,8 @@ server_jasper :
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) jasper.tar.gz && \
 	cd $(THIRD_PARTY_JASPER) && \
-        ./configure --prefix=$(SERVER_THIRD_PARTY) -with-pic --enable-static && \
+        ./configure --prefix=$(SERVER_THIRD_PARTY) \
+	--disable-shared --with-pic --enable-static && \
 	$(MAKE) && \
 	$(MAKE) install)
 
@@ -124,7 +125,7 @@ ifdef OSX
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) $(THIRD_PARTY_TIFF).tar.gz && \
 	cd $(THIRD_PARTY_TIFF) && \
-	./configure --prefix=$(SERVER_THIRD_PARTY) && \
+	./configure --prefix=$(SERVER_THIRD_PARTY) --disable-shared && \
 	$(MAKE) && \
 	$(MAKE) install)
 endif
@@ -134,8 +135,9 @@ server_image_magick : server_jasper server_tiff
 	$(UNTAR) ImageMagick.tar.gz && \
 	cd $(THIRD_PARTY_IMAGE_MAGICK) && \
 	./configure  --prefix=$(SERVER_THIRD_PARTY) LDFLAGS=-L$(SERVER_THIRD_PARTY_LIB) \
-	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static --without-perl \
-	--disable-shared && \
+	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static \
+	--without-freetype --without-perl --without-png --without-x \
+	--with-xml --disable-shared && \
 	$(MAKE) && \
 	$(MAKE) install)
 
@@ -173,6 +175,19 @@ endif
 	(cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG)/tools && \
 	$(MAKE) $(THIRD_PARTY_QT_FASTSTART) && \
 	cp $(THIRD_PARTY_QT_FASTSTART) $(SERVER_THIRD_PARTY_BIN))
+
+dist :
+	@echo "Creating client distribution..."
+	(test -d $(DIR_CLIENT) && \
+	cd $(DIR_DEST) && \
+	tar cvfzp instinctual.tar.gz instinctual; \
+	true)
+
+	@echo "Creating server distribution..."
+	(test -d $(DIR_SERVER) && \
+	cd $(DIR_DEST) && \
+	tar cvfzp server.tar.gz server; \
+	true)
 
 .PHONY : clean
 clean :
