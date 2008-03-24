@@ -36,6 +36,7 @@ THIRD_PARTY_TIFF=tiff-3.8.2
 THIRD_PARTY_IMAGE_MAGICK=ImageMagick-6.3.9
 THIRD_PARTY_X264=x264
 THIRD_PARTY_FFMPEG=ffmpeg
+THIRD_PARTY_QT_FASTSTART=qt-faststart
 
 MAKE = make
 SHELL = /bin/sh
@@ -52,6 +53,7 @@ CLIENT_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DIR_CLIENT
 
 SERVER_LIB_PYCS = $(addprefix $(DIR_SERVER)/, $(LIB_PYCS))
 SERVER_THIRD_PARTY = $(abspath $(DIR_SERVER)/$(DIR_THIRD_PARTY))
+SERVER_THIRD_PARTY_BIN = $(SERVER_THIRD_PARTY)/bin
 SERVER_THIRD_PARTY_LIB = $(SERVER_THIRD_PARTY)/lib
 SERVER_THIRD_PARTY_INCLUDE = $(SERVER_THIRD_PARTY)/include
 
@@ -114,8 +116,8 @@ server_jasper :
 	$(UNTAR) jasper.tar.gz && \
 	cd $(THIRD_PARTY_JASPER) && \
         ./configure --prefix=$(SERVER_THIRD_PARTY) -with-pic --enable-static && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 
 server_tiff :
 ifdef OSX
@@ -123,8 +125,8 @@ ifdef OSX
 	$(UNTAR) $(THIRD_PARTY_TIFF).tar.gz && \
 	cd $(THIRD_PARTY_TIFF) && \
 	./configure --prefix=$(SERVER_THIRD_PARTY) && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 endif
 
 server_image_magick : server_jasper server_tiff
@@ -133,16 +135,16 @@ server_image_magick : server_jasper server_tiff
 	cd $(THIRD_PARTY_IMAGE_MAGICK) && \
 	./configure  --prefix=$(SERVER_THIRD_PARTY) LDFLAGS=-L$(SERVER_THIRD_PARTY_LIB) \
 	CFLAGS=-I$(SERVER_THIRD_PARTY_INCLUDE) --with-pic --enable-static --without-perl && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 
 server_x264 :
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) $(THIRD_PARTY_X264).tar.gz && \
 	cd $(THIRD_PARTY_X264) && \
 	./configure --prefix=$(SERVER_THIRD_PARTY) --enable-pthread && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 
 server_ffmpeg : server_x264
 ifdef OSX
@@ -154,8 +156,8 @@ ifdef OSX
 	--extra-cflags=-I$(SERVER_THIRD_PARTY_INCLUDE) \
 	--extra-ldflags=-L$(SERVER_THIRD_PARTY_LIB) \
 	--disable-vhook --disable-mmx && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 else
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) $(THIRD_PARTY_FFMPEG).tar.gz && \
@@ -164,18 +166,31 @@ else
 	--enable-swscaler --enable-pthreads --enable-libx264 \
 	--extra-cflags=-I$(SERVER_THIRD_PARTY_INCLUDE) \
 	--extra-ldflags=-L$(SERVER_THIRD_PARTY_LIB) && \
-	make && \
-	make install)
+	$(MAKE) && \
+	$(MAKE) install)
 endif
+	(cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG)/tools && \
+	$(MAKE) $(THIRD_PARTY_QT_FASTSTART) && \
+	cp $(THIRD_PARTY_QT_FASTSTART) $(SERVER_THIRD_PARTY_BIN))
 
 .PHONY : clean
 clean :
 	@echo "Making clean..."
 	rm -Rf $(DIR_CLIENT) $(DIR_SERVER)
 	rm -f $(LIB_PYCS)
-	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_JASPER) && \
-	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_JASPER) && make clean; true)
-	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_TIFF) && \
-	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_TIFF) && make clean; true)
-	(test -d $(DIR_THIRD_PARTY)/$(THIRD_PARTY_IMAGE_MAGICK) && \
-	cd $(DIR_THIRD_PARTY)/$(THIRD_PARTY_IMAGE_MAGICK) && make clean; true)
+
+	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_JASPER) && \
+	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_JASPER) && $(MAKE) clean; true)
+
+	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_TIFF) && \
+	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_TIFF) && $(MAKE) clean; true)
+
+	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_IMAGE_MAGICK) && \
+	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_IMAGE_MAGICK) && $(MAKE) clean; true)
+
+	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_X264) && \
+	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_X264) && $(MAKE) clean; true)
+
+	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG) && \
+	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG) && $(MAKE) clean && \
+	rm -f tools/$(THIRD_PARTY_QT_FASTSTART); true)
