@@ -507,6 +507,10 @@ class App(Subject):
             # [notice] 3086871040 volumeMgr.C:1717 03/13/08:03:33:10.530 Creating partition: width=360 height=244 name=CUSTOM_RES_360x244_24
             # [notice] 3086871040 volumeMgr.C:1856 03/13/08:03:33:10.544 Created partition "CUSTOM_RES_360x244_24" (0xa000016067975e5) of type video
             pass
+        elif event.message.startswith('AUTOSAVE'):
+            # [notice] 2588263744 clipMgt.C:476 03/23/08:22:45:46.455 AUTOSAVE ( begin )
+            # [notice] 2588263744 clipMgt.C:568 03/23/08:22:45:46.509 AUTOSAVE ( completed in 0.1 sec )
+            pass
         elif self.lastProcess is not None:
             print "|" * 80
             print "Setting lastProcess to None!"
