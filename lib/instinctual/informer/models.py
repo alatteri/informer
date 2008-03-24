@@ -209,10 +209,10 @@ class Note(InformerMixIn, models.Model):
             if 'is_checked' not in old:
                 raise IgnoreSignalException()
 
-            if new['is_checked']:
+            if 'true' == new['is_checked']:
                 comment = 'as complete'
             else:
-                comment = 'as not complete'
+                comment = 'as pending'
 
             return ('Marked comment', instance.text, comment)
         updated = classmethod(updated)
