@@ -71,9 +71,12 @@ client : $(CLIENT_LIB_PYCS)
 	install -m 755 "$(DIR_BIN)/uploader"  "$(DIR_CLIENT)/$(DIR_BIN)"
 	install -m 755 $(wildcard $(DIR_SPARK)/informer.spark*) "$(DIR_CLIENT)/.."
 
-	$(RSYNC) "$(DIR_CONF)" "$(DIR_CLIENT)"
+	install -d "$(DIR_CLIENT)/$(DIR_CONF)"
+	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DIR_CLIENT)/$(DIR_CONF)/instinctual.ini"
+
 	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DIR_CLIENT)/$(DIR_THIRD_PARTY)" \
 		--exclude=django --exclude=django_restapi --exclude=psycopg2\*
+	svn info | grep Revision | cut -d ' ' -f 2 > $(DIR_CLIENT)/VERSION
 
 server : $(SERVER_LIB_PYCS) server_third_party
 	@echo "Making server $(DIR_SERVER)..."
@@ -86,7 +89,9 @@ server : $(SERVER_LIB_PYCS) server_third_party
 	install -m 755 "$(DIR_BIN)/moviemaker" "$(DIR_SERVER)/$(DIR_BIN)"
 	install -m 755 "$(DIR_BIN)/runserver"  "$(DIR_SERVER)/$(DIR_BIN)"
 
-	$(RSYNC) "$(DIR_CONF)"      "$(DIR_SERVER)"
+	install -d "$(DIR_SERVER)/$(DIR_CONF)"
+	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DIR_SERVER)/$(DIR_CONF)/instinctual.ini"
+
 	$(RSYNC) "$(DIR_MEDIA)"     "$(DIR_SERVER)" --exclude=2008
 	$(RSYNC) "$(DIR_TEMPLATES)" "$(DIR_SERVER)"
 	$(RSYNC) "$(DIR_THIRD_PARTY_PYTHON)" "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
@@ -180,16 +185,15 @@ dist :
 	@echo "Creating client distribution..."
 	(test -d $(DIR_CLIENT) && \
 	cd $(DIR_DEST) && \
-	tar cvfzp instinctual.tar.gz instinctual; \
+	tar cvfzp ../dist/instinctual.r`cat instinctual/informer/VERSION`.tar.gz instinctual; \
 	true)
 
 	@echo "Creating server distribution..."
 	(test -d $(DIR_SERVER) && \
 	cd $(DIR_DEST) && \
-	tar cvfzp server.tar.gz server; \
+	tar cvfzp ../dist/server.r`cat server/VERSION`.tar.gz server; \
 	true)
 
-.PHONY : clean
 clean :
 	@echo "Making clean..."
 	rm -Rf $(DIR_CLIENT) $(DIR_SERVER)
@@ -210,3 +214,5 @@ clean :
 	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG) && \
 	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG) && $(MAKE) clean && \
 	rm -f tools/$(THIRD_PARTY_QT_FASTSTART); true)
+
+.PHONY : clean dist
