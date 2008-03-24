@@ -185,7 +185,7 @@ dist :
 	@echo "Creating client distribution..."
 	(test -d $(DIR_CLIENT) && \
 	cd $(DIR_DEST) && \
-	tar cvfzp ../dist/instinctual.r`cat instinctual/informer/VERSION`.tar.gz instinctual; \
+	tar cvfzp ../dist/spark.r`cat instinctual/informer/VERSION`.tar.gz instinctual; \
 	true)
 
 	@echo "Creating server distribution..."
