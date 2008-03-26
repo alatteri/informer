@@ -63,8 +63,7 @@ function generate_row_shot(item) {
         var label = document.createElement('STRONG');
         label.appendChild(document.createTextNode(labels[i]));
         var text = document.createElement('SPAN');
-        var value = columns[i].get_formatted_value(item);
-        text.appendChild(document.createTextNode(' ' + value));
+        text.appendChild(document.createTextNode(' ' + getattr(item, columns[i])));
         var p = document.createElement('P');
         p.className = p_classes[i];
         p.appendChild(label);
@@ -84,7 +83,7 @@ function generate_row_shot(item) {
     desc.appendChild(h4);
 
     var p = document.createElement('P');
-    p.appendChild(document.createTextNode(c_desc.get_formatted_value(item)));
+    p.appendChild(document.createTextNode(getattr(item, c_desc)));
     desc.appendChild(p);
 
     div.appendChild(desc);

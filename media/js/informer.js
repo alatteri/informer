@@ -33,11 +33,6 @@ Informer.BaseColumn = Class.create({
         this.formatter = function (x) { return x };
         LOG("BaseColumn initialize called: " + this.name);
     },
-    get_formatted_value: function(item) {
-        var val = getattr(item, this.field);
-        var parsed = this.parser(val);
-        return this.formatter(parsed);
-    },
 });
 
 Informer.DateColumn = Class.create(Informer.BaseColumn, {
@@ -479,13 +474,14 @@ function sort_by_assigned(u) {
 }
   
 function getattr(object, field) {
-    var formatter, f;
+    var parser, formatter, f;
     if (field.pop) {
         f = field[0];
         formatter = field[1];
     } else if (field.field) {
         f = field.field;
         formatter = field.formatter;
+        parser = field.parser;
     } else {
         f = field;
     }
@@ -495,10 +491,9 @@ function getattr(object, field) {
         tmp = tmp[fields[i]];
     }
 
-    if (formatter) {
-        var before = tmp;
-        tmp = formatter(tmp);
-    }
+    if (parser) tmp = parser(tmp);
+    if (formatter) tmp = formatter(tmp);
+
     return tmp;
 }
   

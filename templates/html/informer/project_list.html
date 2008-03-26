@@ -63,7 +63,7 @@ function generate_row_project(item) {
         strong.appendChild(document.createTextNode(titles[i] + ':'));
         li.appendChild(strong);
         var span = document.createElement('SPAN');
-        span.appendChild(document.createTextNode(' ' + columns[i].get_formatted_value(item)));
+        span.appendChild(document.createTextNode(' ' + getattr(item, columns[i])));
         li.appendChild(span);
         ul.appendChild(li);
     }
