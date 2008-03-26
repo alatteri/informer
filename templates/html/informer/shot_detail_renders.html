@@ -55,31 +55,20 @@ function load_render_callback(item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
-  renders = new Informer.Data(
-    'renders', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.created_on',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-       {name: 'machine',
-        field: 'fields.host',
-        sorter: sort_by_string},
-      {name: 'artist',
-       field:'fields.created_by',
-       formatter: format_author,
-       sorter: sort_by_string},
-    ],
-    { //row_2
-     field: 'fields.setup',
-    },
-    [ // filter_list
-      new Informer.Filter('filter_machine', 'fields.host'),
-      new Informer.Filter('filter_artist',  'fields.created_by', format_author)
-    ]);
+    c_date      = new Informer.DateColumn('date', 'fields.created_on');
+    c_machine   = new Informer.TextColumn('machine', 'fields.host');
+    c_artist    = new Informer.UserColumn('artist', 'fields.created_by');
+    c_setup     = new Informer.ParagraphColumn('setup', 'fields.setup');
 
+    c_date.is_default = true;
+
+    f_machine = new Informer.Filter(c_machine);
+    f_artist  = new Informer.Filter(c_artist);
+
+    var row_1   = [c_date, c_machine, c_artist];
+    var filters = [f_machine, f_artist];
+
+    renders = new Informer.Data('renders', row_1, c_setup, filters);
     renders.generate_row = generate_row_double;
     renders.load_data({{ data }});
     renders.resort_table('date');

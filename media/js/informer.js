@@ -33,6 +33,11 @@ Informer.BaseColumn = Class.create({
         this.formatter = function (x) { return x };
         LOG("BaseColumn initialize called: " + this.name);
     },
+    get_formatted_value: function(item) {
+        var val = getattr(item, this.field);
+        var parsed = this.parser(val);
+        return this.formatter(parsed);
+    },
 });
 
 Informer.DateColumn = Class.create(Informer.BaseColumn, {
@@ -50,17 +55,56 @@ Informer.UserColumn = Class.create(Informer.BaseColumn, {
         $super(name, field);
         LOG("UserColumn initialize called");
         this.sorter = sort_by_string;
+        this.formatter = format_author;
     },
 });
 
-Informer.AssignedUserColumn = Class.create(Informer.UserColumn, {
+Informer.AssignedUserColumn = Class.create(Informer.BaseColumn, {
     initialize: function($super, name, field) {
         $super(name, field);
         LOG("AssignedUserColumn initialize called");
+        this.sorter = sort_by_assigned;
         this.formatter = format_assigned;
     },
 });
 
+Informer.NoteStatusColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("NoteStatusColumn initialize called");
+        this.sorter = sort_by_string;
+        this.formatter = format_pending;
+        this.parser = parse_boolean;
+    },
+});
+
+Informer.ParagraphColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("ParagraphColumn initialize called");
+        this.sorter = sort_by_string;
+        this.formatter = format_nl2br;
+    },
+});
+
+Informer.TextColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("TextColumn initialize called");
+        this.sorter = sort_by_string;
+        this.formatter = format_string;
+    },
+});
+
+Informer.ActivityColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("ActivityColumn initialize called");
+        this.sorter = sort_by_string;
+        this.formatter = format_string;
+        this.create_func = create_log;
+    },
+});
 
 /* 
  * Informer Filter: represents one filtered category
@@ -68,15 +112,13 @@ Informer.AssignedUserColumn = Class.create(Informer.UserColumn, {
 Informer.Filter = Class.create();
 Informer.Filter.prototype = {
     // initialize: create a new Filter object
-    //      name:   string of the id of the UL element to use
-    //      field:  the field description to filter
-    //      format: optional formatting function
-    initialize: function(name, field, format) {
-        this.name = name;
-        this.field = field;
+    //      col: Informer column object
+    initialize: function(col) {
+        this.name = 'filter_' + col.name;
+        this.field = col.field;
 
         // the format function is optional
-        this.format = format ? format : function(x) { return x };
+        this.format = col.formatter;
 
         this.value = null;
         this.matches = $H();
@@ -503,9 +545,13 @@ function parse_boolean(b) {
   
 /* accepts a Date object, returns pretty stringified Date */
 function format_date(d) {	
-    month = (d.getMonth()+1) < 10?'0'+(d.getMonth()+1):(d.getMonth()+1);
-    day = d.getDate() < 10?'0'+d.getDate():d.getDate();
-    return month+'/'+day+'/'+d.getFullYear();
+    if (d != null) {
+        month = (d.getMonth()+1) < 10?'0'+(d.getMonth()+1):(d.getMonth()+1);
+        day = d.getDate() < 10?'0'+d.getDate():d.getDate();
+        return month+'/'+day+'/'+d.getFullYear();
+    } else {
+        return 'None';
+    }
 }
 
 /* accepts a boolean, returns string describing bool for Note status */
@@ -525,7 +571,7 @@ function format_author(u) {
 
 /* accepts string, returns None if null */
 function format_string(s) {
-    return u != null ? u : 'None';
+    return s == null || s == '' ? 'None' : s;
 }
 
 function format_nl2br(txt) {

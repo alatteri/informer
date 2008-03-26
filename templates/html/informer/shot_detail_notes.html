@@ -49,7 +49,7 @@
           </div>
           <div class="box small">
             <h3>Assigned To</h3>
-            <ul id='filter_assigned_to'></ul>
+            <ul id='filter_assignedTo'></ul>
             <div class="bottom"></div>            
           </div>
         </div>
@@ -82,40 +82,22 @@ function create_status_item(info, item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
-  notes = new Informer.Data(
-    'notes', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.created_on',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-      {name: 'author',
-       field:'fields.created_by',
-       sorter: sort_by_string,
-       formatter: format_author},
-       {name: 'assignedTo',
-        field:'fields.assigned_to',
-        sorter: sort_by_assigned,
-        formatter: format_assigned},
-       {name: 'status',
-        field: 'fields.is_checked',
-        sorter: sort_by_string,
-        parser: parse_boolean,
-        formatter: format_pending,
-	}
-    ],
-    { //row_2
-     field: 'fields.text',
-     formatter: format_nl2br
-    },
-    [ // filter_list
-      new Informer.Filter('filter_status',      'fields.is_checked',  format_pending),
-      new Informer.Filter('filter_author',      'fields.created_by',  format_author),
-      new Informer.Filter('filter_assigned_to', 'fields.assigned_to', format_assigned),
-    ]);
+    c_date      = new Informer.DateColumn('date', 'fields.created_on');
+    c_author    = new Informer.UserColumn('author', 'fields.created_by');
+    c_assigned  = new Informer.AssignedUserColumn('assignedTo', 'fields.assigned_to');
+    c_status    = new Informer.NoteStatusColumn('status', 'fields.is_checked');
+    c_text      = new Informer.ParagraphColumn('text', 'fields.text');
 
+    c_date.is_default = true;
+
+    f_status    = new Informer.Filter(c_status);
+    f_author    = new Informer.Filter(c_author);
+    f_assigned  = new Informer.Filter(c_assigned);
+
+    var row_1   = [c_date, c_author, c_assigned, c_status];
+    var filters = [f_status, f_author, f_assigned];
+
+    notes = new Informer.Data('notes', row_1, c_text, filters);
     notes.generate_row = generate_row_double;
     notes.load_data({{ data }});
     notes.resort_table('date');

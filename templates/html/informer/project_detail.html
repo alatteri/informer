@@ -57,12 +57,14 @@ function generate_row_shot(item) {
     var p_classes = ['status', 'length', 'last_update', 'last_update'];
     var labels    = ['Status:', 'Frames:', 'Last Updated:', 'Last Modified By:'];
     var fields    = ['fields.status', 'fields.frames', 'fields.last_modified', 'fields.last_modified_by'];
+    var columns   = [c_status, c_length, c_mod_on, c_mod_by];
 
-    for (var i=0; i<fields.length; i++) {
+    for (var i=0; i<columns.length; i++) {
         var label = document.createElement('STRONG');
         label.appendChild(document.createTextNode(labels[i]));
         var text = document.createElement('SPAN');
-        text.appendChild(document.createTextNode(' ' + getattr(item, fields[i])));
+        var value = columns[i].get_formatted_value(item);
+        text.appendChild(document.createTextNode(' ' + value));
         var p = document.createElement('P');
         p.className = p_classes[i];
         p.appendChild(label);
@@ -82,7 +84,7 @@ function generate_row_shot(item) {
     desc.appendChild(h4);
 
     var p = document.createElement('P');
-    p.appendChild(document.createTextNode(getattr(item, 'fields.description')));
+    p.appendChild(document.createTextNode(c_desc.get_formatted_value(item)));
     desc.appendChild(p);
 
     div.appendChild(desc);
@@ -96,27 +98,22 @@ function generate_row_shot(item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
-    shots = new Informer.Data(
-        'shots', // name
-        [ // row 1
-          {name: 'name',
-           field: 'fields.name',
-           sorter: sort_by_string,
-           is_default: true},
-          {name: 'status',
-           field: 'fields.status',
-           sorter: sort_by_string},
-          {name: 'last_modified_by',
-           field:'fields.last_modified_by',
-           sorter: sort_by_string,
-           formatter: format_author},
-        ],
-        null,
-        [ // filter_list
-          new Informer.Filter('filter_status',      'fields.status'),
-          new Informer.Filter('filter_last_modified_by',  'fields.last_modified_by',  format_author),
-        ]); 
+    c_name      = new Informer.TextColumn('name', 'fields.name');
+    c_status    = new Informer.TextColumn('status', 'fields.status');
+    c_mod_by    = new Informer.UserColumn('last_modified_by', 'fields.last_modified_by');
+    c_mod_on    = new Informer.DateColumn('last_modified', 'fields.last_modified');
+    c_length    = new Informer.TextColumn('length', 'fields.frames');
+    c_desc      = new Informer.TextColumn('description', 'fields.description');
 
+    c_name.is_default = true;
+
+    f_status = new Informer.Filter(c_status);
+    f_mod_by = new Informer.Filter(c_mod_by);
+    
+    var row_1   = [c_name, c_status, c_mod_by];
+    var filters = [f_status, f_mod_by];
+
+    shots = new Informer.Data('shots', row_1, null, filters);
     shots.generate_row = generate_row_shot;
     shots.load_data({{ data }});
 }

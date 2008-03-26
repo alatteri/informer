@@ -57,27 +57,15 @@ function create_log(info) {
 }
 
 function setup() {
-  overview = new Informer.Data(
-    'overview', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.when',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-      {name: 'author',
-       field:'fields.who',
-       sorter: sort_by_string},
-      {name: 'activity',
-       field: 'fields.msg_prefix',
-       create_func: create_log,
-       sorter: sort_by_string}
-    ],
-    null, // row_2
-    null // no filters
-    );
+    c_date      = new Informer.DateColumn('date', 'fields.when');
+    c_author    = new Informer.UserColumn('author', 'fields.who');
+    c_activity  = new Informer.ActivityColumn('activity', 'fields.msg_prefix');
 
+    c_date.is_default = true;
+
+    var row_1 = [c_date, c_author, c_activity];
+
+    overview = new Informer.Data('overview', row_1);
     overview.generate_row = generate_row_single;
     overview.load_data({{ data }});
     overview.resort_table('date');

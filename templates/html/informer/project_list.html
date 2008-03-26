@@ -51,19 +51,19 @@ function generate_row_project(item) {
     img.className = 'thumbnail';
     div.appendChild(img);
 
-    var fields = ['fields.client', 'fields.due_date', 'fields.shot_count', 'fields.status'];
-    var titles = ['Client', 'Due Date', 'Shots', 'Status'];
+    var columns = [c_client, c_due_date, c_shots, c_status];
+    var titles  = ['Client', 'Due Date', 'Shots', 'Status'];
 
     var ul = document.createElement('UL');
     ul.className = 'meta';
 
-    for (var i=0; i<fields.length; i++) {
+    for (var i=0; i<columns.length; i++) {
         var li = document.createElement('LI');
         var strong = document.createElement('STRONG');
         strong.appendChild(document.createTextNode(titles[i] + ':'));
         li.appendChild(strong);
         var span = document.createElement('SPAN');
-        span.appendChild(document.createTextNode(' ' + getattr(item, fields[i])));
+        span.appendChild(document.createTextNode(' ' + columns[i].get_formatted_value(item)));
         li.appendChild(span);
         ul.appendChild(li);
     }
@@ -80,29 +80,21 @@ function generate_row_project(item) {
 
 /* called when page first loaded, initialize data */
 function setup() {
-  
-  projects = new Informer.Data(
-    'projects', // name
-    [ // row 1
-      {name: 'name',
-       field: 'fields.name',
-       sorter: sort_by_string,
-       is_default: true},
-      {name: 'due_date',
-       field: 'fields.due_date',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date},
-      {name: 'status',
-       field: 'fields.status',
-       sorter: sort_by_string},
-    ],
-    null,
-    [ // filter_list
-      new Informer.Filter('filter_client',      'fields.client'),
-      new Informer.Filter('filter_status',      'fields.status'),
-    ]); 
+    c_name      = new Informer.TextColumn('name', 'fields.name');
+    c_due_date  = new Informer.DateColumn('due_date', 'fields.due_date');
+    c_status    = new Informer.TextColumn('status', 'fields.status');
+    c_client    = new Informer.TextColumn('client', 'fields.client');
+    c_shots     = new Informer.TextColumn('shot_count', 'fields.shot_count');
 
+    c_name.is_default = true;
+  
+    f_client = new Informer.Filter(c_client);
+    f_status = new Informer.Filter(c_status);
+
+    var row_1   = [c_name, c_due_date, c_status];
+    var filters = [f_client, f_status];
+
+    projects = new Informer.Data('projects', row_1, null, filters);
     projects.generate_row = generate_row_project;
     projects.load_data({{ data }});
 }

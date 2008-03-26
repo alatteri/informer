@@ -42,7 +42,7 @@
           </div>
           <div class="box small">
             <h3>Created by</h3>
-            <ul id='filter_created_by'></ul>
+            <ul id='filter_checkedInBy'></ul>
             <div class="bottom"></div>            
           </div>
         </div>
@@ -56,31 +56,20 @@
 
 /* called when page first loaded, initialize data */
 function setup() {
-  elements = new Informer.Data(
-    'elements', // name
-    [ // row_1
-      {name: 'date',
-       field: 'fields.created_on',
-       sorter: sort_by_date,
-       formatter: format_date,
-       parser: parse_date,
-       is_default: true},
-      {name: 'checkedInBy',
-       field: 'fields.created_by',
-       formatter: format_author,
-       sorter: sort_by_string},
-      {name: 'category',
-       field:'fields.kind',
-       sorter: sort_by_string},
-    ],
-    { //row_2
-     field: 'fields.text',
-    },
-    [ // filter_list
-      new Informer.Filter('filter_category',   'fields.kind'),
-      new Informer.Filter('filter_created_by', 'fields.created_by', format_author)
-    ]);
+    c_date      = new Informer.DateColumn('date', 'fields.created_on');
+    c_author    = new Informer.UserColumn('checkedInBy', 'fields.created_by');
+    c_category  = new Informer.TextColumn('category', 'fields.kind');
+    c_text      = new Informer.TextColumn('text', 'fields.text');
 
+    c_date.is_default = true;
+
+    f_category  = new Informer.Filter(c_category);
+    f_author    = new Informer.Filter(c_author); 
+
+    var row_1   = [c_date, c_author, c_category];
+    var filters = [f_category, f_author];
+
+    elements = new Informer.Data('elements', row_1, c_text, filters);
     elements.generate_row = generate_row_double;
     elements.load_data({{ data }});
     elements.resort_table('date');
