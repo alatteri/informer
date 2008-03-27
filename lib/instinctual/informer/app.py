@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import commands
 from pprint import pprint
 
 import instinctual
@@ -26,8 +27,11 @@ def datetimeToSeconds(dt):
 # ------------------------------------------------------------------------------
 class App(Subject):
     count = 0
-    def __init__(self):
+    def __init__(self, program):
         Subject.__init__(self)
+
+        self.program = program
+        print "The App program is:", program
 
         # --------------------
         # APP STATE
@@ -45,7 +49,7 @@ class App(Subject):
         # --------------------
         # THREADS
         #
-        self.logfile = LogfileThread('logfile')
+        self.logfile = LogfileThread('logfile', self._getAppLog())
         self.scheduler = SchedulerThread('scheduler', interval=0.1)
 
         # app state events
@@ -62,6 +66,20 @@ class App(Subject):
 
         # batch processing events
         self.logfile.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
+
+    def _getAppLog(self):
+        # This was mirrored from $FLAME_HOME/bin/startApplication
+        cmd = """cat $%s_HOME/%s_VERSION | cut -d '"' -f2 | sed 's/\.//g'"""
+        cmd = cmd % (self.program.upper(), self.program.upper())
+        version = commands.getoutput(cmd)
+        root = "/usr/discreet/log/" + self.program
+        hostname = commands.getoutput("hostname -s")
+
+        appLog = "%s%s_%s_app.log" % (root, version, hostname)
+        return appLog
+
+    def isBurn(self):
+        return self.program == 'burn'
 
     def resetAppState(self):
         self.user = None
@@ -466,7 +484,10 @@ class App(Subject):
         print "                     TIMED EVENT (happened at: %s)" % (event.date)
         print "=" * 80
 
-        if self.lastProcess is None:
+        if self.isBurn():
+            print "the program is burn: always upload"
+            self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
+        elif self.lastProcess is None:
             print "last process was none -- calling spark delete"
             self.spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
         else:

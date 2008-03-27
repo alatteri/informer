@@ -11,7 +11,7 @@
 #define TRUE 1
 #endif
 
-void PythonInitialize(void);
+void PythonInitialize(const char *program);
 void PythonExit(void);
 void PythonBeginCall(void);
 void PythonEndCall(void);

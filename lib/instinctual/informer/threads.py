@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import Queue
-import commands
 import threading
 
 import instinctual
@@ -120,30 +119,11 @@ class SchedulerThread(InformerThread):
                 print "Thread %s was dead\n" % (thread.name)
 
 class LogfileThread(InformerThread):
-    # TODO this is weak. it should be changed to something better TODO
-    app = 'FLAME'
-    if 'FLINT_HOME' in os.environ:
-        app = 'FLINT'
-
-    # This was mirrored from $FLAME_HOME/bin/startApplication
-    GET_VERSION = """cat $%s_HOME/%s_VERSION | cut -d '"' -f2 | sed 's/\.//g'""" % (app, app)
-
-    def __init__(self, name):
+    def __init__(self, name, logfile):
         InformerThread.__init__(self, name)
 
-        # figure out the logfile path
-        if 'DL_FLAVOR' in os.environ:
-            root = "/usr/discreet/log/" + os.environ['DL_FLAVOR']
-            version = commands.getoutput(self.GET_VERSION)
-            hostname = commands.getoutput("hostname -s")
-            self.logfile = "%s%s_%s_app.log" % (root, version, hostname)
-        else:
-            err = "Unable to determine logfile path: env DL_FLAVOR not set"
-            raise EnvironmentError(err)
-
-        print "-----------> LOGFILE:", self.logfile
-
-        self.logger = DiscreetLogSubject(self.logfile)
+        print "----> LOGFILE:", logfile
+        self.logger = DiscreetLogSubject(logfile)
 
     def threadProcess(self):
         self.logger.operate()

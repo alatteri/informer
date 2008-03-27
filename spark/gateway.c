@@ -26,37 +26,37 @@ GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data)
 {
     PyObject *pAttr;
 
-    printf("going to set id\n");
+    InformerDEBUG("going to set id\n");
     pAttr = PyObject_GetAttrString(pObj, "id");
     GatewayPyStringToInt(pAttr, &(data->id));
     Py_XDECREF(pAttr);
 
-    printf("going to set text\n");
+    InformerDEBUG("going to set text\n");
     pAttr = PyObject_GetAttrString(pObj, "text");
     GatewayPyStringToString(pAttr, data->text, 4096);
     Py_XDECREF(pAttr);
 
-    printf("going to set is_checked\n");
+    InformerDEBUG("going to set is_checked\n");
     pAttr = PyObject_GetAttrString(pObj, "is_checked");
     GatewayPyStringToInt(pAttr, &(data->is_checked));
     Py_XDECREF(pAttr);
 
-    printf("going to set created_by\n");
+    InformerDEBUG("going to set created_by\n");
     pAttr = PyObject_GetAttrString(pObj, "created_by");
     GatewayPyStringToString(pAttr, data->created_by, 32);
     Py_XDECREF(pAttr);
 
-    printf("going to set created_on\n");
+    InformerDEBUG("going to set created_on\n");
     pAttr = PyObject_GetAttrString(pObj, "created_on");
     GatewayPyStringToLong(pAttr, &(data->created_on));
     Py_XDECREF(pAttr);
 
-    printf("going to set modified_by\n");
+    InformerDEBUG("going to set modified_by\n");
     pAttr = PyObject_GetAttrString(pObj, "modified_by");
     GatewayPyStringToString(pAttr, data->modified_by, 32);
     Py_XDECREF(pAttr);
 
-    printf("going to set modified_on\n");
+    InformerDEBUG("going to set modified_on\n");
     pAttr = PyObject_GetAttrString(pObj, "modified_on");
     GatewayPyStringToLong(pAttr, &(data->modified_on));
     Py_XDECREF(pAttr);
@@ -67,32 +67,32 @@ GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data)
 {
     PyObject *pAttr;
 
-    printf("going to set id\n");
+    InformerDEBUG("going to set id\n");
     pAttr = PyObject_GetAttrString(pObj, "id");
     GatewayPyStringToInt(pAttr, &(data->id));
     Py_XDECREF(pAttr);
 
-    printf("going to set kind\n");
+    InformerDEBUG("going to set kind\n");
     pAttr = PyObject_GetAttrString(pObj, "kind");
     GatewayPyStringToString(pAttr, data->kind, 4096);
     Py_XDECREF(pAttr);
 
-    printf("going to set text\n");
+    InformerDEBUG("going to set text\n");
     pAttr = PyObject_GetAttrString(pObj, "text");
     GatewayPyStringToString(pAttr, data->text, 4096);
     Py_XDECREF(pAttr);
 
-    printf("going to set is_checked\n");
+    InformerDEBUG("going to set is_checked\n");
     pAttr = PyObject_GetAttrString(pObj, "is_checked");
     GatewayPyStringToInt(pAttr, &(data->is_checked));
     Py_XDECREF(pAttr);
 
-    printf("going to set created_by\n");
+    InformerDEBUG("going to set created_by\n");
     pAttr = PyObject_GetAttrString(pObj, "created_by");
     GatewayPyStringToString(pAttr, data->created_by, 32);
     Py_XDECREF(pAttr);
 
-    printf("going to set created_on\n");
+    InformerDEBUG("going to set created_on\n");
     pAttr = PyObject_GetAttrString(pObj, "created_on");
     GatewayPyStringToLong(pAttr, &(data->created_on));
     Py_XDECREF(pAttr);
@@ -107,7 +107,7 @@ GatewaySetFrameRate(double frameRate)
     return;
     #endif
 
-    printf("-------------> CALLING GATEWAY SET FRAME RATE ---------\n");
+    InformerDEBUG("-------------> CALLING GATEWAY SET FRAME RATE ---------\n");
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -133,7 +133,7 @@ GatewayCreateNote(int is_checked, char *text)
     return 0;
     #endif
 
-    printf("-------------> CALLING GATEWAY CREATE NOTE ---------\n");
+    InformerDEBUG("-------------> CALLING GATEWAY CREATE NOTE ---------\n");
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -164,7 +164,7 @@ GatewayUpdateNote(InformerNoteData *data, int id, int is_checked)
     return 0;
     #endif
 
-    printf("-------------> CALLING GATEWAY UPDATE NOTE ---------\n");
+    InformerDEBUG("-------------> CALLING GATEWAY UPDATE NOTE ---------\n");
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -250,7 +250,7 @@ GatewayGetNotes(InformerNoteData *data)
             // pItem is a borrowed ref.
             pItem = PyList_GetItem(pNotes, i);
             GatewayPyObjectToNoteData(pItem, &data[i]);
-            printf("... read note [%d] ok!\n", i);
+            InformerDEBUG("... read note [%d] ok!\n", i);
         }
     } else {
         PyErr_Print();
@@ -311,11 +311,11 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
     char *str = NULL;
     PyObject *app, *pResult = NULL;
 
-    printf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
-    printf("------ process frame called from %s -------\n", spark_name);
-    printf("* current frame: %d\n", spark_info.FrameNo + 1);
-    printf("* max frame: %d\n", spark_info.TotalFrameNo);
-    printf(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    InformerDEBUG(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    InformerDEBUG("------ process frame called from %s -------\n", spark_name);
+    InformerDEBUG("* current frame: %d\n", spark_info.FrameNo + 1);
+    InformerDEBUG("* max frame: %d\n", spark_info.TotalFrameNo);
+    InformerDEBUG(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
     #if defined __XPY__
     return NULL;
     #endif
@@ -333,14 +333,14 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
     }
 
     if (depth) {
-        printf("OK. the spark was not null -- now calling processFrame\n");
-        printf("* spark_name: %s\n", spark_name);
-        printf("* spark_info.FrameWidth: %d\n", spark_info.FrameWidth);
-        printf("* spark_info.FrameHeight: %d\n", spark_info.FrameHeight);
-        printf("* depth: %d\n", depth);
-        printf("* 1: 1\n");
-        printf("* spark_info.FrameNo + 1: %d\n", spark_info.FrameNo + 1);
-        printf("* spark_info.TotalFrameNo: %d\n", spark_info.TotalFrameNo);
+        InformerDEBUG("OK. the spark was not null -- now calling processFrame\n");
+        InformerDEBUG("* spark_name: %s\n", spark_name);
+        InformerDEBUG("* spark_info.FrameWidth: %d\n", spark_info.FrameWidth);
+        InformerDEBUG("* spark_info.FrameHeight: %d\n", spark_info.FrameHeight);
+        InformerDEBUG("* depth: %d\n", depth);
+        InformerDEBUG("* 1: 1\n");
+        InformerDEBUG("* spark_info.FrameNo + 1: %d\n", spark_info.FrameNo + 1);
+        InformerDEBUG("* spark_info.TotalFrameNo: %d\n", spark_info.TotalFrameNo);
 
         pResult = PyObject_CallMethod(app, "frameProcessStart", "siiiiii",
                                       spark_name,
@@ -355,12 +355,12 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
             InformerERROR("Unable to call frameProcessStart for %s\n", spark_name);
             str = NULL;
         } else if (pResult == Py_None) {
-            printf("NULL! frameProcessStart said to ignore the frame...\n");
+            InformerDEBUG("NULL! frameProcessStart said to ignore the frame...\n");
             str = NULL;
         } else {
-            printf("pResult was not None\n");
+            InformerDEBUG("pResult was not None\n");
             str = PyString_AsString(pResult);
-            printf("Done. returning %s\n", str);
+            InformerDEBUG("Done. returning %s\n", str);
         }
 
         Py_XDECREF(pResult);
@@ -368,7 +368,7 @@ GatewaySparkProcessFrameStart(const char *spark_name, SparkInfoStruct spark_info
 
     PythonEndCall();
 
-    printf("--- exiting process frame start for %s ---\n", spark_name);
+    InformerDEBUG("--- exiting process frame start for %s ---\n", spark_name);
     return str;
 }
 
@@ -381,7 +381,7 @@ GatewaySparkProcessFrameEnd(const char *spark_name)
     return;
     #endif
 
-    printf("--- entering process frame end for %s ---\n", spark_name);
+    InformerDEBUG("--- entering process frame end for %s ---\n", spark_name);
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -395,14 +395,14 @@ GatewaySparkProcessFrameEnd(const char *spark_name)
     Py_XDECREF(pResult);
     PythonEndCall();
 
-    printf("--- exiting process frame end for %s ---\n", spark_name);
+    InformerDEBUG("--- exiting process frame end for %s ---\n", spark_name);
 }
 
 void
 GatewaySparkProcessStart(const char *spark_name)
 {
     PyObject *app, *pResult;
-    printf("|||||||||||| GatewaySparkProcessStart called with (%s) ||||||||||||||\n", spark_name);
+    InformerDEBUG("|||||||||||| GatewaySparkProcessStart called with (%s) ||||||||||||||\n", spark_name);
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -411,18 +411,18 @@ GatewaySparkProcessStart(const char *spark_name)
         PyErr_Print();
         InformerERROR("Unable to call sparkProcessStart for %s\n", spark_name);
     }
-    printf("----- returned from sparkProcessStart in spark ----\n");
+    InformerDEBUG("----- returned from sparkProcessStart in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
 
-    printf("|||||||||||| GatewaySparkProcessStart returning ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkProcessStart returning ||||||||||||||\n");
 }
 
 void
 GatewaySparkProcessEnd(const char *spark_name)
 {
     PyObject *app, *pResult;
-    printf("|||||||||||| GatewaySparkProcessEnd called with (%s) ||||||||||||||\n", spark_name);
+    InformerDEBUG("|||||||||||| GatewaySparkProcessEnd called with (%s) ||||||||||||||\n", spark_name);
 
     PythonBeginCall();
     app = PythonGetApp();
@@ -432,11 +432,11 @@ GatewaySparkProcessEnd(const char *spark_name)
         InformerERROR("Unable to call sparkProcessEnd for %s\n", spark_name);
     }
 
-    printf("----- returned from sparkProcessEnd in spark ----\n");
+    InformerDEBUG("----- returned from sparkProcessEnd in spark ----\n");
     Py_XDECREF(pResult);
     PythonEndCall();
 
-    printf("|||||||||||| GatewaySparkProcessEnd returning ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkProcessEnd returning ||||||||||||||\n");
 }
 
 char *
@@ -445,7 +445,7 @@ GatewaySparkRegister(const char *spark_name)
     char *name;
     PyObject *app, *pResult;
 
-    printf("|||||||||||| GatewaySparkRegister called ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkRegister called ||||||||||||||\n");
     PythonBeginCall();
     app = PythonGetApp();
 
@@ -460,7 +460,7 @@ GatewaySparkRegister(const char *spark_name)
     Py_XDECREF(pResult);
     PythonEndCall();
 
-    printf("|||||||||||| GatewaySparkRegister done ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkRegister done ||||||||||||||\n");
     return name;
 }
 
@@ -470,7 +470,7 @@ GatewaySparkRename(const char *old_name, const char *new_name)
     char *name;
     PyObject *app, *pResult;
 
-    printf("|||||||||||| GatewaySparkRename called ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkRename called ||||||||||||||\n");
     PythonBeginCall();
     app = PythonGetApp();
 
@@ -482,7 +482,7 @@ GatewaySparkRename(const char *old_name, const char *new_name)
 
     Py_XDECREF(pResult);
     PythonEndCall();
-    printf("|||||||||||| GatewaySparkRename done ||||||||||||||\n");
+    InformerDEBUG("|||||||||||| GatewaySparkRename done ||||||||||||||\n");
 
     return 1;
 }

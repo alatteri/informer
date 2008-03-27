@@ -269,7 +269,7 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     printf("OK before python, the spark is %s\n", InformerGetSparkName());
 
-    PythonInitialize();
+    PythonInitialize(sparkProgramGetName());
 
     rate = sparkFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);

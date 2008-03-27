@@ -9,7 +9,7 @@ void* PyModule;
 PyThreadState *TSTATE = NULL;
 PyObject *APP = NULL;
 
-void PythonInitialize(void)
+void PythonInitialize(const char *program)
 {
     int argc = 1;
     char *argv[1];
@@ -27,21 +27,21 @@ void PythonInitialize(void)
     #endif
 
     if (!PyModule) {
-        printf("----------------- !!!!!!!!!!!! PyMODULE WAS FALSE --------------\n");
+        InformerDEBUG("----------------- !!!!!!!!!!!! PyMODULE WAS FALSE --------------\n");
         return;
     }
 
     argv[0] = "/usr/bin/python";
     argv[1] = NULL;
 
-    printf("********** NOW GOING TO INIT PYTHON *****************\n");
+    InformerDEBUG("********** NOW GOING TO INIT PYTHON *****************\n");
 
     // Initialize the Python interpreter.  Required.
-    printf("Py_Initialize...\n");
+    InformerDEBUG("Py_Initialize...\n");
     Py_Initialize();
 
     // Create (and acquire) the interpreter lock
-    printf("PyEval_InitThreads...\n");
+    InformerDEBUG("PyEval_InitThreads...\n");
     PyEval_InitThreads();
 
     // XXX the current PyThreadState* is returned
@@ -64,13 +64,13 @@ void PythonInitialize(void)
     // XXX Do I care about
     // PyThreadState * myThreadState = PyThreadState_New(mainInterpreterState);
 
-    printf("Hello, brave new world\n\n");
+    InformerDEBUG("Hello, brave new world\n\n");
 
-    printf("----------- what is sys ------------\n");
+    InformerDEBUG("----------- what is sys ------------\n");
     PyRun_SimpleString("print 'sys is:', sys\n");
-    printf("----------- going to import sys ------------\n");
+    InformerDEBUG("----------- going to import sys ------------\n");
     PyRun_SimpleString("import sys\n");
-    printf("----------- going to append ------------\n");
+    InformerDEBUG("----------- going to append ------------\n");
     PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
     PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
     PyRun_SimpleString("print 'after:', sys.path\n");
@@ -82,44 +82,31 @@ void PythonInitialize(void)
 
 
     // Load the App module
-    printf("Now importing instinctual.informer.app...\n");
+    InformerDEBUG("Now importing instinctual.informer.app...\n");
     pName = PyString_FromString("instinctual.informer.app");
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
     if (pModule == NULL) {
         PyErr_Print();
-        fprintf(stderr, "Failed to load pModule\n");
+        InformerERROR(stderr, "Failed to load pModule\n");
         // TODO: this can hang the flame on load
         // need to find out what to call/do here
         return;
     }
 
-    // Access the App's constructor
-    printf("pModule was not NULL\n");
-    pFunc = PyObject_GetAttrString(pModule, "App");
-
-    if (!pFunc || !PyCallable_Check(pFunc)) {
-        PyErr_Print();
-        fprintf(stderr, "Cannot find function App\n");
-
-        Py_XDECREF(pFunc);
-        Py_DECREF(pModule);
-        return;
-    }
-
     // Instantiate the App object
-    APP = PyObject_CallObject(pFunc, NULL);
+    InformerDEBUG("Going to instantiate App object with program: %s\n", program);
+    // APP = PyObject_CallObject(pFunc, "s", program);
+    APP = PyObject_CallMethod(pModule, "App", "s", program);
     if (APP == NULL) {
         PyErr_Print();
-        fprintf(stderr,"Could not create APP object\n");
+        InformerERROR(stderr,"Could not create APP object\n");
 
-        Py_XDECREF(pFunc);
         Py_DECREF(pModule);
         return;
     }
 
-    Py_XDECREF(pFunc);
     Py_DECREF(pModule);
 
     // Kick off the APP
@@ -156,7 +143,7 @@ void PythonExit(void)
     return;
     #endif
 
-    printf("********** NOW GOING TO EXIT PYTHON *****************\n");
+    InformerDEBUG("********** NOW GOING TO EXIT PYTHON *****************\n");
 
     PythonBeginCall();
 
@@ -177,7 +164,7 @@ void PythonExit(void)
     // Unknown user initiated signa
     // Killed
     //
-    // printf("Ending the interpreter...\n");
+    // InformerDEBUG("Ending the interpreter...\n");
     // Py_EndInterpreter(TSTATE);
 
 
@@ -201,14 +188,14 @@ void PythonExit(void)
     // #13 0x00000032f7fc5b43 in clone () from /lib64/tls/libc.so.6
     // #14 0x0000000000000000 in ?? ()
 
-    // printf("Now finalizing python...\n");
+    // InformerDEBUG("Now finalizing python...\n");
     // Py_Finalize();
-    // printf("python was finalized\n");
+    // InformerDEBUG("python was finalized\n");
 
     // dlclose(PyModule);
-    printf("dlclose was called\n");
+    InformerDEBUG("dlclose was called\n");
 
-    printf("\nGoodbye, cruel world\n");
+    InformerDEBUG("\nGoodbye, cruel world\n");
 }
 
 PyObject *
@@ -224,7 +211,7 @@ PythonAppGetSpark(PyObject *app, const char *spark_name)
     spark = PyObject_CallMethod(app, "sparkGetByName", "s", spark_name);
 
     if (NULL == spark || Py_None == spark) {
-        printf("CRAP. could not get spark named (%s)\n", spark_name);
+        InformerDEBUG("CRAP. could not get spark named (%s)\n", spark_name);
         spark = NULL;
     }
 
