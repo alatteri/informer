@@ -280,7 +280,7 @@ class Render(InformerMixIn, models.Model):
     end = models.IntegerField(default=0)
 
     # storing fps as text to avoid floating point precision issues
-    rate = models.CharField(maxlength=32, default=0)
+    rate = models.CharField(maxlength=32, default='')
 
     class Admin:
         list_display = ('id', 'shot', 'movie_hi', 'movie_lo', 'job',
@@ -325,42 +325,6 @@ class Frame(InformerMixIn, models.Model):
     class Admin:
         list_display = ('id', 'in_render', 'render', 'number', 'image', 'host',
                         'created_on', 'created_by', 'raw_created_on')
-
-    def getOrCreateParentRender(self, start, end, rate, spark):
-        print "getOrCreateParentRender called for frame:"
-        pprint(self.__dict__)
-
-        print "Going to look for BATCH PROCESS < %s" % (self.created_on)
-        e = Event.objects.filter(type='BATCH PROCESS',
-                                 created_by=self.created_by,
-                                 raw_created_on__lte=self.raw_created_on,
-                                 host=self.host).order_by('-raw_created_on')[0]
-
-        print "Hey! Found e... it is: %s" % (e)
-        pprint(e.__dict__)
-
-        r = Render.getRender(event=e,
-                             shot=e.shot,
-                             start=start,
-                             end=end,
-                             rate=rate,
-                             spark=spark,
-                             create=True)
-
-        if start < r.start:
-            print "+++ setting r.start to", r.start
-            r.start = start
-        if end > r.end:
-            print "+++ setting r.end to", r.end
-            r.end = end
-
-        r.save()
-
-        print "*" * 80
-        print "The render id is:", r.id
-        print "*" * 80
-
-        return r
 
 # ------------------------------------------------------------------------------
 class Log(InformerMixIn, models.Model):

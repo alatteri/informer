@@ -7,7 +7,7 @@ from instinctual.informer import relativeApiUrl as rel
 from instinctual.informer.rest_filelist import FileCollection
 from instinctual.informer.responder import CustomXMLResponder, CustomJSONResponder
 from instinctual.informer.models import Project, Shot, Note, Element, Event, Frame, Render, Log
-from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, InformerAuthentication
+from instinctual.informer.rest import ProjectShots, ProjectShotCollection, PkEntry, InformerAuthentication, FrameCollection
 from instinctual.informer.rest import InformerCollection as Collection
 
 # --------------------
@@ -82,7 +82,7 @@ xml_users = Collection(
     authentication = InformerAuthentication(),
 )
 
-xml_frames = ProjectShotCollection(
+xml_frames = FrameCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomXMLResponder(),
@@ -175,7 +175,7 @@ json_users = Collection(
     authentication = InformerAuthentication(),
 )
 
-json_frames = ProjectShotCollection(
+json_frames = FrameCollection(
     queryset = Frame.objects.all(),
     permitted_methods = ['GET', 'POST'],
     responder = CustomJSONResponder(),

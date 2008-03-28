@@ -24,10 +24,10 @@ def LogHandlerWrapper(func, method):
     return wrapper
 
 class InformerCollection(Collection):
-    def _init_model(self, request, data, new_model):
+    def _pre_init(self, request, new_model, data):
         pass
 
-    def _pre_save(self, new_model):
+    def _pre_save(self, request, new_model):
         pass
 
     def dispatch(self, request, target, *args, **kwargs):
@@ -81,7 +81,7 @@ class InformerCollection(Collection):
             new_model.calculateDelta(clientNow)
             del data['now']
 
-        self._init_model(request, data, new_model)
+        self._pre_init(request, new_model, data)
 
         # seed with POST data
         for (key, val) in data.items():
@@ -98,7 +98,7 @@ class InformerCollection(Collection):
                     new_model.__setattr__(key, request.user)
 
         print "now going to save"
-        self._pre_save(new_model)
+        self._pre_save(request, new_model)
 
         # If the data contains no errors, save the model,
         # return a "201 Created" response with the model's
@@ -114,26 +114,39 @@ class InformerCollection(Collection):
     create = LogHandlerWrapper(create, 'POST')
 
 class FrameCollection(InformerCollection):
-    def _init_model(self, request, data, new_model):
+    def _pre_init(self, request, new_model, data):
         # associate the frame with the shot and render
         r = get_object_or_404(Render, job=data['job'])
         new_model.render = r
         new_model.shot = r.shot
 
+        self.__rate = data['rate']
+        self.__start = data['start']
+        self.__end = data['end']
+
         # remove elements not in the actual frame model
-        self.__frame_info = {}
         for key in ('rate', 'start', 'end', 'spark', 'job'):
-            self.__frame_info[key] = data[key]
             del data[key]
 
-    def _pre_save(self, new_model):
-        # handle file uploads
-        r = new_model.getOrCreateParentRender(**self.__frame_info)
-        new_model.render = r
+    def _pre_save(self, request, new_model):
+        r = new_model.render
 
+        if not r.start or self.__start < r.start:
+            print "+++ setting r.start to", self.__start
+            r.start = self.__start
+        if self.__end > r.end:
+            print "+++ setting r.end to", self.__end
+            r.end = self.__end
+        if not r.rate:
+            print "+++ setting r.rate to", self.__rate
+            r.rate = self.__rate
+
+        r.save()
+
+        # handle file uploads
         if 'image' in request.FILES:
             content = request.FILES['image']['content']
-            filename = "%06d-%06d.tiff" % (int(r.id), int(new_model.number))
+            filename = "%06d-%06d.tiff" % (int(new_model.render.id), int(new_model.number))
             new_model.save_image_file(filename, content, True)
 
 class ProjectShots(InformerCollection):
@@ -158,7 +171,7 @@ class ProjectShotCollection(InformerCollection):
 
         return self.responder.list(request, filtered_set)
 
-    def _init_model(self, request, data, new_model):
+    def _pre_init(self, request, new_model, data):
         """
         Associates a resource with shot and project specified in URI
         """
