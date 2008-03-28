@@ -153,8 +153,8 @@ def makerender(render_id):
 
     # --------------------------------------------------
     # copy the movies...
-    etime = render.event.created_on
-    setup = os.path.basename(render.event.setup)
+    etime = render.created_on
+    setup = os.path.basename(render.setup)
     basename = "%s_%s" % (setup, etime.strftime("%H%M"))
 
     if not render.is_pending:
