@@ -128,11 +128,6 @@ def main():
                     #frame.isBusy = True
                     #frame.save()
 
-                    if frame.setup is None:
-                        LOG.debug("setup was not defined for: %s" % (framePath))
-                        frame.delete()
-                        continue
-
                     frame.resizedPath = os.path.join(frame.container, 'frame.tiff')
                     cmd = 'convert %s -resize "%sx%s>" -channel RGB -depth 8 -compress RLE %s'
                     cmd = cmd % (frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
@@ -150,7 +145,7 @@ def main():
                                 try:
                                     LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
                                     client = Client()
-                                    client.newFrame(frame)
+                                    client.createFrame(frame)
                                     LOG.debug("done!")
                                     frame.delete()
                                     pass

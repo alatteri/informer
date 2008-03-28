@@ -53,7 +53,7 @@ class Spark(object):
                     self.new.append(self.frames[i])
             self.frames = self.new
 
-    def uploadFramesOlderThan(self, seconds):
+    def uploadFramesOlderThan(self, seconds, job):
         print "UPLOAD: checking frames older than", seconds
         if self.frames:
             self.new = []
@@ -61,6 +61,7 @@ class Spark(object):
                 print "frame", i, "time", self.frames[i].createdOnInSeconds
                 if seconds > self.frames[i].createdOnInSeconds:
                     print "uploading!"
+                    self.frames[i].job = job
                     self.frames[i].status = FRAME_UPLOAD
                     self.frames[i].save()
                 else:

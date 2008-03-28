@@ -28,7 +28,7 @@ class Frame(Serializable):
         self.createdBy = None
         self.createdOn = None
 
-        self.setup = None
+        self.job = None
         self.spark = None
 
         self.resizedDepth  = None

@@ -24,7 +24,7 @@ class ClientConnectionError(Exception):
 
 # ------------------------------------------------------------------------------
 class Client(object):
-    def newEvent(self, event):
+    def createEvent(self, event):
         parsed = informer.parseSetup(event.setup)
         project = parsed['project']
         shot = parsed['shot']
@@ -49,14 +49,32 @@ class Client(object):
 
         result = self.POST(eventsUrl, data)
 
-    def newFrame(self, frame):
-        parsed = informer.parseSetup(frame.setup)
+    def createRender(self, render):
+        parsed = informer.parseSetup(render.setup)
         project = parsed['project']
         shot = parsed['shot']
-        framesUrl = informer.getProjectShotFramesUrl(project, shot, 'xml')
+        url = informer.getProjectShotRendersUrl(project, shot, 'xml')
+
+        data = {}
+        data['job'] = render.job
+        data['created_by'] = render.user
+        data['setup'] = render.setup
+        data['host'] = render.hostname
+
+        LOG.warn(''.join(['-'*20, 'Event', '-'*20]))
+        for (key, val) in data.items():
+            LOG.warn("%s: %s" % (key, val))
+        LOG.warn(''.join(['-'*20, '---------', '-'*20]))
+
+        result = self.POST(url, data)
+
+
+    def createFrame(self, frame):
+        framesUrl = informer.getFramesUrl('xml')
         print "Time to upload", frame.rgbPath, "to", framesUrl
 
         data = {}
+        data['job'] = frame.job
         data['width'] = frame.width
         data['height'] = frame.height
         data['depth'] = frame.depth
@@ -83,6 +101,16 @@ class Client(object):
         print "the file would be:", filename
         files = {'image': {'file': image, 'filename': filename}}
         result = self.POST(framesUrl, data, files=files)
+
+    def createNote(self, setup, data):
+        if 'id' in data:
+            del data['id']
+
+        parsed = informer.parseSetup(setup)
+        project = parsed['project']
+        shot = parsed['shot']
+        url = informer.getProjectShotNotesUrl(project, shot, 'xml')
+        self.POST(url, data)
 
     def getElements(self, setup):
         parsed = informer.parseSetup(setup)
@@ -144,16 +172,6 @@ class Client(object):
         deserializer = Deserializer(result)
         notes = self._getObjects(deserializer)
         return notes
-
-    def createNote(self, setup, data):
-        if 'id' in data:
-            del data['id']
-
-        parsed = informer.parseSetup(setup)
-        project = parsed['project']
-        shot = parsed['shot']
-        url = informer.getProjectShotNotesUrl(project, shot, 'xml')
-        self.POST(url, data)
 
     def _getObjects(self, deserializer):
         objects = []

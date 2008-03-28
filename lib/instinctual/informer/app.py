@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 import datetime
 import commands
 from pprint import pprint
@@ -93,6 +94,7 @@ class App(Subject):
         self.setup = None
         self.events = []
         self.outputs = {}
+        self.lastJob = None
         self.lastProcess = None
         self.ignoreFrames = False
 
@@ -222,7 +224,10 @@ class App(Subject):
                 LOG.debug("SENDING EVENT... LOOKS GOOD")
                 print ("SENDING EVENT... LOOKS GOOD")
                 client = Client()
-                client.newEvent(appEvent)
+                if appEvent.job:
+                    client.createRender(appEvent)
+                else:
+                    client.createEvent(appEvent)
                 os.environ[key] = str(eSeconds)
             else:
                 print ("SKIPPING EVENT! LAST EVENT WAS MORE RECENT...")
@@ -264,7 +269,6 @@ class App(Subject):
 
         f.isBusy = True
         f.spark  = sparkName
-        f.setup  = self.setup
 
         f.host = self.hostname
         f.createdBy = self.user
@@ -467,6 +471,9 @@ class App(Subject):
         print "=" * 80
 
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
+        appEvent.job = str(uuid.uuid1())
+
+        self.lastJob = appEvent.job
         self.lastProcess = appEvent
         self.events.append(appEvent)
         self.flushEventQueue()
@@ -484,15 +491,12 @@ class App(Subject):
         print "                     TIMED EVENT (happened at: %s)" % (event.date)
         print "=" * 80
 
-        if self.isBurn():
-            print "the program is burn: always upload"
-            self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
-        elif self.lastProcess is None:
+        if self.lastProcess or self.isBurn():
+            print "last process was set or the program is burn: uploading..."
+            self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date), self.lastJob)
+        else:
             print "last process was none -- calling spark delete"
             self.spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
-        else:
-            print "last process was set -- uploading"
-            self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date))
 
         # Now, check to see if we need to clear the lastProcess state...
         # This was determined by looking at various log files and trying
@@ -536,4 +540,5 @@ class App(Subject):
             print "|" * 80
             print "Setting lastProcess to None!"
             print "|" * 80
+            self.lastJob = None
             self.lastProcess = None
