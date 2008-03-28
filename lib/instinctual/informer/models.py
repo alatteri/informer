@@ -98,41 +98,29 @@ class Shot(models.Model):
         return informer.getProjectShotRendersUrl(project, self.name, format='json')
 
     # --------------------------------------------------------------------------
-    def _get_render_event(self):
-        if hasattr(self, '_render_event'):
-            return self._render_event
-
-        e = Event.objects.filter(type='BATCH PROCESS', shot=self).order_by('-created_on')
-        self._render_event = len(e) and e[0] or None
-        return self._render_event
-
     def _get_render_obj(self):
         if hasattr(self, '_render_obj'):
             return self._render_obj
 
-        e = self._get_render_event()
-        if e:
-            r = Render.objects.filter(event=e, shot=self)
-            self._render_obj = len(r) and r[0] or None
-        else:
-            self._render_obj = None
+        r = Render.objects.filter(shot=self).order_by('-created_on')
+        self._render_obj = len(r) and r[0] or None
         return self._render_obj
 
     def get_render_artist(self):
-        e = self._get_render_event()
-        return e and e.created_by or None
+        r = self._get_render_obj()
+        return r and r.created_by or None
 
     def get_render_time(self):
-        e = self._get_render_event()
-        return e and e.created_on or None
+        r = self._get_render_obj()
+        return r and r.created_on or None
 
     def get_render_machine(self):
-        e = self._get_render_event()
-        return e and e.host or None
+        r = self._get_render_obj()
+        return r and r.host or None
 
     def get_render_setup(self):
-        e = self._get_render_event()
-        return e and e.setup or None
+        r = self._get_render_obj()
+        return r and r.setup or None
 
     def get_render_movie_hi_url(self):
         r = self._get_render_obj()
@@ -275,28 +263,32 @@ class Event(InformerMixIn, models.Model):
 # ------------------------------------------------------------------------------
 class Render(InformerMixIn, models.Model):
     shot  = models.ForeignKey(Shot)
-    event = models.ForeignKey(Event)
-    created_on = models.DateTimeField('date created', auto_now_add=True)
+    host  = models.CharField(maxlength=255)
+    job   = models.CharField(maxlength=255, unique=True)
+    setup = models.CharField(maxlength=4096)
+
+    created_by  = models.ForeignKey(User)
+    created_on  = models.DateTimeField('date created', auto_now_add=True)
     modified_on = models.DateTimeField('date modified', auto_now=True)
-    is_pending = models.BooleanField('pending', default=True)
+    is_pending  = models.BooleanField('pending', default=True)
 
     spark = models.CharField(maxlength=255)
     movie_hi = models.FileField(upload_to='movies/%Y/%m/%d')
     movie_lo = models.FileField(upload_to='movies/%Y/%m/%d')
 
-    start = models.IntegerField()
-    end = models.IntegerField()
+    start = models.IntegerField(default=0)
+    end = models.IntegerField(default=0)
 
     # storing fps as text to avoid floating point precision issues
-    rate = models.CharField(maxlength=32)
+    rate = models.CharField(maxlength=32, default=0)
 
     class Admin:
-        list_display = ('id', 'shot', 'event', 'movie_hi', 'movie_lo',
+        list_display = ('id', 'shot', 'movie_hi', 'movie_lo', 'job',
                         'start', 'end', 'rate', 'created_on', 'is_pending')
     class Rest:
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
-                         'start', 'end', 'rate',
-                         'event__created_by', 'event__host', 'event__setup']
+                         'start', 'end', 'rate', 'job', 'created_by', 'host',
+                         'setup']
     class Logger:
         def created(cls, instance, *args, **kwargs):
             return ('Created a new render', '', '')

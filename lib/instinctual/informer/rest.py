@@ -24,6 +24,12 @@ def LogHandlerWrapper(func, method):
     return wrapper
 
 class InformerCollection(Collection):
+    def _init_model(self, request, data, new_model):
+        pass
+
+    def _pre_save(self, new_model):
+        pass
+
     def dispatch(self, request, target, *args, **kwargs):
         """ 
         Override the django_restapi's Collection object to allow support for
@@ -42,7 +48,7 @@ class InformerCollection(Collection):
 
         if request_method not in self.permitted_methods:
             raise HttpMethodNotAllowed
-     
+
         if request_method == 'GET':
             return target.read(request, *args, **kwargs)
         elif request_method == 'POST':
@@ -55,6 +61,80 @@ class InformerCollection(Collection):
         else:
             raise Http404
 
+    def create(self, request):
+        """
+        Creates a resource with attributes given by POST, then
+        redirects to the resource URI.
+
+        Unlike the base Collection create() it does not require every
+        since field to be specified.
+        """
+        data = self.receiver.get_post_data(request)
+        print "ok here's the data: %s" % (data)
+
+        new_model = self.queryset.model()
+        print "ok just made new_model %s" % (new_model.__class__.__name__)
+
+        # calculate the time difference between client and server
+        if 'now' in data:
+            clientNow = new_model.getDateTime(data['now'])
+            new_model.calculateDelta(clientNow)
+            del data['now']
+
+        self._init_model(request, data, new_model)
+
+        # seed with POST data
+        for (key, val) in data.items():
+            if new_model.__class__.__name__ == 'Note' and key == 'assigned_to' and val:
+                val = User.getUser(val) 
+            print "going to set [%s] with [%s]" % (key, val)
+            new_model.__setattr__(key, val)
+
+        # set created|modified by
+        for key in ('created_by', 'modified_by'):
+            if key in [f.name for f in new_model._meta.fields]:
+                if key not in data:
+                    print "NOT SET: going to set [%s] with [%s]" % (key, request.user)
+                    new_model.__setattr__(key, request.user)
+
+        print "now going to save"
+        self._pre_save(new_model)
+
+        # If the data contains no errors, save the model,
+        # return a "201 Created" response with the model's
+        # URI in the location header and a representation
+        # of the model in the response body.
+        new_model.save()
+
+        model_entry = self.entry_class(self, new_model)
+        response = model_entry.read(request)
+        response.status_code = 201
+        response.headers['Location'] = model_entry.get_url()
+        return response
+    create = LogHandlerWrapper(create, 'POST')
+
+class FrameCollection(InformerCollection):
+    def _init_model(self, request, data, new_model):
+        # associate the frame with the shot and render
+        r = get_object_or_404(Render, job=data['job'])
+        new_model.render = r
+        new_model.shot = r.shot
+
+        # remove elements not in the actual frame model
+        self.__frame_info = {}
+        for key in ('rate', 'start', 'end', 'spark', 'job'):
+            self.__frame_info[key] = data[key]
+            del data[key]
+
+    def _pre_save(self, new_model):
+        # handle file uploads
+        r = new_model.getOrCreateParentRender(**self.__frame_info)
+        new_model.render = r
+
+        if 'image' in request.FILES:
+            content = request.FILES['image']['content']
+            filename = "%06d-%06d.tiff" % (int(r.id), int(new_model.number))
+            new_model.save_image_file(filename, content, True)
 
 class ProjectShots(InformerCollection):
     def read(self, request):
@@ -78,26 +158,10 @@ class ProjectShotCollection(InformerCollection):
 
         return self.responder.list(request, filtered_set)
 
-    def create(self, request):
+    def _init_model(self, request, data, new_model):
         """
-        Creates a resource with attributes given by POST, then
-        redirects to the resource URI.
-
-        Unlike the base Collection create() it does not require every
-        since field to be specified.
+        Associates a resource with shot and project specified in URI
         """
-        data = self.receiver.get_post_data(request)
-        print "ok here's the data: %s" % (data)
-
-        new_model = self.queryset.model()
-        print "ok just made new_model %s" % (new_model.__class__.__name__)
-
-        # calculate the time difference between client and server
-        if 'now' in data:
-            clientNow = new_model.getDateTime(data['now'])
-            new_model.calculateDelta(clientNow)
-            del data['now']
-
         # TODO: specifiy form_class in urls.py to verify data
         project_name = Project.getNameFromRequest(request)
         project = Project.getProject(project_name, create=True)
@@ -107,51 +171,6 @@ class ProjectShotCollection(InformerCollection):
 
         # associate with the shot
         new_model.shot = shot
-
-        # remove elements not in the actual frame model
-        if 'Frame' == new_model.__class__.__name__:
-            info = {}
-            for key in ('rate', 'start', 'end', 'spark'):
-                info[key] = data[key]
-                del data[key]
-
-        # seed with POST data
-        for (key, val) in data.items():
-            if new_model.__class__.__name__=='Note' and key=='assigned_to' and val:
-                val = User.getUser(val) 
-            print "going to set [%s] with [%s]" % (key, val)
-            new_model.__setattr__(key, val)
-
-        # set created|modified by
-        for key in ('created_by', 'modified_by'):
-            if key in [f.name for f in new_model._meta.fields]:
-                if key not in data:
-                    print "NOT SET: going to set [%s] with [%s]" % (key, request.user)
-                    new_model.__setattr__(key, request.user)
-
-        # handle file uploads
-        if 'Frame' == new_model.__class__.__name__:
-            r = new_model.getOrCreateParentRender(**info)
-            new_model.render = r
-
-            if 'image' in request.FILES:
-                content = request.FILES['image']['content']
-                filename = "%06d-%06d.tiff" % (int(r.id), int(new_model.number))
-                new_model.save_image_file(filename, content, True)
-
-        print "now going to save"
-        # If the data contains no errors, save the model,
-        # return a "201 Created" response with the model's
-        # URI in the location header and a representation
-        # of the model in the response body.
-        new_model.save()
-
-        model_entry = self.entry_class(self, new_model)
-        response = model_entry.read(request)
-        response.status_code = 201
-        response.headers['Location'] = model_entry.get_url()
-        return response
-    create = LogHandlerWrapper(create, 'POST')
 
 class PkEntry(Entry):
     """

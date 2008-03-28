@@ -217,7 +217,7 @@ xml_url_element         = rel(informer.getProjectShotElementUrl(pat_project, pat
 xml_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, pat_shot, format='xml'))
 xml_url_users           = rel(informer.getUsersUrl(format='xml'))
 xml_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='xml'))
-xml_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='xml'))
+xml_url_frames          = rel(informer.getFramesUrl(format='xml'))
 xml_url_renders         = rel(informer.getProjectShotRendersUrl(pat_project, pat_shot, format='xml'))
 xml_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='xml'))
 
@@ -230,7 +230,7 @@ json_url_element         = rel(informer.getProjectShotElementUrl(pat_project, pa
 json_url_elements        = rel(informer.getProjectShotElementsUrl(pat_project, pat_shot, format='json'))
 json_url_users           = rel(informer.getUsersUrl(format='json'))
 json_url_events          = rel(informer.getProjectShotEventsUrl(pat_project, pat_shot, format='json'))
-json_url_frames          = rel(informer.getProjectShotFramesUrl(pat_project, pat_shot, format='json'))
+json_url_frames          = rel(informer.getFramesUrl(format='json'))
 json_url_renders         = rel(informer.getProjectShotRendersUrl(pat_project, pat_shot, format='json'))
 json_url_logs            = rel(informer.getProjectShotLogsUrl(pat_project, pat_shot, format='json'))
 

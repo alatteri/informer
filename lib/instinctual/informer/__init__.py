@@ -37,6 +37,10 @@ def getApiFragment():
     conf = instinctual.getConf()
     return conf.get('informer', 'url_api')
 
+def getFramesUrl(format):
+    template = _getUrlComponent('url_frames', format)
+    return template
+
 def getUsersUrl(format):
     template = _getUrlComponent('url_users', format)
     return template
@@ -75,10 +79,6 @@ def getProjectShotElementsUrl(project, shot, format):
 
 def getProjectShotEventsUrl(project, shot, format):
     template = _getUrlComponent('url_project_shot_events', format)
-    return template % (project, shot)
-
-def getProjectShotFramesUrl(project, shot, format):
-    template = _getUrlComponent('url_project_shot_frames', format)
     return template % (project, shot)
 
 def getProjectShotLogsUrl(project, shot, format):
