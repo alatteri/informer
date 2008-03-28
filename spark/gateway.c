@@ -146,7 +146,9 @@ GatewayCreateNote(int is_checked, char *text)
     } else {
         status = FALSE;
         PyErr_Print();
-        InformerERROR("Unable to create note.\n");
+        // This can not be an InformerERROR call or the spark
+        // keyboard entry will never return
+        fprintf(stderr, "Unable to create note.\n");
     }
 
     Py_XDECREF(pResult);
