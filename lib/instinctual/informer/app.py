@@ -64,9 +64,11 @@ class App(Subject):
         # setup events
         self.logfile.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
         self.logfile.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
+        self.logfile.registerObserver(DiscreetLoadInformerSetup(self.cbLoadInformerSetup))
 
         # batch processing events
         self.logfile.registerObserver(DiscreetBatchProcess(self.cbBatchProcess))
+        self.logfile.registerObserver(DiscreetBurnProcess(self.cbBurnProcess))
 
     def _getAppLog(self):
         # This was mirrored from $FLAME_HOME/bin/startApplication
@@ -248,6 +250,15 @@ class App(Subject):
     def setFrameRate(self, frameRate):
         print "setFrameRate:", frameRate
         self.frameRate = frameRate
+
+    def setSetupPath(self, setup):
+        print "setSetupPath:", setup
+
+        # using the setup path to get the burn job id...
+        if self.isBurn():
+            job = os.path.basename(setup)
+            print "------>>>> setting job to:", job
+            self.lastJob = job
 
     def frameProcessStart(self, sparkName, width, height, depth, start, number, end):
         """
@@ -445,6 +456,16 @@ class App(Subject):
         parsed = instinctual.informer.parseSetup(setup)
         self.shot = parsed['shot']
 
+    def cbLoadInformerSetup(self, event, setup, **kwargs):
+        """
+        Called when an informer setup file was loaded.
+        """
+        print "--------}}}} informer setup:", setup
+        if self.isBurn() and not self.lastJob:
+            self.lastJob = os.path.basename(os.path.dirname(setup))
+            print "-------}}}}} set job to:", self.lastJob
+
+
     def cbSaveSetup(self, event, setup, **kwargs):
         """
         Called when a setup has been saved
@@ -477,6 +498,25 @@ class App(Subject):
         self.lastProcess = appEvent
         self.events.append(appEvent)
         self.flushEventQueue()
+
+    def cbBurnProcess(self, event, job, **kwargs):
+        """
+        Called when the user does a burn process
+        """
+        LOG.info("BURN PROCESS EVENT")
+        print "=" * 80
+        print "                     BURN PROCESS EVENT"
+        print "=" * 80
+
+        appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
+        appEvent.job = job
+        print "---------- BURN JOB IS:", job
+
+        self.lastJob = appEvent.job
+        self.lastProcess = appEvent
+        self.events.append(appEvent)
+        self.flushEventQueue()
+
 
     def cbTimedMessage(self, event, **kwargs):
         """

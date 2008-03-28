@@ -80,6 +80,14 @@ class DiscreetLoadSetup(DiscreetObserver):
             if match != None:
                 return {'setup': match.group(1)}
 
+class DiscreetLoadInformerSetup(DiscreetObserver):
+    _re = re.compile(r'Loading\s+setup\s+(.+)\.Informer\.')
+    def process(self, event):
+        if event.category == 'BATCH':
+            match = self._re.search(event.message)
+            if match != None:
+                return {'setup': match.group(1)}
+
 class DiscreetSaveSetup(DiscreetObserver):
     _re = re.compile(r'Saving\s+setup\s+(.+)\.batch\.')
     def process(self, event):
@@ -95,6 +103,14 @@ class DiscreetBatchProcess(DiscreetObserver):
         if event.category == 'BUTTON':
             if event.message.startswith('[Process] BatchProcess'):
                 return {}
+
+class DiscreetBurnProcess(DiscreetObserver):
+    _re = re.compile(r'JOB_ID=(.+)\s+')
+    def process(self, event):
+        if event.category == 'BURN_SUBMIT_JOB':
+            match = self._re.search(event.message)
+            if match != None:
+                return {'job': match.group(1)}
 
 class DiscreetEnterSparkModule(DiscreetObserver):
     def process(self, event):
