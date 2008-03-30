@@ -358,8 +358,15 @@ Informer.Data.prototype = {
         }
 
         this.draw();
-		addIEOverviewHoverStyles();
-		addLogItemLinks();
+    },
+
+    /* Sorts the table in decending order by column specified */
+    sort_decending: function(which) {
+        this._sorter = which;
+        this._reversed = true;
+        this.sort_data();
+        this.reverse_table();
+        this.draw();
     },
     
 	/* Renders the table item */
@@ -394,6 +401,8 @@ Informer.Data.prototype = {
 
         // Finally, draw the filters
         this.fm.draw();
+		addIEOverviewHoverStyles();
+		addLogItemLinks();
     },
 
     /* Sorts data given current sorter */

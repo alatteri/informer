@@ -71,7 +71,7 @@ function setup() {
     renders = new Informer.Data('renders', row_1, c_setup, filters);
     renders.generate_row = generate_row_double;
     renders.load_data({{ data }});
-    renders.resort_table('date');
+    renders.sort_decending('date');
 }
 
 // onload trigger

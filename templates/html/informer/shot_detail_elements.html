@@ -72,7 +72,7 @@ function setup() {
     elements = new Informer.Data('elements', row_1, c_text, filters);
     elements.generate_row = generate_row_double;
     elements.load_data({{ data }});
-    elements.resort_table('date');
+    elements.sort_decending('date');
 }
 
 // onload trigger

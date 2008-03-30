@@ -68,8 +68,7 @@ function setup() {
     overview = new Informer.Data('overview', row_1);
     overview.generate_row = generate_row_single;
     overview.load_data({{ data }});
-    overview.resort_table('date');
-    addIEOverviewHoverStyles();
+    overview.sort_decending('date');
 }
 
 // onload trigger
