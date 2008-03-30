@@ -27,13 +27,6 @@ class InformerMixIn(object):
     user_fields = ['created_by', 'modified_by', 'who']
     date_fields = ['created_on', 'modified_on']
 
-    def calculateDelta(self, clientNow):
-        serverNow = datetime.now()
-        print "Server says now is: ", serverNow
-        print "Client says now is: ", clientNow
-        self._delta = (serverNow - clientNow)
-        print "The delta is: %s" % (self._delta)
-
     def strToDateTime(self, val):
         dot = val.rindex('.')
         t = val[0:dot]
@@ -52,17 +45,7 @@ class InformerMixIn(object):
             # TODO: raise ValueError...
             return val
 
-    def applyDelta(self, val):
-        if self._delta:
-            print "Applying delta of %s" % (self._delta)
-            result = val + self._delta
-            print "Relative = %s" % (result)
-            return result
-        else:
-            return val
-
     def __init__(self, *args, **kwargs):
-        self._delta = None
         fields = [x.name for x in self._meta.fields]
 
         for f in self.user_fields:
@@ -71,13 +54,7 @@ class InformerMixIn(object):
 
         for f in self.date_fields:
             if f in kwargs and kwargs[f]:
-                # convert the time, save it as raw_<field> and apply the
-                # delta for <field>
-                raw = self.getDateTime(kwargs[f])
-                if 'raw_' + f in fields:
-                    # make sure raw_ + f is in fields
-                    kwargs['raw_' + f] = raw
-                kwargs[f] = self.applyDelta(raw)
+                kwargs[f] = self.getDateTime(kwargs[f])
 
         models.Model.__init__(self, *args, **kwargs)
 
@@ -85,9 +62,7 @@ class InformerMixIn(object):
         if key in self.user_fields:
             val = User.getUser(val, create=True)
         elif key in self.date_fields:
-            raw = self.getDateTime(val)
-            self.__setattr__('raw_' + key, raw)
-            val = self.applyDelta(raw)
+            val = self.getDateTime(val)
 
         # print "__setattr__ [%s] [%s] (%s)" % (key, val, type(val))
         return models.Model.__setattr__(self, key, val)

@@ -75,12 +75,6 @@ class InformerCollection(Collection):
         new_model = self.queryset.model()
         print "ok just made new_model %s" % (new_model.__class__.__name__)
 
-        # calculate the time difference between client and server
-        if 'now' in data:
-            clientNow = new_model.getDateTime(data['now'])
-            new_model.calculateDelta(clientNow)
-            del data['now']
-
         self._pre_init(request, new_model, data)
 
         # seed with POST data
@@ -120,28 +114,12 @@ class FrameCollection(InformerCollection):
         new_model.render = r
         new_model.shot = r.shot
 
-        self.__rate = data['rate']
-        self.__start = data['start']
-        self.__end = data['end']
-
         # remove elements not in the actual frame model
-        for key in ('rate', 'start', 'end', 'spark', 'job'):
+        for key in ('spark', 'job'):
             del data[key]
 
     def _pre_save(self, request, new_model):
         r = new_model.render
-
-        if not r.start or self.__start < r.start:
-            print "+++ setting r.start to", self.__start
-            r.start = self.__start
-        if self.__end > r.end:
-            print "+++ setting r.end to", self.__end
-            r.end = self.__end
-        if not r.rate:
-            print "+++ setting r.rate to", self.__rate
-            r.rate = self.__rate
-
-        r.save()
 
         # handle file uploads
         if 'image' in request.FILES:
@@ -193,12 +171,6 @@ class PkEntry(Entry):
     def update(self, request):
         # TODO: data validation/checking
         data = self.collection.receiver.get_put_data(request)
-
-        # calculate the time difference between client and server
-        if 'now' in data:
-            clientNow = self.model.getDateTime(data['now'])
-            self.model.calculateDelta(clientNow)
-            del data['now']
 
         for (key, val) in data.items():
             self.model.__setattr__(key, val)

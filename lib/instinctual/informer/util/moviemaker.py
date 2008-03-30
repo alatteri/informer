@@ -88,7 +88,7 @@ def makerender(render_id):
     LOG.info("+ working on render id %s" % render.id)
 
     # grab info about the frames that need processing
-    max = None
+    max = 0
     height = None
     width = None
     frames = {}
@@ -113,7 +113,7 @@ def makerender(render_id):
     SYSTEM(cmd)
 
     pattern = workspace + '/' + '%06d.tiff'
-    for number in range(render.start, max + 1):
+    for number in range(1, max + 1):
         if number in frames:
             print "Frame [%s] %s" % (number, frames[number].get_image_filename())
             source = frames[number].get_image_filename()

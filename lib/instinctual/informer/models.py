@@ -248,14 +248,13 @@ class Event(InformerMixIn, models.Model):
     setup          = models.CharField(maxlength=4096)
     created_by     = models.ForeignKey(User)
     created_on     = models.DateTimeField('date created')
-    raw_created_on = models.DateTimeField('date created (unadjusted)')
 
     class Meta:
         unique_together = (('shot', 'type', 'created_on'),)
 
     class Admin:
         list_display = ('id', 'shot', 'type', 'host', 'setup',
-                        'created_by', 'created_on', 'raw_created_on')
+                        'created_by', 'created_on')
 
     def __str__(self):
         return "Event %s (%s, %s)" % (self.id, self.type, self.created_by)
@@ -276,19 +275,15 @@ class Render(InformerMixIn, models.Model):
     movie_hi = models.FileField(upload_to='movies/%Y/%m/%d')
     movie_lo = models.FileField(upload_to='movies/%Y/%m/%d')
 
-    start = models.IntegerField(default=0)
-    end = models.IntegerField(default=0)
-
     # storing fps as text to avoid floating point precision issues
     rate = models.CharField(maxlength=32, default='')
 
     class Admin:
         list_display = ('id', 'shot', 'movie_hi', 'movie_lo', 'job',
-                        'start', 'end', 'rate', 'created_on', 'is_pending')
+                        'rate', 'created_on', 'is_pending')
     class Rest:
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
-                         'start', 'end', 'rate', 'job', 'created_by', 'host',
-                         'setup']
+                         'rate', 'job', 'created_by', 'host', 'setup']
     class Logger:
         def created(cls, instance, *args, **kwargs):
             return ('Created a new render', '', '')
@@ -307,7 +302,6 @@ class Frame(InformerMixIn, models.Model):
     host        = models.CharField(maxlength=255)
     created_on  = models.DateTimeField('date created')
     created_by  = models.ForeignKey(User)
-    raw_created_on = models.DateTimeField('date created (unadjusted)')
 
     number = models.IntegerField()
 
@@ -324,7 +318,7 @@ class Frame(InformerMixIn, models.Model):
 
     class Admin:
         list_display = ('id', 'in_render', 'render', 'number', 'image', 'host',
-                        'created_on', 'created_by', 'raw_created_on')
+                        'created_on', 'created_by')
 
 # ------------------------------------------------------------------------------
 class Log(InformerMixIn, models.Model):
