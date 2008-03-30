@@ -81,12 +81,18 @@ class DiscreetLoadSetup(DiscreetObserver):
                 return {'setup': match.group(1)}
 
 class DiscreetLoadInformerSetup(DiscreetObserver):
+    # 2007: [user] 3086890688 message_burn.C:78 03/30/08:02:07:30.840 BATCH : Loading setup /usr/discreet/backburner/Network/ServerJob/Burn_flint_080330_02.07.20.informer5.Informer.
     _re = re.compile(r'Loading\s+setup\s+(.+)\.Informer\.')
+    _burn = re.compile(r'(Burn_\w+\.\d{2}\.\d{2})')
     def process(self, event):
         if event.category == 'BATCH':
             match = self._re.search(event.message)
             if match != None:
-                return {'setup': match.group(1)}
+                setup = match.group(1)
+                match = self._burn.search(setup)
+                if match != None:
+                    job = match.group(1)
+                    return {'setup': setup, 'job': job}
 
 class DiscreetSaveSetup(DiscreetObserver):
     _re = re.compile(r'Saving\s+setup\s+(.+)\.batch\.')

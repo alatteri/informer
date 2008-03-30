@@ -257,15 +257,6 @@ class App(Subject):
         print "setFrameRate:", frameRate
         self.frameRate = frameRate
 
-    def setSetupPath(self, setup):
-        print "setSetupPath:", setup
-
-        # using the setup path to get the burn job id...
-        if self.isBurn():
-            job = os.path.basename(setup)
-            print "------>>>> setting job to:", job
-            self.lastJob = job
-
     def frameProcessStart(self, sparkName, width, height, depth, start, number, end):
         """
         Called by the spark when a frame is being processed. If the app is
@@ -462,13 +453,14 @@ class App(Subject):
         parsed = instinctual.informer.parseSetup(setup)
         self.shot = parsed['shot']
 
-    def cbLoadInformerSetup(self, event, setup, **kwargs):
+    def cbLoadInformerSetup(self, event, setup, job, **kwargs):
         """
         Called when an informer setup file was loaded.
         """
         print "--------}}}} informer setup:", setup
+        print "--------}}}} informer job:", job
         if self.isBurn() and not self.lastJob:
-            self.lastJob = os.path.basename(os.path.dirname(setup))
+            self.lastJob = job
             print "-------}}}}} set job to:", self.lastJob
 
 
