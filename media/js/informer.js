@@ -45,6 +45,16 @@ Informer.DateColumn = Class.create(Informer.BaseColumn, {
     },
 });
 
+Informer.DateTimeColumn = Class.create(Informer.BaseColumn, {
+    initialize: function($super, name, field) {
+        $super(name, field);
+        LOG("DetailedDateColumn initialize called");
+        this.sorter = sort_by_date;
+        this.formatter = format_datetime;
+        this.parser = parse_date;
+    },
+});
+
 Informer.UserColumn = Class.create(Informer.BaseColumn, {
     initialize: function($super, name, field) {
         $super(name, field);
@@ -539,11 +549,35 @@ function parse_boolean(b) {
 }
   
 /* accepts a Date object, returns pretty stringified Date */
-function format_date(d) {	
+function format_date(d) {
     if (d != null) {
         month = (d.getMonth()+1) < 10?'0'+(d.getMonth()+1):(d.getMonth()+1);
         day = d.getDate() < 10?'0'+d.getDate():d.getDate();
         return month+'/'+day+'/'+d.getFullYear();
+    } else {
+        return 'None';
+    }
+}
+
+/* accepts a Date object, returns stringified Date with time */
+function format_datetime(d) {
+    if (d != null && d.getMonth) {
+        month = (d.getMonth()+1).toPaddedString(2);
+        day = d.getDate().toPaddedString(2)
+        year = d.getYear();
+        if (year > 100) year -= 100;
+        if (year < 10) year = '0' + year;
+
+        ampm = 'am';
+        hours = d.getHours();
+        if (hours == 0) {
+            hours = 12;
+        } else if (hours > 12) {
+            ampm = 'pm';
+            hours -= 12;
+        }
+        mins = d.getMinutes().toPaddedString(2);
+        return month + '/' + day + '/' + year + ' at ' + hours + ':' + mins + ' ' + ampm;
     } else {
         return 'None';
     }

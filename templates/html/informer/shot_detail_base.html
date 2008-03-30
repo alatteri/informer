@@ -149,27 +149,6 @@ function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
 
     if (null == artist)
         artist = 'None';
-    if (null == time || 'None' == time) {
-        time = 'None';
-    } else {
-        d = parse_date(time);
-        month = (d.getMonth()+1).toPaddedString(2);
-        day = d.getDate().toPaddedString(2)
-        year = d.getYear();
-        if (year > 100) year -= 100;
-        if (year < 10) year = '0' + year;
-
-        ampm = 'am';
-        hours = d.getHours();
-        if (hours == 0) {
-            hours = 12;
-        } else if (hours > 12) {
-            ampm = 'pm';
-            hours -= 12;
-        }
-        mins = d.getMinutes().toPaddedString(2);
-        time = month + '/' + day + '/' + year + ' at ' + hours + ':' + mins + ' ' + ampm;
-    }
     if (null == machine)
         machine = 'None';
     if (null == path) {
@@ -179,11 +158,13 @@ function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
         path = parts[parts.length-1];
     }
 
-    nodeReplace($('video'),     getFlashPlayer(movie_hi, movie_lo));
-    nodeReplace($('editor'),    document.createTextNode(artist));
-    nodeReplace($('time'),      document.createTextNode(time));
-    nodeReplace($('machine'),   document.createTextNode(machine));
-    nodeReplace($('path'),      document.createTextNode(path));
+    time = format_datetime(parse_date(time));
+
+    nodeReplace($('video'),   getFlashPlayer(movie_hi, movie_lo));
+    nodeReplace($('editor'),  document.createTextNode(artist));
+    nodeReplace($('time'),    document.createTextNode(time));
+    nodeReplace($('machine'), document.createTextNode(machine));
+    nodeReplace($('path'),    document.createTextNode(path));
 }
 
 load_render(
