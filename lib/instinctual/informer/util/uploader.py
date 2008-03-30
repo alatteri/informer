@@ -45,6 +45,10 @@ def main():
     uploadDir = conf.get('informer', 'dir_uploads')
     frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
 
+    thirdPartyBin = conf.get('informer', 'dir_third_party_bin')
+    convert = os.path.join(thirdPartyBin, 'convert')
+    identify = os.path.join(thirdPartyBin, 'identify')
+
     daemon = False
     flamePid = None
 
@@ -128,12 +132,12 @@ def main():
                     #frame.isBusy = True
                     #frame.save()
 
-                    frame.resizedPath = os.path.join(frame.container, 'frame.tiff')
-                    cmd = 'convert %s -resize "%sx%s>" -channel RGB -depth 8 -compress RLE %s'
-                    cmd = cmd % (frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
+                    frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
+                    cmd = '%s %s -resize "%sx%s>" -channel RGB -compress RLE %s'
+                    cmd = cmd % (convert, frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
                     LOG.debug("CMD:" + cmd)
                     if 0 == os.system(cmd):
-                        cmd = 'identify %s' % (frame.resizedPath)
+                        cmd = '%s %s' % (identify, frame.resizedPath)
                         (result, output) = commands.getstatusoutput(cmd)
                         if 0 == result:
                             match = identifyRegExp.search(output)

@@ -36,6 +36,7 @@ CONF_DEFAULTS = {
     "db_port":                    "",
     "debug":                      "true",
     "dir_logs":                   os.path.join(rootDir, 'logs'),
+    "dir_third_party_bin":        os.path.join(rootDir, 'third_party', 'bin'),
     "dir_uploads":                os.path.join(rootDir, 'uploads'),
     "dir_filelist_base":          "/tmp",
     "url_api":                    "informer/1.0",
