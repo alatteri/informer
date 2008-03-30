@@ -76,6 +76,8 @@ class DiscreetAppEvent(Event):
         Event.__init__(self, event)
 
         self.job = None
+        self.rate = None
+
         self.date = None
         self.shot = None
         self.user = None

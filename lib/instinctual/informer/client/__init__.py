@@ -31,7 +31,6 @@ class Client(object):
         eventsUrl = informer.getProjectShotEventsUrl(project, shot, 'xml')
 
         data = {}
-        data['now'] = datetime.now()
         data['created_on'] = event.date
         data['created_by'] = event.user
         data['type'] = event.event
@@ -57,6 +56,7 @@ class Client(object):
 
         data = {}
         data['job'] = render.job
+        data['rate'] = render.rate
         data['created_by'] = render.user
         data['setup'] = render.setup
         data['host'] = render.hostname
@@ -79,15 +79,10 @@ class Client(object):
         data['height'] = frame.height
         data['depth'] = frame.depth
 
-        data['start'] = frame.start
         data['number'] = frame.number
-        data['end'] = frame.end
-        data['rate'] = frame.rate
-
         data['spark'] = frame.spark
         data['host'] = frame.host
 
-        data['now'] = datetime.now()
         data['created_by'] = frame.createdBy
         data['created_on'] = frame.createdOn
 

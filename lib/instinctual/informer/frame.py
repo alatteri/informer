@@ -12,17 +12,13 @@ class Frame(Serializable):
         Serializable.__init__(self, parent, 'frame.pkl')
         self.rgbPath = os.path.join(self.container, 'frame.rgb')
 
+        self.number = None
         self.status = FRAME_UNKNOWN
         self.isBusy = False
 
         self.width  = None
         self.height = None
         self.depth  = None
-
-        self.start  = None
-        self.number = None
-        self.end    = None
-        self.rate   = None
 
         self.host = None
         self.createdBy = None

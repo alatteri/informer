@@ -292,14 +292,10 @@ class App(Subject):
         f.createdOn = datetime.now()
         f.createdOnInSeconds = datetimeToSeconds(f.createdOn)
 
+        f.number = number
         f.width  = width
         f.height = height
         f.depth  = depth
-
-        f.start  = start
-        f.number = number
-        f.end    = end
-        f.rate   = self.frameRate
 
         if self.isBurn():
             f.job = self.lastJob
@@ -503,6 +499,7 @@ class App(Subject):
 
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         appEvent.job = str(uuid.uuid1())
+        appEvent.rate = self.frameRate
 
         self.lastJob = appEvent.job
         self.lastProcess = appEvent
@@ -520,6 +517,7 @@ class App(Subject):
 
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         appEvent.job = job
+        appEvent.rate = self.frameRate
         print "---------- BURN JOB IS:", job
 
         self.lastJob = appEvent.job
