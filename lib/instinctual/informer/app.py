@@ -90,6 +90,7 @@ class App(Subject):
         self.project = None
         self.hostname = None
         self.frameRate = None
+        self.pixelAspectRatio = None
 
     def resetBatchState(self):
         self.shot = None
@@ -250,13 +251,17 @@ class App(Subject):
         appEvent.hostname = self.hostname
         return appEvent
 
-    # ----------------------------------------------------------------------
-    # Frame event processing
-    # ----------------------------------------------------------------------
     def setFrameRate(self, frameRate):
         print "setFrameRate:", frameRate
         self.frameRate = frameRate
 
+    def setPixelAspectRatio(self, pixelAspectRatio):
+        print "setPixelAspectRatio:", pixelAspectRatio
+        self.pixelAspectRatio = pixelAspectRatio
+
+    # ----------------------------------------------------------------------
+    # Frame event processing
+    # ----------------------------------------------------------------------
     def frameProcessStart(self, sparkName, width, height, depth, start, number, end):
         """
         Called by the spark when a frame is being processed. If the app is
@@ -287,6 +292,7 @@ class App(Subject):
         f.width  = width
         f.height = height
         f.depth  = depth
+        f.pixelAspectRatio = self.pixelAspectRatio
 
         if self.isBurn():
             f.job = self.lastJob

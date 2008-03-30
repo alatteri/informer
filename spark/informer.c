@@ -175,6 +175,7 @@ SparkInitialise(SparkInfoStruct spark_info)
     char *spark_name;
     char **env = environ;
     char *daemon = "/usr/discreet/sparks/instinctual/informer/bin/informerd";
+    SparkGraphInfoStruct spark_graph;
 
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
@@ -270,7 +271,6 @@ SparkInitialise(SparkInfoStruct spark_info)
     printf("OK before python, the spark is %s\n", InformerGetSparkName());
 
     PythonInitialize(sparkProgramGetName());
-    printf("{{{{{{{{ setup? %s\n", InformerGetSetupPath());
 
     rate = sparkFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);
@@ -278,6 +278,10 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     spark_name = GatewaySparkRegister(InformerGetSparkName());
     strncpy(app->spark_last_name, spark_name, 256);
+
+    sparkGraphSetup(&spark_graph);
+    InformerDEBUG("pixel aspect ratio: %f\n", spark_graph.PixelAspectRatio);
+    GatewaySetPixelAspectRatio(spark_graph.PixelAspectRatio);
 
     printf("OK after python, the spark is %s\n", InformerGetSparkName());
 

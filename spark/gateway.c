@@ -99,7 +99,7 @@ GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data)
 }
 
 void
-GatewaySetFrameRate(double frameRate)
+GatewaySetFrameRate(double frame_rate)
 {
     PyObject *app, *pResult;
 
@@ -112,11 +112,36 @@ GatewaySetFrameRate(double frameRate)
     PythonBeginCall();
     app = PythonGetApp();
 
-    pResult = PyObject_CallMethod(app, "setFrameRate", "d", frameRate);
+    pResult = PyObject_CallMethod(app, "setFrameRate", "d", frame_rate);
 
     if (NULL == pResult) {
         PyErr_Print();
-        InformerERROR("Unable to call setFrameRate(%d)\n", frameRate);
+        InformerERROR("Unable to call setFrameRate(%d)\n", frame_rate);
+    }
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+}
+
+void
+GatewaySetPixelAspectRatio(float pixel_aspect_ratio)
+{
+    PyObject *app, *pResult;
+
+    #if defined __XPY__
+    return;
+    #endif
+
+    InformerDEBUG("-------------> CALLING GATEWAY SET PIXEL ASPECT RATIO ---------\n");
+
+    PythonBeginCall();
+    app = PythonGetApp();
+
+    pResult = PyObject_CallMethod(app, "setPixelAspectRatio", "f", pixel_aspect_ratio);
+
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call setPixelAspectRatio(%f)\n", pixel_aspect_ratio);
     }
 
     Py_XDECREF(pResult);

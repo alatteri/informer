@@ -19,6 +19,7 @@ class Frame(Serializable):
         self.width  = None
         self.height = None
         self.depth  = None
+        self.pixelAspectRatio = None
 
         self.host = None
         self.createdBy = None

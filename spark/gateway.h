@@ -11,7 +11,8 @@ void GatewayPyStringToString(PyObject *pObj, char *data, int max_length);
 void GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data);
 void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
-void GatewaySetFrameRate(double frameRate);
+void GatewaySetPixelAspectRatio(float pixel_aspect_ratio);
+void GatewaySetFrameRate(double frame_rate);
 int GatewayGetElems(InformerElemData *data);
 int GatewayGetNotes(InformerNoteData *data);
 
