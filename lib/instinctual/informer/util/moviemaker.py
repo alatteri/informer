@@ -71,7 +71,11 @@ def main():
             LOG.info("Lock acquired: %s renders to process..." % len(render_ids))
 
             for render_id in render_ids:
-                makerender(render_id)
+                try:
+                    makerender(render_id)
+                except Exception, e:
+                    LOG.error(str(e))
+
         except Exception, e:
             LOG.fatal(str(e))
             sys.exit(1)
