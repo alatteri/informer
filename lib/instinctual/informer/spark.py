@@ -49,7 +49,6 @@ class Spark(object):
                     self.frames[i].status = FRAME_DELETE
                     self.frames[i].save()
                 else:
-                    print "keeping!"
                     self.new.append(self.frames[i])
             self.frames = self.new
 
@@ -65,6 +64,5 @@ class Spark(object):
                     self.frames[i].status = FRAME_UPLOAD
                     self.frames[i].save()
                 else:
-                    print "keeping!"
                     self.new.append(self.frames[i])
             self.frames = self.new

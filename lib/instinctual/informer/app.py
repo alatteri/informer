@@ -11,7 +11,7 @@ from instinctual.parser.subject import Subject
 from instinctual.parser.event import *
 from instinctual.parser.observer import *
 
-from instinctual.informer.frame import Frame
+from instinctual.informer.frame import Frame, FRAME_UPLOAD
 from instinctual.informer.spark import Spark, SparkDuplicateFrame
 from instinctual.informer.client import Client, ClientConnectionError
 from instinctual.informer.threads import LogfileThread, SchedulerThread, InformerThread
@@ -209,28 +209,34 @@ class App(Subject):
                 # wait until we flush the queue to determine the batch outputs
                 appEvent.outputs = self.outputs.keys()
 
+            lastEvent = None
             if key in os.environ:
-                print "<<<<<<<<< _LAST_EVENT_ %s >>>>>>>>>>" % (os.environ[key])
+                lastEvent = float(os.environ[key])
+                print "<<<<<<<<< _LAST_EVENT_ [%s] >>>>>>>>>>" % (lastEvent)
 
-            eSeconds = datetimeToSeconds(appEvent.date)
-            print "<<<<<<<<< eSeconds     %s >>>>>>>>>>" % (eSeconds)
+            eventSeconds = float(datetimeToSeconds(appEvent.date))
+            print "<<<<<<<<< eventSeconds     %s >>>>>>>>>>" % (eventSeconds)
 
-            if key not in os.environ:
-                print "<<<< key not in os.environ"
-            elif float(os.environ[key]) < eSeconds:
-                print "<<<< %s (%s) < %s" % (os.environ[key], float(os.environ[key]), eSeconds)
-            else:
-                print "<<<< key was in os.environ AND it was greater."
-
-            if key not in os.environ or float(os.environ[key]) < eSeconds:
+            if lastEvent is None or eventSeconds > lastEvent:
                 LOG.debug("SENDING EVENT... LOOKS GOOD")
                 print ("SENDING EVENT... LOOKS GOOD")
-                client = Client()
-                if appEvent.job:
-                    client.createRender(appEvent)
-                else:
-                    client.createEvent(appEvent)
-                os.environ[key] = str(eSeconds)
+                try:
+                    client = Client()
+                    if appEvent.job:
+                        client.createRender(appEvent)
+                    else:
+                        client.createEvent(appEvent)
+                except Exception, e:
+                    LOG.warn("Error sending event: %s [%s]" % (e, type(e)))
+
+                # set the last event time, even if it failed
+                # an event is either a success or failure
+                # only setting this on success would allow for retries
+                # if a person exited batch and re-entered -- don't think
+                # that is what we want
+                #
+                # explictly state the precision of the float
+                os.environ[key] = "%.6f" % eventSeconds
             else:
                 print ("SKIPPING EVENT! LAST EVENT WAS MORE RECENT...")
 
@@ -294,6 +300,10 @@ class App(Subject):
         f.number = number
         f.end    = end
         f.rate   = self.frameRate
+
+        if self.isBurn():
+            f.job = self.lastJob
+            f.status = FRAME_UPLOAD
 
         try:
             # associate the frame with the spark
@@ -527,12 +537,16 @@ class App(Subject):
         This method receives Log file events and uses them to mark pending flags for
         upload or deletion.
         """
-        print "=" * 80
-        print "                     TIMED EVENT (happened at: %s)" % (event.date)
-        print "=" * 80
+        #print "=" * 80
+        #print "                     TIMED EVENT (happened at: %s)" % (event.date)
+        #print "=" * 80
 
-        if self.lastProcess or self.isBurn():
-            print "last process was set or the program is burn: uploading..."
+        if self.isBurn():
+            # Nothing to do. All frames processed under burn are automatically
+            # marked for upload.
+            pass
+        elif self.lastProcess:
+            print "last process was set: uploading..."
             self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date), self.lastJob)
         else:
             print "last process was none -- calling spark delete"
