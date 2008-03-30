@@ -109,14 +109,29 @@ def makerender(render_id):
 
     # create a pending frame to match the size of the resized frames
     pending = workspace + '/' + 'pending.tiff'
-    cmd = '%s %s -resize %sx%s! -channel RGB -depth 8 -compress RLE %s' % (CONVERT, PENDING, width, height, pending)
+    cmd = "%s %s -resize '%sx%s!' -channel RGB -depth 8 -compress RLE %s" % (CONVERT, PENDING, width, height, pending)
     SYSTEM(cmd)
 
     pattern = workspace + '/' + '%06d.tiff'
     for number in range(1, max + 1):
         if number in frames:
-            print "Frame [%s] %s" % (number, frames[number].get_image_filename())
             source = frames[number].get_image_filename()
+            if not source.endswith('.tiff'):
+                # convert the image to tiff
+                outfile = source[:source.rfind('.')] + '.tiff'
+                cmd = "%s %s %s" % (CONVERT, source, outfile)
+                SYSTEM(cmd)
+
+                # update the database
+                image = frames[number].image
+                frames[number].image = image[:image.rfind('.')] + '.tiff'
+                frames[number].save()
+
+                # remove orginal source, use the tiff from here on out
+                UNLINK(source)
+                source = outfile
+
+            print "Frame [%s] %s" % (number, frames[number].get_image_filename())
         else:
             print "WARN: frame %s is missing" % (number)
             source = pending

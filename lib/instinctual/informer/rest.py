@@ -124,7 +124,7 @@ class FrameCollection(InformerCollection):
         # handle file uploads
         if 'image' in request.FILES:
             content = request.FILES['image']['content']
-            filename = "%06d-%06d.tiff" % (int(new_model.render.id), int(new_model.number))
+            filename = "%06d-%06d.jp2" % (int(new_model.render.id), int(new_model.number))
             new_model.save_image_file(filename, content, True)
 
 class ProjectShots(InformerCollection):
