@@ -100,7 +100,7 @@ function setup() {
     notes = new Informer.Data('notes', row_1, c_text, filters);
     notes.generate_row = generate_row_double;
     notes.load_data({{ data }});
-    notes.sort_decending('date');
+    notes.sort_descending('date');
 }
 
 /* called when user clicks on the 'Add Note' button */

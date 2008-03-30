@@ -360,15 +360,15 @@ Informer.Data.prototype = {
         this.draw();
     },
 
-    /* Sorts the table in decending order by column specified */
-    sort_decending: function(which) {
+    /* Sorts the table in descending order by column specified */
+    sort_descending: function(which) {
         this._sorter = which;
         this._reversed = true;
         this.sort_data();
         this.reverse_table();
         this.draw();
     },
-    
+
 	/* Renders the table item */
     draw: function() {
         // Clear out previous entries (if any)
@@ -401,8 +401,8 @@ Informer.Data.prototype = {
 
         // Finally, draw the filters
         this.fm.draw();
-		addIEOverviewHoverStyles();
-		addLogItemLinks();
+        addIEOverviewHoverStyles();
+        addLogItemLinks();
     },
 
     /* Sorts data given current sorter */
