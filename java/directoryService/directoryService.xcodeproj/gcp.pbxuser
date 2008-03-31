@@ -1,0 +1,207 @@
+// !$*UTF8*$!
+{
+	7ACB0BA20D898C42008E8FD1 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	7ACB0BA30D898C42008E8FD1 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	7ACB0BC30D899F07008E8FD1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7ACB0BC40D899F07008E8FD1 /* directoryService.html */;
+		name = "directoryService.html: 24";
+		rLen = 0;
+		rLoc = 621;
+		rType = 0;
+		vrLen = 606;
+		vrLoc = 0;
+	};
+	7ACB0BC40D899F07008E8FD1 /* directoryService.html */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text.html;
+		name = directoryService.html;
+		path = "/Users/gcp/XCode Projects/directoryService/resources/directoryService.html";
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {691, 462}}";
+			sepNavSelRange = "{729, 0}";
+			sepNavVisRange = "{0, 738}";
+			sepNavWindowFrame = "{{89, 294}, {750, 558}}";
+		};
+	};
+	7ACB0BC70D899F07008E8FD1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7ACB0BC80D899F07008E8FD1 /* directoryService.java */;
+		name = "directoryService.java: 60";
+		rLen = 0;
+		rLoc = 1339;
+		rType = 0;
+		vrLen = 902;
+		vrLoc = 527;
+	};
+	7ACB0BC80D899F07008E8FD1 /* directoryService.java */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.java;
+		name = directoryService.java;
+		path = "/Users/gcp/XCode Projects/directoryService/src/directoryService.java";
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {717, 1302}}";
+			sepNavSelRange = "{417, 0}";
+			sepNavVisRange = "{0, 1270}";
+			sepNavWindowFrame = "{{66, 95}, {776, 778}}";
+		};
+	};
+	7ACB0C5D0D8ADD41008E8FD1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7ACB0C5E0D8ADD41008E8FD1 /* directoryService.html */;
+		name = "directoryService.html: 30";
+		rLen = 0;
+		rLoc = 729;
+		rType = 0;
+		vrLen = 732;
+		vrLoc = 14;
+	};
+	7ACB0C5E0D8ADD41008E8FD1 /* directoryService.html */ = {
+		isa = PBXFileReference;
+		name = directoryService.html;
+		path = "/Users/gcp/XCode Projects/directoryService/resources/directoryService.html";
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {691, 462}}";
+			sepNavSelRange = "{729, 0}";
+			sepNavVisRange = "{14, 732}";
+		};
+	};
+	7ACB0C5F0D8ADD41008E8FD1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 7ACB0C600D8ADD41008E8FD1 /* directoryService.java */;
+		name = "directoryService.java: 12";
+		rLen = 0;
+		rLoc = 417;
+		rType = 0;
+		vrLen = 1270;
+		vrLoc = 0;
+	};
+	7ACB0C600D8ADD41008E8FD1 /* directoryService.java */ = {
+		isa = PBXFileReference;
+		name = directoryService.java;
+		path = "/Users/gcp/XCode Projects/directoryService/src/directoryService.java";
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {452, 1652}}";
+			sepNavSelRange = "{1848, 0}";
+			sepNavVisRange = "{246, 334}";
+		};
+	};
+	88230FFE05D9926E00FE8D22 /* Project object */ = {
+		activeArchitecture = i386;
+		activeBuildConfigurationName = Release;
+		activeExecutable = 88934D45061E10E600F42905 /* directoryService */;
+		activeTarget = 8823100505D9929B00FE8D22 /* directoryService */;
+		codeSenseManager = 7ACB0BA30D898C42008E8FD1 /* Code sense */;
+		executables = (
+			88934D45061E10E600F42905 /* directoryService */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					130.58349609375,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					243,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 227122968;
+			PBXWorkspaceStateSaveDate = 227122968;
+		};
+		perUserProjectItems = {
+			7ACB0BC30D899F07008E8FD1 /* PBXTextBookmark */ = 7ACB0BC30D899F07008E8FD1 /* PBXTextBookmark */;
+			7ACB0BC70D899F07008E8FD1 /* PBXTextBookmark */ = 7ACB0BC70D899F07008E8FD1 /* PBXTextBookmark */;
+			7ACB0C5D0D8ADD41008E8FD1 /* PBXTextBookmark */ = 7ACB0C5D0D8ADD41008E8FD1 /* PBXTextBookmark */;
+			7ACB0C5F0D8ADD41008E8FD1 /* PBXTextBookmark */ = 7ACB0C5F0D8ADD41008E8FD1 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 7ACB0BA20D898C42008E8FD1 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	8823100505D9929B00FE8D22 /* directoryService */ = {
+		activeExec = 0;
+	};
+	886FEE5605D9BD280091015F /* build.xml */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {644, 2142}}";
+			sepNavSelRange = "{2057, 38}";
+			sepNavVisRange = "{1736, 607}";
+			sepNavWindowFrame = "{{111, 273}, {750, 558}}";
+		};
+	};
+	88934D45061E10E600F42905 /* directoryService */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+			YES,
+		);
+		argumentStrings = (
+			dist/directoryService.html,
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = JavaDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 88934D46061E10E600F42905 /* open */;
+		libgmallocEnabled = 0;
+		name = directoryService;
+		sourceDirectories = (
+		);
+		startupPath = "<<ProjectDirectory>>";
+	};
+	88934D46061E10E600F42905 /* open */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = "compiled.mach-o.executable";
+		name = open;
+		path = /usr/bin/open;
+		sourceTree = "<absolute>";
+	};
+}

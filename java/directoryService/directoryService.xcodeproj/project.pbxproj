@@ -1,0 +1,117 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 44;
+	objects = {
+
+/* Begin PBXFileReference section */
+		0A0DFDB60B94CEC600E4E714 /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
+		0A0DFDBA0B94CECC00E4E714 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bin; sourceTree = "<group>"; };
+		0A0DFDBD0B94CED000E4E714 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dist; sourceTree = "<group>"; };
+		886FEE5605D9BD280091015F /* build.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = build.xml; sourceTree = "<group>"; };
+		886FEE5705D9BD280091015F /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = lib; sourceTree = "<group>"; };
+		886FEE5905D9BD280091015F /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = src; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		88230FFA05D9926E00FE8D22 = {
+			isa = PBXGroup;
+			children = (
+				886FEE5605D9BD280091015F /* build.xml */,
+				886FEE5905D9BD280091015F /* src */,
+				0A0DFDB60B94CEC600E4E714 /* resources */,
+				886FEE5705D9BD280091015F /* lib */,
+				0A0DFDBA0B94CECC00E4E714 /* bin */,
+				0A0DFDBD0B94CED000E4E714 /* dist */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		8823100505D9929B00FE8D22 /* directoryService */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "-emacs $(ACTION)";
+			buildConfigurationList = 0ACD698908BBAA6E0040BE38 /* Build configuration list for PBXLegacyTarget "directoryService" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/ant;
+			dependencies = (
+			);
+			name = directoryService;
+			passBuildSettingsInEnvironment = 1;
+			productName = directoryService;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		88230FFE05D9926E00FE8D22 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 0ACD698D08BBAA6E0040BE38 /* Build configuration list for PBXProject "directoryService" */;
+			compatibilityVersion = "Xcode 3.0";
+			hasScannedForEncodings = 1;
+			mainGroup = 88230FFA05D9926E00FE8D22;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8823100505D9929B00FE8D22 /* directoryService */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		0ACD698A08BBAA6E0040BE38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				PRODUCT_NAME = directoryService;
+			};
+			name = Debug;
+		};
+		0ACD698B08BBAA6E0040BE38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				PRODUCT_NAME = directoryService;
+			};
+			name = Release;
+		};
+		0ACD698E08BBAA6E0040BE38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		0ACD698F08BBAA6E0040BE38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0ACD698908BBAA6E0040BE38 /* Build configuration list for PBXLegacyTarget "directoryService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0ACD698A08BBAA6E0040BE38 /* Debug */,
+				0ACD698B08BBAA6E0040BE38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0ACD698D08BBAA6E0040BE38 /* Build configuration list for PBXProject "directoryService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0ACD698E08BBAA6E0040BE38 /* Debug */,
+				0ACD698F08BBAA6E0040BE38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 88230FFE05D9926E00FE8D22 /* Project object */;
+}

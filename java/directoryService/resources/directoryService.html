@@ -1,0 +1,32 @@
+<HTML>
+<HEAD>
+
+<script language="javascript">
+function testIt() 
+{
+	var files = document.directoryService.getFiles(document.inputForm.theDir.value);
+	var dirs = document.directoryService.getDirectories(document.inputForm.theDir.value);
+	
+	var theList = "";
+	for(var i=0; i < dirs.length; i++) {
+		theList = theList + ": " + dirs[i];
+	}
+	
+	alert(theList);
+}
+</script>
+
+</HEAD>
+
+<BODY>
+<APPLET archive="directoryService_signed.jar" code="directoryService" name="directoryService" width=0 height=0>
+Your browser does not support Java, so nothing is displayed.
+</APPLET>
+
+<a href="javascript:testIt()">Test the function call </a>
+<form name="inputForm">
+<input type="text" name="theDir" id="theDir" size="30" value="/Users">
+</form>
+
+</BODY>
+</HTML>
