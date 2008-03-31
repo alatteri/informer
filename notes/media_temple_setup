@@ -1,3 +1,19 @@
+There is a bootstrap issue at the moment to build the server
+you first need to compile psycopg2-2.0.6:
+% cd third_party/src
+% tar zxvf psycopg2-2.0.6.tar.gz
+% cd psycopg2-2.0.6
+% python setup.py build
+% mv build/lib.linux-i686-2.4/psycopg2 ../../python/
+
+Add the following lines to the server's instinctual.ini file:
+debug: true
+db_engine: postgresql_psycopg2
+db_name: informer
+
+
+
+
 1) set up the vhost files:
 % cd conf
 % cp ~/TEMPLATE_vhost.conf vhost.conf

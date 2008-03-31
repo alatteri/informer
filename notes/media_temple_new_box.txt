@@ -7,7 +7,7 @@ install ctags:
 # rpm -Uvh ctags-5.7-1.i386.rpm
 
 install postgres:
-# rpm -Uvh postgresql-8.1.11-1PGDG.rhel5.i686.rpm postgresql-server-8.1.11-1PGDG.rhel5.i686.rpm
+# rpm -Uvh postgresql-8.1.11-1PGDG.rhel5.i686.rpm postgresql-server-8.1.11-1PGDG.rhel5.i686.rpm postgresql-devel-8.1.11-1PGDG.rhel5.i686.rpm
 
 configure the init script:
 # chkconfig --level 2 postgresql on
@@ -18,6 +18,7 @@ configure the init script:
 make sure it looks like this:
 # chkconfig --list|grep postgres
 postgresql     	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+
 
 setup the instinctual user:
 # adduser --shell /bin/tcsh --groups psacln,apache,psaserv instinctual
@@ -37,3 +38,24 @@ init the instinctual user's settings:
 % pwd
 /home/instinctual
 % tar xvzf instinctual.tar.gz
+
+
+Add Instinctual
+-------------------------------------------------------------------------------------------------
+goto plesk
+click Clients
+click Add New Client Account
+add user instinctual
+
+click add new domain
+enter the domain name (fully specified)
+click Physical hosting
+
+click SSL support
+click Use a single directory for housing SSL and non-SSL content
+
+add FTP login as name of subdomain
+(example: creating demo.informerapp.com use login as demo)
+click Python support
+
+
