@@ -1,0 +1,39 @@
+MEDIA TEMPLE: new box
+-------------------------------------------------------------------------------------------------
+install base system:
+# cd system
+
+install ctags:
+# rpm -Uvh ctags-5.7-1.i386.rpm
+
+install postgres:
+# rpm -Uvh postgresql-8.1.11-1PGDG.rhel5.i686.rpm postgresql-server-8.1.11-1PGDG.rhel5.i686.rpm
+
+configure the init script:
+# chkconfig --level 2 postgresql on
+# chkconfig --level 3 postgresql on
+# chkconfig --level 4 postgresql on
+# chkconfig --level 5 postgresql on
+
+make sure it looks like this:
+# chkconfig --list|grep postgres
+postgresql     	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+
+setup the instinctual user:
+# adduser --shell /bin/tcsh --groups psacln,apache,psaserv instinctual
+
+set the password:
+# passwd instinctual
+
+add instinctual to the sudoers file:
+# visudo
+(add instinctual after root...)
+## Allow root to run any commands anywhere
+root    ALL=(ALL)       ALL
+instinctual     ALL=(ALL)       ALL
+
+init the instinctual user's settings:
+# su - instinctual
+% pwd
+/home/instinctual
+% tar xvzf instinctual.tar.gz
