@@ -1,6 +1,12 @@
 Compress to JPEG 2000
 convert -quality 90 INPUT -resize "1024x768>" OUT.jp2
 
+convert -quality 90 INPUT -resize "PAR%x100%" -resize "1024x768>" OUT.jp2
+in this example the PAR should be as a percent.
+NTSC PAR of .9 should be 90
+PAL PAR of 1.11111 should be 111.11111
+
+
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 Convert from JPEG 2000 to TIFF
