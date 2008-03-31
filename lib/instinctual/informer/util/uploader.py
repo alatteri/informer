@@ -132,10 +132,14 @@ def main():
                     #frame.isBusy = True
                     #frame.save()
 
+                    par = 100 * float("%.5f" % frame.pixelAspectRatio)
                     frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
-                    cmd = '%s %s -resize "%sx%s>" -channel RGB -compress RLE %s'
-                    cmd = cmd % (convert, frame.rgbPath, maxWidth, maxHeight, frame.resizedPath)
+
+                    cmd = '%s %s -resize "%s%%x100%%" -resize "%sx%s>" -channel RGB -compress RLE %s'
+                    cmd = cmd % (convert, frame.rgbPath, par, maxWidth, maxHeight, frame.resizedPath)
+                    print "CMD is:", cmd
                     LOG.debug("CMD:" + cmd)
+
                     if 0 == os.system(cmd):
                         cmd = '%s %s' % (identify, frame.resizedPath)
                         (result, output) = commands.getstatusoutput(cmd)
