@@ -36,11 +36,6 @@ package {
             
             //background.addChild(new backgroundImage());
             
-            connection = new NetConnection();
-            connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-            connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-            connection.connect(null);
-            
             _mask.addEventListener(MouseEvent.CLICK, onButtonClick);
             _mask.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
             _mask.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
@@ -51,7 +46,7 @@ package {
             
             with(_mask.graphics)
             {
-                beginFill(0x000000, 0);
+                beginFill(0xFFFFFF, 0);
                 drawRect(0,0,160,90);
                 endFill();
             }
@@ -62,6 +57,11 @@ package {
             addChild(new AlignToParent(_button,this));
             addChild(_mask);
             _button.visible = false;
+            
+            connection = new NetConnection();
+            connection.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+            connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+            connection.connect(null);
         }
         
         protected function onButtonClick(e:MouseEvent):void
@@ -106,24 +106,23 @@ package {
         {
             stream = new NetStream(connection);
             stream.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-            stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
             stream.client = this;
             
             _video.attachNetStream(stream);
             stream.play(videoURL);
-            stream.seek(0.1);
-            stream.pause();
+            //stream.seek(0.000000000001);
             
             _video.smoothing = true;
         }
         
         // needs to be public for the callback for the stream.client
         // freaking awful practise by Adobe this...
-        public function onMetaData(info:Object):void 
+        public function onMetaData(info:Object):void
         {
             setNewDimentions(info.width, info.height);
             //width = info.width;
             //height =  info.height;
+            stream.pause();
         }
         
         public function setNewDimentions(w:Number, h:Number):void
@@ -152,11 +151,6 @@ package {
         private function securityErrorHandler(event:SecurityErrorEvent):void 
         {
             trace("securityErrorHandler: " + event);
-        }
-        
-        private function asyncErrorHandler(event:AsyncErrorEvent):void 
-        {
-            // ignore AsyncErrorEvent events.
         }
     }
 }
