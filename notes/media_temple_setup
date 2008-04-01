@@ -101,7 +101,9 @@ Password (again):
 % chmod g+w media
 
 11) install the moviemaker cronjob
-
+% su - demo --shell=/bin/tcsh
+% crontab -e
+*/2 * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
 
 (Dont think this is needed....)
 5) Add informer to apache, psaserv groups
