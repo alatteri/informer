@@ -1,5 +1,19 @@
 Creating a new hosted informer environment:
 -------------------------------------------------------------------------------------------------
+
+Set up DNS:
+1) Login into MT Account Center for informerapp.com
+https://ac.mediatemple.net/services/manage/index.mt?domain=informerapp.com&server=179934
+2) click Edit Zone file.
+3) Click +Add a record
+4) in the left field (Name) add the full domain name of new informer (example.. demo.informerapp.com)
+5) make sure Type pull-down is A
+6) in the right field (Data) add numerical IP of the DV server (Currently 72.47.216.74)
+7) Hit Save
+sometimes after added 1 entry and new empty A record is created and the Save step will complain.  Make sure there are no empty A records.  Use the delete box on the right if necessary.
+
+Set up Plesk:
+____________________________________________
 This example will create demo.informerapp.com
 1) Create the user account through plesk:
 	a) click: Clients
@@ -103,7 +117,12 @@ Password (again):
 11) install the moviemaker cronjob
 % su - demo --shell=/bin/tcsh
 % crontab -e
-*/2 * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
+* * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
+
+12) create spark account in informer
+login into demo.informerapp.com as serveradmin
+goto Admin panel
+create new user/password as spark/sparky with no options
 
 (Dont think this is needed....)
 5) Add informer to apache, psaserv groups
