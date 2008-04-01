@@ -135,7 +135,7 @@ def main():
                     par = 100 * float("%.5f" % frame.pixelAspectRatio)
                     frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
 
-                    cmd = '%s %s -resize "%s%%x100%%" -resize "%sx%s>" -channel RGB -compress RLE %s'
+                    cmd = '%s -quality 90 %s -resize "%s%%x100%%" -resize "%sx%s>" -channel RGB -compress RLE %s'
                     cmd = cmd % (convert, frame.rgbPath, par, maxWidth, maxHeight, frame.resizedPath)
                     print "CMD is:", cmd
                     LOG.debug("CMD:" + cmd)
