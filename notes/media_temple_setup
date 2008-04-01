@@ -10,7 +10,7 @@ https://ac.mediatemple.net/services/manage/index.mt?domain=informerapp.com&serve
 5) make sure Type pull-down is A
 6) in the right field (Data) add numerical IP of the DV server (Currently 72.47.216.74)
 7) Hit Save
-sometimes after added 1 entry and new empty A record is created and the Save step will complain.  Make sure there are no empty A records.  Use the delete box on the right if necessary.
+sometimes after adding 1 entry a new empty A record is created and the Save step will complain.  Make sure there are no empty A records.  Use the delete box on the right if necessary.
 
 Set up Plesk:
 ____________________________________________
