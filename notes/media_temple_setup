@@ -1,43 +1,104 @@
-There is a bootstrap issue at the moment to build the server
-you first need to compile psycopg2-2.0.6:
-% cd third_party/src
-% tar zxvf psycopg2-2.0.6.tar.gz
-% cd psycopg2-2.0.6
-% python setup.py build
-% mv build/lib.linux-i686-2.4/psycopg2 ../../python/
+Creating a new hosted informer environment:
+-------------------------------------------------------------------------------------------------
+This example will create demo.informerapp.com
+1) Create the user account through plesk:
+	a) click: Clients
+	b) click: Add New Client Account
+		b1) Company name: Instinctual
+		b2) Contact name: demo
+		b3) Login: demo
+		b4) Password: <passwd>
+		b5) Confirm Password: <passwd>
+		b6) Select template: informer template
+		b7) click: OK
+	c) On the next page the server's IP address should be listed in the Client's IP pool
+		c1) click: OK
 
-Add the following lines to the server's instinctual.ini file:
+2) Create the domain through plesk:
+(if done immediately after Step 1 above, go to step c below)
+	a) click: Clients
+	b) click: demo (under client's name)
+	c) click: Add New Domain
+		c1) unclick 'WWW'
+		c2) enter the Domain name: demo.informerapp.com
+		c3) Select template: informer
+		c4) click: OK
+	d) Select Hosting type: Physical hosting
+		d1) click: OK
+	e) setup the physical hosting:
+		e1) check: SSL support
+		e2) check: Use a single directory for housing SSL and non-SSL content
+		e3) set FTP Login: demo
+		e4) set New FTP password: <passwd>
+		e5) set Confirm FTP password: <passwd>
+		e6) check: Python support
+
+3) The domain should have been created... check it out:
+Go to: http://demo.informerapp.com
+Go to: https://demo.informerapp.com
+
+
+Set up the server:
+-------------------------------------------------------------------------------------------------
+1) login to the server as root:
+	% ssh root@dedicated.instinctualsoftware.com
+
+2) copy the informer server:
+	% cp -Rf ~serveradmin/source/build/server ~demo/informer
+	% chown -R demo.psaserv ~demo/informer
+	% chmod 777 ~demo/informer/logs
+	% touch ~demo/informer/logs/informer.log
+	% chmod 666 ~demo/informer/logs/informer.log
+	% mkdir ~demo/informer/tmp
+	% chmod 777 ~demo/informer/tmp
+
+3) configure the ini file:
+	% vi ~demo/informer/conf/instinctual.ini
+server: https://demo.informerapp.com
 debug: true
 db_engine: postgresql_psycopg2
-db_name: informer
+db_name: informer_demo
 
-
-
-
-1) set up the vhost files:
-% cd conf
-% cp ~/TEMPLATE_vhost.conf vhost.conf
+4) set up the vhost files:
+% cd ~demo/conf
+% cp ~serveradmin/TEMPLATE_vhost.conf vhost.conf
 % ln vhost.conf vhost_ssl.conf
 
-2) run MT reconfig:
-% /usr/local/psa/admin/sbin/websrvmng --reconfigure-vhost --vhost-name=<HOST>
+5) edit the vhost file to update the PythonPath:
+% vi vhost.conf
+change PythonPath to include the path to demo account:
+PythonPath "['/var/www/vhosts/demo.informerapp.com/informer/third_party/python', '/var/www/vhosts/demo.informerapp.com/informer/lib'] + sys.path"
 
-3) create media symlinks:
+6) create the database
+% createdb -U informer informer_demo
+
+7) populate the database tables
+% cd ~demo/informer
+% python lib/instinctual/manage.pyc syncdb
+
+You just installed Django's auth system, which means you don't have any superusers defined.
+Would you like to create one now? (yes/no):  yes
+Username (Leave blank to use 'serveradmin'): serveradmin
+E-mail address: admin@informerapp.com
+Password: 
+Password (again):
+
+8) run MT reconfig:
+% /usr/local/psa/admin/sbin/websrvmng --reconfigure-vhost --vhost-name=demo.informerapp.com
+
+9) create media symlinks (this has to be done as the user!):
+% su - demo --shell=/bin/tcsh
 % cd httpdocs
-% ln -s ../informer/third_party/python/django/contrib/admin/media/
-% ln -s ../informer/media site_media
+% ln -s ../informer/media
+% cd ../httpsdocs
+% ln -s ../informer/media site
 
-% cd httpsdocs
-% ln -s ../informer/third_party/python/django/contrib/admin/media/
-% ln -s ../informer/media site_media
-
-4) give apache write permissions to upload
+10) give apache write permissions to upload
 % chmod g+w media
 
+11) install the moviemaker cronjob
+
+(Dont think this is needed....)
 5) Add informer to apache, psaserv groups
 % vi /etc/group
 
-6) create the database
-% createdb -U <username> <dbname>
-
--

@@ -9,6 +9,27 @@ install ctags:
 install postgres:
 # rpm -Uvh postgresql-8.1.11-1PGDG.rhel5.i686.rpm postgresql-server-8.1.11-1PGDG.rhel5.i686.rpm postgresql-devel-8.1.11-1PGDG.rhel5.i686.rpm
 
+edit the postgres pg_hba.conf file to allow passwords without using IDENT:
+# cd /var/lib/pgsql/data
+# vi pg_hba.conf
+
+change:
+local	all 	all			ident sameuser
+host	all	all	127.0.0.1/32	ident sameuser
+to:
+local	all	all			trust
+host	all	all	127.0.0.1/32	trust
+
+restart postgres:
+# /etc/rc.d/init.d/postgres restart
+
+create the informer postgres user (DO THIS AS POSTGRES):
+# su - postgres
+% createuser --createdb --no-adduser --pwprompt informer
+Enter the password for the new role: informer
+Enter it again: informer
+Shall the new role be allowed to create more new roles? (y/n) n
+
 configure the init script:
 # chkconfig --level 2 postgresql on
 # chkconfig --level 3 postgresql on
@@ -20,25 +41,45 @@ make sure it looks like this:
 postgresql     	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 
 
-setup the instinctual user:
-# adduser --shell /bin/tcsh --groups psacln,apache,psaserv instinctual
+setup the serveradmin user:
+# adduser --shell /bin/tcsh --groups psacln,apache,psaserv serveradmin
 
 set the password:
-# passwd instinctual
+# passwd serveradmin
 
-add instinctual to the sudoers file:
+add serveradmin to the sudoers file: (OPTIONAL)
 # visudo
-(add instinctual after root...)
+(add serveradmin after root...)
 ## Allow root to run any commands anywhere
 root    ALL=(ALL)       ALL
-instinctual     ALL=(ALL)       ALL
+serveradmin     ALL=(ALL)       ALL
 
-init the instinctual user's settings:
-# su - instinctual
+init the instinctual user's settings: (OPTIONAL)
+# su - serveradmin
 % pwd
-/home/instinctual
+/home/serveradmin
 % tar xvzf instinctual.tar.gz
 
+-------------------------------------------------------------------------------------------------
+There is a bootstrap issue at the moment to build the server
+you first need to compile psycopg2-2.0.6:
+% cd third_party/src
+% tar zxvf psycopg2-2.0.6.tar.gz
+% cd psycopg2-2.0.6
+% python setup.py build
+% mv build/lib.linux-i686-2.4/psycopg2 ../../python/
+
+Add the following lines to the server's instinctual.ini file:
+debug: true
+db_engine: postgresql_psycopg2
+db_name: informer
+
+
+-------------------------------------------------------------------------------------------------
+1) Mark the server IP address as shared through plesk:
+	a) click: Server
+	b) select the IP address
+	c) set IP type to 'Shared'
 
 Add Instinctual
 -------------------------------------------------------------------------------------------------
