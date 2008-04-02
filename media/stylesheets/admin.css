@@ -128,9 +128,18 @@ div.box.small ul {
 	font-weight: bold;
 	line-height: 18px;
 	}	
+#admin #content div.box.large div.form-row input {
+	height: 16px;
+	padding: 2px;
+	background: #bebebf;
+	border: 1px solid #636568;
+	}	
 #admin #content div.box.large div.form-row input,
 #admin #content div.box.large div.form-row select {
 	max-width: 600px;
+	}	
+#admin #content div.box.large div.form-row input:focus {
+	background: #fff;
 	}	
 #admin #content div.box.large div.form-row p.help {
 	margin: 0 0 0 100px;
@@ -283,6 +292,48 @@ div.box.small ul {
 	}	
 #admin div.box.large #changelist-filter ul li.selected {
 	background: #7c7c7c;
+	}	
+	
+/* Change Password Form */
+
+#admin #content #form-change_password label	{
+	width: 105px;
+	}
+#admin #content #form-change_password input {
+	width: 308px;
+	height: 28px;
+	padding: 0 0 0 5px;
+	background: url(/media/images/background-login-input.gif) no-repeat left top;
+	border: none;
+	font-size: 14px;
+	}	
+#admin #content #form-change_password button.submit {
+	width: 113px;
+	height: 26px;
+	margin: 0 0 0 105px;
+	background: url(/media/images/button-save.gif);
+	}	
+#admin #content a.go_home {
+	display: block;
+	width: 113px;
+	height: 26px;
+	margin: 0 auto 10px auto;
+	background: url(/media/images/button-go_home.gif);
+	text-indent: -9999px;	
+	}
+#admin #content a.delete_button {
+	float: left;
+	display: block;
+	width: 113px;
+	height: 26px;
+	background: url(/media/images/button-delete.gif);
+	text-indent: -9999px;	
+	}		
+#admin #content div.save_bar {
+	margin: 10px 0 0 10px;
+	}	
+#admin #content div.save_bar input {
+	margin-left: 5px;
 	}	
 	
 /* SELECTOR (FILTER INTERFACE) */
