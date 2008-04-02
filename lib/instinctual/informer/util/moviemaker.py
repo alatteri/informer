@@ -119,7 +119,7 @@ def makerender(render_id):
             if not source.endswith('.tiff'):
                 # convert the image to tiff
                 outfile = source[:source.rfind('.')] + '.tiff'
-                cmd = "%s %s %s" % (CONVERT, source, outfile)
+                cmd = "%s -channel RGB -depth 8 -compress RLE %s %s" % (CONVERT, source, outfile)
                 SYSTEM(cmd)
 
                 # update the database
