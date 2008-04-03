@@ -7,7 +7,7 @@ import threading
 import instinctual
 from instinctual.parser.subject import DiscreetLogSubject
 
-threading._VERBOSE = True
+threading._VERBOSE = False
 
 LOG = instinctual.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class InformerThread(threading.Thread):
             # print "Thread [%s] got: %s" % (self.name, cmd)
             if cmd == THREAD_PROCESS:
                 if self.isSuspended:
-                    print ("Ignoring 'process' thread [%s] is suspended" % (self.name))
+                    LOG.debug("Ignoring 'process' thread [%s] is suspended" % (self.name))
                 else:
                     self.isProcessing = True
                     self.threadProcess()
@@ -47,15 +47,15 @@ class InformerThread(threading.Thread):
                 self.threadStop()
                 shouldRun = False
             elif cmd == THREAD_SUSPEND:
-                print ("Got call to suspend thread (%s)" % (self.name))
+                LOG.debug("Got call to suspend thread (%s)" % (self.name))
                 self.isSuspended = True
             elif cmd == THREAD_RESUME:
-                print ("Got call to resume thread (%s)" % (self.name))
+                LOG.debug("Got call to resume thread (%s)" % (self.name))
                 self.isSuspended = False
             else:
                 LOG.warn("unknown command passed to thread [%s]: %s" % (self.name, cmd))
 
-        print "Thread %s: goodbye." % (self.name)
+        LOG.debug("Thread %s: goodbye." % (self.name))
 
     def process(self):
         self.queue.put(THREAD_PROCESS)
@@ -70,10 +70,10 @@ class InformerThread(threading.Thread):
         self.queue.put(THREAD_SUSPEND)
 
     def threadProcess(self):
-        print "Thread %s: process called." % (self.name)
+        LOG.debug("Thread %s: process called." % (self.name))
 
     def threadStop(self):
-        print "Thread %s: stop called." % (self.name)
+        LOG.debug("Thread %s: stop called." % (self.name))
 
 
 class SchedulerThread(InformerThread):
@@ -87,7 +87,7 @@ class SchedulerThread(InformerThread):
         self.threads[thread.name] = thread
         self.waits[thread.name] = wait
 
-        print "STARTING THREAD: %s..." % (thread.name)
+        LOG.debug("STARTING THREAD: %s..." % (thread.name))
         thread.start()
 
     def getNextCommand(self):
@@ -113,16 +113,16 @@ class SchedulerThread(InformerThread):
         for thread in self.threads.values():
             thread.stop()
             if thread.isAlive():
-                print "STOPPING THREAD: %s..." % (thread.name)
+                LOG.debug("STOPPING THREAD: %s..." % (thread.name))
                 thread.join()
             else:
-                print "Thread %s was dead\n" % (thread.name)
+                LOG.debug("Thread %s was dead\n" % (thread.name))
 
 class LogfileThread(InformerThread):
     def __init__(self, name, logfile):
         InformerThread.__init__(self, name)
 
-        print "----> LOGFILE:", logfile
+        LOG.debug("----> LOGFILE: %s" % logfile)
         self.logger = DiscreetLogSubject(logfile)
 
     def threadProcess(self):

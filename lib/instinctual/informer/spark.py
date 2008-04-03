@@ -14,11 +14,11 @@ class Spark(object):
     count = 0
 
     def __init__(self, name):
-        print "||||||| spark __init__ got called with [%s]" % (name)
+        #print "||||||| spark __init__ got called with [%s]" % (name)
         if not name:
             self.count += 1
             name = "TEMP%d.Informer" % self.count
-            print "name was not specified -- made", name
+            #print "name was not specified -- made", name
 
         self.name = name
         self.frames = []
@@ -39,13 +39,13 @@ class Spark(object):
         return self.frames[len(self.frames)-1]
 
     def deleteFramesOlderThan(self, seconds):
-        print "delete: checking frames older than", seconds
+        LOG.debug("delete: checking frames older than %s" % seconds)
         if self.frames:
             self.new = []
             for i in range(len(self.frames)):
-                print "frame", i, "time", self.frames[i].createdOnInSeconds
+                #print "frame", i, "time", self.frames[i].createdOnInSeconds
                 if seconds > self.frames[i].createdOnInSeconds:
-                    print "deleting!"
+                    LOG.debug("deleting!")
                     self.frames[i].status = FRAME_DELETE
                     self.frames[i].save()
                 else:
@@ -53,13 +53,13 @@ class Spark(object):
             self.frames = self.new
 
     def uploadFramesOlderThan(self, seconds, job):
-        print "UPLOAD: checking frames older than", seconds
+        LOG.debug("UPLOAD: checking frames older than %s" % seconds)
         if self.frames:
             self.new = []
             for i in range(len(self.frames)):
-                print "frame", i, "time", self.frames[i].createdOnInSeconds
+                #print "frame", i, "time", self.frames[i].createdOnInSeconds
                 if seconds > self.frames[i].createdOnInSeconds:
-                    print "uploading!"
+                    LOG.debug("uploading!")
                     self.frames[i].job = job
                     self.frames[i].status = FRAME_UPLOAD
                     self.frames[i].save()

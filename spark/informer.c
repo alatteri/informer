@@ -124,7 +124,7 @@ SparkStringStruct SparkSetupString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
  * Informer globals
  *************************************/
 InformerAppStruct    gApp;
-
+FILE *gLog = NULL;
 
 /****************************************************************************
  *                      Spark Base Function Calls                           *
@@ -176,6 +176,8 @@ SparkInitialise(SparkInfoStruct spark_info)
     char **env = environ;
     char *daemon = "/usr/discreet/sparks/instinctual/informer/bin/informerd";
     SparkGraphInfoStruct spark_graph;
+
+    gLog = fopen("/usr/discreet/sparks/instinctual/informer/logs/informer.log", "a");
 
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
@@ -268,8 +270,6 @@ SparkInitialise(SparkInfoStruct spark_info)
     InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
     InformerTableHideAllRows();
 
-    printf("OK before python, the spark is %s\n", InformerGetSparkName());
-
     PythonInitialize(sparkProgramGetName());
 
     rate = sparkFrameRate();
@@ -283,19 +283,18 @@ SparkInitialise(SparkInfoStruct spark_info)
     InformerDEBUG("pixel aspect ratio: %f\n", spark_graph.PixelAspectRatio);
     GatewaySetPixelAspectRatio(spark_graph.PixelAspectRatio);
 
-    printf("OK after python, the spark is %s\n", InformerGetSparkName());
-
-    printf("---- TRYING TO KICK OFF THE FOOBAR! -------\n");
+    InformerDEBUG("Going to start uploader...\n");
     pid = getpid();
-    printf("------ the current pid is: %d\n", pid);
+    InformerDEBUG("------ the current pid is: %d\n", pid);
 
     ef = getpwuid(geteuid());
-    printf("------ the effective user is: %s\n", ef->pw_name);
+    InformerDEBUG("------ the effective user is: %s\n", ef->pw_name);
 
     sprintf(cmd, "%s start %s %d", daemon, ef->pw_name, pid);
     InformerDEBUG("Going to run: %s\n", cmd);
+
     retval = sparkSystemSh(TRUE, cmd);
-    printf("----- FOOBAR IS RUNNING retval(%d) ------\n", retval);
+    InformerDEBUG("----- UPLOADER IS RUNNING retval(%d) ------\n", retval);
 
     return SPARK_MODULE;
 }
@@ -317,7 +316,7 @@ SparkUnInitialise(SparkInfoStruct spark_info)
 int
 SparkClips(void)
 {
-    InformerDEBUG("----> SparkClips called <----\n");
+    // InformerDEBUG("----> SparkClips called <----\n");
     return 1;
 }
 
@@ -543,7 +542,10 @@ InformerDEBUG(const char *format, ...)
     vsprintf(str, format, args);
     va_end(args);
 
-    fprintf(stderr, "DEBUG: %s", str);
+    if (gLog != NULL)
+        fprintf(gLog, "SPARK DEBUG: %s", str);
+    else
+        fprintf(stderr, "SPARK DEBUG: %s", str);
 }
 
 void
@@ -557,7 +559,9 @@ InformerERROR(const char *format, ...)
     vsprintf(str, format, args);
     va_end(args);
 
-    fprintf(stderr, "ERROR: %s", str);
+    if (gLog != NULL)
+        fprintf(gLog, "SPARK ERROR: %s", str);
+    fprintf(stderr, "INFORMER ERROR: %s", str);
     InformerSetAppState(app, INFORMER_APP_STATE_ERR);
     sparkError(str);
 }
@@ -632,7 +636,7 @@ InformerSetAppState(InformerAppStruct *app, InformerAppStateChoice state)
 {
     char *msg;
 
-    printf("+++ about to set the app state\n");
+    InformerDEBUG("+++ about to set the app state\n");
 
     if (INFORMER_APP_STATE_OK == state)
         msg = "INFORMER_APP_STATE_OK";
@@ -644,7 +648,7 @@ InformerSetAppState(InformerAppStruct *app, InformerAppStateChoice state)
     InformerDEBUG("(((( now setting app state to: %s ))))\n", msg);
     app->app_state = state;
 
-    printf("+++ done\n");
+    InformerDEBUG("+++ done\n");
 }
 
 int

@@ -67,13 +67,11 @@ void PythonInitialize(const char *program)
     InformerDEBUG("Hello, brave new world\n\n");
 
     InformerDEBUG("----------- what is sys ------------\n");
-    PyRun_SimpleString("print 'sys is:', sys\n");
     InformerDEBUG("----------- going to import sys ------------\n");
     PyRun_SimpleString("import sys\n");
     InformerDEBUG("----------- going to append ------------\n");
     PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/lib')\n");
     PyRun_SimpleString("sys.path.append('/usr/discreet/sparks/instinctual/informer/third_party/lib')\n");
-    PyRun_SimpleString("print 'after:', sys.path\n");
 
     PyRun_SimpleString("import sitecustomize\n");
 
@@ -113,7 +111,6 @@ void PythonInitialize(const char *program)
     pResult = PyObject_CallMethod(APP, "start", NULL);
     Py_XDECREF(pResult);
 
-    PyRun_SimpleString("print 'DONE LOADING PYTHON'\n");
     PythonEndCall();
 }
 
@@ -147,7 +144,7 @@ void PythonExit(void)
 
     PythonBeginCall();
 
-    PyRun_SimpleString("print 'NOW STOPPING THE APP'\n");
+    InformerDEBUG("NOW STOPPING THE APP\n");
 
     app = PythonGetApp();
     pResult = PyObject_CallMethod(app, "stop", NULL);

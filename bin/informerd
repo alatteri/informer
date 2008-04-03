@@ -21,54 +21,55 @@ unset TMPDIR
 # Check that networking is up.
 [ ${NETWORKING} = "no" ] && exit 0
 
-echo "PARENT PID: ${PPID}"
-
 USER="$2"
 FLAME_PID="$3"
 
 RETVAL=0
 
 INFORMER_ROOT="/usr/discreet/sparks/instinctual/informer"
+INFORMER_LOGFILE="${INFORMER_ROOT}/logs/informer.log"
 
 UPLOADER_APP="${INFORMER_ROOT}/bin/uploader"
 UPLOADER_APP_FLAGS="-D"
 UPLOADER_APP_PID="${INFORMER_ROOT}/uploads/uploader.pid"
 
+echo "PARENT PID: ${PPID}" >> INFORMER_LOGFILE
+
 start() {
     if [ ! -z "$FLAME_PID" ]; then
-        echo "---> flame pid specified as $FLAME_PID"
+        echo "---> flame pid specified as $FLAME_PID" >> INFORMER_LOGFILE
         UPLOADER_APP_FLAGS="$UPLOADER_APP_FLAGS -P $FLAME_PID"
-        echo "FLAGS are: $UPLOADER_APP_FLAGS"
+        echo "FLAGS are: $UPLOADER_APP_FLAGS" >> INFORMER_LOGFILE
     fi
 
-    echo -n $"Starting informer uploader: "
+    echo -n $"Starting informer uploader: " >> INFORMER_LOGFILE
     if [ -z "$USER" ]; then
-        echo "Running with default user"
-        daemon $UPLOADER_APP $UPLOADER_APP_FLAGS
+        echo "Running with default user" >> INFORMER_LOGFILE
+        daemon $UPLOADER_APP $UPLOADER_APP_FLAGS >> INFORMER_LOGFILE
     else
-        echo "Running with user=$USER"
-        daemon --user=$USER $UPLOADER_APP $UPLOADER_APP_FLAGS
+        echo "Running with user=$USER" >> INFORMER_LOGFILE
+        daemon --user=$USER $UPLOADER_APP $UPLOADER_APP_FLAGS >> INFORMER_LOGFILE
     fi
     RETVAL=$?
-    echo
+    echo >> INFORMER_LOGFILE
     return $RETVAL
 }
 
 status() {
-    echo "status was called ${UPLOADER_APP_PID}"
+    echo "status was called ${UPLOADER_APP_PID}" >> INFORMER_LOGFILE
     pid=`cat ${UPLOADER_APP_PID}`
-    echo "pid was ${pid}"
+    echo "pid was ${pid}" >> INFORMER_LOGFILE
 }
 
 case "$1" in
   start)
-     start
+    start
     ;;
   status)
     status
     ;;
   *)
-    echo $"Usage: $0 {start} [user]"
+    echo $"Usage: $0 {start} [user]" >> INFORMER_LOGFILE
     exit 1
 esac
 

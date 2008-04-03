@@ -32,7 +32,7 @@ class App(Subject):
         Subject.__init__(self)
 
         self.program = program
-        print "The App program is:", program
+        LOG.debug("The App program is: %s" % program)
 
         # --------------------
         # APP STATE
@@ -115,17 +115,17 @@ class App(Subject):
     def stop(self):
         self.scheduler.stop()
         if self.scheduler.isAlive():
-            print "STOPPING INTERPRETER..."
+            LOG.debug("STOPPING INTERPRETER...")
             self.scheduler.join()
         else:
-            print "scheduler was dead."
+            LOG.debug("scheduler was dead.")
 
         for t in self.scheduler.threads.values():
             if t.isAlive():
                 t.stop()
-            print "Thread [%s] is alive %s" % (t.name, t.isAlive())
+            LOG.debug("Thread [%s] is alive %s" % (t.name, t.isAlive()))
 
-        print "the scheduler is alive %s" % (self.scheduler.isAlive())
+        LOG.debug("the scheduler is alive %s" % (self.scheduler.isAlive()))
 
     def _suspend(self):
         # suspend threads that alter the app state
@@ -140,24 +140,19 @@ class App(Subject):
     # Sparks
     # ----------------------------------------------------------------------
     def _sparkCleanName(self, name):
-        print "clean IN[%s]" % (name)
         if name and name[-1] == '\n':
             name = name[0:-1]
-        print "clean OUT[%s]" % (name)
         return name
 
     def sparkRegister(self, name):
         self.spark.name = self._sparkCleanName(name)
-        print "Now returning", self.spark.name
         return self.spark.name
 
     def sparkGetByName(self, name):
         name = self._sparkCleanName(name)
-        print "In the app trying to get the spark named", name
         return self.spark
 
     def sparkRename(self, oldName, newName):
-        print "rename called with [%s] and [%s]" % (oldName, newName)
         self.spark.name = newName
 
     def sparkProcessStart(self, name):
@@ -183,19 +178,14 @@ class App(Subject):
         during edit SparkProcessStart sets a flag to ignore the
         next Frame to be processed.
         """
-        print "w00t: sparkProcessStart called with: %s" % (name)
         self.ignoreFrames = True
-        print "hello" * 20
 
     def sparkProcessEnd(self, name):
         """
         Always called after a SparkProcessEnd it marks the point where the
         app can once again save frames.
         """
-        print "goodbye" * 20
-        print "w00t: sparkProcessEnd called with: %s" % (name)
         self.ignoreFrames = False
-        print "goodbye" * 20
 
     # ----------------------------------------------------------------------
     # Events
@@ -213,14 +203,11 @@ class App(Subject):
             lastEvent = None
             if key in os.environ:
                 lastEvent = float(os.environ[key])
-                print "<<<<<<<<< _LAST_EVENT_ [%s] >>>>>>>>>>" % (lastEvent)
 
             eventSeconds = float(datetimeToSeconds(appEvent.date))
-            print "<<<<<<<<< eventSeconds     %s >>>>>>>>>>" % (eventSeconds)
 
             if lastEvent is None or eventSeconds > lastEvent:
                 LOG.debug("SENDING EVENT... LOOKS GOOD")
-                print ("SENDING EVENT... LOOKS GOOD")
                 try:
                     client = Client()
                     if appEvent.job:
@@ -239,7 +226,7 @@ class App(Subject):
                 # explictly state the precision of the float
                 os.environ[key] = "%.6f" % eventSeconds
             else:
-                print ("SKIPPING EVENT! LAST EVENT WAS MORE RECENT...")
+                LOG.debug("SKIPPING EVENT! LAST EVENT WAS MORE RECENT...")
 
     def _setAppEvent(self, appEvent, logEvent):
         appEvent.date = logEvent.date
@@ -252,11 +239,11 @@ class App(Subject):
         return appEvent
 
     def setFrameRate(self, frameRate):
-        print "setFrameRate:", frameRate
+        LOG.debug("setFrameRate: %s" % frameRate)
         self.frameRate = frameRate
 
     def setPixelAspectRatio(self, pixelAspectRatio):
-        print "setPixelAspectRatio:", pixelAspectRatio
+        LOG.debug("setPixelAspectRatio: %s" % pixelAspectRatio)
         self.pixelAspectRatio = pixelAspectRatio
 
     # ----------------------------------------------------------------------
@@ -270,12 +257,10 @@ class App(Subject):
 
         Returns: None if frame should be ignored, or path for rgb file
         """
-        print "+" * 80
-        print "APP: frameProcessStart called for (%s)" % (sparkName)
-        print "+" * 80
+        LOG.debug("APP: frameProcessStart called for (%s)" % (sparkName))
 
         if self.ignoreFrames:
-            print "----- IGNORING FRAME! -------"
+            LOG.debug("----- IGNORING FRAME! -------")
             return None
 
         f = Frame(uploadsDir)
@@ -301,12 +286,10 @@ class App(Subject):
         try:
             # associate the frame with the spark
             self.spark.registerFrame(f)
-            print "Created frame"
-            pprint(f.__dict__)
-
-            print "about to save"
+            LOG.debug("Created frame")
+            LOG.debug("about to save")
             f.save()
-            print "ok. save is done"
+            LOG.debug("ok. save is done")
         except SparkDuplicateFrame, e:
             f.delete()
             return None
@@ -317,9 +300,7 @@ class App(Subject):
         """
         Called after the spark has written the frame to disk.
         """
-        print "+" * 80
-        print "APP: frameProcessEnd called"
-        print "+" * 80
+        LOG.debug("APP: frameProcessEnd called")
 
         f = self.spark.getLastFrame()
         f.isBusy = False
@@ -463,11 +444,9 @@ class App(Subject):
         """
         Called when an informer setup file was loaded.
         """
-        print "--------}}}} informer setup:", setup
-        print "--------}}}} informer job:", job
         if self.isBurn() and not self.lastJob:
             self.lastJob = job
-            print "-------}}}}} set job to:", self.lastJob
+            LOG.debug("set job to: %s" % self.lastJob)
 
 
     def cbSaveSetup(self, event, setup, **kwargs):
@@ -475,7 +454,7 @@ class App(Subject):
         Called when a setup has been saved
         - flushes the batch queue
         """
-        LOG.info("--- SAVE SETUP %s", (setup))
+        LOG.info("--- SAVE SETUP %s" % (setup))
 
         self.setup = setup
         parsed = instinctual.informer.parseSetup(setup)
@@ -491,10 +470,6 @@ class App(Subject):
         """
         LOG.info("BATCH PROCESS EVENT")
 
-        print "=" * 80
-        print "                     BATCH PROCESS EVENT"
-        print "=" * 80
-
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         appEvent.job = str(uuid.uuid1())
         appEvent.rate = self.frameRate
@@ -508,15 +483,11 @@ class App(Subject):
         """
         Called when the user does a burn process
         """
-        LOG.info("BURN PROCESS EVENT")
-        print "=" * 80
-        print "                     BURN PROCESS EVENT"
-        print "=" * 80
+        LOG.info("BURN PROCESS EVENT (job: %s)" % job)
 
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
         appEvent.job = job
         appEvent.rate = self.frameRate
-        print "---------- BURN JOB IS:", job
 
         self.lastJob = appEvent.job
         self.lastProcess = appEvent
@@ -533,19 +504,15 @@ class App(Subject):
         This method receives Log file events and uses them to mark pending flags for
         upload or deletion.
         """
-        #print "=" * 80
-        #print "                     TIMED EVENT (happened at: %s)" % (event.date)
-        #print "=" * 80
-
         if self.isBurn():
             # Nothing to do. All frames processed under burn are automatically
             # marked for upload.
             pass
         elif self.lastProcess:
-            print "last process was set: uploading..."
+            LOG.debug("last process was set: uploading...")
             self.spark.uploadFramesOlderThan(datetimeToSeconds(event.date), self.lastJob)
         else:
-            print "last process was none -- calling spark delete"
+            LOG.debug("last process was none -- calling spark delete")
             self.spark.deleteFramesOlderThan(datetimeToSeconds(event.date))
 
         # Now, check to see if we need to clear the lastProcess state...
@@ -587,8 +554,6 @@ class App(Subject):
             # [notice] 2588263744 clipMgt.C:568 03/23/08:22:45:46.509 AUTOSAVE ( completed in 0.1 sec )
             pass
         elif self.lastProcess is not None:
-            print "|" * 80
-            print "Setting lastProcess to None!"
-            print "|" * 80
+            LOG.debug("Setting lastProcess to None!")
             self.lastJob = None
             self.lastProcess = None

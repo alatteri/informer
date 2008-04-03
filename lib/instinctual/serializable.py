@@ -5,6 +5,9 @@ import errno
 import pickle
 import random
 
+import instinctual
+LOG = instinctual.getLogger(__name__)
+
 class Serializable(object):
     def __init__(self, parent, name):
         self._id = str(uuid.uuid1())
@@ -27,7 +30,7 @@ class Serializable(object):
         output.close()
 
     def delete(self):
-        print "[[[[[[[[ delete called for %s ]]]]]]]]]]]]" % (self.container)
+        LOG.debug("[[[[[[[[ delete called for %s ]]]]]]]]]]]]" % (self.container))
 
         for root, dirs, files in os.walk(self.container):
             for f in files:
