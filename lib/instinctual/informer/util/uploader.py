@@ -110,7 +110,7 @@ class Uploader(object):
     # ------------------------------------------------------------------------------
     def isPidRunning(self, pid):
         try:
-            os.stat('/proc/%s' % self.flamePid)
+            os.stat('/proc/%s' % pid)
             return True
             # LOG.debug("Flame process (%s) still running..." % self.lamePid)
         except OSError, e:
@@ -176,7 +176,6 @@ class Uploader(object):
             count += 1
 
             LOG.debug("%s) Found -> %s" % (count, framePath))
-            print("%s) Found -> %s" % (count, framePath))
 
             try:
                 frame = Frame.load(framePath)
