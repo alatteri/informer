@@ -38,7 +38,7 @@ Jasper (do this before ImageMagick)
 -------------------------------------------------------------------------------
 % cd third_party/src
 % cd jasper-1.900.1
-./configure --prefix=`pwd`/../.. --with-pic --enable-static
+./configure --prefix=`pwd`/../.. --disable-shared --with-pic --enable-static
 
 -------------------------------------------------------------------------------
 Tiff Support (Some Macs need this... lameness.  Do this before ImageMagick.)
@@ -52,7 +52,7 @@ ImageMagick with Jasper Support
 ---------------------------------------------------------------------------------
 % cd third_party/src
 % cd ImageMagick-6.3.9
-./configure  --prefix=`pwd`/../.. LDFLAGS=-L`pwd`/../../lib CFLAGS=-I`pwd`/../../include --with-pic --enable-static
+./configure  --prefix=`pwd`/../.. LDFLAGS=-L`pwd`/../../lib CFLAGS=-I`pwd`/../../include --with-pic --enable-static --without-freetype --without-perl --without-png --without-x --with-xml --disable-shared
 
 --------------------------------------------------------------------------------
 psycopg2
