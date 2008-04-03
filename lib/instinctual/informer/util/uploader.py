@@ -25,7 +25,7 @@ from glob import glob
 import instinctual
 from instinctual import settings
 from instinctual.informer.client import Client, ClientConnectionError
-from instinctual.informer.frame import Frame, FRAME_UPLOAD, FRAME_DELETE
+from instinctual.informer.frame import Frame, FRAME_UPLOAD, FRAME_DELETE, FRAME_UNKNOWN
 
 LOG = instinctual.getLogger('uploader')
 
@@ -38,165 +38,203 @@ class LogWarn(object):
         return LOG.warn(msg)
 
 # ------------------------------------------------------------------------------
-# really... someday take the time and clean this up
-# ------------------------------------------------------------------------------
-def main():
-    conf = instinctual.getConf()
-    uploadDir = conf.get('informer', 'dir_uploads')
-    frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
+class Uploader(object):
+    def __init__(self):
+        conf = instinctual.getConf()
+        thirdPartyBin = conf.get('informer', 'dir_third_party_bin')
+        uploadDir = conf.get('informer', 'dir_uploads')
 
-    thirdPartyBin = conf.get('informer', 'dir_third_party_bin')
-    convert = os.path.join(thirdPartyBin, 'convert')
-    identify = os.path.join(thirdPartyBin, 'identify')
+        self.pidfile = os.path.join(uploadDir, 'uploader.pid')
+        self.frameGlob = os.path.join(uploadDir, '*', 'frame.pkl')
+        self.convert = os.path.join(thirdPartyBin, 'convert')
+        self.identify = os.path.join(thirdPartyBin, 'identify')
 
-    daemon = False
-    flamePid = None
+        self.maxWidth  = 1024
+        self.maxHeight = 768
+        self.identifyRegExp = re.compile(r'\s+(\d+)x(\d+)\s+')
 
-    for i in range(len(sys.argv)):
-        if sys.argv[i] == '-P':
-            flamePid = sys.argv[i+1]
-        elif sys.argv[i] == '-D':
-            daemon = True
+        self.daemon = False
+        self.flamePid = None
 
-    if daemon == True:
-        LOG.debug("running in daemon mode.")
-        if os.fork():
-            sys.exit(0)
-
-        sys.stdout = LogInfo()
-        sys.stderr = LogWarn()
+        for i in range(len(sys.argv)):
+            if sys.argv[i] == '-P':
+                self.flamePid = sys.argv[i+1]
+            elif sys.argv[i] == '-D':
+                self.daemon = True
 
     # ------------------------------------------------------------------------------
-    # check for running process
+    def createPid(self):
+        """
+        create the pid
+        """
+        parent = os.path.dirname(self.pidfile)
+
+        try:
+            os.makedirs(parent)
+            LOG.info("ok. made" + parent)
+        except OSError, e:
+            if errno.EEXIST != e.errno:
+                LOG.fatal("Unable to create %s: %s" % (parent, e))
+                raise e
+
+        fd = open(self.pidfile, 'w')
+        fd.write("%s\n" % os.getpid())
+        fd.close()
+
+        LOG.info("Uploader started with pid: %s" % os.getpid())
+
     # ------------------------------------------------------------------------------
-    pidfile = os.path.join(uploadDir, 'uploader.pid')
+    def removePid(self):
+        os.unlink(self.pidfile)
 
-    try:
-        fd = open(pidfile, 'r')
-        oldpid = fd.readline()[:-1]
-        cmdline = open('/proc/%s/cmdline' % oldpid, 'r').readline()
+    # ------------------------------------------------------------------------------
+    def isPidfileRunning(self):
+        """
+        check for running process
+        """
+        try:
+            fd = open(self.pidfile, 'r')
+            oldpid = fd.readline()[:-1]
+            cmdline = open('/proc/%s/cmdline' % oldpid, 'r').readline()
 
-        if cmdline.find('python') != -1 and cmdline.find('uploader') != -1:
-            LOG.info("Uploader already running with pid: %s" % (oldpid))
+            if cmdline.find('python') != -1 and cmdline.find('uploader') != -1:
+                LOG.info("Uploader already running with pid: %s" % (oldpid))
+                return True
+        except IOError, e:
+            if errno.ENOENT != e.errno:
+                LOG.fatal("Unable to determine if uploader running: %s" % (e))
+                raise e
+
+        return False
+
+    # ------------------------------------------------------------------------------
+    def isPidRunning(self, pid):
+        try:
+            os.stat('/proc/%s' % self.flamePid)
+            return True
+            # LOG.debug("Flame process (%s) still running..." % self.lamePid)
+        except OSError, e:
+            if e.errno == errno.ENOENT:
+                # LOG.debug("Flame process (%s) NOT running." % self.flamePid)
+                return False
+            else:
+                raise e
+
+    # ------------------------------------------------------------------------------
+    def run(self):
+        if self.isPidfileRunning():
             sys.exit(0)
-    except IOError, e:
-        if errno.ENOENT != e.errno:
-            LOG.fatal("Unable to determine if uploader running: %s" % (e))
-            raise e
 
-    # --------------------
-    # create the pid
-    #
-    try:
-        os.makedirs(uploadDir)
-        LOG.info("ok. made" + uploadDir)
-    except OSError, e:
-        if errno.EEXIST != e.errno:
-            LOG.fatal("Unable to create %s: %s" % (uploadDir, e))
-            raise e
+        if self.daemon == True:
+            LOG.debug("running in daemon mode.")
+            if os.fork():
+                sys.exit(0)
 
-    fd = open(pidfile, 'w')
-    fd.write("%s\n" % os.getpid())
-    fd.close()
+            sys.stdout = LogInfo()
+            sys.stderr = LogWarn()
 
-    LOG.info("Uploader started with pid: %s" % os.getpid())
+        self.createPid()
+
+        try:
+            try:
+                self.runLoop()
+            except Exception, e:
+                LOG.fatal("uploader exiting: %s" % (e))
+        finally:
+            self.removePid()
+
+    # ------------------------------------------------------------------------------
+    def runLoop(self):
+        run = True
+        tries = 0
+
+        while run:
+            count = self.uploadFrames()
+            time.sleep(3.0)
+
+            if not count:
+                if self.flamePid and not self.isPidRunning(self.flamePid):
+                    # LOG.debug("Flame appears to have exited...")
+                    tries += 1
+            else:
+                tries = 0
+
+            # Stop 5 mintues after work is done and flame has quit
+            if tries > 100:
+                # LOG.debug("No work to do and flame no longer running.")
+                run = False
 
     # ------------------------------------------------------------------------------
     # do the work
     # ------------------------------------------------------------------------------
-    tries = 0
-    maxWidth  = 1024
-    maxHeight = 768
-    identifyRegExp = re.compile(r'\s+(\d+)x(\d+)\s+')
+    def uploadFrames(self):
+        count = 0
+        matches = glob(self.frameGlob)
+        matches.sort()
 
-    try:
-        run = True
-        tries = 0
-        while run:
-            count = 0
-            matches = glob(frameGlob)
-            matches.sort()
-            for framePath in matches:
-                count += 1
-                LOG.debug("%s) Found -> %s" % (count, framePath))
-                print("%s) Found -> %s" % (count, framePath))
+        for framePath in matches:
+            count += 1
+
+            LOG.debug("%s) Found -> %s" % (count, framePath))
+            print("%s) Found -> %s" % (count, framePath))
+
+            try:
                 frame = Frame.load(framePath)
-
-                if frame.isBusy:
-                    LOG.debug("Frame was busy...")
-                elif FRAME_DELETE == frame.status:
-                    LOG.debug("Deleting frame:" + frame.rgbPath)
+                self.uploadFrame(frame)
+            except ClientConnectionError, e:
+                LOG.debug("Client error encountered -- ignoring frame")
+                frame.delete()
+            except Exception, e:
+                LOG.error("Error encountered trying to upload frame: %s" % e)
+                if frame:
                     frame.delete()
-                elif FRAME_UPLOAD == frame.status:
-                    LOG.debug("I can work on:" + frame.rgbPath)
-                    #frame.isBusy = True
-                    #frame.save()
+            time.sleep(0.1)
 
-                    par = 100 * float("%.5f" % frame.pixelAspectRatio)
-                    frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
+        return count
 
-                    cmd = '%s -quality 90 %s -resize "%s%%x100%%" -resize "%sx%s>" %s'
-                    cmd = cmd % (convert, frame.rgbPath, par, maxWidth, maxHeight, frame.resizedPath)
-                    print "CMD is:", cmd
-                    LOG.debug("CMD:" + cmd)
+    # ------------------------------------------------------------------------------
+    def uploadFrame(self, frame):
+        if frame.isBusy:
+            LOG.debug("Frame was busy...")
+        elif FRAME_DELETE == frame.status:
+            frame.delete()
+        elif FRAME_UPLOAD == frame.status:
+            LOG.debug("I can work on: %s" % frame)
+            #frame.isBusy = True
+            #frame.save()
 
-                    if 0 == os.system(cmd):
-                        cmd = '%s %s' % (identify, frame.resizedPath)
-                        (result, output) = commands.getstatusoutput(cmd)
-                        if 0 == result:
-                            match = identifyRegExp.search(output)
-                            if match != None:
-                                frame.resizedDepth = 8
-                                frame.resizedWidth = match.group(1)
-                                frame.resizedHeight = match.group(2)
-                                LOG.info("MATCHED (%s) X (%s)!" % (frame.resizedWidth, frame.resizedHeight))
-                                try:
-                                    LOG.info("FRAME (%s) STATUS (%s)" % (framePath, frame.status))
-                                    client = Client()
-                                    client.createFrame(frame)
-                                    LOG.debug("done!")
-                                    frame.delete()
-                                    pass
-                                except ClientConnectionError, e:
-                                    LOG.debug("Client error encountered -- ignoring frame")
-                                    frame.delete()
-                            else:
-                                LOG.warn("DID NOT MATCH identify group!")
-                        else:
-                            LOG.warn("identify did not return 0!")
-                    else:
-                        LOG.warn("FAILURE running convert")
+            par = 100 * float("%.5f" % frame.pixelAspectRatio)
+            frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
+
+            cmd = '%s -quality 90 %s -resize "%s%%x100%%" -resize "%sx%s>" %s'
+            cmd = cmd % (self.convert, frame.rgbPath, par, self.maxWidth, self.maxHeight, frame.resizedPath)
+            LOG.debug("CMD:" + cmd)
+
+            if 0 == os.system(cmd):
+                cmd = '%s %s' % (self.identify, frame.resizedPath)
+                (result, output) = commands.getstatusoutput(cmd)
+                if 0 == result:
+                    match = self.identifyRegExp.search(output)
+                    if match != None:
+                        frame.resizedDepth = 8
+                        frame.resizedWidth = match.group(1)
+                        frame.resizedHeight = match.group(2)
+                        LOG.info("MATCHED (%s) X (%s)!" % (frame.resizedWidth, frame.resizedHeight))
+
+                        LOG.info("FRAME (%s) STATUS (%s)" % (frame, frame.status))
+                        client = Client()
+                        client.createFrame(frame)
+                        LOG.debug("done!")
                         frame.delete()
-
-                time.sleep(0.1)
-
-            if flamePid:
-                try:
-                    os.stat('/proc/%s' % flamePid)
-                    tries = 0
-                    # LOG.debug("Flame process (%s) still running..." % flamePid)
-                except OSError, e:
-                    if e.errno == errno.ENOENT:
-                        LOG.debug("Flame process (%s) NOT running." % flamePid)
-                        tries += 1
                     else:
-                        raise e
-
-            if tries > 200:     # 10 minutes = 200 * 3.0 / 60
-                LOG.info("TIMEOUT: Flame appears to have exited. Quitting.")
-                run = False
+                        raise ValueError("DID NOT MATCH identify group!")
+                else:
+                    raise ValueError("identify did not return 0!")
             else:
-                # LOG.debug("now sleeping... (flame pid: %s)" % flamePid)
-                time.sleep(3.0)
-
-    except e:
-        LOG.fatal("uploader died: %s" % (e))
-        os.unlink(pidfile)
-        sys.exit(1)
-
-    os.unlink(pidfile)
-
-# ------------------------------------------------------------------------------
-class Uploader(object):
-    def run(self):
-        main()
+                raise ValueError("FAILURE running convert")
+        elif FRAME_UNKNOWN == frame.status:
+            # unknown frame -- check if the pid that generated it
+            # is still running. If not, it can be deleted
+            if not self.isPidRunning(frame.pid):
+                LOG.info("The pid (%s) that generated (%s) is no longer running" % (frame.pid, frame))
+                frame.delete()

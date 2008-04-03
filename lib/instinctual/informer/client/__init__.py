@@ -71,7 +71,6 @@ class Client(object):
 
     def createFrame(self, frame):
         framesUrl = informer.getFramesUrl('xml')
-        print "Time to upload", frame.rgbPath, "to", framesUrl
 
         data = {}
         data['job'] = frame.job
@@ -91,9 +90,7 @@ class Client(object):
         data['resized_depth'] = frame.resizedDepth
 
         image = open(frame.resizedPath).read()
-        print "About to get the frames uuid..."
         filename = "%s.png" % (frame.uuid)
-        print "the file would be:", filename
         files = {'image': {'file': image, 'filename': filename}}
         result = self.POST(framesUrl, data, files=files)
 
@@ -184,7 +181,6 @@ class Client(object):
             kwargs['resp'] = True
             kwargs['async'] = False
 
-            print "REST REQUEST URL -------->", args[0]
             resp, data = method(*args, **kwargs)
 
             LOG.info(data)

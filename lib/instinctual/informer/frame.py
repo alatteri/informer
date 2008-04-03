@@ -3,6 +3,8 @@ import errno
 import instinctual
 from instinctual.serializable import Serializable
 
+LOG = instinctual.getLogger(__name__)
+
 FRAME_DELETE='delete'
 FRAME_UPLOAD='upload'
 FRAME_UNKNOWN='unknown'
@@ -25,6 +27,7 @@ class Frame(Serializable):
         self.createdBy = None
         self.createdOn = None
 
+        self.pid = os.getpid()
         self.job = None
         self.spark = None
 
@@ -33,7 +36,12 @@ class Frame(Serializable):
         self.resizedHeight = None
         self.resizedPath   = None
 
+    def __str__(self):
+        return self.rgbPath
+
     def delete(self):
+        LOG.debug("Deleting frame %s" % self)
+
         try:
             if self.rgbPath:
                 os.unlink(self.rgbPath)
