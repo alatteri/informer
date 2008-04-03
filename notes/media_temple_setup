@@ -8,7 +8,7 @@ https://ac.mediatemple.net/services/manage/index.mt?domain=informerapp.com&serve
 3) Click +Add a record
 4) in the left field (Name) add the full domain name of new informer (example.. demo.informerapp.com)
 5) make sure Type pull-down is A
-6) in the right field (Data) add numerical IP of the DV server (Currently 72.47.216.74)
+6) in the right field (Data) add numerical IP of the DV server (Currently 72.47.216.74) When the site is set to have a real SSL certificate the IP must be same as the "exclusive" IP given to the domain in Plesk.
 7) Hit Save
 sometimes after adding 1 entry a new empty A record is created and the Save step will complain.  Make sure there are no empty A records.  Use the delete box on the right if necessary.
 
@@ -114,7 +114,7 @@ Password (again):
 10) give apache write permissions to upload
 % chmod g+w media
 
-11) install the moviemaker cronjob
+11) install the moviemaker cronjob to run every minute.
 % su - demo --shell=/bin/tcsh
 % crontab -e
 * * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
