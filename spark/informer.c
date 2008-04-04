@@ -178,6 +178,7 @@ SparkInitialise(SparkInfoStruct spark_info)
     SparkGraphInfoStruct spark_graph;
 
     gLog = fopen("/usr/discreet/sparks/instinctual/informer/logs/informer.log", "a");
+    setvbuf(gLog, NULL, _IONBF, 0);
 
     InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkInitialise called <----\n");
