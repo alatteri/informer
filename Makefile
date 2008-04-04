@@ -19,6 +19,8 @@ DEST_SERVER = $(DEST_BASE)/server
 # --------------------
 # try not to change the lines below
 #
+export TMPDIR:=$(shell echo "`pwd`")/$(DEST_BASE)/tmp
+
 DIR_BIN = bin
 DIR_LIB = lib
 DIR_CONF = conf
@@ -50,6 +52,10 @@ LIB_PYCS_SERVER_ONLY = %rest.pyc %responder.pyc %moviemaker.pyc %urls.pyc %views
                        %rest_filelist.pyc %signals.pyc %manage.pyc
 
 SPARK_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DEST_SPARK)/, $(LIB_PYCS)))
+SPARK_THIRD_PARTY = /usr/discreet/sparks/instinctual/informer/$(DEST_SPARK)/$(DIR_THIRD_PARTY)
+SPARK_THIRD_PARTY_BIN = $(SPARK_THIRD_PARTY)/bin
+SPARK_THIRD_PARTY_LIB = $(SPARK_THIRD_PARTY)/lib
+SPARK_THIRD_PARTY_INCLUDE = $(SPARK_THIRD_PARTY)/include
 
 SERVER_LIB_PYCS = $(addprefix $(DEST_SERVER)/, $(LIB_PYCS))
 SERVER_THIRD_PARTY = $(abspath $(DEST_SERVER)/$(DIR_THIRD_PARTY))
@@ -57,12 +63,16 @@ SERVER_THIRD_PARTY_BIN = $(SERVER_THIRD_PARTY)/bin
 SERVER_THIRD_PARTY_LIB = $(SERVER_THIRD_PARTY)/lib
 SERVER_THIRD_PARTY_INCLUDE = $(SERVER_THIRD_PARTY)/include
 
+EXTRA_THIRD_PARTY_BINS = animate compare composite conjure display imgcmp imginfo \
+			import jasper Magick-config Magick++-config MagickCore-config \
+			MagickWand-config mogrify montage stream tmrdemo Wand-config
+
 all :
 	@echo "usage:"
 	@echo "    make server"
 	@echo "    make spark"
 
-spark : $(SPARK_LIB_PYCS)
+spark : $(SPARK_LIB_PYCS) spark_third_party
 	@echo "Making spark $(DEST_SPARK)..."
 	install -d "$(DEST_SPARK)/$(DIR_BIN)"
 	install -d -m 777 "$(DEST_SPARK)/$(DIR_LOGS)"
@@ -77,8 +87,10 @@ spark : $(SPARK_LIB_PYCS)
 	install -d "$(DEST_SPARK)/$(DIR_CONF)"
 	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DEST_SPARK)/$(DIR_CONF)/instinctual.ini"
 
-	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DEST_SPARK)/$(DIR_THIRD_PARTY)" \
+	$(RSYNC) $(DIR_THIRD_PARTY)/python "$(DEST_SPARK)/$(DIR_THIRD_PARTY)" \
 		--exclude=django --exclude=django_restapi --exclude=psycopg2\*
+
+	rm -Rf $(SPARK_THIRD_PARTY)/share
 	svn info | grep Revision | cut -d ' ' -f 2 > $(DEST_SPARK)/VERSION
 
 server : $(SERVER_LIB_PYCS) server_third_party
@@ -117,13 +129,24 @@ $(SERVER_LIB_PYCS) : $(LIB_PYCS)
 	install -d "$(dir $@)"
 	install -m 644 "$(subst $(DEST_SERVER)/,,$@)" "$@"
 
+spark_third_party : spark_image_magick
+
 server_third_party : server_image_magick server_ffmpeg
+
+spark_jasper :
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) jasper.tar.gz && \
+	cd $(THIRD_PARTY_JASPER) && \
+	./configure --prefix=$(SPARK_THIRD_PARTY) \
+	--disable-shared --with-pic --enable-static && \
+	$(MAKE) && \
+	$(MAKE) install)
 
 server_jasper :
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) jasper.tar.gz && \
 	cd $(THIRD_PARTY_JASPER) && \
-        ./configure --prefix=$(SERVER_THIRD_PARTY) \
+	./configure --prefix=$(SERVER_THIRD_PARTY) \
 	--disable-shared --with-pic --enable-static && \
 	$(MAKE) && \
 	$(MAKE) install)
@@ -138,6 +161,18 @@ ifdef OSX
 	$(MAKE) install)
 endif
 
+spark_image_magick : spark_jasper
+	(cd $(DIR_THIRD_PARTY_SRC) && \
+	$(UNTAR) ImageMagick.tar.gz && \
+	cd $(THIRD_PARTY_IMAGE_MAGICK) && \
+	./configure  --prefix=$(SPARK_THIRD_PARTY) LDFLAGS=-L$(SPARK_THIRD_PARTY_LIB) \
+	CFLAGS=-I$(SPARK_THIRD_PARTY_INCLUDE) --with-pic --enable-static \
+	--without-freetype --without-perl --without-png --without-x \
+	--with-xml --disable-shared && \
+	$(MAKE) && \
+	$(MAKE) install)
+	rm $(addprefix $(SPARK_THIRD_PARTY_BIN)/, $(EXTRA_THIRD_PARTY_BINS))
+
 server_image_magick : server_jasper server_tiff
 	(cd $(DIR_THIRD_PARTY_SRC) && \
 	$(UNTAR) ImageMagick.tar.gz && \
@@ -148,6 +183,7 @@ server_image_magick : server_jasper server_tiff
 	--with-xml --disable-shared && \
 	$(MAKE) && \
 	$(MAKE) install)
+	rm $(addprefix $(SERVER_THIRD_PARTY_BIN)/, $(EXTRA_THIRD_PARTY_BINS))
 
 server_x264 :
 	(cd $(DIR_THIRD_PARTY_SRC) && \
