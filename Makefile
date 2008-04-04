@@ -1,7 +1,7 @@
 ########################################################################
 #                             Makefile                                 #
 ########################################################################
-DIR_DEST = build
+DEST_BASE = build
 EXCLUDE = --exclude=.svn --exclude=\*.pyc --exclude=.DS_Store
 
 UNAME = $(shell uname)
@@ -13,8 +13,8 @@ else
 	PLATFORM = 'linux'
 endif
 
-DIR_CLIENT = $(DIR_DEST)/instinctual/informer
-DIR_SERVER = $(DIR_DEST)/server
+DEST_SPARK = $(DEST_BASE)/instinctual/informer
+DEST_SERVER = $(DEST_BASE)/server
 
 # --------------------
 # try not to change the lines below
@@ -49,55 +49,58 @@ LIB_PYCS_SERVER_ONLY = %rest.pyc %responder.pyc %moviemaker.pyc %urls.pyc %views
                        %models.pyc %custom_base.pyc %custom_xml.pyc %custom_json.pyc \
                        %rest_filelist.pyc %signals.pyc %manage.pyc
 
-CLIENT_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DIR_CLIENT)/, $(LIB_PYCS)))
+SPARK_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DEST_SPARK)/, $(LIB_PYCS)))
 
-SERVER_LIB_PYCS = $(addprefix $(DIR_SERVER)/, $(LIB_PYCS))
-SERVER_THIRD_PARTY = $(abspath $(DIR_SERVER)/$(DIR_THIRD_PARTY))
+SERVER_LIB_PYCS = $(addprefix $(DEST_SERVER)/, $(LIB_PYCS))
+SERVER_THIRD_PARTY = $(abspath $(DEST_SERVER)/$(DIR_THIRD_PARTY))
 SERVER_THIRD_PARTY_BIN = $(SERVER_THIRD_PARTY)/bin
 SERVER_THIRD_PARTY_LIB = $(SERVER_THIRD_PARTY)/lib
 SERVER_THIRD_PARTY_INCLUDE = $(SERVER_THIRD_PARTY)/include
 
-all : client server
+all :
+	@echo "usage:"
+	@echo "    make server"
+	@echo "    make spark"
 
-client : $(CLIENT_LIB_PYCS)
-	@echo "Making client $(DIR_CLIENT)..."
-	install -d "$(DIR_CLIENT)/$(DIR_BIN)"
-	install -d -m 777 "$(DIR_CLIENT)/$(DIR_LOGS)"
-	install -d "$(DIR_CLIENT)/$(DIR_SPARK)"
-	install -d -m 777 "$(DIR_CLIENT)/$(DIR_UPLOADS)"
-	install -d "$(DIR_CLIENT)/$(DIR_THIRD_PARTY)"
+spark : $(SPARK_LIB_PYCS)
+	@echo "Making spark $(DEST_SPARK)..."
+	install -d "$(DEST_SPARK)/$(DIR_BIN)"
+	install -d -m 777 "$(DEST_SPARK)/$(DIR_LOGS)"
+	install -d "$(DEST_SPARK)/$(DIR_SPARK)"
+	install -d -m 777 "$(DEST_SPARK)/$(DIR_UPLOADS)"
+	install -d "$(DEST_SPARK)/$(DIR_THIRD_PARTY)"
 
-	install -m 755 "$(DIR_BIN)/informerd" "$(DIR_CLIENT)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/uploader"  "$(DIR_CLIENT)/$(DIR_BIN)"
-	install -m 755 $(wildcard $(DIR_SPARK)/informer.spark*) "$(DIR_CLIENT)/.."
+	install -m 755 "$(DIR_BIN)/informerd" "$(DEST_SPARK)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/uploader"  "$(DEST_SPARK)/$(DIR_BIN)"
+	install -m 755 $(wildcard $(DIR_SPARK)/informer.spark*) "$(DEST_SPARK)/.."
 
-	install -d "$(DIR_CLIENT)/$(DIR_CONF)"
-	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DIR_CLIENT)/$(DIR_CONF)/instinctual.ini"
+	install -d "$(DEST_SPARK)/$(DIR_CONF)"
+	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DEST_SPARK)/$(DIR_CONF)/instinctual.ini"
 
-	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DIR_CLIENT)/$(DIR_THIRD_PARTY)" \
+	$(RSYNC) $(DIR_THIRD_PARTY)/{bin,include,lib,python,share} "$(DEST_SPARK)/$(DIR_THIRD_PARTY)" \
 		--exclude=django --exclude=django_restapi --exclude=psycopg2\*
-	svn info | grep Revision | cut -d ' ' -f 2 > $(DIR_CLIENT)/VERSION
+	svn info | grep Revision | cut -d ' ' -f 2 > $(DEST_SPARK)/VERSION
 
 server : $(SERVER_LIB_PYCS) server_third_party
-	@echo "Making server $(DIR_SERVER)..."
-	install -d "$(DIR_SERVER)/$(DIR_BIN)"
-	install -d "$(DIR_SERVER)/$(DIR_LOGS)"
-	install -d "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
+	@echo "Making server $(DEST_SERVER)..."
+	install -d "$(DEST_SERVER)/$(DIR_BIN)"
+	install -d "$(DEST_SERVER)/$(DIR_LOGS)"
+	install -d "$(DEST_SERVER)/$(DIR_THIRD_PARTY)"
 
-	install -m 755 "$(DIR_BIN)/fakedata"   "$(DIR_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/loopmaker"  "$(DIR_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/moviemaker" "$(DIR_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/runserver"  "$(DIR_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/fakedata"   "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/loopmaker"  "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/moviemaker" "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/runserver"  "$(DEST_SERVER)/$(DIR_BIN)"
 
-	install -d "$(DIR_SERVER)/$(DIR_CONF)"
-	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DIR_SERVER)/$(DIR_CONF)/instinctual.ini"
+	install -d "$(DEST_SERVER)/$(DIR_CONF)"
+	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DEST_SERVER)/$(DIR_CONF)/instinctual.ini"
 
-	$(RSYNC) "$(DIR_MEDIA)"     "$(DIR_SERVER)" --exclude=2008
-	$(RSYNC) "$(DIR_TEMPLATES)" "$(DIR_SERVER)"
-	$(RSYNC) "$(DIR_THIRD_PARTY_PYTHON)" "$(DIR_SERVER)/$(DIR_THIRD_PARTY)"
+	$(RSYNC) "$(DIR_MEDIA)"     "$(DEST_SERVER)" --exclude=2008
+	$(RSYNC) "$(DIR_TEMPLATES)" "$(DEST_SERVER)"
+	$(RSYNC) "$(DIR_THIRD_PARTY_PYTHON)" "$(DEST_SERVER)/$(DIR_THIRD_PARTY)"
 
-	svn info | grep Revision | cut -d ' ' -f 2 > $(DIR_SERVER)/VERSION
-	echo "INFORMER_VERSION = \"`cat $(DIR_SERVER)/VERSION`\";" > $(DIR_SERVER)/$(DIR_MEDIA)/js/version.js
+	svn info | grep Revision | cut -d ' ' -f 2 > $(DEST_SERVER)/VERSION
+	echo "INFORMER_VERSION = \"`cat $(DEST_SERVER)/VERSION`\";" > $(DEST_SERVER)/$(DIR_MEDIA)/js/version.js
 
 $(LIB_PYCS) : $(LIB_PYS)
 	python -c "import sys; \
@@ -106,13 +109,13 @@ $(LIB_PYCS) : $(LIB_PYS)
 		   import sitecustomize; \
 		   import $(subst /,., $(subst $(DIR_LIB)/,,$(basename $@)))"
 	
-$(CLIENT_LIB_PYCS) : $(filter-out $(LIB_PYCS_SERVER_ONLY), $(LIB_PYCS))
+$(SPARK_LIB_PYCS) : $(filter-out $(LIB_PYCS_SERVER_ONLY), $(LIB_PYCS))
 	install -d "$(dir $@)"
-	install -m 644 "$(subst $(DIR_CLIENT)/,,$@)" "$@"
+	install -m 644 "$(subst $(DEST_SPARK)/,,$@)" "$@"
 
 $(SERVER_LIB_PYCS) : $(LIB_PYCS)
 	install -d "$(dir $@)"
-	install -m 644 "$(subst $(DIR_SERVER)/,,$@)" "$@"
+	install -m 644 "$(subst $(DEST_SERVER)/,,$@)" "$@"
 
 server_third_party : server_image_magick server_ffmpeg
 
@@ -182,21 +185,21 @@ endif
 	cp $(THIRD_PARTY_QT_FASTSTART) $(SERVER_THIRD_PARTY_BIN))
 
 dist :
-	@echo "Creating client distribution..."
-	(test -d $(DIR_CLIENT) && \
-	cd $(DIR_DEST) && \
+	@echo "Creating spark distribution..."
+	(test -d $(DEST_SPARK) && \
+	cd $(DEST_BASE) && \
 	tar cvfzp ../dist/spark.r`cat instinctual/informer/VERSION`.tar.gz instinctual; \
 	true)
 
 	@echo "Creating server distribution..."
-	(test -d $(DIR_SERVER) && \
-	cd $(DIR_DEST) && \
+	(test -d $(DEST_SERVER) && \
+	cd $(DEST_BASE) && \
 	tar cvfzp ../dist/server.r`cat server/VERSION`.tar.gz server; \
 	true)
 
 clean :
 	@echo "Making clean..."
-	rm -Rf $(DIR_CLIENT) $(DIR_SERVER)
+	rm -Rf $(DEST_SPARK) $(DEST_SERVER)
 	rm -f $(LIB_PYCS)
 
 	(test -d $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_JASPER) && \
@@ -215,4 +218,4 @@ clean :
 	cd $(DIR_THIRD_PARTY_SRC)/$(THIRD_PARTY_FFMPEG) && $(MAKE) clean && \
 	rm -f tools/$(THIRD_PARTY_QT_FASTSTART); true)
 
-.PHONY : clean dist
+.PHONY : clean dist server spark
