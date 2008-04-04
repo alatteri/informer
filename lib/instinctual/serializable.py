@@ -34,11 +34,22 @@ class Serializable(object):
 
         for root, dirs, files in os.walk(self.container):
             for f in files:
-                os.remove(os.path.join(root, f))
+                try:
+                    os.remove(os.path.join(root, f))
+                except OSError, e:
+                    if errno.ENOENT != e.errno:
+                        raise e
             for d in dirs:
-                os.remove(os.path.join(root, d))
-
-        os.rmdir(self.container)
+                try:
+                    os.remove(os.path.join(root, d))
+                except OSError, e:
+                    if errno.ENOENT != e.errno:
+                        raise e
+        try:
+            os.rmdir(self.container)
+        except OSError, e:
+            if errno.ENOENT != e.errno:
+                raise e
 
     def _getId(self):
         return self._id

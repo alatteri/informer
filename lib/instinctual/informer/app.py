@@ -471,13 +471,20 @@ class App(Subject):
         LOG.info("BATCH PROCESS EVENT")
 
         appEvent = self._setAppEvent(DiscreetAppBatchProcessEvent(), event)
+        LOG.debug("1")
         appEvent.job = str(uuid.uuid1())
+        LOG.debug("2")
         appEvent.rate = self.frameRate
+        LOG.debug("3")
 
         self.lastJob = appEvent.job
+        LOG.debug("4")
         self.lastProcess = appEvent
+        LOG.debug("5")
         self.events.append(appEvent)
+        LOG.debug("6")
         self.flushEventQueue()
+        LOG.debug("7")
 
     def cbBurnProcess(self, event, job, **kwargs):
         """
