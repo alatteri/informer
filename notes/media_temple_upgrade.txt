@@ -1,0 +1,14 @@
+You can *almost* copy this straight
+but be aware there is a chown on the
+second line that requires the user!
+
+sudo cp -Rf ~/source/build/server informer.new
+sudo chown -R fxguide.psaserv informer.new
+sudo cp informer/conf/instinctual.ini informer.new/conf/instinctual.ini
+sudo mv informer informer.old
+sudo mv informer.new informer
+sudo rm -Rf informer/media/branding
+sudo mv informer.old/media/{frames,movies,branding} informer/media/
+sudo chmod 777 informer/logs
+sudo touch informer/logs/informer.log
+sudo chmod 666 informer/logs/informer.log
