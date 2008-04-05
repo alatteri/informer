@@ -335,6 +335,11 @@ div.box.small ul {
 #admin #content div.save_bar input {
 	margin-left: 5px;
 	}	
+#admin #content div.box.large #form-change_password span.error {
+	display: block;
+	margin: 0 0 0 105px;
+	color: #9c060b;
+	}	
 	
 /* SELECTOR (FILTER INTERFACE) */
 .selector { width:580px; float:left; }
