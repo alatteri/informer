@@ -62,6 +62,7 @@ class Shot(models.Model):
     status      = models.CharField(maxlength=64, null=True, blank=True)
     handles     = models.CharField(maxlength=32, null=True, blank=True)
     frames      = models.IntegerField(default=0)
+    sequence    = models.CharField(maxlength=4096, null=True, blank=True)
 
     # --------------------
     def get_absolute_url(self):
@@ -331,10 +332,6 @@ class Log(InformerMixIn, models.Model):
     msg_prefix  = models.CharField(maxlength=4096)
     object_repr = models.CharField(maxlength=4096)
     msg_suffix  = models.CharField(maxlength=4096)
-
-    class Admin:
-        list_display = ('shot', 'who', 'when', 'action', 'type', 'object_id',
-                        'msg_prefix', 'object_repr', 'msg_suffix')
 
     class Rest:
         expose_fields = ['who', 'when', 'action', 'type', 'object_id',
