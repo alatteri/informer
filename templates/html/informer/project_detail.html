@@ -45,11 +45,17 @@ function generate_row_shot(item) {
     div.className = 'box medium';
     div.appendChild(h3);
 
-    var movie = document.createElement('SPAN');
-    movie.className = 'video';
+
+    var container = document.createElement('SPAN');
+    container.className = 'video';
+
+    var video = document.createElement('DIV');
+    video.id = 'video_' + getattr(item, 'fields.name');
+    container.appendChild(video);
+    div.appendChild(container);
+
     var movie_url = getattr(item, 'fields.render_movie_lo_url');
-    movie.appendChild(getMiniFlashPlayer(movie_url, movie_url, 160, 90, false));
-    div.appendChild(movie);
+    MiniFlashPlayer(movie_url, movie_url, video.id);
 
     var heading = document.createElement('DIV');
     heading.className = 'heading';

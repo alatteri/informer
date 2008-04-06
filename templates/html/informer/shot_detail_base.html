@@ -14,7 +14,9 @@
 {% block dashboard %}
 <!-- start DASHBOARD -->      
       <div id="dashboard">
-        <div id="video"></div>
+        <div id="video">
+            <a href="http://www.adobe.com/go/getflash/">This site requires the latest version of the Adobe Flash Player.</a>
+        </div>
         <div class="right">
           <div id="shot-summary" class="box small">
             <h3>Shot Summary</h3>
@@ -26,7 +28,7 @@
             </ul>
             <h4>Shot Description:</h4>
             <p>{{ shot.description }}</p>
-            <div class="bottom"></div>            
+            <div class="bottom"></div>
           </div>
           <div id="shot-specs" class="box small">
             <h3>Shot Specs</h3>
@@ -160,7 +162,7 @@ function load_render(id, movie_hi, movie_lo, artist, time, machine, path) {
 
     time = format_datetime(parse_date(time));
 
-    nodeReplace($('video'),   getFlashPlayer(movie_hi, movie_lo));
+    FlashPlayer(movie_hi, movie_lo, 'video');
     nodeReplace($('editor'),  document.createTextNode(artist));
     nodeReplace($('time'),    document.createTextNode(time));
     nodeReplace($('machine'), document.createTextNode(machine));

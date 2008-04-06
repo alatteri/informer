@@ -6,67 +6,52 @@ var requiredMinorVersion = 0;
 // Minor version of Flash required
 var requiredRevision = 115;
 
-/* wrapper function to get code for the flash player. */
-function getFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
-    return _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, 'player.swf');
+var requiredVersion = requiredMajorVersion + '.' + requiredMinorVersion + '.' + requiredRevision;
+
+/* wrapper function to embed the flash player. */
+function FlashPlayer(movie_hi, movie_lo, div) {
+    embedFlashPlayerCode(movie_hi, movie_lo, 544, 382, false, 'player.swf', div);
 }
 
-/* wrapper function to get code for the mini-flash player. */
-function getMiniFlashPlayer(movie_hi, movie_lo, width, height, autoplay) {
-    return _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, 'miniPlayer.swf');
+/* wrapper function embed the mini-flash player. */
+function MiniFlashPlayer(movie_hi, movie_lo, div) {
+    embedFlashPlayerCode(movie_hi, movie_lo, 160, 90, false, 'miniPlayer.swf', div);
 }
 
-/* wrapper function to get code for the flash player.
+/* wrapper function to embed the flash player.
    Returns error message string if required flash version not found.
 
    Args:
     movie_hi: url to the high-res version of the movie
     movie_lo: url to the low-res version of the movie
-    width: the requested width of the flash player
-    height: the requested height of the flash player
+    width:    the requested width of the flash player
+    height:   the requested height of the flash player
     autoplay: should the movie start playing automatically? (bool)
-    player: string to specify the type of player to get
+    player:   string to specify the type of player to get
+    div:      the div to render to use for embedding the player
 */
-function _getFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, player) {
-    // Version check based upon the values entered above in "Globals"
-    var hasReqestedVersion = DetectFlashVer(requiredMajorVersion, requiredMinorVersion, requiredRevision);
-    if (!hasReqestedVersion) {
-        var msg = 'This site requires the latest version of the Adobe Flash Player. ';
-        var a = document.createElement('a');
-        a.href = 'http://www.adobe.com/go/getflash/';
-        a.appendChild(document.createTextNode(msg));
-        // return non-flash content
-        return a;
-    } else {
-        if (autoplay == null) autoplay = false;
-        if (width == null) width = 544;
-        if (height == null) height = 382;
+function embedFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, player, div) {
+    now = new Date().getTime();
+    var src = "/media/flash/" + player + '?';
+    src += "video=" + movie_lo + "&";
+    src += "videoAutoPlay=" + autoplay + "&";
+    src += "downloadURL=" + movie_hi + "&";
+    src += "viewLargerURL=/media/flash/qtFrame.html%3Fmovie%3D" + movie_hi + "&";
+    src += "unique=" + now;
 
-        now = new Date().getTime();
-        var src = "/media/flash/" + player + "?";
-        src += "video=" + movie_lo + "&";
-        src += "videoAutoPlay=" + autoplay + "&";
-        src += "downloadURL=" + movie_hi + "&";
-        src += "viewLargerURL=/media/flash/qtFrame.html%3Fmovie%3D" + movie_hi + "&";
-        src += "unique=" + now;
+    var params = {
+        align: 'middle',
+        wmode: 'opaque',
+        quality: 'high',
+        allowscriptaccess:'sameDomain',
+    };
 
-        var player = document.createElement('embed');
-        player.src = src;
-        player.quality = 'high';
-        player.width = width;
-        player.height = height;
-        player.align = 'middle';
-        player.allowscriptaccess = 'sameDomain';
-        player.type = 'application/x-shockwave-flash';
-        player.wmode = 'transparent';
-        player.pluginspage = 'http://www.macromedia.com/go/getflashplayer';
-        return player;       
-    }
+    swfobject.embedSWF(src, div, width, height, requiredVersion, "/media/flash/expressInstall.swf", '', params);
 }
 
 function renderQuickTimeLauncher(clip) {
-	  document.writeln('<embed src="placeholder.mov" autohref="true" target="quicktimeplayer" controller="false" width="114" height="27" autoplay="true" href="' + clip + '"></embed>');
-  }
+    document.writeln('<embed src="placeholder.mov" autohref="true" target="quicktimeplayer" controller="false" width="114" height="27" autoplay="true" href="' + clip + '"></embed>');
+}
 
 function getArgs() {
     var args = new Array();
