@@ -1,3 +1,6 @@
+import instinctual
+LOG = instinctual.getLogger(__name__)
+
 CREATED = 'created'
 UPDATED = 'updated'
 DELETED = 'deleted'
@@ -10,6 +13,7 @@ class IgnoreSignalException(Exception):
 
 class Handler(object):
     user = None
+    enabled = True
 
     def setUser(self, user):
         # print "((((((((((( setting user to %s ))))))))))))" % (user)
@@ -32,6 +36,7 @@ class Handler(object):
         if 'Session' == instance.__class__.__name__:
             # init the user on a new session
             self.setUser(None)
+            self.enabled = True
         elif 'User' == instance.__class__.__name__ and self.user is None:
             # This is a hack to capture the currently logged in user
             # without a request object. This is fragile.
@@ -78,35 +83,39 @@ class Handler(object):
                 return
 
     def handle_pre_delete(self, signal, sender, instance, *args, **kwargs):
+        LOG.debug("DELETE CALLED FOR: %s" % instance.__class__.__name__)
         if hasattr(instance, 'Logger') and hasattr(instance.Logger, DELETED):
             self.log(instance, DELETED)
 
     def log(self, instance, action, old={}, new={}):
-        print "*" * 80
-        print "now going to register", action, "for", type(instance)
-        print "*" * 80
+        LOG.debug("*" * 80)
+        LOG.debug("now going to register %s for %s" % (action, type(instance)))
+        LOG.debug("*" * 80)
 
-        from instinctual.informer.models import Log
-        l = Log()
+        if self.enabled:
+            from instinctual.informer.models import Log
+            l = Log()
 
-        if self.user:
-            l.who = self.user
+            if self.user:
+                l.who = self.user
+            else:
+                l.who = 'UNKNOWN'
+
+            l.action = action
+            l.object_id = instance._get_pk_val()
+            l.type = instance.__class__.__name__
+
+            if 'Shot' == l.type:
+                l.shot = instance
+            else:
+                l.shot = instance.shot
+
+            func = getattr(instance.Logger, action)
+
+            try:
+                (l.msg_prefix, l.object_repr, l.msg_suffix) = func(instance, old, new)
+                l.save()
+            except IgnoreSignalException, e:
+                pass
         else:
-            l.who = 'UNKNOWN'
-
-        l.action = action
-        l.object_id = instance._get_pk_val()
-        l.type = instance.__class__.__name__
-
-        if 'Shot' == l.type:
-            l.shot = instance
-        else:
-            l.shot = instance.shot
-
-        func = getattr(instance.Logger, action)
-
-        try:
-            (l.msg_prefix, l.object_repr, l.msg_suffix) = func(instance, old, new)
-            l.save()
-        except IgnoreSignalException, e:
-            pass
+            LOG.debug("(((((( not enabled ))))))) not logging...")

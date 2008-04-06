@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 from datetime import datetime
 from time import strptime, mktime
 
@@ -63,6 +62,11 @@ class Shot(models.Model):
     handles     = models.CharField(maxlength=32, null=True, blank=True)
     frames      = models.IntegerField(default=0)
     sequence    = models.CharField(maxlength=4096, null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        h = getHandler()
+        h.enabled = False
+        models.Model.delete(self, *args, **kwargs)
 
     # --------------------
     def get_absolute_url(self):
