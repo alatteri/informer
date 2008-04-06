@@ -536,13 +536,19 @@ function _setattr(object, fields, value) {
 function parse_date(strDate) {
     if (!strDate || strDate.getMonth)
         return strDate;
+
     var nums = strDate.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-    var d = new Date();
-    d.setFullYear(nums[1], nums[2]-1, nums[3]);
-    d.setHours(nums[4]);
-    d.setMinutes(nums[5]);
-    d.setSeconds(nums[6]);
-    return d;
+
+    if (nums) {
+        var d = new Date();
+        d.setFullYear(nums[1], nums[2]-1, nums[3]);
+        d.setHours(nums[4]);
+        d.setMinutes(nums[5]);
+        d.setSeconds(nums[6]);
+        return d;
+    } else {
+        return strDate;
+    }
 }
 
 // slight hack to get around the json sometimes
