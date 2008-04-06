@@ -96,11 +96,12 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'instinctual.informer',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'instinctual.informer',
+    'django.contrib.sites',
 )
 
 SERIALIZATION_MODULES = {
