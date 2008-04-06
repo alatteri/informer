@@ -675,6 +675,74 @@ div.box.small ul li.path strong {
 	background-position: 8px -48px;
 	}		
 	
+/* Elements Browser */
+
+#elements_browser {
+	width: 600px;
+	margin: 100px auto;
+	padding: 10px 10px 25px 10px;
+	background: url(images/background-element_browser.png) no-repeat left bottom;
+	}	
+#elements_browser h3 {
+	width: 600px;
+	height: 38px;
+	margin: -48px 0 0 -10px;
+	padding: 0 0 0 20px;
+	line-height: 48px;
+	background: url(images/background-elements_browser-top.png) no-repeat left bottom;
+	text-align: center;
+	text-shadow: #ccc 1px 1px 1px;	
+	font-weight: bold;
+	}	
+#elements_browser select {
+	float: left;
+	margin: 5px 10px;
+	}	
+#elements_browser p {
+	margin: 5px 0;
+	}	
+#elements_browser ul {
+	margin: 5px 10px 10px 10px;
+	background: #fff;
+	border: 1px solid #9f9f9f;
+	}	
+#elements_browser ul li {
+	padding: 0 5px 0 22px;
+	font-size: 12px;
+	}	
+#elements_browser ul li.element {
+	background: url(images/icon-element-small-grey.gif) no-repeat 9px 4px;
+	}
+#elements_browser ul li.folder {
+	background: url(images/icon-folder-small-grey.gif) no-repeat 6px 4px;
+	}		
+#elements_browser ul li.element:hover {
+	background: #5e5e5e url(images/icon-element-small-white.gif) no-repeat 9px 4px;	
+	color: #fff;
+	}	
+#elements_browser ul li.folder:hover {
+	background: #5e5e5e url(images/icon-folder-small-white.gif) no-repeat 6px 4px;	
+	color: #fff;
+	}		
+#elements_browser a {
+	display: block;
+	float: right;
+	width: 79px;
+	height: 26px;
+	background: url(images/button-cancel-browser.gif) no-repeat left top;
+	text-indent: -9999px;
+	}	
+#elements_browser button {
+	display: block;
+	float: right;	
+	width: 89px;
+	height: 26px;
+	margin: 0 10px;
+	background: url(images/button-choose-browser.gif) no-repeat left top;
+	border: none;
+	text-indent: -9999px;
+	}	
+	
 /* Forms
  * ------------------------------------------------------------ */ 	
  
@@ -751,10 +819,6 @@ div.left form #form-element-checkIn-file {
 	color: #fff;
 	cursor: pointer;
 	}
-
-
-/* Login Page
- * ------------------------------------------------------------ */
 
 /* Login Page
  * ------------------------------------------------------------ */
