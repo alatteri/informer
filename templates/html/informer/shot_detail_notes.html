@@ -60,25 +60,6 @@
 /* Notes functions
  * ------------------------------------------------------ */
 
-// Generates status row with click event
-function create_status_item(info, item) {
-    var value = getattr(item, info);
-    var status_li = document.createElement('li');
-    status_li.className = info.name;
-    var status_a = document.createElement('a');
-    Element.extend(status_a);
-    status_a.appendChild(document.createTextNode(value));
-    status_li.appendChild(status_a);
-    status_a.observe(
-      'click',
-      function() {new Ajax.Request(
-        Notes.url, {
-        parameters: {id: 'test'},
-	onComplete: function() {
-	alert('success');}}) });
-
-    return status_li; };
-
 /* called when page first loaded, initialize data */
 function setup() {
     c_date      = new Informer.DateColumn('date', 'fields.created_on');
