@@ -9,6 +9,7 @@
               <h3>Check In New Element</h3>
               <form id="form-element-checkIn" action="#" method="post">
                   <a href="javascript:ElementsBrowser()" id="form-element-checkIn-file">Choose Files</a>
+                  <div id='displayed_selected_element'></div>
                   <p>
                       <strong>Category:</strong>
                       <select id="form-element-checkIn-cateogory">
@@ -58,6 +59,11 @@ function ElementsBrowser() {
     url = '/media/java/elements_browser.html';
     options = 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=640,height=500,left = 400,top = 200';
     eval("page" + id + " = window.open(url, '" + id + "', options);");
+}
+
+function ElementBrowserSelection(path) {
+    var text = document.createTextNode(path);
+    nodeReplace($('displayed_selected_element'), text);
 }
 
 /* called when page first loaded, initialize data */
