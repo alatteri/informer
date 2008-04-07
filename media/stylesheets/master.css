@@ -681,7 +681,7 @@ div.box.small ul li.path strong {
 	width: 600px;
 	margin: 100px auto;
 	padding: 10px 10px 25px 10px;
-	background: url(images/background-element_browser.png) no-repeat left bottom;
+	background: url(/media/images/background-element_browser.png) no-repeat left bottom;
 	}	
 #elements_browser h3 {
 	width: 600px;
@@ -689,7 +689,7 @@ div.box.small ul li.path strong {
 	margin: -48px 0 0 -10px;
 	padding: 0 0 0 20px;
 	line-height: 48px;
-	background: url(images/background-elements_browser-top.png) no-repeat left bottom;
+	background: url(/media/images/background-elements_browser-top.png) no-repeat left bottom;
 	text-align: center;
 	text-shadow: #ccc 1px 1px 1px;	
 	font-weight: bold;
@@ -711,17 +711,17 @@ div.box.small ul li.path strong {
 	font-size: 12px;
 	}	
 #elements_browser ul li.element {
-	background: url(images/icon-element-small-grey.gif) no-repeat 9px 4px;
+	background: url(/media/images/icon-element-small-grey.gif) no-repeat 9px 4px;
 	}
 #elements_browser ul li.folder {
-	background: url(images/icon-folder-small-grey.gif) no-repeat 6px 4px;
+	background: url(/media/images/icon-folder-small-grey.gif) no-repeat 6px 4px;
 	}		
 #elements_browser ul li.element:hover {
-	background: #5e5e5e url(images/icon-element-small-white.gif) no-repeat 9px 4px;	
+	background: #5e5e5e url(/media/images/icon-element-small-white.gif) no-repeat 9px 4px;	
 	color: #fff;
 	}	
 #elements_browser ul li.folder:hover {
-	background: #5e5e5e url(images/icon-folder-small-white.gif) no-repeat 6px 4px;	
+	background: #5e5e5e url(/media/images/icon-folder-small-white.gif) no-repeat 6px 4px;	
 	color: #fff;
 	}		
 #elements_browser a {
@@ -729,7 +729,7 @@ div.box.small ul li.path strong {
 	float: right;
 	width: 79px;
 	height: 26px;
-	background: url(images/button-cancel-browser.gif) no-repeat left top;
+	background: url(/media/images/button-cancel-browser.gif) no-repeat left top;
 	text-indent: -9999px;
 	}	
 #elements_browser button {
@@ -738,7 +738,7 @@ div.box.small ul li.path strong {
 	width: 89px;
 	height: 26px;
 	margin: 0 10px;
-	background: url(images/button-choose-browser.gif) no-repeat left top;
+	background: url(/media/images/button-choose-browser.gif) no-repeat left top;
 	border: none;
 	text-indent: -9999px;
 	}	
