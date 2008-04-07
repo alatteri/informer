@@ -133,6 +133,10 @@ function create_entry_item(table, item, tag, parent) {
         button.className = "close";
     } else if (document.body.id == "elements") {
         button.appendChild(document.createTextNode('Close'));
+        button.onclick = function() {
+            delete_element(item);
+            return false;
+        };
         button.className = "close";
     } else if(document.body.id == "renders") {
         button.appendChild(document.createTextNode('Update'));

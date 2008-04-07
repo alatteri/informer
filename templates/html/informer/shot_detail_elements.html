@@ -92,6 +92,19 @@ function add_element() {
     });
 }
 
+function delete_element(item) {
+    var url = '{{shot.get_json_elements_url}}' + getattr(item, 'pk') + '/';
+
+    new Ajax.Request(url, {
+        method:     'delete',
+        evalJSON:   true,
+        onSuccess:  function (r) {
+            // Ajax callback triggered when a user successfully deletes an element
+            elements.delete_data(item);
+            elements.resort_table();
+        },
+    });
+}
 
 /* called when page first loaded, initialize data */
 function setup() {

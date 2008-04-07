@@ -54,7 +54,7 @@ xml_notes = ProjectShotCollection(
 
 xml_element = Collection(
     queryset = Element.objects.all(),
-    permitted_methods = ['GET', 'PUT'],
+    permitted_methods = ['GET', 'PUT', 'DELETE'],
     responder = CustomXMLResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
@@ -147,7 +147,7 @@ json_notes = ProjectShotCollection(
 
 json_element = Collection(
     queryset = Element.objects.all(),
-    permitted_methods = ['GET', 'PUT', 'POST'],
+    permitted_methods = ['GET', 'PUT', 'DELETE'],
     responder = CustomJSONResponder(),
     entry_class = PkEntry,
     expose_fields = Element.Rest.expose_fields,
