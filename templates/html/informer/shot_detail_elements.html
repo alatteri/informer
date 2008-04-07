@@ -10,14 +10,16 @@
               <form id="form-element-checkIn" action="#" method="post">
                   <a href="javascript:ElementsBrowser()" id="form-element-checkIn-file">Choose Files</a>
                   <div id='displayed_selected_element'></div>
+                  <input type="hidden" name="text" value="" id="form-element-selected" />
+                  <input type="hidden" name="is_checked" value="false" />
                   <p>
                       <strong>Category:</strong>
-                      <select id="form-element-checkIn-cateogory">
+                      <select id="form-element-checkIn-cateogory" name=kind>
                           <option selected="selected">Car</option>
                           <option>Boat</option>
                           <option>Truck</option>
                       </select> 
-                      <input type="image" id="form-element-checkIn-submit" src="/media/images/button-checkIn.gif" />
+                      <input type="image" id="form-element-checkIn-submit" src="/media/images/button-checkIn.gif" onclick="add_element();return false;" />
                   </p>
               </form>
               <div class="bottom">&nbsp;</div>
@@ -64,7 +66,32 @@ function ElementsBrowser() {
 function ElementBrowserSelection(path) {
     var text = document.createTextNode(path);
     nodeReplace($('displayed_selected_element'), text);
+    $('form-element-selected').value = path;
 }
+
+/* called when user clicks on the 'Check in' element button */
+function add_element() {
+    // make sure the user selected an element
+    if (!$F('form-element-selected')) {
+        alert('Please select an element first');
+        return;
+    }
+
+    // fire off the request to the server to create the note
+    new Ajax.Request('{{shot.get_json_elements_url}}', {
+        parameters: $('form-element-checkIn').serialize(),
+        evalJSON:   true,
+        onSuccess:  function (r) {
+            // Ajax callback triggered after a user clicks the 'Check in' button
+            $('form-element-checkIn').reset();
+            nodeReplace($('displayed_selected_element'), document.createTextNode(''));
+            styleSelects();
+            elements.add_data(r.responseJSON[0]);
+            elements.resort_table();
+        },
+    });
+}
+
 
 /* called when page first loaded, initialize data */
 function setup() {
@@ -86,13 +113,6 @@ function setup() {
     elements.load_data({{ data }});
     elements.sort_descending('date');
 }
-
-function testIt(foo) {
-    alert("hi there 6");
-    alert(foo);
-    alert(foo.getFiles);
-}
-
 
 // onload trigger
 setup();
