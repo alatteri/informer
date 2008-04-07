@@ -8,7 +8,7 @@
           <div class="box medium">
               <h3>Check In New Element</h3>
               <form id="form-element-checkIn" action="#" method="post">
-                  <a href="#" id="form-element-checkIn-file">Choose Files</a>
+                  <a href="javascript:ElementsBrowser()" id="form-element-checkIn-file">Choose Files</a>
                   <p>
                       <strong>Category:</strong>
                       <select id="form-element-checkIn-cateogory">
@@ -16,7 +16,7 @@
                           <option>Boat</option>
                           <option>Truck</option>
                       </select> 
-                      <input type="image" id="form-element-checkIn-submit" src="/media/images/button-checkIn.gif" />              
+                      <input type="image" id="form-element-checkIn-submit" src="/media/images/button-checkIn.gif" />
                   </p>
               </form>
               <div class="bottom">&nbsp;</div>
@@ -52,6 +52,13 @@
 {% block shot_script %}
 /* Elements functions
  * ------------------------------------------------------ */
+function ElementsBrowser() {
+    day = new Date();
+    id = day.getTime();
+    url = '/media/java/elements_browser.html';
+    options = 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=640,height=500,left = 400,top = 200';
+    eval("page" + id + " = window.open(url, '" + id + "', options);");
+}
 
 /* called when page first loaded, initialize data */
 function setup() {
@@ -73,6 +80,13 @@ function setup() {
     elements.load_data({{ data }});
     elements.sort_descending('date');
 }
+
+function testIt(foo) {
+    alert("hi there 6");
+    alert(foo);
+    alert(foo.getFiles);
+}
+
 
 // onload trigger
 setup();

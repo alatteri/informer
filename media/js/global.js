@@ -195,9 +195,3 @@ function addLoadEvent(func) {
     }
   }
  }
-
-function nodeReplace(node, child) {
-    while (node.hasChildNodes())
-        node.removeChild(node.firstChild);
-    node.appendChild(child);
-}

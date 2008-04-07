@@ -41,7 +41,7 @@ function embedFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, playe
 
     var params = {
         align: 'middle',
-        wmode: 'opaque',
+        wmode: 'transparent',
         quality: 'high',
         allowscriptaccess:'sameDomain',
     };

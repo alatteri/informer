@@ -1,0 +1,127 @@
+<HTML>
+<HEAD>
+<TITLE>Choose an Element</TITLE>
+
+<link rel="stylesheet" type="text/css" media="screen" href="/media/stylesheets/screen.css" />
+
+<script type="text/javascript" src="/media/js/prototype.js"></script>
+<script type="text/javascript" src="/media/js/informer.js"></script>
+
+<script language='javascript'>
+function basename(path) {
+    return '/' == path ? path : path.substring(path.lastIndexOf('/') + 1);
+}
+
+function dirname(path) {
+    var dir = path.substring(0, path.lastIndexOf('/'));
+    if (dir == '') dir = '/';
+    return dir;
+}
+
+function getDirEntries(path) {
+    // if (document.applets['directoryService'] && document.applets['directoryService'].getCodeBase()) {
+    //     alert("Applet seems loaded");
+    // } else {
+    //     alert("Not loaded");
+    // }
+    var entries = [];
+    var dirs = document.directoryService.getDirectories(path);
+    var files = document.directoryService.getFiles(path);
+
+    for (var i=0; i < dirs.length; i++) {
+        entries.push({ type: 'dir', path: dirs[i], name: basename(dirs[i]) });
+    }
+
+    for (var i=0; i < files.length; i++) {
+        entries.push({ type: 'file', path: files[i], name: basename(files[i]) });
+    }
+
+    return entries;
+}
+
+function DisplayDropDown(path) {
+    // clear the dropdown
+    var dropdown = $('elements_browser-controls-directory');
+    while (dropdown.hasChildNodes())
+       dropdown.removeChild(dropdown.firstChild);
+
+    // add the path's components to the drop down
+    var component = path;
+    do {
+        var dir = basename(component);
+        var option = document.createElement('OPTION');
+        option.appendChild(document.createTextNode(dir));
+        option.value = component;
+        dropdown.appendChild(option);
+        component = dirname(component);
+    } while (dir != '/');
+    dropdown.selectedIndex = 0;
+}
+
+function DisplayEntries(entries) {
+    // clear the display
+    var elements = $('elements');
+    while (elements.hasChildNodes())
+       elements.removeChild(elements.firstChild);
+
+    // display the new entries
+    for (var i=0; i < entries.length; i++) {
+        var a = document.createElement('A');
+        var content = document.createTextNode(entries[i].name);
+        a.appendChild(content);
+
+        var li = document.createElement('LI');
+        li.appendChild(a);
+
+        if ('file' == entries[i].type) {
+            li.className = 'element';
+        } else {
+            li.className = 'folder';
+            a.href = "javascript:browse('" + entries[i].path + "')";
+        }
+        elements.appendChild(li);
+    }
+}
+
+function browse(path) {
+    // Display the dropdown UI
+    DisplayDropDown(path);
+
+    // get the direntries and sort by name
+    var entries = getDirEntries(path);
+    entries = entries.sortBy(function (x) {
+        return x.name.toLowerCase();
+    });
+
+    // Display the directory entries
+    DisplayEntries(entries);
+}
+
+function cancel() {
+    window.close();
+}
+</script>
+</HEAD>
+
+<BODY>
+<APPLET archive="directoryService_signed.jar" code="directoryService" name="directoryService" width=0 height=0>
+Your browser does not support Java, you will not be able to browse for elements.
+</APPLET>
+
+<div id="elements_browser">
+    <h3>Choose an Element</h3>
+    <select id="elements_browser-controls-directory" onchange="browse(this.options[this.selectedIndex].value)">
+    </select>
+    <p>Select an element or sequence of elements below.</p>
+    <ul id="elements">
+    </ul>
+    <button type="submit" class="submit">Choose</button>
+    <a href="javascript:cancel()" title="Cancel">Cancel</a>
+    <div class="clear"></div>
+</div>
+
+<script>
+browse('/');
+</script>
+</BODY>
+</HTML>

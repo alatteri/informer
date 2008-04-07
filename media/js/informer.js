@@ -632,3 +632,10 @@ function format_nl2br(txt) {
 function resort_table(th, which, data_obj) {
     Event.observe(th, 'click', function(x) { data_obj.resort_table(which); });
 }
+
+function nodeReplace(node, child) {
+    while (node.hasChildNodes())
+        node.removeChild(node.firstChild);
+    node.appendChild(child);
+}
+
