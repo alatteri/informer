@@ -850,6 +850,7 @@ div.left form #form-element-checkIn-file {
 #login-wrap #content h3 span {
 	position: absolute;
 	right: 15px;
+	top:0px;
 	}	
 #login-wrap #content form {
 	margin: 0 0 0 75px;
@@ -896,15 +897,15 @@ div.left form #form-element-checkIn-file {
 #login-wrap #content form label {
 	display: block;
 	float: left;
-	width: 80px;
+	width: 90px;
 	color: #252b34;
 	font: bold 14px/28px "Lucida Grande", verdana, sans-serif;
 	text-shadow: #aaa 1px 1px 1px;
 	}	
 #login-wrap #content form input {
 	width: 308px;
-	height: 28px;
-	padding: 0 0 0 5px;
+	height: 23px;
+	padding: 5px 0 0 5px;
 	background: url(/media/images/background-login-input.gif) no-repeat left top;
 	border: none;
 	font-size: 14px;
