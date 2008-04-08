@@ -158,6 +158,7 @@ function selectReplacement(obj) {
 }
 
 function selectMe(obj) {
+	browse(obj.innerHTML);
 	var lis = obj.parentNode.getElementsByTagName('li');
 	for (var i=0; i<lis.length; i++) {
 		if (lis[i] != obj) {
@@ -170,7 +171,7 @@ function selectMe(obj) {
 			obj.className='selected';
 			obj.parentNode.className = 
 			obj.parentNode.className.replace(new RegExp(" selectOpen\\b"), '');
-			obj.onclick = function() {
+			obj.onclick = function() {	
 				obj.parentNode.className += ' selectOpen';
 				this.onclick = function() {
 					selectMe(this);
