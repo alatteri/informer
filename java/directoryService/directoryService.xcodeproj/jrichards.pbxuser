@@ -1,5 +1,78 @@
 // !$*UTF8*$!
 {
+	342617A70DAB2FFA005AE64B /* directoryService.html */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text.html;
+		path = directoryService.html;
+		sourceTree = "<group>";
+	};
+	342617C30DAB44CB005AE64B /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 342617A70DAB2FFA005AE64B /* directoryService.html */;
+	};
+	342617D10DAB5277005AE64B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 342617D20DAB5277005AE64B /* directoryService.java */;
+		name = "directoryService.java: 26";
+		rLen = 0;
+		rLoc = 744;
+		rType = 0;
+		vrLen = 1062;
+		vrLoc = 391;
+	};
+	342617D20DAB5277005AE64B /* directoryService.java */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = sourcecode.java;
+		name = directoryService.java;
+		path = /Users/jrichards/dev/instinctual/src/java/directoryService/src/directoryService.java;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavWindowFrame = "{{199, 86}, {1210, 777}}";
+		};
+	};
+	342617D30DAB5277005AE64B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 342617D40DAB5277005AE64B /* directoryService.java */;
+		name = "directoryService.java: 90";
+		rLen = 0;
+		rLoc = 2543;
+		rType = 0;
+		vrLen = 1331;
+		vrLoc = 1791;
+	};
+	342617D40DAB5277005AE64B /* directoryService.java */ = {
+		isa = PBXFileReference;
+		name = directoryService.java;
+		path = /Users/jrichards/dev/instinctual/src/java/directoryService/src/directoryService.java;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1151, 1582}}";
+			sepNavSelRange = "{2543, 0}";
+			sepNavVisRange = "{1791, 1331}";
+		};
+	};
+	342617D70DAB5277005AE64B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 342617D80DAB5277005AE64B /* directoryService.html */;
+		name = "directoryService.html: 19";
+		rLen = 0;
+		rLoc = 395;
+		rType = 0;
+		vrLen = 775;
+		vrLoc = 0;
+	};
+	342617D80DAB5277005AE64B /* directoryService.html */ = {
+		isa = PBXFileReference;
+		name = directoryService.html;
+		path = /Users/jrichards/dev/instinctual/src/java/directoryService/dist/directoryService.html;
+		sourceTree = "<absolute>";
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1151, 649}}";
+			sepNavSelRange = "{395, 0}";
+			sepNavVisRange = "{0, 775}";
+			sepNavWindowFrame = "{{38, 75}, {1210, 777}}";
+		};
+	};
 	34CC714F0DA076D000055E66 /* Source Control */ = {
 		isa = PBXSourceControlManager;
 		fallbackIsa = XCSourceControlManager;
@@ -21,14 +94,28 @@
 			88934D45061E10E600F42905 /* directoryService */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					258,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					243,
+					338,
 					20,
-					48.16259765625,
+					48,
 					43,
 					43,
 					20,
@@ -43,8 +130,76 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 228619978;
-			PBXWorkspaceStateSaveDate = 228619978;
+			PBXConfiguration.PBXFileTableDataSource3.PBXSymbolsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXSymbolsDataSource_SymbolNameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					16,
+					200,
+					50,
+					278,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXSymbolsDataSource_SymbolTypeIconID,
+					PBXSymbolsDataSource_SymbolNameID,
+					PBXSymbolsDataSource_SymbolTypeID,
+					PBXSymbolsDataSource_ReferenceNameID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					346,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					330,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 229322746;
+			PBXWorkspaceStateSaveDate = 229322746;
+		};
+		perUserProjectItems = {
+			342617C30DAB44CB005AE64B /* PBXBookmark */ = 342617C30DAB44CB005AE64B /* PBXBookmark */;
+			342617D10DAB5277005AE64B /* PBXTextBookmark */ = 342617D10DAB5277005AE64B /* PBXTextBookmark */;
+			342617D30DAB5277005AE64B /* PBXTextBookmark */ = 342617D30DAB5277005AE64B /* PBXTextBookmark */;
+			342617D70DAB5277005AE64B /* PBXTextBookmark */ = 342617D70DAB5277005AE64B /* PBXTextBookmark */;
 		};
 		sourceControlManager = 34CC714F0DA076D000055E66 /* Source Control */;
 		userBuildSettings = {
@@ -52,6 +207,14 @@
 	};
 	8823100505D9929B00FE8D22 /* directoryService */ = {
 		activeExec = 0;
+	};
+	886FEE5605D9BD280091015F /* build.xml */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1151, 2072}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{2057, 1793}";
+			sepNavWindowFrame = "{{77, 72}, {1210, 777}}";
+		};
 	};
 	88934D45061E10E600F42905 /* directoryService */ = {
 		isa = PBXExecutable;
@@ -62,12 +225,13 @@
 			dist/directoryService.html,
 		);
 		autoAttachOnCrash = 1;
-		breakpointsEnabled = 1;
+		breakpointsEnabled = 0;
 		configStateDict = {
 		};
 		customDataFormattersEnabled = 1;
 		debuggerPlugin = JavaDebugging;
 		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
 		enableDebugStr = 1;
 		environmentEntries = (
 		);

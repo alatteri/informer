@@ -20,15 +20,17 @@ public class directoryService extends Applet {
     }
 	
 	//To be called from javascript
-	public String[] getFiles(final String path)
+	public String getFiles(final String path)
 	{
-		return getItems(path, true, false);
+		String[] contents = getItems(path, true, false);
+		return joinWithSlash(contents);
 	}
 
 	//To be called from javascript
-	public String[] getDirectories(final String path)
+	public String getDirectories(final String path)
 	{
-		return getItems(path, false, true);
+		String[] contents = getItems(path, false, true);
+		return joinWithSlash(contents);
 	}
 
 	//May be called from javascript
@@ -67,14 +69,32 @@ public class directoryService extends Applet {
 		if (children == null) {
 			// You may want to change this to a constant of some sort, or just return null
 			// and do the error checking in javascript.
-			contents.add("[path not found]");
+			contents.add(null);
 		} else {
 			for(int i=0; i < children.length; i++)
 			{
-				contents.add(children[i].toString());
+				contents.add(children[i].getName());
 			}
 		}
 		return (String[]) contents.toArray(new String[contents.size()]);
+	}
+	
+	/**
+	 * Accepts an array of strings, returns a single string of the elements joined with /
+	 */
+	private String joinWithSlash(String[] contents)
+	{
+		String joined = "";
+		
+		if (contents.length != 0) {
+			for(int i=0; i < contents.length - 1; i++) {
+				joined += contents[i] + "/";
+			}
+			
+			joined += contents[contents.length-1];
+		}
+		
+		return joined;
 	}
 	
 	/**

@@ -18,31 +18,32 @@ function dirname(path) {
     return dir;
 }
 
-function getApplet() {
-    // if (document.applets['directoryService'] && document.applets['directoryService'].getCodeBase()) {
-    //     alert("Applet seems loaded");
-    // } else {
-    //     alert("Not loaded");
-    // }
-    return document.directoryService;
+function getFiles(path) {
+    return getObjects(path, 'file', document.directoryService.getFiles(path));
+}
+
+function getDirs(path) {
+    return getObjects(path, 'dir', document.directoryService.getDirectories(path));
+}
+
+function getObjects(path, type, result) {
+    var objects = [];
+    if (result != null) {
+        result = "" + result;   // make sure it's a string
+        result = result.split('/');
+        for (var i=0; i < result.length; i++) {
+            var name = result[i];
+            var full = (path == '/' ? '' : path) + '/' + name;
+            objects.push({ type: type, path: full, name: name });
+        }
+    }
+    return objects;
 }
 
 function getDirEntries(path) {
-    //var dirs = document.directoryService.getDirectories(path);
-    //var files = document.directoryService.getFiles(path);
-
-    var dirs = document.directoryService.getDirectories(path);
-    var files = document.directoryService.getFiles(path);
-
     var entries = [];
-    for (var i=0; i < dirs.length; i++) {
-        entries.push({ type: 'dir', path: dirs[i], name: basename(dirs[i]) });
-    }
-
-    for (var i=0; i < files.length; i++) {
-        entries.push({ type: 'file', path: files[i], name: basename(files[i]) });
-    }
-
+    entries = entries.concat(getFiles(path));
+    entries = entries.concat(getDirs(path));
     return entries;
 }
 
