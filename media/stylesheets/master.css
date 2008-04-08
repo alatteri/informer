@@ -677,41 +677,74 @@ div.box.small ul li.path strong {
 /* Elements Browser */
 
 #elements_browser {
-	width: 620px;
-	margin: 20px auto 0 auto;
-	padding: 1px 0 0 0;
-	background: url(/media/images/background-element_browser.png) repeat-y left bottom;
-	}	
-#elements_browser h3 {
-	width: 620px;
-	height: 38px;
-	line-height: 48px;
-	margin: -20px 0 0 0;
-	background: url(/media/images/background-elements_browser-top.png) no-repeat left bottom;
-	text-align: center;
-	text-shadow: #ccc 1px 1px 1px;	
-	font-weight: bold;
-	}	
+	background: #808284 url(/media/images/background-element_browser.gif) repeat-x left bottom;
+	}
 #elements_browser select {
 	float: left;
 	margin: 5px 10px;
 	}	
-#elements_browser p {
-	margin: 5px 0;
-	line-height: 25px;
+#elements_browser h3 {
+	line-height: 28px;
+	text-align: center;
+	margin: 0 0 26px 0;
+	background: url(/media/images/background-element_browser-header.gif) repeat-x left top;	
+	border-bottom: 1px solid #555;
+	font-weight: bold;
+	text-shadow: #bbb 1px 1px 1px;		
 	}	
 #elements_browser form {
-	width: 600px;
-	padding: 0 10px 25px 10px;
-	background: url(/media/images/background-element_browser-bottom.png) no-repeat left bottom;
+	padding: 5px 10px 15px 10px;
 	}	
+#elements_browser form select {
+	width: 584px;
+	border: 1px solid #555f;
+	}
+#elements_browser form select.replaced {
+	display: none;
+	}
+#elements_browser form ul.selectReplacement {
+	position: absolute;
+	left: 20px;	
+	top: 35px;
+	width: 600px;
+	background: url(/media/images/background-select-highlight-folder-top.gif) no-repeat top left;	
+	}
+#elements_browser form ul.selectReplacement.selectOpen {
+	border-bottom: 1px solid #555;
+	}	
+#elements_browser form ul.selectReplacement li {
+	display: none;	
+	width: 575px;
+	height: 22px;
+	line-height: 22px;
+	padding: 0 0 0 25px;
+	cursor: pointer;
+	background: url(/media/images/icon-folder-small-white-alt2.gif) no-repeat 9px 5px;
+	}
+#elements_browser form ul.selectOpen li {
+	display: block;
+	}
+#elements_browser form ul.selectReplacement li.selected {
+	background: url(/media/images/background-select-highlight-folder.gif) bottom left no-repeat;
+	display: block;
+	border: none;	
+	}
+#elements_browser form ul.selectOpen li.selected {
+	background: none;
+	display: block;
+	}	
+#elements_browser form ul.selectReplacement.selectOpen li.hover {
+	background: #555 url(/media/images/icon-folder-small-white.gif) no-repeat 9px 5px;
+	color: #fff;
+	cursor: pointer;
+	}		
 #elements_browser #elements {
 	clear: both;
-	height: 345px;
+	height: 371px;
 	overflow-y: scroll;
 	margin: 5px 10px 10px 10px;
-	background: #fff;
-	border: 1px solid #9f9f9f;
+	background: #cacaca;
+	border: 1px solid #555;
 	}	
 #elements_browser #elements li {
 	padding: 0 5px 0 22px;
@@ -729,6 +762,13 @@ div.box.small ul li.path strong {
 #elements_browser #elements li.folder:hover {
 	background: #5e5e5e url(/media/images/icon-folder-small-white.gif) no-repeat 6px 4px;	
 	}
+#elements_browser #elements li.element.highlight {
+	background: #5e5e5e url(/media/images/icon-element-small-white.gif) no-repeat 9px 4px;	
+	}	
+#elements_browser #elements li.folder.highlight,
+#elements_browser #elements li.element.highlight {
+	background-color: #8d8d8d;
+	}	
 #elements_browser #elements li a {
 	color: #333;
 	text-decoration: none;
@@ -833,6 +873,7 @@ div.left form #form-element-checkIn-file {
 	}
 div.left form #displayed_selected_element {
 	float: left;
+	width: 375px;
 	height: 22px;
 	line-height: 22px;
 	margin: 6px 0 15px 8px;

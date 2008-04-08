@@ -6,6 +6,7 @@
 
 <script type="text/javascript" src="/media/js/prototype.js"></script>
 <script type="text/javascript" src="/media/js/informer.js"></script>
+<script type="text/javascript" src="/media/js/global.js"></script>
 
 <script language='javascript'>
 function basename(path) {
@@ -104,6 +105,7 @@ function browse(path) {
 
     // Display the directory entries
     DisplayEntries(entries);
+    styleSelects();
 }
 
 function select(path) {
@@ -118,17 +120,16 @@ function cancel() {
 </script>
 </HEAD>
 
-<BODY>
+<body id="browser">
 <APPLET archive="directoryService_signed.jar" code="directoryService" name="directoryService" width=0 height=0>
 Your browser does not support Java, you will not be able to browse for elements.
 </APPLET>
 
 <div id="elements_browser">
-    <h3>Choose an Element</h3>
+    <h3>Select an element or sequence of elements below.</h3>
     <form id="form-element-browser" action="#" method="post">
         <select id="elements_browser-controls-directory" onchange="browse(this.options[this.selectedIndex].value)">
         </select>
-        <p>Select an element or sequence of elements below.</p>
         <ul id="elements">
         </ul>
         <button type="submit" class="submit">Choose</button>
@@ -139,6 +140,7 @@ Your browser does not support Java, you will not be able to browse for elements.
 
 <script>
 browse('/');
+styleSelects();
 </script>
 </BODY>
 </HTML>

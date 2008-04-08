@@ -1,7 +1,8 @@
 /* Window Load Events
  * ------------------------------------------------------ */
-addLoadEvent(styleSelects);
 
+if((window.location+"").search('elements_browser') < 0)
+	addLoadEvent(styleSelects);
 
 /* Application Functions
  * ------------------------------------------------------ */
