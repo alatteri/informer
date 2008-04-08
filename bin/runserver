@@ -57,7 +57,8 @@ if syncdb:
         spark.save()
 
 if __name__ == '__main__':
+    admin_media = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['media', 'admin'])
     if len(sys.argv)==2:
-        execute_manager(settings, [None, sys.argv[1]])
+        execute_manager(settings, [None, '--adminmedia='+admin_media, sys.argv[1]])
     else:
-        execute_manager(settings, [None, 'runserver', server])
+        execute_manager(settings, [None, '--adminmedia='+admin_media, 'runserver', server])

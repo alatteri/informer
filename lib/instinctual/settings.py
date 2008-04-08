@@ -5,7 +5,7 @@ from instinctual.informer import getServerRoot
 conf = instinctual.getConf()
 
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
-templatePath = os.sep.join([root, 'templates', 'admin'])
+templatePath = os.sep.join([root, 'templates'])
 templatePath2 = os.sep.join([root, 'templates', 'html'])
 media_path = os.sep.join([root, 'media'])
 
@@ -65,7 +65,7 @@ MEDIA_URL = getServerRoot() + '/media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_media/'
+ADMIN_MEDIA_PREFIX = '/media/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'gq#gb$_7cm=+fk*$iqa9&)LUNAROCKS#v(#&7^g*tpi1+li!j5b'
