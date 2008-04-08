@@ -795,6 +795,9 @@ div.box.small ul li.path strong {
 	border: none;
 	text-indent: -9999px;
 	}	
+#elements_browser button.disabled {
+	background: url(/media/images/button-choose-browser-disabled.gif) no-repeat left top;
+	}	
 	
 /* Forms
  * ------------------------------------------------------------ */ 	
