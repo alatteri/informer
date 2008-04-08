@@ -286,7 +286,9 @@ div.box.small h4 {
 	}	
 div.box.small p {
 	line-height: 18px;
-	margin: 0 10px 15px 20px;
+	margin: 0 0 0 2px;
+	padding: 0 10px 10px 20px;
+	background: url(/media/images/image-divider-box-dashboard.gif) no-repeat left bottom;	
 	}	
 div.box.small ul {
 	margin: 0 0 5px 0;
@@ -299,9 +301,6 @@ div.box.small ul li {
 	margin: 0 0 0 2px;
 	padding: 0 0 0 10px;
 	background: url(/media/images/image-divider-box-dashboard.gif) no-repeat left bottom;
-	}
-div.box.small ul li.last {	
-	background: none;
 	}
 #dashboard #shot-summary.box ul li strong{
 	padding: 0 0 0 25px;
@@ -678,17 +677,16 @@ div.box.small ul li.path strong {
 /* Elements Browser */
 
 #elements_browser {
-	width: 600px;
-	margin: 100px auto;
-	padding: 10px 10px 25px 10px;
-	background: url(/media/images/background-element_browser.png) no-repeat left bottom;
+	width: 620px;
+	margin: 20px auto 0 auto;
+	padding: 1px 0 0 0;
+	background: url(/media/images/background-element_browser.png) repeat-y left bottom;
 	}	
 #elements_browser h3 {
-	width: 600px;
+	width: 620px;
 	height: 38px;
-	margin: -48px 0 0 -10px;
-	padding: 0 0 0 20px;
 	line-height: 48px;
+	margin: -20px 0 0 0;
 	background: url(/media/images/background-elements_browser-top.png) no-repeat left bottom;
 	text-align: center;
 	text-shadow: #ccc 1px 1px 1px;	
@@ -700,31 +698,46 @@ div.box.small ul li.path strong {
 	}	
 #elements_browser p {
 	margin: 5px 0;
+	line-height: 25px;
 	}	
-#elements_browser ul {
+#elements_browser form {
+	width: 600px;
+	padding: 0 10px 25px 10px;
+	background: url(/media/images/background-element_browser-bottom.png) no-repeat left bottom;
+	}	
+#elements_browser #elements {
+	clear: both;
+	height: 345px;
+	overflow-y: scroll;
 	margin: 5px 10px 10px 10px;
 	background: #fff;
 	border: 1px solid #9f9f9f;
 	}	
-#elements_browser ul li {
+#elements_browser #elements li {
 	padding: 0 5px 0 22px;
 	font-size: 12px;
 	}	
-#elements_browser ul li.element {
+#elements_browser #elements li.element {
 	background: url(/media/images/icon-element-small-grey.gif) no-repeat 9px 4px;
 	}
-#elements_browser ul li.folder {
+#elements_browser #elements li.folder {
 	background: url(/media/images/icon-folder-small-grey.gif) no-repeat 6px 4px;
 	}		
-#elements_browser ul li.element:hover {
+#elements_browser #elements li.element:hover {
 	background: #5e5e5e url(/media/images/icon-element-small-white.gif) no-repeat 9px 4px;	
-	color: #fff;
 	}	
-#elements_browser ul li.folder:hover {
+#elements_browser #elements li.folder:hover {
 	background: #5e5e5e url(/media/images/icon-folder-small-white.gif) no-repeat 6px 4px;	
+	}
+#elements_browser #elements li a {
+	color: #333;
+	text-decoration: none;
+	}	
+#elements_browser #elements li.element:hover a,
+#elements_browser #elements li.folder:hover a {
 	color: #fff;
-	}		
-#elements_browser a {
+	}
+#elements_browser a.cancel {
 	display: block;
 	float: right;
 	width: 79px;
@@ -767,13 +780,12 @@ div.left form p input {
 	}	
 div.left form #form-element-checkIn-file {
 	display: block;
+	float: left;
 	width: 113px;
 	height: 26px;
 	margin: 5px 0 15px 0;
 	background: url(/media/images/button-choose.gif) no-repeat left top;
 	text-indent: -9999px;
-	}	
-#content div.left div.box.medium form select {
 	}
 #content div.left div.box.medium form select.replaced {
 	display: none;
@@ -819,6 +831,15 @@ div.left form #form-element-checkIn-file {
 	color: #fff;
 	cursor: pointer;
 	}
+div.left form #displayed_selected_element {
+	float: left;
+	height: 22px;
+	line-height: 22px;
+	margin: 6px 0 15px 8px;
+	padding: 0px 10px;
+	background: #7a7a7c;
+	border: 1px solid #4f5153;
+	}		
 
 /* Login Page
  * ------------------------------------------------------------ */
