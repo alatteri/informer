@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from instinctual import informer
 
 from instinctual.informer.responder import CustomJSONResponder
-from instinctual.informer.models import Project, Shot, Note, Render, Element, Log
+from instinctual.informer.models import Project, Shot, Note, Render, Element, ElementCategory, Log
 
 # ------------------------------------------------------------------------------
 def project_list(request):
@@ -72,10 +72,11 @@ def shot_elements(request, project_name, shot_name):
     responder = CustomJSONResponder()
     responder.expose_fields = Element.Rest.expose_fields
     c = {
-        'user':     request.user,
-        'project':  p,
-        'shot':     shot,
-        'data':     responder.render(shot.element_set.all()),
+        'user':       request.user,
+        'project':    p,
+        'shot':       shot,
+        'categories': ElementCategory.objects.all(),
+        'data':       responder.render(shot.element_set.all()),
     }
     return render_to_response('informer/shot_detail_elements.html', c)
 shot_elements = login_required(shot_elements)

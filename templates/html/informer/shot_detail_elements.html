@@ -16,9 +16,9 @@
                   <p>
                       <strong>Category:</strong>
                       <select id="form-element-checkIn-cateogory" name=kind>
-                          <option selected="selected">Car</option>
-                          <option>Boat</option>
-                          <option>Truck</option>
+                      {% for category in categories %}
+                          <option>{{ category.type }}</option>
+                      {% endfor %}
                       </select> 
                       <input type="image" id="form-element-checkIn-submit" src="/media/images/button-checkIn.gif" onclick="add_element();return false;" />
                   </p>

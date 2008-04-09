@@ -24,17 +24,21 @@ class Project(models.Model):
     due_date    = models.DateTimeField('due date', null=True, blank=True)
     branding    = InformerBrandingField(upload_to='branding', default='branding/default.gif')
 
-    def get_absolute_url(self):
-        return informer.getProjectShotsUrl(self.name, format='html')
-
     class Admin:
         list_display = ('name', 'description', 'status', 'client', 'due_date', 'branding')
+
+    class Rest:
+        expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding',
+                         'self.shot_count', 'self.url']
 
     def __str__(self):
         if self.description:
             return "%s: %s" % (self.name, self.description)
         else:
             return self.name
+
+    def get_absolute_url(self):
+        return informer.getProjectShotsUrl(self.name, format='html')
 
     def get_absolute_shots_url(self):
         return informer.getProjectShotsUrl(self.name, format='html')
@@ -48,10 +52,6 @@ class Project(models.Model):
 
     shot_count = property(_shot_count)
     url = property(get_absolute_url)
-
-    class Rest:
-        expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding',
-                         'self.shot_count', 'self.url']
 
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
@@ -340,6 +340,19 @@ class Log(InformerMixIn, models.Model):
     class Rest:
         expose_fields = ['who', 'when', 'action', 'type', 'object_id',
                          'msg_prefix', 'object_repr', 'msg_suffix']
+
+# ------------------------------------------------------------------------------
+class ElementCategory(models.Model):
+    type = models.CharField(maxlength=255, unique=True)
+
+    class Admin:
+        list_display = ('type',)
+
+    class Meta:
+        verbose_name_plural = "element categories"
+
+    def __str__(self):
+        return self.type
 
 # ------------------------------------------------------------------------------
 # monkey patched model methods
