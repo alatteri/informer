@@ -14,6 +14,8 @@ from instinctual.informer.client.xml_serializer import Deserializer
 from instinctual.informer.client import httplib2auth
 
 LOG = instinctual.getLogger(__name__)
+CONF = instinctual.getConf()
+LOG_DIR = CONF.get('informer', 'dir_logs')
 
 # Force the restclient to use the authenticating httplib...
 restclient.__dict__['httplib2'] = httplib2auth
@@ -186,7 +188,7 @@ class Client(object):
             LOG.info(data)
 
             if resp.status not in expected:
-                rest = open("/usr/discreet/sparks/instinctual/informer/logs/rest.%s.html" % (time.time()), 'w')
+                rest = open("%s/rest.%s.html" % (LOG_DIR, time.time()), 'w')
                 rest.write(data)
                 rest.close()
                 err = "Request failed: status=%s" % (resp.status)
