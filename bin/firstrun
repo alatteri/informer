@@ -21,11 +21,73 @@ from commands import getoutput
 import instinctual
 from instinctual import settings
 from django.core.management import execute_manager
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
 
 conf = instinctual.getConf()
+from instinctual.informer.models import Project, Shot, ElementCategory
 
-print "Creating spark user..."
-spark = User(username='spark', is_superuser=True)
-spark.set_password('sparky')
-spark.save()
+def create_user_spark():
+    """
+    Creates the special spark user account
+    """
+    u, created = User.objects.get_or_create(username='spark',
+        defaults={'is_superuser': True})
+    if created:
+        print "Creating spark user"
+        u.set_password('sparky')
+        u.save()
+
+def add_custom_permissions():
+    """
+    Adds custom informer permissions
+    """
+    for model in (Project, Shot):
+        ctype = ContentType.objects.get_for_model(model)
+        for action in ['view']:
+            name = 'Can %s %s' % (action, model._meta.verbose_name)
+            codename = "%s_%s" % (action, model._meta.object_name.lower())
+
+            p, created = Permission.objects.get_or_create(codename=codename, content_type__pk=ctype.id,
+                defaults={'name': name, 'content_type': ctype})
+            if created:
+                print "Adding permission '%s'" % p
+
+def create_group_artist():
+    """
+    Creates the default Artist group
+    """
+    g, created = Group.objects.get_or_create(name='Artist')
+    if created:
+        print "Creating Artist group"
+        for p in Permission.objects.all():
+            if (p.codename.endswith('shot') or
+                p.codename.endswith('project') or
+                p.codename.endswith('elementcategory')):
+                print "adding permission %s" % (p.codename)
+                g.permissions.add(p)
+        g.save()
+
+def create_element_categories():
+    """
+    Creates the default element categories
+    """
+    for type in ('3D', 'Roto', 'Scans'):
+        ec, created = ElementCategory.objects.get_or_create(type=type)
+        if created:
+            print "Created element type", type
+
+def firstrun():
+    """
+    Runs all of the steps to intialize a new informer database
+    """
+    create_user_spark()
+    add_custom_permissions()
+    create_group_artist()
+    create_element_categories()
+
+
+# ------------------------------------------------------------------------------
+if __name__ == '__main__':
+    firstrun()

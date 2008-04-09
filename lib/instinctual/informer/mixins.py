@@ -2,7 +2,7 @@ from datetime import datetime
 from time import strptime, mktime
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 # ------------------------------------------------------------------------------
 class InformerBrandingField(models.FileField):
@@ -99,7 +99,12 @@ class GetUser(GetOrCreateObject):
         return self.model.objects.get(username=user)
 
     def create(self, user, *args, **kwargs):
-        return self.model(username=user, password='x')
+        u = self.model(username=user, password='x')
+        u.is_staff = True
+        u.save()
+        g = Group.objects.get(name='Artist')
+        u.groups.add(g)
+        return u
 
 class GetProject(GetOrCreateObject):
     def get(self, proj, *args, **kwargs):
