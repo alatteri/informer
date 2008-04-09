@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+# ------------------------------------------------------------------------------
+# START BOOTSTRAP
+# ------------------------------------------------------------------------------
+try:
+    import instinctual
+except ImportError, e:
+    import os
+    import sys
+    lib = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['lib'])
+    sys.path.append(lib)
+    import sitecustomize
+# ------------------------------------------------------------------------------
+# END BOOTSTRAP
+# ------------------------------------------------------------------------------
+
+import os
+import sys
+from commands import getoutput
+import instinctual
+from instinctual import settings
+from django.core.management import execute_manager
+from django.contrib.auth.models import User
+
+conf = instinctual.getConf()
+
+print "Creating spark user..."
+spark = User(username='spark', is_superuser=True)
+spark.set_password('sparky')
+spark.save()

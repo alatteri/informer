@@ -51,10 +51,8 @@ if syncdb:
             os.system(command)
         execute_manager(settings, [None, 'syncdb'])
 
-        print "Creating spark user..."
-        spark = User(username='spark', is_superuser=True)
-        spark.set_password('sparky')
-        spark.save()
+        firstrun = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-1] + ['firstrun'])
+        os.system(firstrun)
 
 if __name__ == '__main__':
     admin_media = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['media', 'admin'])
