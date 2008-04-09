@@ -24,6 +24,11 @@ def LogHandlerWrapper(func, method):
     return wrapper
 
 class InformerCollection(Collection):
+    def __init__(self, *args, **kwargs):
+        if 'entry_class' not in kwargs:
+            kwargs['entry_class'] = PkEntry
+        Collection.__init__(self, *args, **kwargs)
+
     def _pre_init(self, request, new_model, data):
         pass
 
@@ -31,11 +36,12 @@ class InformerCollection(Collection):
         pass
 
     def dispatch(self, request, target, *args, **kwargs):
-        """ 
+        """
         Override the django_restapi's Collection object to allow support for
         Prototype's _method argument style.
         """
         request_method = request.method.upper()
+        self.request = request
 
         if request_method == 'POST' and '_method' in request.POST:
             method = str.lower(request.POST['_method'])
@@ -103,7 +109,9 @@ class InformerCollection(Collection):
         model_entry = self.entry_class(self, new_model)
         response = model_entry.read(request)
         response.status_code = 201
+        print "the model entry is: %s, type %s" % (model_entry, type(model_entry))
         response.headers['Location'] = model_entry.get_url()
+        print "the location is: %s" % (response.headers['Location'])
         return response
     create = LogHandlerWrapper(create, 'POST')
 
@@ -190,6 +198,16 @@ class PkEntry(Entry):
         return response
     update = LogHandlerWrapper(update, 'PUT')
 
+    def get_url(self):
+        if self.collection and self.collection.request:
+            path = self.collection.request.META['PATH_INFO']
+            if (self.model.__class__.__name__ in ('Project', 'Shot')):
+                return "%s%s" % (path, self.model.name)
+            else:
+                pk_value = getattr(self.model, self.model._meta.pk.name)
+                return "%s%s" % (path, pk_value)
+        else:
+            return '/'
 
 class InformerAuthentication(HttpBasicAuthentication):
     def is_authenticated(self, request):
