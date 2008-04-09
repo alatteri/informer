@@ -43,16 +43,11 @@ def add_custom_permissions():
     """
     Adds custom informer permissions
     """
-    for model in (Project, Shot):
-        ctype = ContentType.objects.get_for_model(model)
-        for action in ['view']:
-            name = 'Can %s %s' % (action, model._meta.verbose_name)
-            codename = "%s_%s" % (action, model._meta.object_name.lower())
-
-            p, created = Permission.objects.get_or_create(codename=codename, content_type__pk=ctype.id,
-                defaults={'name': name, 'content_type': ctype})
-            if created:
-                print "Adding permission '%s'" % p
+    for p in Permission.objects.all():
+        if p.name.startswith('Can change'):
+            p.name = 'Can view' + p.name[10:]
+            print "Updating permission " + p.name
+            p.save()
 
 def create_group_artist():
     """
@@ -65,8 +60,9 @@ def create_group_artist():
             if (p.codename.endswith('shot') or
                 p.codename.endswith('project') or
                 p.codename.endswith('elementcategory')):
-                print "adding permission %s" % (p.codename)
-                g.permissions.add(p)
+                if p.codename not in ('change_project', 'change_shot'):
+                    print "adding permission %s" % (p.codename)
+                    g.permissions.add(p)
         g.save()
 
 def create_element_categories():

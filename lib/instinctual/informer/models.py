@@ -25,11 +25,17 @@ class Project(models.Model):
     branding    = InformerBrandingField(upload_to='branding', default='branding/default.gif')
 
     class Admin:
+        show_all_rows = False
+        grant_change_row_level_perm = True
+        grant_delete_row_level_perm = True
         list_display = ('name', 'description', 'status', 'client', 'due_date', 'branding')
 
     class Rest:
         expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding',
                          'self.shot_count', 'self.url']
+
+    class Meta:
+        row_level_permissions = True
 
     def __str__(self):
         if self.description:
@@ -150,9 +156,13 @@ class Shot(models.Model):
 
     # --------------------------------------------------------------------------
     class Meta:
+        row_level_permissions = True
         unique_together = (('project', 'name'),)
 
     class Admin:
+        show_all_rows = False
+        grant_change_row_level_perm = True
+        grant_delete_row_level_perm = True
         list_display = ('project', 'name', 'status', 'description', 'handles', 'frames')
 
     class Logger:

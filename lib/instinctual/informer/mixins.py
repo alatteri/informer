@@ -99,7 +99,8 @@ class GetUser(GetOrCreateObject):
         return self.model.objects.get(username=user)
 
     def create(self, user, *args, **kwargs):
-        u = self.model(username=user, password='x')
+        u = self.model(username=user)
+        u.set_password('informer')
         u.is_staff = True
         u.save()
         g = Group.objects.get(name='Artist')
