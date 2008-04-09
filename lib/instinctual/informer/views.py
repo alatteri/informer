@@ -42,7 +42,7 @@ def project_detail(request, project_name):
     shots = []
     for s in Shot.objects.filter(project=p):
         if request.user.has_perm('informer.change_shot', object=s):
-            projects.append(s)
+            shots.append(s)
 
     c = {
         'user':     request.user,
