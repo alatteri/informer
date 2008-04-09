@@ -349,7 +349,7 @@ class ElementCategory(models.Model):
         list_display = ('type',)
 
     class Meta:
-        verbose_name_plural = "element categories"
+        verbose_name_plural = "Element Categories"
 
     def __str__(self):
         return self.type
