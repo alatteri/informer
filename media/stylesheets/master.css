@@ -55,7 +55,8 @@ body {
 	line-height: 39px;
 	} 
 #header #breadcrumb li {
-	float: left;	
+	float: left;
+	display: block;
 	margin: 0 10px 0 0;	
 	}	
 #header #breadcrumb li span {

@@ -1,8 +1,7 @@
 /* Window Load Events
  * ------------------------------------------------------ */
 
-if((window.location+"").search('elements_browser') < 0)
-	addLoadEvent(styleSelects);
+if(!isElements_browser()) addLoadEvent(styleSelects);
 
 /* Application Functions
  * ------------------------------------------------------ */
@@ -158,7 +157,6 @@ function selectReplacement(obj) {
 }
 
 function selectMe(obj) {
-	browse(obj.innerHTML);
 	var lis = obj.parentNode.getElementsByTagName('li');
 	for (var i=0; i<lis.length; i++) {
 		if (lis[i] != obj) {
@@ -179,11 +177,16 @@ function selectMe(obj) {
 			}
 		}
 	}
+	if(isElements_browser()) browse(obj.innerHTML);
 }
 
 function setVal(objID, selIndex) {
 	var obj = document.getElementById(objID);
 	obj.selectedIndex = selIndex;
+}
+
+function isElements_browser() {
+	return (window.location+"").search('elements_browser') >= 0;
 }
 
 function addLoadEvent(func) {

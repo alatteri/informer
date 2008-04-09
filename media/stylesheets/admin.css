@@ -3,6 +3,9 @@
  
 /* General */
 
+#admin #content div.box h3 li {
+	list-style: none;
+	}
 #admin #content div.box a {
 	color: #222;
 	font-weight: normal;
@@ -210,6 +213,11 @@ div.box.small ul {
 	border: none;
 	text-indent: -9999px;
 	}	
+#admin #content form button#yes_im_sure {
+	width: 113px;	
+	margin: 0 0 10px 320px;
+	background: url(/media/images/button-yes_im_sure.gif) no-repeat left top;
+	}	
 #admin #content form label {
 	display: block;
 	float: left;
@@ -293,7 +301,14 @@ div.box.small ul {
 #admin div.box.large #changelist-filter ul li.selected {
 	background: #7c7c7c;
 	}	
-	
+#admin div.box.large h4 {
+	margin: 0 10px 5px 10px;	
+	font-size: 12px;
+	font-weight: bold;
+	}	
+#admin div.box.large ul.content {
+	margin: 0 10px;
+	}	
 /* Change Password Form */
 
 #admin #content #form-change_password label	{
