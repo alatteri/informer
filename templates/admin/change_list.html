@@ -11,7 +11,7 @@
 
 {% block content %}
 <div class="box large">
-  <h3>{% blocktrans with cl.opts.verbose_name|capfirst|escape as name %}{{ name }}s{% endblocktrans %}</h3>
+  <h3>{% blocktrans with cl.opts.verbose_name_plural|capfirst|escape as name %}{{ name }}{% endblocktrans %}</h3>
   {% block search %}{% search_form cl %}{% endblock %}
   {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
   {% block filters %}{% filters cl %}{% endblock %}
