@@ -5,8 +5,6 @@ from instinctual.informer import getServerRoot
 conf = instinctual.getConf()
 
 root = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-3])
-templatePath = os.sep.join([root, 'templates'])
-templatePath2 = os.sep.join([root, 'templates', 'html'])
 media_path = os.sep.join([root, 'media'])
 
 # set the umask
@@ -91,8 +89,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    templatePath,
-    templatePath2,
+    os.sep.join([root, 'templates']),
+    os.sep.join([root, 'templates', 'html']),
 )
 
 INSTALLED_APPS = (
