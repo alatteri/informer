@@ -29,7 +29,7 @@ function getDirs(path) {
 
 function getObjects(path, type, result) {
     var objects = [];
-    if (result != null) {
+    if (result != null && result != "") {
         result = "" + result;   // make sure it's a string
         result = result.split('/');
         for (var i=0; i < result.length; i++) {

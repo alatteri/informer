@@ -66,11 +66,7 @@ public class directoryService extends Applet {
 		File dir = new File(path);
 
 		File[] children = dir.listFiles(filter);
-		if (children == null) {
-			// You may want to change this to a constant of some sort, or just return null
-			// and do the error checking in javascript.
-			contents.add(null);
-		} else {
+		if (children != null) {
 			for(int i=0; i < children.length; i++)
 			{
 				contents.add(children[i].getName());

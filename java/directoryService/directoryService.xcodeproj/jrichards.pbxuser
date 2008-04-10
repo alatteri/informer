@@ -1,26 +1,16 @@
 // !$*UTF8*$!
 {
-	342617A70DAB2FFA005AE64B /* directoryService.html */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = text.html;
-		path = directoryService.html;
-		sourceTree = "<group>";
-	};
-	342617C30DAB44CB005AE64B /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = 342617A70DAB2FFA005AE64B /* directoryService.html */;
-	};
-	342617D10DAB5277005AE64B /* PBXTextBookmark */ = {
+	342617D30DAB5277005AE64B /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
-		fRef = 342617D20DAB5277005AE64B /* directoryService.java */;
-		name = "directoryService.java: 26";
+		fRef = 342617D40DAB5277005AE64B /* directoryService.java */;
+		name = "directoryService.java: 90";
 		rLen = 0;
-		rLoc = 744;
+		rLoc = 2380;
 		rType = 0;
-		vrLen = 1062;
-		vrLoc = 391;
+		vrLen = 1331;
+		vrLoc = 1791;
 	};
-	342617D20DAB5277005AE64B /* directoryService.java */ = {
+	342617D40DAB5277005AE64B /* directoryService.java */ = {
 		isa = PBXFileReference;
 		lastKnownFileType = sourcecode.java;
 		name = directoryService.java;
@@ -30,47 +20,25 @@
 			sepNavWindowFrame = "{{199, 86}, {1210, 777}}";
 		};
 	};
-	342617D30DAB5277005AE64B /* PBXTextBookmark */ = {
+	34C528A40DADD71900C0DAAF /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
-		fRef = 342617D40DAB5277005AE64B /* directoryService.java */;
-		name = "directoryService.java: 90";
+		fRef = 34C528A50DADD71900C0DAAF /* directoryService.java */;
+		name = "directoryService.java: 70";
 		rLen = 0;
-		rLoc = 2543;
+		rLoc = 2007;
 		rType = 0;
-		vrLen = 1331;
-		vrLoc = 1791;
+		vrLen = 1241;
+		vrLoc = 1298;
 	};
-	342617D40DAB5277005AE64B /* directoryService.java */ = {
+	34C528A50DADD71900C0DAAF /* directoryService.java */ = {
 		isa = PBXFileReference;
 		name = directoryService.java;
 		path = /Users/jrichards/dev/instinctual/src/java/directoryService/src/directoryService.java;
 		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1151, 1582}}";
-			sepNavSelRange = "{2543, 0}";
-			sepNavVisRange = "{1791, 1331}";
-		};
-	};
-	342617D70DAB5277005AE64B /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 342617D80DAB5277005AE64B /* directoryService.html */;
-		name = "directoryService.html: 19";
-		rLen = 0;
-		rLoc = 395;
-		rType = 0;
-		vrLen = 775;
-		vrLoc = 0;
-	};
-	342617D80DAB5277005AE64B /* directoryService.html */ = {
-		isa = PBXFileReference;
-		name = directoryService.html;
-		path = /Users/jrichards/dev/instinctual/src/java/directoryService/dist/directoryService.html;
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1151, 649}}";
-			sepNavSelRange = "{395, 0}";
-			sepNavVisRange = "{0, 775}";
-			sepNavWindowFrame = "{{38, 75}, {1210, 777}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1151, 1526}}";
+			sepNavSelRange = "{2007, 0}";
+			sepNavVisRange = "{1298, 1241}";
 		};
 	};
 	34CC714F0DA076D000055E66 /* Source Control */ = {
@@ -192,14 +160,12 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 229322746;
-			PBXWorkspaceStateSaveDate = 229322746;
+			PBXPerProjectTemplateStateSaveDate = 229496235;
+			PBXWorkspaceStateSaveDate = 229496235;
 		};
 		perUserProjectItems = {
-			342617C30DAB44CB005AE64B /* PBXBookmark */ = 342617C30DAB44CB005AE64B /* PBXBookmark */;
-			342617D10DAB5277005AE64B /* PBXTextBookmark */ = 342617D10DAB5277005AE64B /* PBXTextBookmark */;
 			342617D30DAB5277005AE64B /* PBXTextBookmark */ = 342617D30DAB5277005AE64B /* PBXTextBookmark */;
-			342617D70DAB5277005AE64B /* PBXTextBookmark */ = 342617D70DAB5277005AE64B /* PBXTextBookmark */;
+			34C528A40DADD71900C0DAAF /* PBXTextBookmark */ = 34C528A40DADD71900C0DAAF /* PBXTextBookmark */;
 		};
 		sourceControlManager = 34CC714F0DA076D000055E66 /* Source Control */;
 		userBuildSettings = {
