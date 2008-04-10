@@ -9,7 +9,7 @@
               <h3>Check In New Element</h3>
               <form id="form-element-checkIn" action="#" method="post">
                   <a href="javascript:ElementsBrowser()" id="form-element-checkIn-file">Choose Files</a>
-                  <div id='displayed_selected_element' style="display: none;"></div>
+                  <div id='displayed_selected_element' style="display: block;"></div>
                   <div class="clear"></div>
                   <input type="hidden" name="text" value="" id="form-element-selected" />
                   <input type="hidden" name="is_checked" value="false" />
@@ -68,7 +68,6 @@ function ElementBrowserSelection(path) {
     var text = document.createTextNode(path);
     nodeReplace($('displayed_selected_element'), text);
     $('form-element-selected').value = path;
-    $('displayed_selected_element').style.display = "block";    
 }
 
 /* called when user clicks on the 'Check in' element button */
