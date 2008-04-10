@@ -211,17 +211,41 @@ function browse(path) {
     // Display the directory entries
     DisplayEntries(entries);
     styleSelects();
+
+    $('form-element-button-choose').addClassName('disabled');
 }
 
 function select(path) {
-    // TODO: window.opener callback
-    window.opener.ElementBrowserSelection(path);
-    window.close();
+    $('form-element-button-choose').removeClassName('disabled');
+
+    var name = basename(path);
+    var elements = $('elements');
+    var node = elements.firstChild;
+
+    while (node) {
+        if (node.firstChild.innerHTML == name) {
+            node.addClassName("highlight");
+        } else {
+            node.removeClassName("highlight");
+        }
+        node = node.nextSibling;
+    }
+
+    $('form-element-browser-selection').value = path;
 }
 
 function cancel() {
     window.close();
 }
+
+function choose() {
+    if ($('form-element-button-choose').className != 'disabled') {
+        var path = $('form-element-browser-selection').value;
+        window.opener.ElementBrowserSelection(path);
+        window.close();
+    }
+}
+
 </script>
 </HEAD>
 
@@ -233,11 +257,12 @@ Your browser does not support Java, you will not be able to browse for elements.
 <div id="elements_browser">
     <h3>Select an element or sequence of elements below.</h3>
     <form id="form-element-browser" action="#" method="post">
+        <input type="hidden" id="form-element-browser-selection" />
         <select id="elements_browser-controls-directory" onchange="browse(this.options[this.selectedIndex].value)">
         </select>
         <ul id="elements">
         </ul>
-        <button type="submit">Choose</button>
+        <button id="form-element-button-choose" type="button" class="disabled" onclick="choose()">Choose</button>
         <a href="javascript:cancel()" title="Cancel" class="cancel">Cancel</a>
         <div class="clear"></div>
     </form>
