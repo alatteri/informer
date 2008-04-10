@@ -9,6 +9,103 @@
 <script type="text/javascript" src="/media/js/global.js"></script>
 
 <script language='javascript'>
+Entry = Class.create({
+    initialize: function(name, dir, type) {
+        this.name = name;
+        this.dir = dir;
+        this.path = (dir == '/' ? '' : dir) + '/' + name;
+        this.type = type;
+    },
+});
+
+SequenceMatch = Class.create({
+    initialize: function(entry, prefix, frame, suffix) {
+        this.entry = entry;
+        this.prefix = prefix + '';
+        this.frame = frame + '';
+        this.suffix = suffix + '';
+
+        this.number = parseInt(frame, 10);
+        this.pattern = frame.replace(/./g, 'X');
+        this.sequence_id = this.prefix + this.pattern + this.suffix;
+    },
+});
+
+SequenceFilter = Class.create({
+    initialize: function(entries) {
+        this.re = /^(.*?)(\d+)(\.\w+)$/;
+        this.entries = entries;
+    },
+
+    process: function() {
+        var results = [];
+        var sequences = $H();
+
+        for (var i=0; i < this.entries.length; i++) {
+            var f = this.entries[i];
+            var parts = this.re.exec(f.name);
+
+            if (parts) {
+                var sm = new SequenceMatch(f, parts[1], parts[2], parts[3]);
+                var frames = sequences.get(sm.sequence_id);
+                if (frames) {
+                    frames.set(sm.frame, sm);
+                } else {
+                    var x = $H();
+                    x.set(sm.frame, sm);
+                    sequences.set(sm.sequence_id, x);
+                }
+            } else {
+                // did not match, just a regular file
+                results.push(f);
+            }
+        }
+
+        // process the matches
+        var sequence_ids = sequences.keys();
+        for (var i=0; i< sequence_ids.length; i++) {
+            var filtered = this.processSequence(sequences.get(sequence_ids[i]));
+            results = results.concat(filtered);
+        }
+
+        return results;
+    },
+
+    processSequence: function(frames) {
+        var results = [];
+        var numbers = frames.keys().sort();
+
+        if (numbers.length) {
+            var min = frames.get(numbers[0]);
+            var max = frames.get(numbers[0]);
+            for (var i=0; i<numbers.length; i++) {
+                var cur = frames.get(numbers[i]);
+                if (cur.number == max.number + 1) {
+                    max = cur;
+                } else if (cur.number == max.number) {
+                    // ignore
+                } else {
+                    results.push(this.processRange(min, max));
+                    min = max = cur;
+                }
+            }
+
+            results.push(this.processRange(min, max));
+        }
+        return results;
+    },
+
+    processRange: function(min, max) {
+        if (min.number == max.number) {
+            return min.entry;
+        } else {
+            var name = min.prefix + "[" + min.frame + "-" + max.frame + "]" + min.suffix;
+            var dir = dirname(min.entry.path);
+            return new Entry(name, dir, 'file');
+        }
+    },
+});
+
 function basename(path) {
     return '/' == path ? path : path.substring(path.lastIndexOf('/') + 1);
 }
@@ -20,11 +117,16 @@ function dirname(path) {
 }
 
 function getFiles(path) {
-    return getObjects(path, 'file', document.directoryService.getFiles(path));
+    var result = document.directoryService.getFiles(path);
+    var files = getObjects(path, 'file', result);
+
+    var filter = new SequenceFilter(files);
+    return filter.process();
 }
 
 function getDirs(path) {
-    return getObjects(path, 'dir', document.directoryService.getDirectories(path));
+    var result = document.directoryService.getDirectories(path);
+    return getObjects(path, 'dir', result);
 }
 
 function getObjects(path, type, result) {
@@ -34,8 +136,8 @@ function getObjects(path, type, result) {
         result = result.split('/');
         for (var i=0; i < result.length; i++) {
             var name = result[i];
-            var full = (path == '/' ? '' : path) + '/' + name;
-            objects.push({ type: type, path: full, name: name });
+            var entry = new Entry(name, path, type);
+            objects.push(entry);
         }
     }
     return objects;
@@ -93,15 +195,18 @@ function DisplayEntries(entries) {
     }
 }
 
+function sortByName(entries) {
+    return entries.sortBy(function (x) {
+        return x.name.toLowerCase();
+    });
+}
+
 function browse(path) {
     // Display the dropdown UI
     DisplayDropDown(path);
 
     // get the direntries and sort by name
-    var entries = getDirEntries(path);
-    entries = entries.sortBy(function (x) {
-        return x.name.toLowerCase();
-    });
+    var entries = sortByName(getDirEntries(path));
 
     // Display the directory entries
     DisplayEntries(entries);
