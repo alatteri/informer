@@ -1304,7 +1304,6 @@ InformerGetFrameRate(void)
         default:    fps = sparkFrameRate();
     }
 
-    printf("InformerGetFrameRate called, returning: %f\n", fps);
     return fps;
 }
 
@@ -1315,7 +1314,6 @@ static unsigned long *
 InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     double fps = InformerGetFrameRate();
-    printf("InformerFrameRateChanged (%d) setting fps to: %f\n", CallbackArg, fps);
     GatewaySetFrameRate(fps);
     return NULL;
 }
