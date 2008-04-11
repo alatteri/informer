@@ -401,6 +401,10 @@ div.box.small ul li.path strong {
 	background: url(/media/images/button-close-entry.gif) no-repeat left top;
 	text-indent: -9999px;
 	}	
+#content div.box.medium ul li div.entry ul.heading li.close:hover {
+	background-image: url(/media/images/button-close-entry-highlight.gif);	
+	cursor: pointer;
+	}	
 #content div.box.medium ul li div.entry ul.heading li.update {
 	width: 32px;
 	padding: 0;
