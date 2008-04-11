@@ -800,9 +800,7 @@ div.box.small ul li.path strong {
 	border: none;
 	text-indent: -9999px;
 	}	
-#elements_browser button.disabled {
-	background: url(/media/images/button-choose-browser-disabled.gif) no-repeat left top;
-	}	
+#elements_browser button.disabled {background: url(/media/images/button-choose-browser-disabled.gif) no-repeat left top;}
 	
 /* Forms
  * ------------------------------------------------------------ */ 	
@@ -835,6 +833,27 @@ div.left form #form-element-checkIn-file {
 	background: url(/media/images/button-choose.gif) no-repeat left top;
 	text-indent: -9999px;
 	}
+#content form #form-note-create-submit,
+#content form #form-element-checkIn-submit {
+	display: block;
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 113px;
+	height: 26px;
+	background: url(/media/images/button-addNote.gif) no-repeat left top;
+	border: none;
+	text-indent: -999px;
+	}	
+#content form #form-element-checkIn-submit {
+	background-image: url(/media/images/button-checkIn.gif);
+	}	
+#content form #form-note-create-submit.disabled {
+	background-image: url(/media/images/button-addNote-disabled.gif);
+	}	
+#content form #form-element-checkIn-submit.disabled {
+	background-image: url(/media/images/button-checkIn-disabled.gif);
+	}	
 #content div.left div.box.medium form select.replaced {
 	display: none;
 	}
