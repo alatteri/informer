@@ -9,130 +9,87 @@
 {% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
 {% block userlinks %}<li><a href="../../../../doc/">{% trans 'Documentation' %}</a></li><li><a href="../../../../password_change/">{% trans 'Change password' %}</a></li><li><a href="../../../../logout/">{% trans 'Log out' %}</a></li>{% endblock %}
 {% block breadcrumbs %}
-<li><a href="../../../../">{% trans "Home" %}</a> &rsaquo;</li>
-<li><a href="../../">{{ opts.verbose_name_plural|capfirst|escape }}</a> &rsaquo;</li>
-<li><a href="../">{{ original|truncatewords:"18"|escape }}</a> &rsaquo;</li>
-<li>{{ title|escape }}</li>
+<li><span>&rsaquo;</span><a href="../../../../">{% trans "Home" %}</a></li>
+<li><span>&rsaquo;</span><a href="../../">{{ opts.verbose_name_plural|capfirst|escape }}</a></li>
+<li><span>&rsaquo;</span><a href="../">{{ original|truncatewords:"1"|escape }}</a></li>
+<!-- ><li><span>&rsaquo;</span>{{ title|escape }}</li> -->
+<li><span>&rsaquo;</span>Edit</li>
 {% endblock %}
 {% block content %}
 <div class="box large">
-
-{% if_has_perm "auth.add_rowlevelpermission" %}
-<h3>{% trans "Add Permissions" %}</h3>
-<form id="addRLPForm" method="POST" name="addRLPForm" action="add/">
-<table id="add-rlpTable">
-<tr class="header">
-<th>
-{% trans "Owner" %}
-</th>
-<th>
-{% trans "Permission" %}
-</th>
-<th>
-{% trans "Negative" %}
-</th>
-<th>
-{% trans "Options" %}
-</th>
-</tr>
-<TBODY>
-<tr>
-<td>
-<p>
-    {{ new_rlp_form.owner }}
-</p>
-</td>
-<td>
-<p>
-    {{ new_rlp_form.perm }}
-</p>
-</td>
-<td>
-<p>
-    {{ new_rlp_form.negative }}
-</p>
-</td>
-<td>
-<input id="addButton" type="submit" value="{% trans 'Add' %}" />
-</td>
-</tr>
-</table>
-</form>
-{% end_if_has_perm %}
-
-{% if_has_perm "auth.change_rowlevelpermission" %}
-<h2>{% trans "Current Permissions" %}</h2>
-<table id="current-rlpTable">
-{% if rlp_forms %}
-<tr class="header">
-	<th id="select_header"></th>
-<th id="owner_header">
-{% trans "Owner" %}
-</th>
-<th id="perm_header">
-{% trans "Permission" %}
-</th>
-<th id="negative_header">
-{% trans "Negative" %}
-</th>
-<th id="options_header">
-{% trans "Options" %}
-</th>
-</tr>
-<TBODY>
-{% load row_level_permission %}
-{% for x in rlp_forms %}
-<tr>
-<th colspan=5>
-{{ x.0 }}
-</th>
-</tr>
-{% for o in x.1 %}
-<tr id="editRLP-{{ o.rlp.id }}">
-<form id="editRLPForm-{{ o.rlp.id }}" class="editRLPForm" method="POST" name="editRLPForm-{{ o.rlp.id }}"  action="change/{% objref o.rlp %}/">
-	<td>
-		<input type="checkbox" name="apply_checkbox">
-	</td>
-	<td>
-		{{ o.form.owner }}
-	</td>
-	<td>
-		{{ o.form.perm }}
-	</td>
-	<td>
-		{{ o.form.negative }}
-	</td>
-	<td>
-		<input id="applyButton-{{ o.rlp.id }}" type="submit" value="{% trans 'Apply' %}" />
-		<input id="cancelButton-{{ o.rlp.id }}" type="reset" value="{% trans 'Reset' %}"/>
-		<br/>
-		<a href="delete/{% objref o.rlp %}" class="deletelink">{% trans 'Delete' %}</a> |
-		<a href="javascript:row_level_permission.copyToNew({{ o.rlp.id }})" class="copyToNewLink">{% trans 'Copy to New' %}</a>
-	</td>	
-</form>
-</td>
-</tr>
-{% endfor %}
-{% endfor %}
-<tr align="right">
-	<td colspan="5">
-		Commands: 
-		<a href="javascript:row_level_permission.apply_selected();">Apply Selected</a>
-	</td>
-</tr>
-{% if is_paginated %}
-<tr align="right">
-<td colspan="5">
-<div class="paginator">{% paginator %}</div>
-</td>
-</tr>
-{% endif %}
-</TBODY>
+  {% if_has_perm "auth.add_rowlevelpermission" %}
+  <h3>{% trans "Add Permissions" %}</h3>
+  <form id="addRLPForm" method="POST" name="addRLPForm" action="add/">
+    <table id="add-rlpTable">
+      <thead>
+      <tr>
+        <th>{% trans "Owner" %}</th>
+        <th>{% trans "Permission" %}</th>
+        <th>{% trans "Negative" %}</th>
+        <th>{% trans "Options" %}</th>
+      </tr>
+      </thead>
+      <tr>
+        <td>{{ new_rlp_form.owner }}</td>
+        <td>{{ new_rlp_form.perm }}</td>
+        <td>{{ new_rlp_form.negative }}</td>
+        <td><button id="addButton" type="submit" class="add">{% trans 'Add' %}</button></td>
+      </tr>
+    </table>
+  </form>
+  {% end_if_has_perm %}
+  <div class="bottom"></div>
+</div>
+  {% if_has_perm "auth.change_rowlevelpermission" %}
+  <div class="box large">
+  <h3>{% trans "Current Permissions" %}<a href="javascript:row_level_permission.apply_selected();">Apply Selected</a></h3>
+  <table id="current-rlpTable">
+    {% if rlp_forms %}
+    <thead>
+    <tr>
+	    <th id="select_header"></th>
+      <th id="owner_header">{% trans "Owner" %}</th>
+      <th id="perm_header">{% trans "Permission" %}</th>
+      <th id="negative_header">{% trans "Negative" %}</th>
+      <th id="options_header">{% trans "Options" %}</th>
+    </tr>
+    </thead>
+      {% load row_level_permission %}
+      {% for x in rlp_forms %}
+      <tr>
+        <th colspan=5>{{ x.0 }}</th>
+      </tr>
+      {% for o in x.1 %}
+      <tr id="editRLP-{{ o.rlp.id }}">
+        <form id="editRLPForm-{{ o.rlp.id }}" class="editRLPForm" method="POST" name="editRLPForm-{{ o.rlp.id }}"  action="change/{% objref o.rlp %}/">
+	        <td><input type="checkbox" name="apply_checkbox"></td>
+	        <td>{{ o.form.owner }}</td>
+	        <td>{{ o.form.perm }}</td>
+	        <td>{{ o.form.negative }}</td>
+	        <td>
+		        <button id="applyButton-{{ o.rlp.id }}" type="submit" class="apply">{% trans 'Apply' %}</button>
+		        <button id="cancelButton-{{ o.rlp.id }}" type="reset" class="reset">{% trans 'Reset' %}</button>
+		        <br/>
+		        <a href="delete/{% objref o.rlp %}" class="deletelink">{% trans 'Delete' %}</a> |
+		        <a href="javascript:row_level_permission.copyToNew({{ o.rlp.id }})" class="copyToNewLink">{% trans 'Copy to New' %}</a>
+	        </td>	
+        </form>
+      </td>
+    </tr>
+      {% endfor %}
+    {% endfor %}
+    {% if is_paginated %}
+    <tr align="right">
+      <td colspan="5"><div class="paginator">{% paginator %}</div>
+      </td>
+    </tr>
+  {% endif %}
 </table>
 {% else %}
 <em>{% trans 'No row level permissions'%}</em>
 {% endif %}
 {% end_if_has_perm %}
+<div class="bottom"></div>
 </div>
 </div>
 {% endblock %}

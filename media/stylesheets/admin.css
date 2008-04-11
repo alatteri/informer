@@ -2,7 +2,9 @@
  * ------------------------------------------------------------ */
  
 /* General */
-
+#admin #content div.box h3 {
+	position: relative;
+	}
 #admin #content div.box h3 li {
 	list-style: none;
 	}
@@ -355,7 +357,33 @@ div.box.small ul {
 	margin: 0 0 0 105px;
 	color: #9c060b;
 	}	
-	
+#admin #content button.add {
+	margin: 0;
+	width: 63px;
+	background: url(/media/images/button-add.gif) no-repeat left top;
+	}
+#admin #content button.apply,
+#admin #content button.reset {
+	margin: 0;
+	width: 63px;
+	height: 26px;
+	background: url(/media/images/button-apply.gif) no-repeat left top;
+	border: none;
+	text-indent: -9999px;
+	}	
+#admin #content button.reset {
+	background: url(/media/images/button-reset.gif) no-repeat left top;
+	}
+#admin #content div.box.large h3 a {
+	position: absolute;
+	right: 15px;
+	}	
+#admin #content div.box.large h3 a:hover {
+	color: #000;
+	}
+#admin #content div.box.large form table#add-rlpTable {
+	margin: 0 0 0 -1px;
+	}	
 /* SELECTOR (FILTER INTERFACE) */
 .selector { width:580px; float:left; }
 .selector select { width:270px; height:17.2em; }
