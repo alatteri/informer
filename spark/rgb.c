@@ -87,9 +87,9 @@ RgbStage(SparkMemBufStruct input, SparkMemBufStruct stage, SparkInfoStruct spark
     inc = stage.Inc/3;
 
     for (index = 0; index < spark_info.FramePixels; index++) {
-        r = inc * (3 * index + 0);
-        g = inc * (3 * index + 1);
-        b = inc * (3 * index + 2);
+        r = inc * (3 * index + 0) + 1;
+        g = inc * (3 * index + 1) + 1;
+        b = inc * (3 * index + 2) + 1;
 
         if (index < 10) {
             InformerDEBUG("pixel %d: (%d, %d, %d) [%d, %d, %d]\n",
