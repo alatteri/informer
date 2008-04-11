@@ -311,6 +311,10 @@ div.box.small ul {
 #admin div.box.large ul.content {
 	margin: 0 10px;
 	}	
+#admin #content div.box.large select {
+	background: #b8babb;
+	}
+	
 /* Change Password Form */
 
 #admin #content #form-change_password label	{
@@ -363,16 +367,18 @@ div.box.small ul {
 	background: url(/media/images/button-add.gif) no-repeat left top;
 	}
 #admin #content button.apply,
-#admin #content button.reset {
-	margin: 0;
+#admin #content a.deletelink {
+	display: block;
+	float: left;
+	margin: 2px 5px;
 	width: 63px;
 	height: 26px;
 	background: url(/media/images/button-apply.gif) no-repeat left top;
 	border: none;
 	text-indent: -9999px;
 	}	
-#admin #content button.reset {
-	background: url(/media/images/button-reset.gif) no-repeat left top;
+#admin #content a.deletelink {
+	background: url(/media/images/button-delete-small.gif) no-repeat left top;
 	}
 #admin #content div.box.large h3 a {
 	position: absolute;
@@ -384,6 +390,73 @@ div.box.small ul {
 #admin #content div.box.large form table#add-rlpTable {
 	margin: 0 0 0 -1px;
 	}	
+#admin #content div.box.large form table#add-rlpTable tr td {height: 35px;}
+#admin #content div.box.large form table#add-rlpTable tr td ul {margin-top: -10px;}
+#admin #content div.box.large table#current-rlpTable tr td {height: 35px;}
+#admin #content div.box.large table#current-rlpTable tr th#owner_header {width: 140px;}
+#admin #content div.box.large table#current-rlpTable tr td ul {margin-top: -10px;}
+#admin #content div.box.large table th.owner {width: 240px;}
+#admin #content div.box.large table th.permission {width: 300px;}
+#admin #content div.box.large table th.deny {width: 50px;}
+#admin #content div.box.large table th.actions {width: 160px;}
+
+	
+/* Custome Selects */
+
+#admin div.box.large select.replaced {
+	display: none;
+	}
+#admin div.box.large ul.selectReplacement {
+	position: absolute;
+	z-index: 1001;
+	width: 137px;
+	background: url(/media/images/background-select-top.gif) top left no-repeat;	
+	}
+#notes #admin div.box.large ul.selectReplacement {
+	left: 120px;
+	}
+#admin div.box.large ul.selectReplacement.selectOpen {
+	border-bottom: 1px solid #333;	
+	}	
+#admin div.box.large ul.selectReplacement li {
+	display: none;	
+	width: 127px;	
+	height: 22px;
+	line-height: 22px;
+	padding: 0 0 0 10px;
+	cursor: pointer;
+	overflow: hidden;
+	}
+#admin div.box.large ul.selectOpen li {
+	display: block;
+	}
+#admin div.box.large ul.selectReplacement li.selected {
+	background: url(/media/images/background-select-highlight.gif) bottom left no-repeat;
+	display: block;
+	}
+#admin div.box.large ul.selectOpen li.selected {
+	background: none;
+	display: block;
+	}	
+#admin div.box.large ul.selectReplacement.selectOpen li.hover {
+	width: 125px;
+	border-right: 1px solid #6c6d6f;
+	border-left: 1px solid #6c6d6f;	
+	background: #555;
+	color: #fff;
+	cursor: pointer;
+	}
+div.left form #displayed_selected_element {
+	float: left;
+	width: 375px;
+	height: 22px;
+	line-height: 22px;
+	margin: 6px 0 15px 8px;
+	padding: 0px 10px;
+	background: #7a7a7c;
+	border: 1px solid #4f5153;
+	}
+		
 /* SELECTOR (FILTER INTERFACE) */
 .selector { width:580px; float:left; }
 .selector select { width:270px; height:17.2em; }
