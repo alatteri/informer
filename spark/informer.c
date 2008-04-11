@@ -116,8 +116,19 @@ SparkStringStruct SparkString62 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 /*************************************
  * Setup UI
  *************************************/
-SparkStringStruct SparkSetupString15 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
-SparkStringStruct SparkSetupString16 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkPupStruct SparkSetupPup1 = {0, 8, InformerFrameRateChanged,
+                                         {"FPS: Project Default",
+                                          "FPS: 60",
+                                          "FPS: 59.94",
+                                          "FPS: 50",
+                                          "FPS: 30",
+                                          "FPS: 29.97",
+                                          "FPS: 25",
+                                          "FPS: 24",
+                                          "FPS: 23.976"}};
+
+SparkStringStruct SparkSetupString19 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
+SparkStringStruct SparkSetupString20 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 
 
 /*************************************
@@ -193,8 +204,9 @@ SparkInitialise(SparkInfoStruct spark_info)
     InformerSetAppState(app, INFORMER_APP_STATE_OK);
 
     /* ------ SETUP ------ */
-    app->setup_ui_setup_path = InformerCreateStringUI(15, &SparkSetupString15, "");
-    app->setup_ui_spark_name = InformerCreateStringUI(16, &SparkSetupString16, "");
+    app->setup_ui_frame_rate = InformerCreatePupUI(1, &SparkSetupPup1);
+    app->setup_ui_setup_path = InformerCreateStringUI(19, &SparkSetupString19, "");
+    app->setup_ui_spark_name = InformerCreateStringUI(20, &SparkSetupString20, "");
 
     /* ------ NOTES DATA ------ */
     app->notes_data_count = 0;
@@ -273,7 +285,7 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     PythonInitialize(sparkProgramGetName());
 
-    rate = sparkFrameRate();
+    rate = InformerGetFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);
     GatewaySetFrameRate(rate);
 
@@ -1268,6 +1280,44 @@ InformerSetSparkName(char *name)
 {
     InformerAppStruct *app = InformerGetApp();
     strncpy(app->setup_ui_spark_name.ui->Value, name, SPARK_MAX_STRING_LENGTH);
+}
+
+/*--------------------------------------------------------------------------*/
+/* Get the frame rate, allowing for overrides in the setup ui               */
+/*--------------------------------------------------------------------------*/
+double
+InformerGetFrameRate(void)
+{
+    double fps;
+    InformerAppStruct *app = InformerGetApp();
+
+    switch (app->setup_ui_frame_rate.ui->Value)
+    {
+        case 1:     fps = 60;     break;
+        case 2:     fps = 59.94;  break;
+        case 3:     fps = 50;     break;
+        case 4:     fps = 30;     break;
+        case 5:     fps = 29.97;  break;
+        case 6:     fps = 25;     break;
+        case 7:     fps = 24;     break;
+        case 8:     fps = 23.976; break;
+        default:    fps = sparkFrameRate();
+    }
+
+    printf("InformerGetFrameRate called, returning: %f\n", fps);
+    return fps;
+}
+
+/*--------------------------------------------------------------------------*/
+/* Callback when the user changes the frame rate override                   */
+/*--------------------------------------------------------------------------*/
+static unsigned long *
+InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo)
+{
+    double fps = InformerGetFrameRate();
+    printf("InformerFrameRateChanged (%d) setting fps to: %f\n", CallbackArg, fps);
+    GatewaySetFrameRate(fps);
+    return NULL;
 }
 
 /*--------------------------------------------------------------------------*/
