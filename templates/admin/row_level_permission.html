@@ -25,8 +25,8 @@
       <tr>
         <th>{% trans "Owner" %}</th>
         <th>{% trans "Permission" %}</th>
-        <th>{% trans "Negative" %}</th>
-        <th>{% trans "Options" %}</th>
+        <th>{% trans "Deny" %}</th>
+        <th>{% trans "Actions" %}</th>
       </tr>
       </thead>
       <tr>
@@ -47,31 +47,23 @@
     {% if rlp_forms %}
     <thead>
     <tr>
-	    <th id="select_header"></th>
       <th id="owner_header">{% trans "Owner" %}</th>
       <th id="perm_header">{% trans "Permission" %}</th>
-      <th id="negative_header">{% trans "Negative" %}</th>
-      <th id="options_header">{% trans "Options" %}</th>
+      <th id="negative_header">{% trans "Deny" %}</th>
+      <th id="options_header">{% trans "Actions" %}</th>
     </tr>
     </thead>
       {% load row_level_permission %}
       {% for x in rlp_forms %}
-      <tr>
-        <th colspan=5>{{ x.0 }}</th>
-      </tr>
       {% for o in x.1 %}
       <tr id="editRLP-{{ o.rlp.id }}">
         <form id="editRLPForm-{{ o.rlp.id }}" class="editRLPForm" method="POST" name="editRLPForm-{{ o.rlp.id }}"  action="change/{% objref o.rlp %}/">
-	        <td><input type="checkbox" name="apply_checkbox"></td>
 	        <td>{{ o.form.owner }}</td>
 	        <td>{{ o.form.perm }}</td>
 	        <td>{{ o.form.negative }}</td>
 	        <td>
 		        <button id="applyButton-{{ o.rlp.id }}" type="submit" class="apply">{% trans 'Apply' %}</button>
-		        <button id="cancelButton-{{ o.rlp.id }}" type="reset" class="reset">{% trans 'Reset' %}</button>
-		        <br/>
-		        <a href="delete/{% objref o.rlp %}" class="deletelink">{% trans 'Delete' %}</a> |
-		        <a href="javascript:row_level_permission.copyToNew({{ o.rlp.id }})" class="copyToNewLink">{% trans 'Copy to New' %}</a>
+		        <a href="delete/{% objref o.rlp %}" class="deletelink">{% trans 'Delete' %}</a>
 	        </td>	
         </form>
       </td>
