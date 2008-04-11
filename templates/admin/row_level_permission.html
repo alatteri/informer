@@ -23,10 +23,10 @@
     <table id="add-rlpTable">
       <thead>
       <tr>
-        <th>{% trans "Owner" %}</th>
-        <th>{% trans "Permission" %}</th>
-        <th>{% trans "Deny" %}</th>
-        <th>{% trans "Actions" %}</th>
+        <th class="owner">{% trans "Owner" %}</th>
+        <th class="permission">{% trans "Permission" %}</th>
+        <th class="deny">{% trans "Deny" %}</th>
+        <th class="actions">{% trans "Actions" %}</th>
       </tr>
       </thead>
       <tr>
@@ -47,10 +47,10 @@
     {% if rlp_forms %}
     <thead>
     <tr>
-      <th id="owner_header">{% trans "Owner" %}</th>
-      <th id="perm_header">{% trans "Permission" %}</th>
-      <th id="negative_header">{% trans "Deny" %}</th>
-      <th id="options_header">{% trans "Actions" %}</th>
+      <th class="owner">{% trans "Owner" %}</th>
+      <th class="permission">{% trans "Permission" %}</th>
+      <th class="deny">{% trans "Deny" %}</th>
+      <th class="actions">{% trans "Actions" %}</th>
     </tr>
     </thead>
       {% load row_level_permission %}
