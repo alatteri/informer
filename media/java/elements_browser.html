@@ -136,8 +136,10 @@ function getObjects(path, type, result) {
         result = result.split('/');
         for (var i=0; i < result.length; i++) {
             var name = result[i];
-            var entry = new Entry(name, path, type);
-            objects.push(entry);
+            if (name.substring(0, 1) != '.') {
+                var entry = new Entry(name, path, type);
+                objects.push(entry);
+            }
         }
     }
     return objects;
