@@ -20,7 +20,7 @@
                           <option>{{ category.type }}</option>
                       {% endfor %}
                       </select> 
-                      <button type="submit" id="form-element-checkIn-submit" onclick="add_element();return false;">Check In</button>
+                      <button type="submit" id="form-element-checkIn-submit" onclick="add_element();return false;" class="disabled">Check In</button>
                   </p>
               </form>
               <div class="bottom">&nbsp;</div>
@@ -68,13 +68,13 @@ function ElementBrowserSelection(path) {
     var text = document.createTextNode(path);
     nodeReplace($('displayed_selected_element'), text);
     $('form-element-selected').value = path;
+    $('form-element-checkIn-submit').removeClassName('disabled');
 }
 
 /* called when user clicks on the 'Check in' element button */
 function add_element() {
     // make sure the user selected an element
     if (!$F('form-element-selected')) {
-        alert('Please choose an element first');
         return;
     }
 

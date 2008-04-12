@@ -10,7 +10,7 @@
             <h3>Add a note</h3>
             <form id="form-note-create" action="#" method="post">
               <input type="hidden" name="is_checked" value="false" />
-              <textarea name="text" id="form-note-create-message"></textarea>
+              <textarea name="text" id="form-note-create-message" onKeyUp="messageChanged()"></textarea>
               <p>
                 <strong>Assign this task to:</strong>
                 <select name="assigned_to" id="form-note-create-assign"><option value="">Anyone</option>
@@ -18,7 +18,7 @@
                 <option value="{{user.username}}">{{ user.username }}</option>
                 {% endfor %}
                 </select>
-                <button type="submit" id="form-note-create-submit" onclick="add_note();return false;">Add Note</button>
+                <button type="submit" id="form-note-create-submit" onclick="add_note();return false;" class="disabled">Add Note</button>
               </p>
             </form>
             <div class="bottom">&nbsp;</div>
@@ -87,7 +87,6 @@ function setup() {
 function add_note() {
     // make sure the user entered something
     if (!$F('form-note-create-message')) {
-        alert('Please enter a note first');
         return;
     }
 
@@ -97,7 +96,8 @@ function add_note() {
         evalJSON:   true,
         onSuccess:  function (r) {
             // Ajax callback triggered after a user clicks the 'Add Note' button
-            $('form-note-create').reset();	
+            $('form-note-create').reset();
+            $('form-note-create-submit').addClassName('disabled');
             styleSelects();
             notes.add_data(r.responseJSON[0]);
             notes.resort_table();
@@ -134,6 +134,15 @@ function toggle_note_status(item) {
             notes.resort_table();
         },
     });
+}
+
+/* called when the user changes some text in the message textarea */
+function messageChanged() {
+    if (!$F('form-note-create-message')) {
+        $('form-note-create-submit').addClassName('disabled');
+    } else {
+        $('form-note-create-submit').removeClassName('disabled');
+    }
 }
 
 // onload trigger
