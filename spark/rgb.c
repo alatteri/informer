@@ -69,7 +69,7 @@ RgbWriteHeader(FILE *fp, int width, int height, int depth)
 void
 RgbStage(SparkMemBufStruct input, SparkMemBufStruct stage, SparkInfoStruct spark_info)
 {
-    int index, inc, r, g, b;
+    int offset, index, inc, r, g, b;
     unsigned char *ptr, *buf;
 
     ptr = (unsigned char *) input.Buffer;
@@ -84,12 +84,14 @@ RgbStage(SparkMemBufStruct input, SparkMemBufStruct stage, SparkInfoStruct spark
     InformerDEBUG("stage BufDepth: %d\n", stage.BufDepth);
     InformerDEBUG("input inc: %d\n", stage.Inc);
 
+    offset = 0;
     inc = stage.Inc/3;
+    if (2 == inc) offset = 1;
 
     for (index = 0; index < spark_info.FramePixels; index++) {
-        r = inc * (3 * index + 0) + 1;
-        g = inc * (3 * index + 1) + 1;
-        b = inc * (3 * index + 2) + 1;
+        r = inc * (3 * index + 0) + offset;
+        g = inc * (3 * index + 1) + offset;
+        b = inc * (3 * index + 2) + offset;
 
         if (index < 10) {
             InformerDEBUG("pixel %d: (%d, %d, %d) [%d, %d, %d]\n",
