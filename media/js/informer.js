@@ -33,6 +33,15 @@ Informer.BaseColumn = Class.create({
         this.formatter = function (x) { return x };
         LOG("BaseColumn initialize called: " + this.name);
     },
+
+    getValue: function(data, field) {
+        if (undefined == field) field = this.field;
+        return getattr(data, field);
+    },
+
+    getFormattedValue: function(data, field) {
+        return this.formatter(this.getValue(data, field));
+    },
 });
 
 Informer.DateColumn = Class.create(Informer.BaseColumn, {
@@ -70,6 +79,17 @@ Informer.AssignedUserColumn = Class.create(Informer.BaseColumn, {
         LOG("AssignedUserColumn initialize called");
         this.sorter = sort_by_assigned;
         this.formatter = format_assigned;
+
+        this._status = new Informer.NoteStatusColumn('status', 'fields.is_checked');
+    },
+
+    getValue: function($super, data) {
+        var status = this._status.getFormattedValue(data);
+        if ('Pending' == status) {
+            return $super(data);
+        } else {
+            return $super(data, 'fields.modified_by');
+        }
     },
 });
 
@@ -119,6 +139,7 @@ Informer.Filter.prototype = {
     // initialize: create a new Filter object
     //      col: Informer column object
     initialize: function(col) {
+        this.col = col;
         this.name = 'filter_' + col.name;
         this.field = col.field;
 
@@ -142,7 +163,7 @@ Informer.Filter.prototype = {
 
         // the data is filtered if the value doesn't
         // match the filter's value
-        var val = this.format(getattr(data, this.field));
+        var val = this.col.getFormattedValue(data);
         return val != this.value;
     },
 
@@ -153,7 +174,7 @@ Informer.Filter.prototype = {
 
     // accepts a data object, increments internal counts for fields
     observe_data: function(data) {
-        var val = this.format(getattr(data, this.field));
+        var val = this.col.getFormattedValue(data);
         if (val == null) val = 'None'
 
         var count = this.matches.get(val);
@@ -327,7 +348,7 @@ Informer.Data.prototype = {
             if (this.row_1) {
                 for (var j=0; j<this.row_1.length; j++) {
                     var col = this.row_1[j];
-                    val = getattr(obj, col.field);
+                    val = col.getValue(obj);
                     if (col.parser) {
                         // use the column's parser if specified
                         val = col.parser(val);

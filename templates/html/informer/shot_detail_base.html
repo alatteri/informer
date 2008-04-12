@@ -73,7 +73,7 @@ function generate_row_double(item) {
 
     var content = document.createElement('DIV');
     content.className = 'content';
-    var val = getattr(item, this.row_2);
+    var val = this.row_2.getFormattedValue(item);
     if (val.tagName) {
         content.appendChild(val);
     } else {
@@ -93,7 +93,7 @@ function create_entry_item(table, item, tag, parent) {
         if (info.create_func) {
             elem = info.create_func(item);
         } else if(info.name == "status") {
-            var value = getattr(item, info);
+            var value = info.getFormattedValue(item);
             elem = document.createElement(tag);
             elem.className = info.name;
             elem.appendChild(document.createTextNode(value));
@@ -114,7 +114,7 @@ function create_entry_item(table, item, tag, parent) {
             }
             elem.appendChild(checkbox);
         } else {
-            var value = getattr(item, info);
+            var value = info.getFormattedValue(item);
             elem = document.createElement(tag);
             elem.className = info.name;
             elem.appendChild(document.createTextNode(value));
