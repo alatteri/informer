@@ -74,7 +74,7 @@ function ElementBrowserSelection(path) {
 /* called when user clicks on the 'Check in' element button */
 function add_element() {
     // make sure the user selected an element
-    if (!$F('form-element-selected')) {
+    if ($('form-element-checkIn-submit').hasClassName('disabled')) {
         return;
     }
 
@@ -85,6 +85,7 @@ function add_element() {
         onSuccess:  function (r) {
             // Ajax callback triggered after a user clicks the 'Check in' button
             $('form-element-checkIn').reset();
+            $('form-element-checkIn-submit').addClassName('disabled');
             nodeReplace($('displayed_selected_element'), document.createTextNode(''));
             styleSelects();
             elements.add_data(r.responseJSON[0]);
