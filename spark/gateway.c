@@ -212,7 +212,7 @@ GatewayUpdateNote(InformerNoteData *data, int id, int is_checked)
         // TODO
         status = FALSE;
         PyErr_Print();
-        InformerERROR("Failed to update note.\n");
+        InformerERROR("Unable to update note.\n");
     }
 
     Py_XDECREF(pNotes);
@@ -247,7 +247,7 @@ GatewayUpdateElem(InformerElemData *data, int id,
         // TODO
         status = FALSE;
         PyErr_Print();
-        InformerERROR("Failed to update element.\n");
+        InformerERROR("Unable to update element.\n");
     }
 
     Py_XDECREF(pElems);
@@ -286,7 +286,7 @@ GatewayGetNotes(InformerNoteData *data)
         }
     } else {
         PyErr_Print();
-        InformerERROR("Failed to get notes.\n");
+        InformerERROR("Unable to get notes from the database.\n");
     }
 
     Py_XDECREF(pNotes);
@@ -327,7 +327,7 @@ GatewayGetElems(InformerElemData *data)
         }
     } else {
         PyErr_Print();
-        InformerERROR("Failed to get elements.\n");
+        InformerERROR("Unable to get elements from the database.\n");
     }
 
     Py_XDECREF(pElems);

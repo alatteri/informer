@@ -23,6 +23,7 @@
 extern int errno;
 extern char **environ;
 
+static int MSG_DELAY = 4000;
 static char GET_NOTES_WAIT[] = "Getting notes from database...";
 static char GET_ELEMS_WAIT[] = "Getting elements from database...";
 static char UPDATE_NOTE_WAIT[] = "Updating database...";
@@ -279,6 +280,13 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     sparkControlTitle(SPARK_CONTROL_1, "Notes");
     sparkControlTitle(SPARK_CONTROL_2, "Elements");
+
+    // Clear the table data for the notes and elements
+    // Order is important here: do notes last so that
+    // the app mode is correct. (notes are displayed first
+    // when a user enters the spark)
+    InformerSetAppMode(app, INFORMER_APP_MODE_ELEMS);
+    InformerTableHideAllRows();
 
     InformerSetAppMode(app, INFORMER_APP_MODE_NOTES);
     InformerTableHideAllRows();
@@ -576,7 +584,8 @@ InformerERROR(const char *format, ...)
         fprintf(gLog, "SPARK ERROR: %s", str);
     fprintf(stderr, "INFORMER ERROR: %s", str);
     InformerSetAppState(app, INFORMER_APP_STATE_ERR);
-    sparkError(str);
+
+    sparkMessageDelay(MSG_DELAY, str);
 }
 
 InformerNoteData
@@ -694,8 +703,6 @@ InformerGetNotes(void)
     InformerTableHideAllRows();
 
     if (result < 0) {
-        // TODO: What should happen here?
-        InformerERROR("Unable to get notes from the database\n");
         app->notes_data_count = 0;
         app->notes_data_been_read = FALSE;
         app->notes_ui_table.cur_page = 1;
@@ -731,8 +738,6 @@ InformerGetElems(void)
     InformerTableHideAllRows();
 
     if (result < 0) {
-        // TODO: What should happen here?
-        InformerERROR("Unable to get elements from the database\n");
         app->elems_data_count = 0;
         app->elems_data_been_read = FALSE;
         app->elems_ui_table.cur_page = 1;
@@ -764,8 +769,6 @@ InformerUpdateNote(int index, int id, int is_checked)
         InformerTableRefreshUI();
         return TRUE;
     } else {
-        // TODO: what to do here exactly?
-        InformerERROR("Unable to update note\n");
         return FALSE;
     }
 }
@@ -783,8 +786,6 @@ InformerUpdateElem(int index, int id, int is_checked)
         InformerTableRefreshUI();
         return TRUE;
     } else {
-        // TODO: what to do here exactly?
-        InformerERROR("Unable to update element\n");
         return FALSE;
     }
 }
@@ -918,15 +919,7 @@ InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
 
     input = app->notes_ui_create.ui->Value;
 
-    ///////////////////////////////////////////////////////////////
-    // XXX THIS CAN NOT CALL ERROR OR YOU WILL NEVER
-    // XXX EXIT THE KEYBOARD!  THIS MUST RETURN
-    ///////////////////////////////////////////////////////////////
-    // XXX InformerERROR Can not be used!
-    ///////////////////////////////////////////////////////////////
-
     if (strncmp("", input, SPARK_MAX_STRING_LENGTH) == 0) {
-        // ignore -- nothing was entered
         InformerDEBUG("Ignoring empty input\n");
     } else {
         InformerDEBUG("New note text was entered\n");
@@ -937,10 +930,8 @@ InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
         if (TRUE == GatewayCreateNote(0, input)) {
             InformerGetNotes();
         } else {
-            // TODO: What should happen here?
-            // InformerERROR("Unable to create your note\n");
             InformerSetAppState(app, INFORMER_APP_STATE_ERR);
-            sparkMessageDelay(5000, "Unable to create your note");
+            InformerERROR("Unable to create your note.");
         }
     }
 
