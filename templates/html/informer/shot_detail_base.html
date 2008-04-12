@@ -127,14 +127,16 @@ function create_entry_item(table, item, tag, parent) {
     if (document.body.id == "notes") {
         button.appendChild(document.createTextNode('Close'));
         button.onclick = function() {
-            delete_note(item);
+            if (confirm("Are you sure you want to delete this note?"))
+                delete_note(item);
             return false;
         };
         button.className = "close";
     } else if (document.body.id == "elements") {
         button.appendChild(document.createTextNode('Close'));
         button.onclick = function() {
-            delete_element(item);
+            if (confirm("Are you sure you want to delete this element?"))
+                delete_element(item);
             return false;
         };
         button.className = "close";
