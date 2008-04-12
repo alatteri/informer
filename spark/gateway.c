@@ -33,7 +33,7 @@ GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data)
 
     InformerDEBUG("going to set text\n");
     pAttr = PyObject_GetAttrString(pObj, "text");
-    GatewayPyStringToString(pAttr, data->text, 4096);
+    GatewayPyStringToString(pAttr, data->text, INFORMER_MAX_STR_LEN);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set is_checked\n");
@@ -43,7 +43,7 @@ GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data)
 
     InformerDEBUG("going to set created_by\n");
     pAttr = PyObject_GetAttrString(pObj, "created_by");
-    GatewayPyStringToString(pAttr, data->created_by, 32);
+    GatewayPyStringToString(pAttr, data->created_by, USERNAME_MAX);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set created_on\n");
@@ -53,12 +53,17 @@ GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data)
 
     InformerDEBUG("going to set modified_by\n");
     pAttr = PyObject_GetAttrString(pObj, "modified_by");
-    GatewayPyStringToString(pAttr, data->modified_by, 32);
+    GatewayPyStringToString(pAttr, data->modified_by, USERNAME_MAX);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set modified_on\n");
     pAttr = PyObject_GetAttrString(pObj, "modified_on");
     GatewayPyStringToLong(pAttr, &(data->modified_on));
+    Py_XDECREF(pAttr);
+
+    InformerDEBUG("going to set assigned_to\n");
+    pAttr = PyObject_GetAttrString(pObj, "assigned_to");
+    GatewayPyStringToString(pAttr, data->assigned_to, USERNAME_MAX);
     Py_XDECREF(pAttr);
 }
 
@@ -74,12 +79,12 @@ GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data)
 
     InformerDEBUG("going to set kind\n");
     pAttr = PyObject_GetAttrString(pObj, "kind");
-    GatewayPyStringToString(pAttr, data->kind, 4096);
+    GatewayPyStringToString(pAttr, data->kind, SPARK_MAX_STRING_LENGTH);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set text\n");
     pAttr = PyObject_GetAttrString(pObj, "text");
-    GatewayPyStringToString(pAttr, data->text, 4096);
+    GatewayPyStringToString(pAttr, data->text, INFORMER_MAX_STR_LEN);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set is_checked\n");
@@ -89,7 +94,7 @@ GatewayPyObjectToElemData(PyObject *pObj, InformerElemData *data)
 
     InformerDEBUG("going to set created_by\n");
     pAttr = PyObject_GetAttrString(pObj, "created_by");
-    GatewayPyStringToString(pAttr, data->created_by, 32);
+    GatewayPyStringToString(pAttr, data->created_by, USERNAME_MAX);
     Py_XDECREF(pAttr);
 
     InformerDEBUG("going to set created_on\n");

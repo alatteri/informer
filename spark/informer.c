@@ -82,7 +82,7 @@ SparkCanvasStruct SparkCanvas2 = { InformerTableCanvasDraw, InformerTableCanvasI
 
 SparkPupStruct SparkPup36 = {0, 4, InformerElemsSortChanged, {"Sort by Date",
                                                               "Sort by Status",
-                                                              "Sort by Kind",
+                                                              "Sort by Category",
                                                               "Sort by Author"}};
 
 SparkStringStruct SparkString57 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -873,14 +873,18 @@ InformerTableRowUpdateUIWithNotes(int data_index, int row_num)
 
     if (1 == source.is_checked) {
         strftime(str, sizeof(str), "%m/%d", localtime(&source.modified_on));
-        InformerTableRowSetStatusText(row, "by %s on %s", source.modified_by, str);
+        InformerTableRowSetStatusText(row, "By: %s on %s", source.modified_by, str);
     } else {
-        InformerTableRowSetStatusText(row, "Pending...");
+        if (strncmp("", source.assigned_to, USERNAME_MAX) == 0) {
+            InformerTableRowSetStatusText(row, "To: Anyone");
+        } else {
+            InformerTableRowSetStatusText(row, "To: %s", source.assigned_to);
+        }
     }
 
     InformerTableRowSetMessageText(row, "%s", source.text);
     strftime(str, sizeof(str), "%m/%d %I:%M%p", localtime(&source.created_on));
-    InformerTableRowSetFromText(row, "from %s at %s", source.created_by, str);
+    InformerTableRowSetFromText(row, "From: %s at %s", source.created_by, str);
 
     InformerTableRowShow(row);
 }
@@ -901,7 +905,7 @@ InformerTableRowUpdateUIWithElems(int data_index, int row_num)
 
     InformerTableRowSetMessageText(row, "%s", source.text);
     strftime(str, sizeof(str), "%m/%d %I:%M%p", localtime(&source.created_on));
-    InformerTableRowSetFromText(row, "from %s at %s", source.created_by, str);
+    InformerTableRowSetFromText(row, "From: %s at %s", source.created_by, str);
 
     InformerTableRowShow(row);
 }

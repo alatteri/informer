@@ -68,6 +68,7 @@ typedef struct {
     time_t              created_on;                     /* Date note was created */
     char                modified_by[USERNAME_MAX];      /* The user who last modified the note */
     time_t              modified_on;                    /* Date note was last modified */
+    char                assigned_to[USERNAME_MAX];      /* The user who is assigned the note */
 } InformerNoteData;
 
 typedef struct {
