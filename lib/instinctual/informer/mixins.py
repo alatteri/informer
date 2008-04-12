@@ -126,7 +126,6 @@ class GetRender(GetOrCreateObject):
         print "-" * 80
         print "Now making new render!"
         print "-" * 80
-        kwargs['movie_hi'] = kwargs['movie_lo'] = 'pending.mov'
         return self.model(event=event, **kwargs)
 
 class GetShot(GetOrCreateObject):

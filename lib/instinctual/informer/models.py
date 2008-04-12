@@ -287,8 +287,8 @@ class Render(InformerMixIn, models.Model):
     is_pending  = models.BooleanField('pending', default=True)
 
     spark = models.CharField(maxlength=255)
-    movie_hi = models.FileField(upload_to='movies/%Y/%m/%d')
-    movie_lo = models.FileField(upload_to='movies/%Y/%m/%d')
+    movie_hi = models.FileField(upload_to='movies/%Y/%m/%d', blank=True, default='pending.mov')
+    movie_lo = models.FileField(upload_to='movies/%Y/%m/%d', blank=True, default='pending.mov')
 
     # storing fps as text to avoid floating point precision issues
     rate = models.CharField(maxlength=32, default='')
