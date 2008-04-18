@@ -102,6 +102,13 @@ class DiscreetSaveSetup(DiscreetObserver):
             if match != None:
                 return {'setup': match.group(1)}
 
+class DiscreetSaveCurrent(DiscreetObserver):
+    #[notice] 3086871040 menu.C:2893 04/18/08:01:33:51.599 BUTTON : [Save] BatchSaveCurrent
+    def process(self, event):
+        if event.category == 'BUTTON':
+            if event.message.endswith('[Save] BatchSaveCurrent'):
+                return {}
+
 class DiscreetBatchProcess(DiscreetObserver):
     # support 2009 style 
     # [notice] 2600011520 menu.C:3121 03/14/08:08:30:53.727 BUTTON : [Process] BatchProcessButton

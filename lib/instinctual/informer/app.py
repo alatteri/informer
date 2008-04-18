@@ -64,6 +64,7 @@ class App(Subject):
         # setup events
         self.logfile.registerObserver(DiscreetLoadSetup(self.cbLoadSetup))
         self.logfile.registerObserver(DiscreetSaveSetup(self.cbSaveSetup))
+        self.logfile.registerObserver(DiscreetSaveCurrent(self.cbSaveCurrent))
         self.logfile.registerObserver(DiscreetLoadInformerSetup(self.cbLoadInformerSetup))
 
         # batch processing events
@@ -459,6 +460,17 @@ class App(Subject):
         self.setup = setup
         parsed = instinctual.informer.parseSetup(setup)
         self.shot = parsed['shot']
+
+        appEvent = self._setAppEvent(DiscreetAppSaveEvent(), event)
+        self.events.append(appEvent)
+        self.flushEventQueue()
+
+    def cbSaveCurrent(self, event, **kwargs):
+        """
+        Called when the current setup has been saved
+        - flushes the batch queue
+        """
+        LOG.info("--- SAVE CURRENT SETUP")
 
         appEvent = self._setAppEvent(DiscreetAppSaveEvent(), event)
         self.events.append(appEvent)
