@@ -103,7 +103,7 @@ class GetUser(GetOrCreateObject):
         u.set_password('informer')
         u.is_staff = True
         u.save()
-        g = Group.objects.get(name='Artist')
+        g = Group.objects.get(name='Artists')
         u.groups.add(g)
         return u
 

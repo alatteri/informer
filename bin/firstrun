@@ -49,13 +49,13 @@ def add_custom_permissions():
             print "Updating permission " + p.name
             p.save()
 
-def create_group_artist():
+def create_group_artists():
     """
-    Creates the default Artist group
+    Creates the default Artists group
     """
-    g, created = Group.objects.get_or_create(name='Artist')
+    g, created = Group.objects.get_or_create(name='Artists')
     if created:
-        print "Creating Artist group"
+        print "Creating Artists group"
         for p in Permission.objects.all():
             if (p.codename.endswith('shot') or
                 p.codename.endswith('project') or
@@ -63,6 +63,23 @@ def create_group_artist():
                 if p.codename not in ('change_project', 'change_shot'):
                     print "adding permission %s" % (p.codename)
                     g.permissions.add(p)
+        g.save()
+
+def create_group_producers():
+    """
+    Creates the default Producers group
+    """
+    g, created = Group.objects.get_or_create(name='Producers')
+    if created:
+        print "Creating Producers group"
+        for p in Permission.objects.all():
+            if (p.codename.endswith('shot') or
+                p.codename.endswith('project') or
+                p.codename.endswith('user') or
+                p.codename.endswith('group') or
+                p.codename.endswith('elementcategory')):
+                print "adding permission %s" % (p.codename)
+                g.permissions.add(p)
         g.save()
 
 def create_element_categories():
@@ -80,7 +97,8 @@ def firstrun():
     """
     create_user_spark()
     add_custom_permissions()
-    create_group_artist()
+    create_group_artists()
+    create_group_producers()
     create_element_categories()
 
 
