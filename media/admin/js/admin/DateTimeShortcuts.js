@@ -81,10 +81,15 @@ var DateTimeShortcuts = {
         time_list = quickElement('ul', clock_box, '');
         time_list.className = 'timelist';
         quickElement("a", quickElement("li", time_list, ""), gettext("Now"), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", new Date().getHourMinuteSecond());")
-        quickElement("a", quickElement("li", time_list, ""), gettext("Midnight"), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '00:00:00');")
-        quickElement("a", quickElement("li", time_list, ""), gettext("6 a.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '06:00:00');")
-        quickElement("a", quickElement("li", time_list, ""), gettext("Noon"), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '12:00:00');")
-
+        quickElement("a", quickElement("li", time_list, ""), gettext("10 a.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '10:00:00');")
+        quickElement("a", quickElement("li", time_list, ""), gettext("12 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '12:00:00');")
+	quickElement("a", quickElement("li", time_list, ""), gettext("2 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '14:00:00');")
+	quickElement("a", quickElement("li", time_list, ""), gettext("4 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '16:00:00');")
+        quickElement("a", quickElement("li", time_list, ""), gettext("6 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '18:00:00');")
+	quickElement("a", quickElement("li", time_list, ""), gettext("8 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '20:00:00');")
+	quickElement("a", quickElement("li", time_list, ""), gettext("10 p.m."), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '22:00:00');")
+	quickElement("a", quickElement("li", time_list, ""), gettext("Midnight"), "href", "javascript:DateTimeShortcuts.handleClockQuicklink(" + num + ", '00:00:00');")
+	
         cancel_p = quickElement('p', clock_box, '');
         cancel_p.className = 'calendar-cancel';
         quickElement('a', cancel_p, gettext('Cancel'), 'href', 'javascript:DateTimeShortcuts.dismissClock(' + num + ');');
