@@ -15,7 +15,7 @@ Entry = Class.create({
         this.dir = dir;
         this.path = (dir == '/' ? '' : dir) + '/' + name;
         this.type = type;
-    },
+    }
 });
 
 SequenceMatch = Class.create({
@@ -28,7 +28,7 @@ SequenceMatch = Class.create({
         this.number = parseInt(frame, 10);
         this.pattern = frame.replace(/./g, 'X');
         this.sequence_id = this.prefix + this.pattern + this.suffix;
-    },
+    }
 });
 
 SequenceFilter = Class.create({
@@ -103,7 +103,7 @@ SequenceFilter = Class.create({
             var dir = dirname(min.entry.path);
             return new Entry(name, dir, 'file');
         }
-    },
+    }
 });
 
 function basename(path) {
@@ -226,9 +226,9 @@ function select(path) {
 
     while (node) {
         if (node.firstChild.innerHTML == name) {
-            node.addClassName("highlight");
+            Element.addClassName(node, "highlight");
         } else {
-            node.removeClassName("highlight");
+            Element.removeClassName(node, "highlight");
         }
         node = node.nextSibling;
     }
@@ -270,7 +270,7 @@ Your browser does not support Java, you will not be able to browse for elements.
     </form>
 </div>
 
-<script>
+<script language="javascript">
 browse('/');
 styleSelects();
 </script>

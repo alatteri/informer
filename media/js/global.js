@@ -44,15 +44,15 @@ function styleSelects() {
 /* Highlights given table heading (assumes given heading is a <li>)*/
 function highlightHeading(li, log) {
     // If not restoring the highlighted column
-	if(!li.hasClassName('highlight')) {
+	if(!Element.hasClassName(li, 'highlight')) {
         list_items = li.parentNode.getElementsByTagName('li');
 		for(var i=0; i<list_items.length; i++)
-		    if(list_items[i].hasClassName('highlight'))
+		    if(Element.hasClassName(list_items[i], 'highlight'))
 	            list_items[i].className = list_items[i].className.split(' ')[0];
 	} 
 	
 	// Highlight with appropriate up or down arrow
-	if (li.hasClassName('down'))
+	if (Element.hasClassName(li, 'down'))
 	    li.className = log._sorter + " up highlight";
 	else
         li.className = log._sorter + " down highlight";
@@ -69,9 +69,9 @@ function highlightColumn(sorter) {
 		var column_cells = $(document.body.id+'_entries').getElementsByTagName('li');
 	
 	for(var i=0; i <column_cells.length; i++) {
-		column_cells[i].removeClassName('highlight');
-		if(column_cells[i].hasClassName(sorter))
-			column_cells[i].addClassName('highlight');
+        Element.removeClassName(column_cells[i], 'highlight');
+        if(Element.hasClassName(column_cells[i], sorter))
+            Element.addClassName(column_cells[i], 'highlight');
 	}
 }
 
@@ -84,13 +84,13 @@ function addLogItemLinks() {
 	
 	// Populate hash with deleted objects
 	for(var i=0; i<logs.length; i++) {
-		if(logs[i].hasClassName('deleted'))
+		if(Element.hasClassName(logs[i], 'deleted'))
 			deleted_shots.set(logs[i].className.split(' ')[3], true);
 	}
 	
 	// Add links to any undeleted note, element, and render log items
 	for(var i=0; i<logs.length; i++) {
-		if(!logs[i].hasClassName('shot') && !logs[i].hasClassName('deleted') && !deleted_shots.get(logs[i].className.split(' ')[3]))
+		if(!Element.hasClassName(logs[i], 'shot') && !Element.hasClassName(logs[i], 'deleted') && !deleted_shots.get(logs[i].className.split(' ')[3]))
 			createLogLink(logs[i].className.split(' ')[1],logs[i].className.split(' ')[3],logs[i]);
 	}
 }

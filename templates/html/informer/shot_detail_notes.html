@@ -101,7 +101,7 @@ function add_note() {
             styleSelects();
             notes.add_data(r.responseJSON[0]);
             notes.resort_table();
-        },
+        }
     });
 }
 
@@ -115,7 +115,7 @@ function delete_note(item) {
             // Ajax callback triggered when a user successfully deletes a note
             notes.delete_data(item);
             notes.resort_table();
-        },
+        }
     });
 }
 
@@ -132,7 +132,7 @@ function toggle_note_status(item) {
             // Ajax callback triggered when a user successfully toggle's note status
             notes.update_data(r.responseJSON[0]);
             notes.resort_table();
-        },
+        }
     });
 }
 
@@ -145,6 +145,6 @@ function messageChanged() {
     }
 }
 
-// onload trigger
+var notes;
 setup();
 {% endblock %}

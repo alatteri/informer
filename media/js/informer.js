@@ -41,7 +41,7 @@ Informer.BaseColumn = Class.create({
 
     getFormattedValue: function(data, field) {
         return this.formatter(this.getValue(data, field));
-    },
+    }
 });
 
 Informer.DateColumn = Class.create(Informer.BaseColumn, {
@@ -51,7 +51,7 @@ Informer.DateColumn = Class.create(Informer.BaseColumn, {
         this.sorter = sort_by_date;
         this.formatter = format_date;
         this.parser = parse_date;
-    },
+    }
 });
 
 Informer.DateTimeColumn = Class.create(Informer.BaseColumn, {
@@ -61,7 +61,7 @@ Informer.DateTimeColumn = Class.create(Informer.BaseColumn, {
         this.sorter = sort_by_date;
         this.formatter = format_datetime;
         this.parser = parse_date;
-    },
+    }
 });
 
 Informer.UserColumn = Class.create(Informer.BaseColumn, {
@@ -70,7 +70,7 @@ Informer.UserColumn = Class.create(Informer.BaseColumn, {
         LOG("UserColumn initialize called");
         this.sorter = sort_by_string;
         this.formatter = format_author;
-    },
+    }
 });
 
 Informer.AssignedUserColumn = Class.create(Informer.BaseColumn, {
@@ -90,7 +90,7 @@ Informer.AssignedUserColumn = Class.create(Informer.BaseColumn, {
         } else {
             return $super(data, 'fields.modified_by');
         }
-    },
+    }
 });
 
 Informer.NoteStatusColumn = Class.create(Informer.BaseColumn, {
@@ -100,7 +100,7 @@ Informer.NoteStatusColumn = Class.create(Informer.BaseColumn, {
         this.sorter = sort_by_string;
         this.formatter = format_pending;
         this.parser = parse_boolean;
-    },
+    }
 });
 
 Informer.ParagraphColumn = Class.create(Informer.BaseColumn, {
@@ -109,7 +109,7 @@ Informer.ParagraphColumn = Class.create(Informer.BaseColumn, {
         LOG("ParagraphColumn initialize called");
         this.sorter = sort_by_string;
         this.formatter = format_nl2br;
-    },
+    }
 });
 
 Informer.TextColumn = Class.create(Informer.BaseColumn, {
@@ -118,7 +118,7 @@ Informer.TextColumn = Class.create(Informer.BaseColumn, {
         LOG("TextColumn initialize called");
         this.sorter = sort_by_string;
         this.formatter = format_string;
-    },
+    }
 });
 
 Informer.ActivityColumn = Class.create(Informer.BaseColumn, {
@@ -128,14 +128,13 @@ Informer.ActivityColumn = Class.create(Informer.BaseColumn, {
         this.sorter = sort_by_string;
         this.formatter = format_string;
         this.create_func = create_log;
-    },
+    }
 });
 
 /* 
  * Informer Filter: represents one filtered category
  * ------------------------------------------------------- */
-Informer.Filter = Class.create();
-Informer.Filter.prototype = {
+Informer.Filter = Class.create({
     // initialize: create a new Filter object
     //      col: Informer column object
     initialize: function(col) {
@@ -236,15 +235,14 @@ Informer.Filter.prototype = {
         } else {
             ul.appendChild(this.create_li('None', null));
         }
-    },
-};
+    }
+});
 
 
 /* 
  * Informer Filter Manager: manages several Filter objects
  * ------------------------------------------------------- */
-Informer.FilterManger = Class.create();
-Informer.FilterManger.prototype = {
+Informer.FilterManger = Class.create({
     // initialize: create a new Filter Manager object
     initialize: function(on_click) {
         this.filters = $H();
@@ -287,17 +285,15 @@ Informer.FilterManger.prototype = {
         var names = this.filters.keys();
         for (var i=0; i<names.length; i++)
             this.filters.get(names[i]).draw();
-    },
-};
+    }
+});
   
 
 /* 
  * Informer Data Object
  * ------------------------------------------------------- */
 
-Informer.Data = Class.create();
-Informer.Data.prototype = {
-    
+Informer.Data = Class.create({
     /* Initialization constructor */
     initialize: function(name, row_1, row_2, filter_list) {
         this.name = name;
@@ -484,8 +480,8 @@ Informer.Data.prototype = {
         }
         this.data = new_data;
         this.pre_process();
-    },
-};
+    }
+});
   
 /* 
  * Helper Functions

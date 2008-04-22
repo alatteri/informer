@@ -43,7 +43,7 @@ function embedFlashPlayerCode(movie_hi, movie_lo, width, height, autoplay, playe
         align: 'middle',
         wmode: 'transparent',
         quality: 'high',
-        allowscriptaccess:'sameDomain',
+        allowscriptaccess:'sameDomain'
     };
 
     swfobject.embedSWF(src, div, width, height, requiredVersion, "/media/flash/expressInstall.swf", '', params);

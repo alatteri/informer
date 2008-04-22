@@ -90,7 +90,7 @@ function add_element() {
             styleSelects();
             elements.add_data(r.responseJSON[0]);
             elements.resort_table();
-        },
+        }
     });
 }
 
@@ -104,7 +104,7 @@ function delete_element(item) {
             // Ajax callback triggered when a user successfully deletes an element
             elements.delete_data(item);
             elements.resort_table();
-        },
+        }
     });
 }
 
@@ -129,6 +129,6 @@ function setup() {
     elements.sort_descending('date');
 }
 
-// onload trigger
+var elements;
 setup();
 {% endblock %}

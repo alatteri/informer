@@ -146,7 +146,7 @@ function create_entry_item(table, item, tag, parent) {
             button.className = "updateSelected";
         else
             button.className = "update";
-        button.observe('click', function() { load_render_callback(item) });
+        button.onclick = function() { load_render_callback(item) };
     }
     parent.appendChild(button);
 }
