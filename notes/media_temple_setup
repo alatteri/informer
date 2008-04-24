@@ -98,6 +98,8 @@ E-mail address: admin@informerapp.com
 Password: 
 Password (again):
 
+7B) informer/bin/firstrun
+
 8) run MT reconfig:
 % /usr/local/psa/admin/sbin/websrvmng --reconfigure-vhost --vhost-name=demo.informerapp.com
 
@@ -119,12 +121,4 @@ Password (again):
 % crontab -e
 * * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
 
-12) create spark account in informer
-login into demo.informerapp.com as serveradmin
-goto Admin panel
-create new user/password as spark/sparky with no options
-
-(Dont think this is needed....)
-5) Add informer to apache, psaserv groups
-% vi /etc/group
-
+12) go into Plesk -> Server -> Service Management.  restart Apache.
