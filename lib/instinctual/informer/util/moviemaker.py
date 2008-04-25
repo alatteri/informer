@@ -116,6 +116,7 @@ def makerender(render_id):
     for number in range(1, max + 1):
         if number in frames:
             source = frames[number].get_image_filename()
+        if os.path.exists(source):
             if not source.endswith('.tiff'):
                 # convert the image to tiff
                 outfile = source[:source.rfind('.')] + '.tiff'
@@ -131,7 +132,10 @@ def makerender(render_id):
                 UNLINK(source)
                 source = outfile
 
-            print "Frame [%s] %s" % (number, frames[number].get_image_filename())
+                print "Frame [%s] %s" % (number, frames[number].get_image_filename())
+            else:
+                print "WARN: frame %s is in database but not on disk" % (number)
+                source = pending
         else:
             print "WARN: frame %s is missing" % (number)
             source = pending
