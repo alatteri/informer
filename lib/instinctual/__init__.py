@@ -6,7 +6,7 @@ import sys, codecs
 import ConfigParser
 
 from datetime import datetime
-if datetime.now() >  datetime(2008, 6, 1):
+if datetime.now() >  datetime(2008, 7, 1):
     raise ValueError("Trial expiration has expired.")
 
 def getLogger(name):
