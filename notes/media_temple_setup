@@ -116,9 +116,11 @@ Password (again):
 10) give apache write permissions to upload
 % chmod g+w media
 
-11) install the moviemaker cronjob to run every minute.
+11) install the moviemaker cronjob to run every minute, framecleaner to run every hour
 % su - demo --shell=/bin/tcsh
 % crontab -e
 * * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/moviemaker'
+0 * * * * /bin/tcsh -c '/var/www/vhosts/demo.informerapp.com/informer/bin/framecleaner'
+
 
 12) go into Plesk -> Server -> Service Management.  restart Apache.
