@@ -99,10 +99,10 @@ server : $(SERVER_LIB_PYCS) server_third_party
 	install -d "$(DEST_SERVER)/$(DIR_LOGS)"
 	install -d "$(DEST_SERVER)/$(DIR_THIRD_PARTY)"
 
-	install -m 755 "$(DIR_BIN)/firstrun"   "$(DEST_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/loopmaker"  "$(DEST_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/moviemaker" "$(DEST_SERVER)/$(DIR_BIN)"
-	install -m 755 "$(DIR_BIN)/runserver"  "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/framecleaner" "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/loopmaker"    "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/moviemaker"   "$(DEST_SERVER)/$(DIR_BIN)"
+	install -m 755 "$(DIR_BIN)/runserver"    "$(DEST_SERVER)/$(DIR_BIN)"
 
 	install -d "$(DEST_SERVER)/$(DIR_CONF)"
 	install -m 644 "$(DIR_CONF)/instinctual.ini.clean" "$(DEST_SERVER)/$(DIR_CONF)/instinctual.ini"
