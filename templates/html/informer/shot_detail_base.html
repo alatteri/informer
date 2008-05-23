@@ -54,10 +54,15 @@
 
 <script type="text/javascript">
 function generate_row_single(item) {
-    // Creates a single row entry given passed data item (logs)
-    var li = document.createElement('LI');
-    create_entry_item(this, item, 'SPAN', li);
-    return li; 
+    if ('created' == getattr(item, 'fields.action') &&
+        'Render' == getattr(item, 'fields.type')) {
+        // do nothing: ignore
+    } else {
+        // Creates a single row entry given passed data item (logs)
+        var li = document.createElement('LI');
+        create_entry_item(this, item, 'SPAN', li);
+        return li; 
+    }
 }
 
 function generate_row_double(item) {
