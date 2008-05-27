@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "spark.h"
+#include "informer.h"
 
 #define IXSIZE      (23)
 #define IYSIZE      (15)
@@ -41,7 +42,7 @@ return fwrite(buf,4,1,outf);
 void
 RgbWriteHeader(FILE *fp, int width, int height, int depth)
 {
-    int i, x, y, pixmax, bpc;
+    int i, pixmax, bpc;
     static char iname[] = "Instinctual Informer 1.0";
 
     bpc = depth > 8 ? 2 : 1;

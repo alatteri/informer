@@ -189,7 +189,7 @@ InformerStringUI InformerCreateStringUI(unsigned int id, SparkStringStruct *ui, 
 InformerBooleanUI InformerCreateBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text);
 
 double InformerGetFrameRate(void);
-static unsigned long *InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
 const char *InformerGetSetupPath(void);
 void InformerSetSetupPath(char *path);
@@ -223,21 +223,21 @@ int InformerFileReadValAsInt(FILE *fp, int *data);
 int InformerFileReadValAsLong(FILE *fp, long int *data);
 int InformerFileReadValAsString(FILE *fp, char *data);
 
-static unsigned long *InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
-static unsigned long *InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerElemsSortChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerElemsSortChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
-static unsigned long *InformerTableButtonA(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableButtonB(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerTableRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
-static unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableButtonA(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableButtonB(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerTableRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo);
+unsigned long *InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo);
 void InformerTableToggleRow(int row_num);
 
 void InformerTableCanvasDraw(SparkCanvasInfo);

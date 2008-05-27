@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include "python.h"
+#include "informer.h"
 
 void* PyModule;
 PyThreadState *TSTATE = NULL;
@@ -11,14 +12,13 @@ PyObject *APP = NULL;
 
 void PythonInitialize(const char *program)
 {
-    int argc = 1;
     char *argv[1];
 
     #if defined __XPY__
     return;
     #endif
 
-    PyObject *pName, *pModule, *pFunc, *pResult;
+    PyObject *pName, *pModule, *pResult;
 
     #if defined _PLATFORM_64
     PyModule = dlopen("/usr/lib64/libpython2.3.so", RTLD_LAZY|RTLD_GLOBAL);
@@ -87,7 +87,7 @@ void PythonInitialize(const char *program)
 
     if (pModule == NULL) {
         PyErr_Print();
-        InformerERROR(stderr, "Failed to load pModule\n");
+        InformerERROR("Failed to load pModule\n");
         // TODO: this can hang the flame on load
         // need to find out what to call/do here
         return;
@@ -99,7 +99,7 @@ void PythonInitialize(const char *program)
     APP = PyObject_CallMethod(pModule, "App", "s", program);
     if (APP == NULL) {
         PyErr_Print();
-        InformerERROR(stderr,"Could not create APP object\n");
+        InformerERROR("Could not create APP object\n");
 
         Py_DECREF(pModule);
         return;

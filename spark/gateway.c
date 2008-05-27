@@ -259,7 +259,7 @@ int
 GatewayGetNotes(InformerNoteData *data)
 {
     int i, count;
-    PyObject *app, *pNotes, *pItem, *pAttr;
+    PyObject *app, *pNotes, *pItem;
 
     #if defined __XPY__
     return 0;
@@ -299,7 +299,7 @@ int
 GatewayGetElems(InformerElemData *data)
 {
     int i, count;
-    PyObject *app, *pElems, *pItem, *pAttr;
+    PyObject *app, *pElems, *pItem;
 
     #if defined __XPY__
     return 0;
@@ -499,7 +499,6 @@ GatewaySparkRegister(const char *spark_name)
 int
 GatewaySparkRename(const char *old_name, const char *new_name)
 {
-    char *name;
     PyObject *app, *pResult;
 
     InformerDEBUG("|||||||||||| GatewaySparkRename called ||||||||||||||\n");

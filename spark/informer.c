@@ -29,7 +29,6 @@ static char GET_ELEMS_WAIT[] = "Getting elements from database...";
 static char UPDATE_NOTE_WAIT[] = "Updating database...";
 static char UPDATE_ELEM_WAIT[] = "Updating database...";
 static char CREATE_NOTE_WAIT[] = "Creating new note...";
-static char CURRENT_USER_ERR[] = "Unable to determine user";
 static char CREATE_NOTE_UI[] = "                  click here to create a new note";
 
 
@@ -326,7 +325,6 @@ SparkInitialise(SparkInfoStruct spark_info)
 void
 SparkUnInitialise(SparkInfoStruct spark_info)
 {
-    InformerAppStruct *app = InformerGetApp();
     InformerDEBUG("----> SparkUnInitialise called <----\n");
     PythonExit();
 }
@@ -594,10 +592,10 @@ InformerCreateNoteData(void)
     InformerNoteData result;
     result.id = DATA_NONE;
     result.is_checked = DATA_NONE;
-    sprintf(result.text, "");
-    sprintf(result.created_by, "");
+    strcpy(result.text, "");
+    strcpy(result.created_by, "");
     result.created_on = DATA_NONE;
-    sprintf(result.modified_by, "");
+    strcpy(result.modified_by, "");
     result.modified_on = DATA_NONE;
     return result;
 }
@@ -607,10 +605,10 @@ InformerCreateElemData(void)
 {
     InformerElemData result;
     result.id = DATA_NONE;
-    sprintf(result.kind, "");
-    sprintf(result.text, "");
+    strcpy(result.kind, "");
+    strcpy(result.text, "");
     result.is_checked = DATA_NONE;
-    sprintf(result.created_by, "");
+    strcpy(result.created_by, "");
     result.created_on = DATA_NONE;
     return result;
 }
@@ -804,7 +802,7 @@ InformerGetElemUIMode(void)
     return (InformerElemModeChoice) app->elems_ui_mode.ui->Value;
 }
 
-static unsigned long *
+unsigned long *
 InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerAppStruct *app = InformerGetApp();
@@ -820,7 +818,7 @@ InformerNotesModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerAppStruct *app = InformerGetApp();
@@ -837,7 +835,7 @@ InformerElemsModeChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 }
 
 
-static unsigned long *
+unsigned long *
 InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerAppStruct *app = InformerGetApp();
@@ -848,7 +846,7 @@ InformerNotesSortChanged(int CallbackArg, SparkInfoStruct SparkInfo)
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerElemsSortChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerAppStruct *app = InformerGetApp();
@@ -911,7 +909,7 @@ InformerTableRowUpdateUIWithElems(int data_index, int row_num)
     InformerTableRowShow(row);
 }
 
-static unsigned long *
+unsigned long *
 InformerNotesCreateNoteCallback(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     char *input;
@@ -1305,7 +1303,7 @@ InformerGetFrameRate(void)
 /*--------------------------------------------------------------------------*/
 /* Callback when the user changes the frame rate override                   */
 /*--------------------------------------------------------------------------*/
-static unsigned long *
+unsigned long *
 InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     double fps = InformerGetFrameRate();
@@ -1358,35 +1356,35 @@ InformerSetAppMode(InformerAppStruct *app, InformerAppModeChoice mode)
 
 /****************************************************************************/
 /*** INFORMER TABLE *********************************************************/
-static unsigned long *
+unsigned long *
 InformerTableRow1BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableToggleRow(1);
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerTableRow2BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableToggleRow(2);
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerTableRow3BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableToggleRow(3);
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerTableRow4BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableToggleRow(4);
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerTableRow5BoolChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableToggleRow(5);
@@ -1436,14 +1434,14 @@ InformerTableToggleRow(int row_num)
     }
 }
 
-static unsigned long *
+unsigned long *
 InformerTableButtonA(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableButtonEvent(INFORMER_TABLE_BUTTON_A);
     return NULL;
 }
 
-static unsigned long *
+unsigned long *
 InformerTableButtonB(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     InformerTableButtonEvent(INFORMER_TABLE_BUTTON_B);
