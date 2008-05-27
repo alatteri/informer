@@ -12,7 +12,7 @@ PyObject *APP = NULL;
 
 void PythonInitialize(const char *program)
 {
-    char *argv[1];
+    char *argv[2];
 
     #if defined __XPY__
     return;
