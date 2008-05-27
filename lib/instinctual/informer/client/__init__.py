@@ -200,6 +200,14 @@ class Client(object):
 
         return wrapper
 
+    def wrappedPUT(*args, **kwargs):
+        """
+        Get around an error with actual PUTs by using the same
+        trick as the web interface: POST but set _method = 'PUT'
+        """
+        args[1]['_method'] = 'PUT'
+        return restclient.POST(*args, **kwargs)
+
     GET  = wrapRestClient(restclient.GET,  [200])
-    PUT  = wrapRestClient(restclient.PUT,  [200])
+    PUT  = wrapRestClient(wrappedPUT, [200])
     POST = wrapRestClient(restclient.POST, [201])
