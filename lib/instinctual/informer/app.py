@@ -88,6 +88,7 @@ class App(Subject):
     def resetAppState(self):
         self.user = None
         self.volume = None
+        self.quality = None
         self.project = None
         self.hostname = None
         self.frameRate = None
@@ -243,6 +244,10 @@ class App(Subject):
         LOG.debug("setFrameRate: %s" % frameRate)
         self.frameRate = frameRate
 
+    def setQuality(self, quality):
+        LOG.debug("setQuality: %s" % quality)
+        self.quality = quality
+
     def setPixelAspectRatio(self, pixelAspectRatio):
         LOG.debug("setPixelAspectRatio: %s" % pixelAspectRatio)
         self.pixelAspectRatio = pixelAspectRatio
@@ -268,6 +273,7 @@ class App(Subject):
 
         f.isBusy = True
         f.spark  = sparkName
+        f.quality = self.quality
 
         f.host = self.hostname
         f.createdBy = self.user

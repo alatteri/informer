@@ -116,7 +116,7 @@ SparkStringStruct SparkString62 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 /*************************************
  * Setup UI
  *************************************/
-SparkPupStruct SparkSetupPup1 = {0, 8, InformerFrameRateChanged,
+SparkPupStruct SparkSetupPup1 = {0, 9, InformerFrameRateChanged,
                                          {"FPS: Project Default",
                                           "FPS: 60",
                                           "FPS: 59.94",
@@ -126,6 +126,16 @@ SparkPupStruct SparkSetupPup1 = {0, 8, InformerFrameRateChanged,
                                           "FPS: 25",
                                           "FPS: 24",
                                           "FPS: 23.976"}};
+
+SparkPupStruct SparkSetupPup2 = {0, 8, InformerQualityChanged,
+                                         {"Upload Quality: Default",
+                                          "Upload Quality: 90%",
+                                          "Upload Quality: 85%",
+                                          "Upload Quality: 80%",
+                                          "Upload Quality: 75%",
+                                          "Upload Quality: 70%",
+                                          "Upload Quality: 60%",
+                                          "Upload Quality: 50%"}};
 
 SparkStringStruct SparkSetupString19 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
 SparkStringStruct SparkSetupString20 = { "", "%s", SPARK_FLAG_NO_INPUT, NULL };
@@ -177,7 +187,7 @@ SparkMemoryTempBuffers(void)
 unsigned int
 SparkInitialise(SparkInfoStruct spark_info)
 {
-    int retval;
+    int retval, quality;
     char cmd[100];
     struct passwd *ef;
     pid_t pid;
@@ -205,6 +215,7 @@ SparkInitialise(SparkInfoStruct spark_info)
 
     /* ------ SETUP ------ */
     app->setup_ui_frame_rate = InformerCreatePupUI(1, &SparkSetupPup1);
+    app->setup_ui_quality    = InformerCreatePupUI(2, &SparkSetupPup2);
     app->setup_ui_setup_path = InformerCreateStringUI(19, &SparkSetupString19, "");
     app->setup_ui_spark_name = InformerCreateStringUI(20, &SparkSetupString20, "");
 
@@ -295,6 +306,10 @@ SparkInitialise(SparkInfoStruct spark_info)
     rate = InformerGetFrameRate();
     InformerDEBUG("This is the frame rate [%f]\n", rate);
     GatewaySetFrameRate(rate);
+
+    quality = InformerGetQuality();
+    InformerDEBUG("This is the quality was [%d]\n", quality);
+    GatewaySetQuality(quality);
 
     spark_name = GatewaySparkRegister(InformerGetSparkName());
     strncpy(app->spark_last_name, spark_name, 256);
@@ -1301,6 +1316,30 @@ InformerGetFrameRate(void)
 }
 
 /*--------------------------------------------------------------------------*/
+/* Get the quality setting                                                  */
+/*--------------------------------------------------------------------------*/
+int
+InformerGetQuality(void)
+{
+    int quality;
+    InformerAppStruct *app = InformerGetApp();
+
+    switch (app->setup_ui_quality.ui->Value)
+    {
+        case 1:  quality = 90; break;
+        case 2:  quality = 85; break;
+        case 3:  quality = 80; break;
+        case 4:  quality = 75; break;
+        case 5:  quality = 70; break;
+        case 6:  quality = 60; break;
+        case 7:  quality = 50; break;
+        default: quality = 80;
+    }
+
+    return quality;
+}
+
+/*--------------------------------------------------------------------------*/
 /* Callback when the user changes the frame rate override                   */
 /*--------------------------------------------------------------------------*/
 unsigned long *
@@ -1308,6 +1347,18 @@ InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo)
 {
     double fps = InformerGetFrameRate();
     GatewaySetFrameRate(fps);
+    return NULL;
+}
+
+/*--------------------------------------------------------------------------*/
+/* Callback when the user changes the upload quality                        */
+/*--------------------------------------------------------------------------*/
+unsigned long *
+InformerQualityChanged(int CallbackArg, SparkInfoStruct SparkInfo)
+{
+    int quality = InformerGetQuality();
+    GatewaySetQuality(quality);
+    InformerDEBUG("--------------> SET QUALITY TO: %d\n", quality);
     return NULL;
 }
 

@@ -13,6 +13,7 @@ void GatewayPyObjectToNoteData(PyObject *pObj, InformerNoteData *data);
 
 void GatewaySetPixelAspectRatio(float pixel_aspect_ratio);
 void GatewaySetFrameRate(double frame_rate);
+void GatewaySetQuality(int quality);
 int GatewayGetElems(InformerElemData *data);
 int GatewayGetNotes(InformerNoteData *data);
 

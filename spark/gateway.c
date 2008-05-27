@@ -129,6 +129,31 @@ GatewaySetFrameRate(double frame_rate)
 }
 
 void
+GatewaySetQuality(int quality)
+{
+    PyObject *app, *pResult;
+
+    #if defined __XPY__
+    return;
+    #endif
+
+    InformerDEBUG("-------------> CALLING GATEWAY SET QUALITY ---------\n");
+
+    PythonBeginCall();
+    app = PythonGetApp();
+
+    pResult = PyObject_CallMethod(app, "setQuality", "i", quality);
+
+    if (NULL == pResult) {
+        PyErr_Print();
+        InformerERROR("Unable to call setQuality(%d)\n", quality);
+    }
+
+    Py_XDECREF(pResult);
+    PythonEndCall();
+}
+
+void
 GatewaySetPixelAspectRatio(float pixel_aspect_ratio)
 {
     PyObject *app, *pResult;

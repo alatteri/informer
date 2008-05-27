@@ -205,8 +205,9 @@ class Uploader(object):
             par = 100 * float("%.5f" % frame.pixelAspectRatio)
             frame.resizedPath = os.path.join(frame.container, 'frame.jp2')
 
-            cmd = '%s -quality 90 %s -resize "%s%%x100%%" -resize "%sx%s>" %s'
-            cmd = cmd % (self.convert, frame.rgbPath, par, self.maxWidth, self.maxHeight, frame.resizedPath)
+            quality = frame.quality
+            cmd = '%s -quality %s %s -resize "%s%%x100%%" -resize "%sx%s>" %s'
+            cmd = cmd % (self.convert, quality, frame.rgbPath, par, self.maxWidth, self.maxHeight, frame.resizedPath)
             LOG.debug("CMD:" + cmd)
 
             if 0 == os.system(cmd):

@@ -31,6 +31,7 @@ class Frame(Serializable):
         self.job = None
         self.spark = None
 
+        self.quality = None
         self.resizedDepth  = None
         self.resizedWidth  = None
         self.resizedHeight = None

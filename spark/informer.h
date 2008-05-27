@@ -125,6 +125,7 @@ typedef struct {
 
     /* SETUP UI */
     InformerPupUI               setup_ui_frame_rate;    /* frame rate override */
+    InformerPupUI               setup_ui_quality;       /* upload quality */
     InformerStringUI            setup_ui_setup_path;    /* the path of the batch setup file */
     InformerStringUI            setup_ui_spark_name;    /* the name of the spark */
 
@@ -188,7 +189,9 @@ InformerPushUI InformerCreatePushUI(unsigned int id, SparkPushStruct *ui);
 InformerStringUI InformerCreateStringUI(unsigned int id, SparkStringStruct *ui, char *text);
 InformerBooleanUI InformerCreateBooleanUI(unsigned int id, SparkBooleanStruct *ui, char *text);
 
+int InformerGetQuality(void);
 double InformerGetFrameRate(void);
+unsigned long *InformerQualityChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 unsigned long *InformerFrameRateChanged(int CallbackArg, SparkInfoStruct SparkInfo);
 
 const char *InformerGetSetupPath(void);
