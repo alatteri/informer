@@ -59,7 +59,6 @@ class UtilApp(object):
 
 # ------------------------------------------------------------------------------
 class FrameCleaner(UtilApp):
-    @LogOutput
     def main(self):
         # get the old frames
         too_old = datetime.now() - timedelta(days=1)
@@ -70,3 +69,4 @@ class FrameCleaner(UtilApp):
                 f.delete()
         except Exception, e:
             LOG.error(str(e))
+    main = LogOutput(main)

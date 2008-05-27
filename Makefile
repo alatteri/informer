@@ -49,7 +49,7 @@ LIB_PYS = $(shell find $(DIR_LIB) -type f -name \*.py)
 LIB_PYCS = $(LIB_PYS:.py=.pyc)
 LIB_PYCS_SERVER_ONLY = %rest.pyc %responder.pyc %moviemaker.pyc %urls.pyc %views.pyc %mixins.pyc \
                        %models.pyc %custom_base.pyc %custom_xml.pyc %custom_json.pyc \
-                       %rest_filelist.pyc %signals.pyc %manage.pyc
+                       %rest_filelist.pyc %signals.pyc %manage.pyc %framecleaner.pyc
 
 SPARK_LIB_PYCS = $(filter-out $(LIB_PYCS_SERVER_ONLY), $(addprefix $(DEST_SPARK)/, $(LIB_PYCS)))
 SPARK_THIRD_PARTY = /usr/discreet/sparks/instinctual/informer/$(DEST_SPARK)/$(DIR_THIRD_PARTY)
