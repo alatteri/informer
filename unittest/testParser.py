@@ -139,6 +139,9 @@ class ParseSetupTestCase(unittest.TestCase):
     def test38(self):
         self.assertSetup("/usr/discreet/project/instinctual/batch/informer-01\n", project='instinctual', shot='informer')
 
+    def test39(self):
+        self.assertSetup("/usr/mill/work/mill/Jeep_Romanek_Reflections_J518LA/jeanette/batch/test-01", project='Jeep_Romanek_Reflections_J518LA', shot='test')
+
     #def testXXX(self):
     #    self.assertSetup('', project='', shot='')
 

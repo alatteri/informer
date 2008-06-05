@@ -95,12 +95,12 @@ def getProjectShotRendersUrl(project, shot, format):
     shot: 0001
     # sometimes sh0001 or sc0001
 """
-_reProject = re.compile('/project/([^/]+)/')
+_reProject = re.compile('(/project/|/usr/mill/work/mill/)([^/]+)/')
 def parseSetup(setup):
     parsed = {}
     match = _reProject.search(setup)
     if match != None:
-        parsed['project'] = match.group(1)
+        parsed['project'] = match.group(2)
     else:
         raise ValueError("Unable to parse setup (unknown project): %s" % (setup))
 
