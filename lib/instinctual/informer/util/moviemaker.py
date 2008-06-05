@@ -116,29 +116,30 @@ def makerender(render_id):
     for number in range(1, max + 1):
         if number in frames:
             source = frames[number].get_image_filename()
-        if os.path.exists(source):
-            if not source.endswith('.tiff'):
-                # convert the image to tiff
-                outfile = source[:source.rfind('.')] + '.tiff'
-                cmd = "%s -channel RGB -depth 8 -compress RLE %s %s" % (CONVERT, source, outfile)
-                SYSTEM(cmd)
-
-                # update the database
-                image = frames[number].image
-                frames[number].image = image[:image.rfind('.')] + '.tiff'
-                frames[number].save()
-
-                # remove orginal source, use the tiff from here on out
-                UNLINK(source)
-                source = outfile
-
-                print "Frame [%s] %s" % (number, frames[number].get_image_filename())
-            else:
+            if not os.path.exists(source):
                 print "WARN: frame %s is in database but not on disk" % (number)
                 source = pending
         else:
             print "WARN: frame %s is missing" % (number)
             source = pending
+
+        if not source.endswith('.tiff'):
+            # convert the image to tiff
+            outfile = source[:source.rfind('.')] + '.tiff'
+            cmd = "%s -channel RGB -depth 8 -compress RLE %s %s" % (CONVERT, source, outfile)
+            SYSTEM(cmd)
+
+            # update the database
+            image = frames[number].image
+            frames[number].image = image[:image.rfind('.')] + '.tiff'
+            frames[number].save()
+
+            # remove orginal source, use the tiff from here on out
+            UNLINK(source)
+            source = outfile
+
+            print "Frame [%s] %s" % (number, frames[number].get_image_filename())
+
         dest = pattern % (number)
         os.symlink(source, dest)
 
