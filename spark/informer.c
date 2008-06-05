@@ -1333,7 +1333,7 @@ InformerGetQuality(void)
         case 5:  quality = 70; break;
         case 6:  quality = 60; break;
         case 7:  quality = 50; break;
-        default: quality = 80;
+        default: quality = 70;
     }
 
     return quality;
