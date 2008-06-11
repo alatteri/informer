@@ -31,6 +31,12 @@
 
 {% block project_script %}
 function generate_row_project(item) {
+    var print = document.createElement('A');
+    print.href = getattr(item, 'fields.print_url');
+    print.title = 'Print Project Summary';
+    print.appendChild(document.createTextNode('print'));
+    print.className = 'print_project';
+
     var a = document.createElement('A');
     a.href = getattr(item, 'fields.url');
     a.title = 'Launch Project';
@@ -39,6 +45,7 @@ function generate_row_project(item) {
 
     var h3 = document.createElement('H3');
     h3.appendChild(document.createTextNode(getattr(item, 'fields.name')));
+    h3.appendChild(print);
     h3.appendChild(a);
 
     var div = document.createElement('DIV');

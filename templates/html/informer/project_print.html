@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <title>Informer{% block title %}{% endblock %} {{ project.name }}</title>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/media/stylesheets/screen.css" />
+
+    <script type="text/javascript" src="/media/js/prototype.js"></script>
+    <script type="text/javascript" src="/media/js/informer.js"></script>
+    <script type="text/javascript" src="/media/js/global.js"></script>
+    <script type="text/javascript" src="/media/js/swfobject.js"></script>
+
+    <script type="text/javascript" src="/media/js/version.js"></script>
+    <script type="text/javascript" src="/media/js/scripts.js"></script>
+    <script type="text/javascript" src="/media/js/AC_OETags.js"></script>
+    {% block head %}{% endblock %}
+  </head>
+  <body id="project_print">
+<!-- start CONTENT -->
+   <div id="content">
+    <div id="title">{{ project.title }} {{ project.duration }}</div><img src="/media/images/client_logo.png" alt="Branding Image">
+
+    <table id="project_details">
+        <tr>
+            <td class="key">Agency:</td>            <td>{{ project.client }}</td>
+            <td class="key">Production Co:</td>     <td>{{ project.prod_company }}</td>
+            <td class="key">Editorial:</td>         <td>{{ project.editorial }}</td>
+            <td class="key">Flame:</td>             <td>{{ project.flame }}</td>
+            <td class="key">Date:</td>              <td>{% now "m/d/y" %}</td>
+        </tr>
+        <tr>
+            <td class="key">Producer:</td>          <td>{{ project.producer }}</td>
+            <td class="key">Director:</td>          <td>{{ project.director }}</td>
+            <td class="key">Editor:</td>            <td>{{ project.editor }}</td>
+            <td class="key">Assist:</td>            <td>{{ project.flame_assist }}</td>
+            <td class="key">Shotlist number:</td>   <td>{{ project.shotlist_no }}</td>
+        </tr>
+        <tr>
+            <td class="key">Creatives:</td>         <td>{{ project.creatives }}</td>
+            <td class="key">Producer:</td>           <td>{{ project.prod_producer }}</td>
+            <td class="key">Assist:</td>            <td>{{ project.editorial_assist }}</td>
+            <td class="key">CG:</td>                <td>{{ project.cg }}</td>
+            <td class="key">Duration:</td>          <td>{{ project.duration }}</td>
+        </tr>
+        <tr>
+            <td class="key">Delivery &amp; air dates:</td>  <td>{{ project.due_date|date:"m/d/y" }}</td>
+            <td class="key">Exec Prod:</td>                 <td>{{ project.exec_producer }}</td>
+            <td class="key">Producer:</td>                  <td>{{ project.editorial_producer }}</td>
+            <td class="key">Telecine:</td>                  <td>{{ project.telecine }}</td>
+            <td class="key">Audio Relaid:</td>              <td>{{ project.audio_relaid }}</td>
+        </tr>
+    </table>
+
+    <table id="shot_details">
+        <tr>
+            <td class="key">No</td>
+            <td class="key">Shot</td>
+            <td class="key">Handles</td>
+            <td class="key">No Frames</td>
+            <td class="key">Notes</td>
+            <td class="key">Notes from Agency</td>
+        </tr>
+    {% for shot in shots %}
+        <tr>
+            <td class="no">{{ shot.name }}</td>
+            <td class="shot">
+                <div id="video_{{ shot.name }}"></div>
+                <script language=javascript>
+                MiniFlashPlayer("{{ shot.render_movie_lo_url }}", "{{ shot.render_movie_lo_url }}", "video_{{ shot.name }}")
+                </script>
+            </td>
+            <td class="handles">{{ shot.handles }}</td>
+            <td class="frames">{{ shot.frames }}</td>
+            <td class="notes" valign=top>
+                <table class="inner_notes">
+                {% for note in shot.notes %}
+                <tr>
+                    <td class="note_text">{{ note.text }}</td>
+                    <td class="note_status">{% if note.is_checked %}Completed{% else %}Pending{% endif %}</td>
+                </td>
+                {% endfor %}
+                </table>
+            </td>
+            <td class="agency_notes">&nbsp; <!--- this space intentially left blank --></td>
+        </tr>
+    {% endfor %}
+    </table>
+   </div>
+<!-- end CONTENT -->
+  </body>
+</html>
