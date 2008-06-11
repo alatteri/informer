@@ -20,19 +20,49 @@ class Project(models.Model):
     name        = models.CharField(maxlength=255, unique=True)
     description = models.CharField(maxlength=4096, null=True, blank=True)
     status      = models.CharField(maxlength=64, null=True, blank=True)
+    title       = models.CharField(maxlength=255, null=True, blank=True)
+
     client      = models.CharField(maxlength=255, null=True, blank=True)
+    producer    = models.CharField(maxlength=255, null=True, blank=True)
+    creatives   = models.CharField(maxlength=255, null=True, blank=True)
     due_date    = models.DateTimeField('due date', null=True, blank=True)
-    branding    = InformerBrandingField(upload_to='branding', default='branding/default.gif')
+
+    prod_company  = models.CharField('production co', maxlength=255, null=True, blank=True)
+    director      = models.CharField(maxlength=255, null=True, blank=True)
+    prod_producer = models.CharField('prod producer', maxlength=255, null=True, blank=True)
+    exec_producer = models.CharField('exec producer', maxlength=255, null=True, blank=True)
+
+    editorial          = models.CharField(maxlength=255, null=True, blank=True)
+    editor             = models.CharField(maxlength=255, null=True, blank=True)
+    editorial_assist   = models.CharField('editorial assist', maxlength=255, null=True, blank=True)
+    editorial_producer = models.CharField('editorial prod', maxlength=255, null=True, blank=True)
+
+    flame        = models.CharField(maxlength=255, null=True, blank=True)
+    flame_assist = models.CharField('flame assist', maxlength=255, null=True, blank=True)
+    cg           = models.CharField(maxlength=255, null=True, blank=True)
+    telecine     = models.CharField(maxlength=255, null=True, blank=True)
+
+    shotlist_no  = models.CharField('shotlist no', maxlength=255, null=True, blank=True)
+    duration     = models.CharField(maxlength=255, null=True, blank=True)
+    audio_relaid = models.CharField('audio relaid', maxlength=255, null=True, blank=True)
+
+    branding = InformerBrandingField(upload_to='branding', default='branding/default.gif')
 
     class Admin:
         show_all_rows = False
         grant_change_row_level_perm = True
         grant_delete_row_level_perm = True
-        list_display = ('name', 'description', 'status', 'client', 'due_date', 'branding')
+        list_display = ('name', 'description', 'status', 'title',
+                        'client', 'producer', 'creatives', 'due_date',
+                        'prod_company', 'director', 'prod_producer', 'exec_producer',
+                        'editorial', 'editor', 'editorial_assist', 'editorial_producer',
+                        'flame', 'flame_assist', 'cg', 'telecine',
+                        'shotlist_no', 'duration', 'audio_relaid',
+                        'branding')
 
     class Rest:
         expose_fields = ['name', 'description', 'status', 'client', 'due_date', 'branding',
-                         'self.shot_count', 'self.url']
+                         'self.shot_count', 'self.url', 'self.print_url']
 
     class Meta:
         row_level_permissions = True
@@ -49,6 +79,9 @@ class Project(models.Model):
     def get_absolute_shots_url(self):
         return informer.getProjectShotsUrl(self.name, format='html')
 
+    def get_absolute_print_url(self):
+        return informer.getProjectPrintUrl(self.name, format='html')
+
     def getNameFromRequest(cls, request):
         return request.path.split("/")[5]
     getNameFromRequest = classmethod(getNameFromRequest)
@@ -58,6 +91,7 @@ class Project(models.Model):
 
     shot_count = property(_shot_count)
     url = property(get_absolute_url)
+    print_url = property(get_absolute_print_url)
 
 # ------------------------------------------------------------------------------
 class Shot(models.Model):
@@ -147,8 +181,12 @@ class Shot(models.Model):
         r = self._get_render_obj()
         return r and r.id or None
 
+    def get_notes(self):
+        return Note.objects.filter(shot=self).order_by('created_on')
+
     # --------------------------------------------------------------------------
     url = property(get_absolute_url)
+    notes = property(get_notes)
     render_movie_hi_url = property(get_render_movie_hi_url)
     render_movie_lo_url = property(get_render_movie_lo_url)
     last_modified = property(get_render_time)
@@ -294,8 +332,8 @@ class Render(InformerMixIn, models.Model):
     rate = models.CharField(maxlength=32, default='')
 
     class Admin:
-        list_display = ('id', 'shot', 'movie_hi', 'movie_lo', 'job',
-                        'rate', 'created_on', 'is_pending')
+        list_display = ('id', 'is_pending', 'shot', 'movie_hi', 'job',
+                        'created_on')
     class Rest:
         expose_fields = ['created_on', 'modified_on', 'movie_hi', 'movie_lo',
                          'rate', 'job', 'created_by', 'host', 'setup']

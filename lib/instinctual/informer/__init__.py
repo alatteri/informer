@@ -53,6 +53,10 @@ def getProjectsUrl(format):
     template = _getUrlComponent('url_projects', format)
     return template
 
+def getProjectPrintUrl(project, format):
+    template = _getUrlComponent('url_project_print', format)
+    return template % (project)
+
 def getProjectShotsUrl(project, format):
     template = _getUrlComponent('url_project_shots', format)
     return template % (project)

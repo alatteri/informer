@@ -53,6 +53,28 @@ def project_detail(request, project_name):
 project_detail = login_required(project_detail)
 
 # ------------------------------------------------------------------------------
+def project_print(request, project_name):
+    p = get_object_or_404(Project, name=project_name)
+    if not request.user.has_perm('informer.change_project', object=p):
+        return HttpResponseForbidden(PROJECT_DENIED)
+
+    responder = CustomJSONResponder()
+    responder.expose_fields = Shot.Rest.expose_fields
+
+    shots = []
+    for s in Shot.objects.filter(project=p).order_by('name'):
+        if request.user.has_perm('informer.change_shot', object=s):
+            shots.append(s)
+
+    c = {
+        'user':    request.user,
+        'project': p,
+        'shots':   shots,
+    }
+    return render_to_response('informer/project_print.html', c)
+project_print = login_required(project_print)
+
+# ------------------------------------------------------------------------------
 def shot_logs(request, project_name, shot_name):
     p = get_object_or_404(Project, name=project_name)
     if not request.user.has_perm('informer.change_project', object=p):

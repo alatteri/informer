@@ -43,6 +43,7 @@ CONF_DEFAULTS = {
     "url_frames":                 "frames/",
     "url_projects":               "projects/",
     "url_shots":                  "shots/",
+    "url_project_print":          "projects/%s/print/",
     "url_project_shots":          "projects/%s/shots/",
     "url_project_shot":           "projects/%s/shots/%s/",
     "url_project_shot_logs":      "projects/%s/shots/%s/logs/",

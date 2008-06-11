@@ -15,6 +15,7 @@ pat_shot    = "(?P<shot_name>[^/]+)"
 url_api = informer.getApiFragment()
 
 url_projects              = rel(informer.getProjectsUrl(format='html'))
+url_project_print         = rel(informer.getProjectPrintUrl(pat_project, format='html'))
 url_project_shots         = rel(informer.getProjectShotsUrl(pat_project, format='html'))
 url_project_shots_alt     = url_projects + pat_project + '/'
 url_project_shot          = rel(informer.getProjectShotUrl(pat_project, pat_shot, format='html'))
@@ -34,6 +35,7 @@ urlpatterns = patterns('',
 
     (r'^/?$',                                'instinctual.informer.views.project_list'),
     (r'^' + url_projects + '$',              'instinctual.informer.views.project_list'),
+    (r'^' + url_project_print + '$',         'instinctual.informer.views.project_print'),
     (r'^' + url_project_shots + '$',         'instinctual.informer.views.project_detail'),
     (r'^' + url_project_shots_alt + '$',     'instinctual.informer.views.project_detail'),
     (r'^' + url_project_shot + '$',          'instinctual.informer.views.shot_logs'),
