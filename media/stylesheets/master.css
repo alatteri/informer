@@ -6,6 +6,9 @@ body {
 	font: 12px/20px "Lucida Grande", Helvetica, Arial, sans-serif;
 	color: #191d20;
 	}
+#project_print {
+	background: none;
+	}
 .clear {
 	clear: both;
 	}
@@ -356,6 +359,16 @@ div.box.small ul li.path strong {
 	background: url(/media/images/button-launch_project.gif);
 	text-indent: -9999px;
 	}	
+#content div.box.medium h3 a.print_project {
+	position: absolute;
+	right: 35px;
+	top: 0px;
+	color: #222;
+	text-decoration: none;
+	}	
+#content div.box.medium h3 a.print_project:hover {
+	text-decoration: underline;
+	}		
 #content div.left div.box div.bottom {
 	clear: both;
 	width: 541px;
@@ -1012,3 +1025,68 @@ div.left form #displayed_selected_element {
 #login-wrap #footer a:hover {
 	text-decoration: underline;
 	}
+
+/* Project Print Page
+ * ------------------------------------------------------------ */
+#project_print #title {
+    height: 110px;
+    text-align: center;
+    line-height: 110px;
+    font-size: 18px;
+    }
+#project_print img {
+    position: absolute;
+    height: 100px;
+    top: 10px;
+    right: 15px;
+    }
+#project_print #project_details {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    }
+#project_print #project_details td {
+    padding-right: 2px;
+    padding-left: 2px;
+    border: 1px solid;
+    }
+#project_print .key {
+    font-weight: bold;
+    }
+#project_print #shot_details td.key,
+#project_print #shot_details td.no,
+#project_print #shot_details td.shot,
+#project_print #shot_details td.handles,
+#project_print #shot_details td.frames,
+#project_print #shot_details td.agency_notes {
+    padding-right: 2px;
+    padding-left: 2px;
+    }
+#project_print #shot_details td.notes {
+    padding: 0px;
+    }
+#project_print #shot_details td.agency_notes {
+    width: 200px;
+    }
+#project_print #shot_details {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    }
+#project_print #shot_details td {
+    border: 1px solid;
+    }
+#project_print #shot_details table.inner_notes {
+    width: 100%;
+    }
+#project_print #shot_details td.note_text,
+#project_print #shot_details td.note_status {
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
+    padding-right: 2px;
+    padding-left: 2px;
+    }
+#project_print #shot_details td.note_status {
+    width: 75px;
+    }
