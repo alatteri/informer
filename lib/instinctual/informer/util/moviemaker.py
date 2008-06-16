@@ -105,6 +105,7 @@ def makerender(render_id):
 
     prefix = "%s-%s-%s-" % ('moviemaker', datetime.now().strftime("%Y.%m.%d-%H.%M.%S"), render.id)
     workspace = tempfile.mkdtemp('', prefix, TMPDIR)
+    os.chmod(workspace, 0750)
     os.chdir(workspace)
 
     # create a pending frame to match the size of the resized frames
@@ -201,7 +202,7 @@ def makerender(render_id):
         pass
 
     # cleanup
-    # UNLINK(workspace)
+    RMDIR(workspace)
 
 # ------------------------------------------------------------------------------
 # utility functions
@@ -209,6 +210,19 @@ def makerender(render_id):
 def UNLINK(path):
     try:
         os.unlink(path)
+    except OSError, e:
+        if errno.ENOENT != e.errno:
+            raise e
+
+def RMDIR(path):
+    for entry in os.listdir(path):
+        child = os.path.join(path, entry)
+        if os.path.isdir(child):
+            RMDIR(child)
+        else:
+            UNLINK(child)
+    try:
+        os.rmdir(path)
     except OSError, e:
         if errno.ENOENT != e.errno:
             raise e
